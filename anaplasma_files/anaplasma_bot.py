@@ -29,6 +29,7 @@ def generator():
 
 reviewed_ids = []
 what_do = []
+reason = []
 
 is_in_production = os.getenv('ENVIRONMENT', 'production') != 'development'
 
@@ -55,7 +56,7 @@ def start_anaplasma(username, passcode):
     with open("patients_to_skip.txt", "r") as patient_reader:
         patients_to_skip.append(patient_reader.readlines())
 
-    limit = 40
+    limit = 41
     loop = tqdm(generator())
     for _ in loop:
         #check if the bot haa gone through the set limit of reviews
@@ -121,7 +122,7 @@ def start_anaplasma(username, passcode):
                     elif NBS.final_name == NBS.initial_name:
                         reviewed_ids.append(inv_id)
                         what_do.append("Reject Notification")
-                        
+                        reason.append(' '.join(NBS.issues))
                         NBS.RejectNotification()
                         body = ''
                         if  all(case in NBS.issues  for case in ['City is blank.', 'County is blank.', 'Zip code is blank.']):
@@ -156,7 +157,8 @@ def start_anaplasma(username, passcode):
     print("ending, printing, saving")
     bot_act = pd.DataFrame(
         {'Inv ID': reviewed_ids,
-        'Action': what_do
+        'Action': what_do,
+        'Reason': reason
         })
     bot_act.to_excel(f"Anaplasma_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx")
 

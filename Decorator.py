@@ -4,9 +4,9 @@ from functools import wraps
 
 def error_handle(func):
     @wraps(func)
-    def wrapper_error_handle(*args):
+    def wrapper_error_handle(*args, **kwargs):
         try:
-            return func(*args)
+            return func(*args, **kwargs)
         except Exception:
             tb = traceback.format_exc()
             with open("error_logs.txt", "a") as log:

@@ -243,7 +243,7 @@ class NBSdriver(webdriver.Chrome):
         """ Go to NBS Home page. """
         #xpath = '//*[@id="bd"]/table[1]/tbody/tr/td[1]/table/tbody/tr/td[1]/a'
         partial_link = 'Home'
-        for attempt in range(self.num_attempts):
+        for _ in range(self.num_attempts):
             try:
                 #WebDriverWait(self,self.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, xpath)))
                 #self.find_element(By.XPATH, xpath).click()
@@ -548,7 +548,7 @@ class NBSdriver(webdriver.Chrome):
             self.issues.append('Investigator is blank.')
             print(f"investigator: {investigator}")
 
-     def CheckInvestigator(self):
+    def CheckInvestigator(self):
         """ Check if an investigator was assigned to the case. """
         investigator = self.ReadText('//*[@id="INV180"]')
         self.investigator_name = investigator
@@ -631,13 +631,13 @@ class NBSdriver(webdriver.Chrome):
         self.city = self.CheckForValue( '//*[@id="DEM161"]', 'City is blank.')
 
 ################# Check Jurisdiction ####################
-     def CheckJurisdiction(self):
+    def CheckJurisdiction(self):
         """ Jurisdiction and county must match. """
         jurisdiction = self.CheckForValue('//*[@id="INV107"]','Jurisdiction is blank.')
         if jurisdiction not in self.county:
             self.issues.append('County and jurisdiction mismatch.')
 
-     def CheckProgramArea(self):
+    def CheckProgramArea(self):
         """ Program area must be Airborne. """
         program_area = self.CheckForValue('//*[@id="INV108"]','Program Area is blank.')
         if program_area != 'Airborne and Direct Contact Diseases':
@@ -798,6 +798,7 @@ class NBSdriver(webdriver.Chrome):
                 self.issues.append('Date of death is blank.')
             elif death_date > self.now:
                 self.issues.append('Date of death date cannot be in the future')
+
     def CheckHospitalization(self):
         """ Read hospitalization status. If yes need date and hospital """
         self.hospitalization_indicator = self.ReadText('//*[@id="INV128"]')
@@ -813,9 +814,9 @@ class NBSdriver(webdriver.Chrome):
             elif self.admission_date > self.now:
                 self.issues.append('Admission date cannot be in the future.')
                 print(f"hospitalization, admission_date: {self.admission_date}")
-        elif self.hospitalization_indicator != "Yes":                     #new code
-            self.issues.append('Hospitalization status not indicated')    #new code
-            print(f"hospitalization: {self.hospitalization_indicator}")
+        elif self.hospitalization_indicator not in ['Yes', 'No']: 
+            self.issues.append("Patient hospitalization status not indicated.")
+
     def CheckIllnessDurationUnits(self):
         """ Read Illness duration units, should be either Day, Month, or Year """
         self.IllnessDurationUnits = self.ReadText('//*[@id="INV140"]')
@@ -863,8 +864,8 @@ class NBSdriver(webdriver.Chrome):
         """ If value is blank add appropriate message to list of issues. """
         value = self.find_element(By.XPATH, xpath).get_attribute('innerText')
         value = value.replace('\n','')
-        if not value:
-            self.issues.append(blank_message)
+        # if not value:
+        #     self.issues.append(blank_message)
         return value
 
     def check_for_value_bool(self, path):
@@ -1045,7 +1046,7 @@ class NBSdriver(webdriver.Chrome):
                 zip_code = validation.result['AddressValidateResponse']['Address']['Zip5']
             else:
                 zip_code = ''
-        except:
+        except Exception:
             zip_code = ''
         return zip_code
 
@@ -1057,7 +1058,7 @@ class NBSdriver(webdriver.Chrome):
                 nbs_error = True
             else:
                 nbs_error = False
-        except:
+        except Exception:
             nbs_error = False
         return nbs_error
 
@@ -1100,7 +1101,7 @@ class NBSdriver(webdriver.Chrome):
     def go_to_home_from_error_page(self):
         """ Go to NBS Home page from an NBS error page. """
         xpath = '/html/body/table/tbody/tr/td/table/tbody/tr[1]/td/table/tbody/tr/td/table/tbody/tr/td[1]/a'
-        for attempt in range(self.num_attempts):
+        for _ in range(self.num_attempts):
             try:
                 WebDriverWait(self,self.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, xpath)))
                 self.find_element(By.XPATH, xpath).click()
