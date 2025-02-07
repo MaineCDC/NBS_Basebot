@@ -59,7 +59,7 @@ def start_audrey(username, passcode):
 
     from .audrey import Audrey
     
-    NBS = Audrey(production=is_in_production)
+    NBS = Audrey(production=False)
     NBS.set_credentials(username, passcode)
     NBS.log_in()
     attempt_counter = 0
