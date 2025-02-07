@@ -630,6 +630,31 @@ class NBSdriver(webdriver.Chrome):
         """ Must provide city. """
         self.city = self.CheckForValue( '//*[@id="DEM161"]', 'City is blank.')
 
+
+    def check_jurisdiction(self):
+        """ After completing an investigation check if the patient's county and
+        jurisdiction match. If a county is available that does not match the
+        jurisdication then update the jurisdiction accordingly."""
+        county_path = '//*[@id="DEM165"]'
+        jurisdiction_path = '//*[@id="INV107"]'
+        transfer_ownership_path = '/html/body/div/div/form/div[2]/div[1]/table[2]/tbody/tr/td[1]/table/tbody/tr/td[3]/input'
+        new_jurisdiction_path = '//*[@id="subsect_transferOwn"]/tbody/tr[2]/td[2]/input'
+        submit_jurisdiction_path = '//*[@id="topButtId"]/input[1]'
+        county = self.ReadText(county_path)
+        if county and (not county.isnumeric()):
+            self.GoToCaseInfo()
+            jurisdiction = self.ReadText(jurisdiction_path)
+            if not jurisdiction in county:
+                self.find_element(By.XPATH, transfer_ownership_path).click()
+                self.switch_to_secondary_window()
+                self.find_element(By.XPATH, new_jurisdiction_path).send_keys(Keys.CONTROL+'a')
+                self.find_element(By.XPATH, new_jurisdiction_path).send_keys(county[0:3])
+                self.find_element(By.XPATH, submit_jurisdiction_path).click()
+                self.switch_to.window(self.main_window_handle)
+        elif county.isnumeric():
+            self.incomplete_address_log.append(self.ReadPatientID())
+
+
 ################# Check Jurisdiction ####################
     def CheckJurisdiction(self):
         """ Jurisdiction and county must match. """
