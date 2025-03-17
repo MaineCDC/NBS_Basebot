@@ -60,7 +60,7 @@ def start_audrey(username, passcode):
 
     from .audrey import Audrey
     
-    NBS = Audrey(production=is_in_production)
+    NBS = Audrey(production=True)
     
     if is_in_production:
         print("Production Environment")
@@ -1396,12 +1396,12 @@ def start_audrey(username, passcode):
                 what_do.append("Associate with Investigation")
         if send_alt_email == True:
             body = f"An Alanine Aminotransferase ELR needs to be manually reviewed. The lab ID is {event_id}"
-            NBS.send_smtp_email("vaishnavi.appidi@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot from test', body, 'Hepatitis Manual Review email')
+            NBS.send_smtp_email("chloe.manchester@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot', body, 'Hepatitis Manual Review email')
             what_do.append("Send ALT Email")
         
         if send_inv_email == True:
             body = f"A patient has multiple Hepatitis investigations of the same condition with a probable/confirmed status. {existing_investigations}"
-            NBS.send_smtp_email("vaishnavi.appidi@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot from test', body, 'Hepatitis Investigation Review email')
+            NBS.send_smtp_email("chloe.manchester@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot', body, 'Hepatitis Investigation Review email')
             what_do.append("Send Multiple Investigation Email")
 
 
@@ -1417,7 +1417,7 @@ def start_audrey(username, passcode):
             email_body += f"Hepatitis investigation to be assigned out. The lab ID is {Hep_inv_assign_ids}\n\n"
             #body = f"Hepatitis investigation to be assigned out. The lab ID is {Hep_inv_assign_ids}\n\n"
             #print(f"Hep_inv_assign_ids: {Hep_inv_assign_ids}")
-            #NBS.send_smtp_email("vaishnavi.appidi@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot From Test', body, 'Hepatitis Manual Review email')
+            #NBS.send_smtp_email("vaishnavi.appidi@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot ', body, 'Hepatitis Manual Review email')
                 
             
         if Female_handled_epi_ids :
@@ -1425,20 +1425,20 @@ def start_audrey(username, passcode):
             email_body += f"Female patient between 14-49, let an epi handle this investigation. The lab ID is {Female_handled_epi_ids}\n\n"
             #body = f"Female patient between 14-49, let an epi handle this investigation. The lab ID is {Female_handled_epi_ids}\n\n"
             #print(f"Female_handled_epi_ids: {Female_handled_epi_ids}")
-            #NBS.send_smtp_email("vaishnavi.appidi@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot From Test', body, 'Hepatitis Manual Review email')
+            #NBS.send_smtp_email("vaishnavi.appidi@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot', body, 'Hepatitis Manual Review email')
             
         if parinatal_inv_ids:
             print("collected perinatal investigation ids:",parinatal_inv_ids)
             email_body += f"Patient has a perinatal investigation, leave for an epi. The lab ID is {parinatal_inv_ids}\n\n"
         
         if email_body:
-            NBS.send_smtp_email("vaishnavi.appidi@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot From Test', email_body, 'Hepatitis Manual Review email')
+            NBS.send_smtp_email("disease.reporting@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot', email_body, 'Hepatitis Manual Review email')
    
        
     if len(merges) >= 1:
             # Patient Ids: {merge_ids}
         body = f"Potential merges have been identified for patients associated with the following ELRs: {merges}."
-        NBS.send_smtp_email("vaishnavi.appidi@maine.gov", 'Merge Report: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot From Test', body, 'Hepatitis Merge Review email')
+        NBS.send_smtp_email("chloe.manchester@maine.gov", 'Merge Report: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot', body, 'Hepatitis Merge Review email')
 
     
     print(len(reviewed_ids))
