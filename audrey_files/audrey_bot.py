@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 """
 Created on Tue Jan  9 13:14:44 2024
@@ -20,7 +19,8 @@ from selenium.common.exceptions import ElementNotInteractableException
 from selenium.common.exceptions import StaleElementReferenceException
 from selenium.common.exceptions import TimeoutException
 import warnings
-
+import re
+import numpy as np
 import pandas as pd
 
 from bs4 import BeautifulSoup
@@ -28,12 +28,14 @@ from datetime import datetime
 from io import StringIO
 import re
 import numpy as np
+from dotenv import load_dotenv
 
 from dateutil.relativedelta import relativedelta
 from pandas._libs.tslibs.parsing import DateParseError
 from epiweeks import Week
 from decorator import error_handle 
 
+load_dotenv()
 
 def generator():
     while True:
@@ -43,14 +45,13 @@ reviewed_ids = []
 what_do = []
 merges = []
 merge_ids = []
+#newly added lists to send emails to epi's
+Female_handled_epi_ids = []
+Hep_inv_assign_ids = []
+parinatal_inv_ids = []
+
+
 is_in_production = os.getenv('ENVIRONMENT', 'production') != 'development'
-
-if is_in_production:
-    print("Production Environment")
-else:
-    print('Development Environment')
-
-
 
 @error_handle
 def start_audrey(username, passcode):
@@ -59,7 +60,13 @@ def start_audrey(username, passcode):
 
     from .audrey import Audrey
     
-    NBS = Audrey(production=False)
+    NBS = Audrey(production=is_in_production)
+    
+    if is_in_production:
+        print("Production Environment")
+    else:
+        print("Development Environment")
+
     NBS.set_credentials(username, passcode)
     NBS.log_in()
     attempt_counter = 0
@@ -67,17 +74,18 @@ def start_audrey(username, passcode):
     NBS.get_patient_table()
     NBS.pause_for_database()
 
-    limit = 40
+    limit = 50
     loop = tqdm(generator())
     for _ in loop:
-        #check if the bot haa gone through the set limit of reviews
+        #check if the bot has gone through the set limit of reviews
         if loop.n == limit:
             break
         #Go to Document Requiring Review
+        
         partial_link = 'Documents Requiring Review'
         WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT, partial_link)))
-        NBS.find_element(By.PARTIAL_LINK_TEXT, partial_link).click()
         time.sleep(1)
+        NBS.find_element(By.PARTIAL_LINK_TEXT, partial_link).click()
         
         #Sort review queue so that only hepatitis cases are listed
         clear_filter_path = '//*[@id="removeFilters"]/table/tbody/tr/td[2]/a'
@@ -88,24 +96,42 @@ def start_audrey(username, passcode):
         submit_date_path = '//*[@id="parent"]/thead/tr/th[3]/a'
 
         #clear all filters
-        WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, clear_filter_path)))
-        NBS.find_element(By.XPATH, clear_filter_path).click()
-        time.sleep(5)
+        for i in range(3):
+            try:
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, clear_filter_path)))
+                time.sleep(5)
+                NBS.find_element(By.XPATH, clear_filter_path).click()
+            except StaleElementReferenceException:
+                print(f"StaleElementReferenceException, trying again... retry_number: {i}")
+                break
         
-        #NBS.find_element(By.XPATH, '//*[@id="myQueues"]/div/div[3]/ul/li[3]/a').click()
-        #open description dropdown menu
-        WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, description_path)))
-        WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, description_path)))
-        NBS.find_element(By.XPATH, description_path).click()
+        
+        element = WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, description_path)))
         time.sleep(1)
+        #element.click()
+        WebDriverWait(NBS, NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, description_path))).click()
+        #open description dropdown menu
+        '''for i in range(3):
+            try:
+                element = WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, description_path)))
+                if element.is_displayed():
+                    element.click()
+                    break
+            except (StaleElementReferenceException , NoSuchElementException):
+                print(f"StaleElementReferenceException, trying again... retry_number: {i}")
+                time.sleep(1)'''
+                
+
+        
         
         #clear checkboxes
         WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, clear_checkbox_path)))
-        NBS.find_element(By.XPATH,clear_checkbox_path).click()
         time.sleep(1)
+        NBS.find_element(By.XPATH,clear_checkbox_path).click()
+        
         
         #select all hepatitis tests
-        tests = ["Hep", "HEP", "HAV", "HBV", "HCV", "Alanine", "ALT"]
+        tests =  ["Hep", "HEP", "HAV", "HBV", "HCV","Alanine", "ALT" ] 
         for test in tests:
             try:
                 results = NBS.find_elements(By.XPATH,f"//label[contains(text(),'{test}')]")
@@ -136,6 +162,7 @@ def start_audrey(username, passcode):
         NBS.find_element(By.XPATH, submit_date_path).click()
         WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, submit_date_path)))
         NBS.find_element(By.XPATH, submit_date_path).click()
+        time.sleep(1)
         
         #Grab all ELRs in the queue to reference later. Grab the event ID so we can make sure that we
         #don't get stuck in a loop at the top of the queue if an ELR doesn't get cleared out of the queue
@@ -169,12 +196,16 @@ def start_audrey(username, passcode):
         anc.click()
         
         #check the patient name if it is a source patient skip, look for numbers in the name
-        pat_name_elem = NBS.find_element(By.XPATH, '//*[@id="Name"]')
-        pat_name = pat_name_elem.text
-        if bool(re.search(r'\d', pat_name)) or bool(re.search(r'SRC', pat_name)):
-            print("Source patient, skip")
-            what_do.append("Source patient, skip")
-            continue
+        try:
+            pat_name_elem = NBS.find_element(By.XPATH, '//*[@id="Name"]')
+            pat_name = pat_name_elem.text
+            if bool(re.search(r'\d', pat_name)) or bool(re.search(r'SRC', pat_name)):
+                print("Source patient, skip")
+                what_do.append("Source patient, skip")
+                continue
+        except NoSuchElementException as e:
+            print("No patient name found")
+            
         
         #grab the patients age, if younger the 3 years do not continue
         pat_dob_elem = NBS.find_element(By.XPATH, '//*[@id="Dob"]')
@@ -214,8 +245,14 @@ def start_audrey(username, passcode):
             lab_path = f'/html/body/div[2]/form/div/table[4]/tbody/tr[2]/td/div[2]/table/tbody/tr/td/div[1]/div[5]/div/table/tbody/tr/td/table/tbody/tr[{str(lab_index)}]/td[1]/a'
         elif lab_index == 1:
             lab_path = '/html/body/div[2]/form/div/table[4]/tbody/tr[2]/td/div[2]/table/tbody/tr/td/div[1]/div[5]/div/table/tbody/tr/td/table/tbody/tr/td[1]/a'
-        WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, lab_path)))
-        NBS.find_element(By.XPATH, lab_path).click()
+        for _ in range(3):
+            try:
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, lab_path)))
+                NBS.find_element(By.XPATH, lab_path).click()
+
+            except TimeoutException:
+                print("Timeout waiting for lab report link")
+                break
         
         #Grab alanine aminotransferase results in case we need to create an investigation
         alt_lab_table = lab_report_table[lab_report_table["Test Results"].str.contains("ALANINE|ALT|Alanine")]
@@ -292,52 +329,60 @@ def start_audrey(username, passcode):
         chronic_inv = None
         Genotype_test = None
         genotype = None
+        Hep_inv_assign = False
+        Female_handled_epi = False
+        parinatal_inv = False
         NBS.incomplete_address_log = []
+        NBS.incomplete_address = False
+        
+            
+        
+        
         if len(resulted_test_table) == 2:
-            #check for ELRs that have two Hep B tests, if so only look at the antigen test
-            resulted_test_table_B = resulted_test_table[resulted_test_table["Resulted Test"].str.contains("HBV|Hepatitis B")]
-            if len(resulted_test_table_B) == 2:
-                resulted_test_table = resulted_test_table_B[resulted_test_table_B["Resulted Test"].str.contains("Ag|Antigen|AG")]
-            #Some Hep C RNA tests have base 10 and log 10 values, we only need one. 
-            #Some tests have both Hep C RNA and Genotype. Use the RNA for the workflows, save the genotype in case an investigation needs to be created.
-            resulted_test_table_C = resulted_test_table[resulted_test_table["Resulted Test"].str.contains("HCV|Hepatitis C")]
-            if len(resulted_test_table_C) == 2:
-                resulted_test_table_C = resulted_test_table_C[resulted_test_table_C["Resulted Test"].str.contains("RNA")]
+            test_condition, test_type = get_test_condition(resulted_test_table, test_type)
+            if test_condition == "Hepatitis B":
+                #check for ELRs that have two Hep B tests, if so only look at the antigen test
+                #antibody
+                search_term1 = "HBV Ab|HBV AB|HBV IgG|HBV IgM|HBV ANTIBODY|HBV Antibody|HBV antibody|HBV IGG|HBV IgG"
+                search_term2 = "Hepatitis B Ab|Hepatitis B AB|Hepatitis B IgG|Hepatitis B IgM|Hepatitis B ANTIBODY|Hepatitis B Antibody|Hepatitis B antibody|Hepatitis B IGG|Hepatitis B IgG"
+                resulted_test_table_A = resulted_test_table[resulted_test_table["Resulted Test"].str.contains(f"{search_term1}|{search_term2}")]
+                if len(resulted_test_table_A) == 2:
+                    resulted_test_table = resulted_test_table_A.iloc[[0]]
+                
+                # antigen
+                search_term1 = "HBV Ag|HBV AG|HBV ANTIGEN|HBV Antigen|HBV antigen|HBV SURFACE AG"
+                search_term2 = "Hepatitis B Ag|Hepatitis B AG|Hepatitis B ANTIGEN|Hepatitis B Antigen|Hepatitis B antigen|HBV SURFACE AG"
+                resulted_test_table_B = resulted_test_table[resulted_test_table["Resulted Test"].str.contains(f"{search_term1}|{search_term2}")]
+                if len(resulted_test_table_B) == 2:
+                    resulted_test_table = resulted_test_table_B.iloc[[0]]
+                
+                # DNA
+                search_term1 = "HBV DNA"
+                search_term2 = "Hepatitis B DNA"
+                resulted_test_table_C = resulted_test_table[resulted_test_table["Resulted Test"].str.contains(f"{search_term1}|{search_term2}")]
                 if len(resulted_test_table_C) == 2:
-                    resulted_test_table = resulted_test_table_C[resulted_test_table_C["Resulted Test"].str.contains("Log|log|LOG")]
-                elif len(resulted_test_table_C) == 1:
-                    Genotype_test = resulted_test_table[resulted_test_table["Resulted Test"].str.contains("GEN|Gen|gen")]
-                    resulted_test_table = resulted_test_table_C
-                    
-        if len(resulted_test_table) == 1:    
-            #Clean up test name
-            if any(x in str(resulted_test_table["Resulted Test"]) for x in ["Hepatitis C", "HEPATITIS C", "HCV"]):
-                test_condition = "Hepatitis C"
-            elif any(x in str(resulted_test_table["Resulted Test"]) for x in ["Hepatitis B", "HEPATITIS B", "HBV"]):
-                test_condition = "Hepatitis B"
-            elif any(x in str(resulted_test_table["Resulted Test"]) for x in ["Alanine", "ALT"]):
-                test_condition = "Hepatitis"
-            else:
-                test_condition = "Hepatitis A"
+                    resulted_test_table = resulted_test_table_C.iloc[[0]]
+            elif test_condition == "Hepatitis C":
+                #Some Hep C RNA tests have base 10 and log 10 values, we only need one. 
+                #Some tests have both Hep C RNA and Genotype. Use the RNA for the workflows, save the genotype in case an investigation needs to be created.
+                resulted_test_table_D = resulted_test_table[resulted_test_table["Resulted Test"].str.contains("HCV RNA|Hepatitis C RNA |HEPATITIS C RNA")]
+                if len(resulted_test_table_D) == 2:
+                    resulted_test_table = resulted_test_table_D.iloc[[0]]
+                    #print("")
+                search_term1 = "HCV Ab|HCV AB|HCV IgG|HCV IgM|HCV ANTIBODY|HCV Antibody|HCV antibody|HCV IGG|HCV IgG"
+                search_term2 = "Hepatitis C Ab|Hepatitis C AB|Hepatitis C IgG|Hepatitis C IgM|Hepatitis C ANTIBODY|Hepatitis C Antibody|Hepatitis C antibody|Hepatitis C IGG|Hepatitis C IgG"  
+                
+                resulted_test_table_E = resulted_test_table[resulted_test_table["Resulted Test"].str.contains(f"{search_term1}|{search_term2}")]
+                if len(resulted_test_table_E) == 2:
+                    resulted_test_table = resulted_test_table_E.iloc[[0]]
+                    #print("")
+                
             
-            #Check if the test is antibody, antigen, RNA, DNA or genotype
-            if any(x in str(resulted_test_table["Resulted Test"]) for x in ["Ab", "AB", "IgG", "IgM", "ANTIBODY", "Antibody", "antibody", "IGG", "IgG"]):
-                test_type = "Antibody"
-            if any(x in str(resulted_test_table["Resulted Test"]) for x in ["RNA", "Qnt"]):
-                test_type = "RNA"
-            if "DNA" in str(resulted_test_table["Resulted Test"]):
-                test_type = "DNA"
-            if any(x in str(resulted_test_table["Resulted Test"]) for x in ["Gen", "gen", "GEN"]):
-                test_type = "Genotype"
-            if any(x in str(resulted_test_table["Resulted Test"]) for x in ["Ag", "AG", "Antigen", "antigen", "ANTIGEN"]):
-                test_type = "Antigen"
-            if any(x in str(resulted_test_table["Resulted Test"]) for x in ["Alanine", "ALT"]):
-                test_type = "Alanine"
-            #else:
-                #test_type = "Something else"   
+
+        # If only one test remains, clean up the test name and categorize it
+        if len(resulted_test_table) == 1:        # Clean up test name
+            test_condition, test_type = get_test_condition(resulted_test_table, test_type)
             
-            """ Review the Investigations table in the Events tab of a patient profile
-            to determine if the case already has an existing investigation. """
             existing_investigations = None
             if type(investigation_table) == pd.core.frame.DataFrame:
                 existing_investigations = investigation_table[investigation_table["Condition"].str.contains(test_condition)]
@@ -345,13 +390,7 @@ def start_audrey(username, passcode):
                 
                 if len(existing_investigations) >= 1:
                     inv_found = True
-                    #If there is an existing perinatal investigation we are going to leave the ELR alone.
-                    perinatal_inv = existing_investigations[existing_investigations["Condition"].str.contains("perinatal")]
-                    if len(perinatal_inv) >= 1:
-                        print("Patient has a perinatal investigation, leave for an epi")
-                        what_do.append("Patient has a perinatal investigation, leave for an epi")
-                        NBS.go_to_home()
-                        continue
+                    
                     #Sometimes the C is capitalised in chronic investigations and sometimes 
                     #it is not so we are just going to look for "hronic" to avoid it
                     chronic_inv = existing_investigations[existing_investigations["Condition"].str.contains("hronic")]
@@ -399,12 +438,32 @@ def start_audrey(username, passcode):
                         continue
 
             #If there is a "<" in the results skip for now, could be either negative or positive and it is hard to tell without manual review
-            if resulted_test_table["Coded Result / Organism Name"].astype(str).str.contains("<").iloc[0] or resulted_test_table["Text Result"].astype(str).str.contains("<").iloc[0] or resulted_test_table["Numeric Result"].astype(str).str.contains("<").iloc[0]:
+            '''if resulted_test_table["Coded Result / Organism Name"].astype(str).str.contains("<").iloc[0] or resulted_test_table["Text Result"].astype(str).str.contains("<").iloc[0] or resulted_test_table["Numeric Result"].astype(str).str.contains("<").iloc[0]:
+                x = resulted_test_table['Result Comments'].str.contains("Not Detected")
+                if test_condition == "Hepatitis B" and x.any():
+                    mark_reviewed = True
                 print("< in result, skip")
                 what_do.append("< in result, skip")
                 NBS.go_to_home()
-                continue
-
+                continue '''
+            
+            #added by V to check if result contains presumptive then it should be mark as reviewed
+            #if resulted_test_table["Coded Result / Organism Name"].astype(str).str.contains("Presumptive| presumptive").iloc[0] or resulted_test_table["Text Result"].astype(str).str.contains("Presumptive| presumptive").iloc[0] or resulted_test_table["Numeric Result"].astype(str).str.contains("Presumptive| presumptive").iloc[0]:
+            if resulted_test_table["Text Result"].astype(str).str.contains("Presumptive| presumptive").iloc[0] :
+                print("Presumptive result, mark as reviewed")
+                mark_reviewed = True
+                if mark_reviewed == True :
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="doc3"]/div[2]/table/tbody/tr/td[1]/input')))
+                    NBS.find_element(By.XPATH, '//*[@id="doc3"]/div[2]/table/tbody/tr/td[1]/input').click()
+                    print("Mark as Reviewed")
+                    what_do.append("Mark as Reviewed")
+                    NBS.go_to_home()
+                    continue
+                #what_do.append("Presumptive result, mark as reviewed")
+                #NBS.go_to_home()
+                #continue
+                
+            
             ###Hepatitis A###
             if test_condition == "Hepatitis A":
                 if test_type == "Antibody" and "IgM" not in str(resulted_test_table["Resulted Test"]) and "IGM" not in str(resulted_test_table["Resulted Test"]):
@@ -418,7 +477,23 @@ def start_audrey(username, passcode):
             
             ###Hepatitis C Antibody test logic###
             if test_condition == "Hepatitis C" and test_type == "Antibody":
-                if (any(x in str(resulted_test_table["Coded Result / Organism Name"]) for x in ["POS", "Positive", "POSITIVE", "Reactive", "REACTIVE", "Detected", "DETECTED"]) or any(x in str(resulted_test_table["Text Result"]) for x in ["POS", "Positive", "POSITIVE", "Reactive", "REACTIVE", "Detected", "DETECTED"])) and ("Non-Reactive" not in resulted_test_table["Text Result"].iloc[0] and "Non Reactive" not in resulted_test_table["Text Result"].iloc[0] and "Non-Reactive" not in resulted_test_table["Coded Result / Organism Name"].iloc[0] and "Non Reactive" not in resulted_test_table["Coded Result / Organism Name"].iloc[0] and "NON-REACTIVE" not in resulted_test_table["Coded Result / Organism Name"].iloc[0] and "NON-REACTIVE" not in resulted_test_table["Text Result"].iloc[0]): 
+                if inv_found:
+                    age = lab_date - pat_dob
+                    if age.days < 1095:
+                        #If there is an existing perinatal investigation we are going to leave the ELR alone.
+                        perinatal_inv = existing_investigations[existing_investigations["Condition"].str.contains("perinatal")]
+                        if len(perinatal_inv) >= 1 or len(existing_investigations.loc[existing_investigations['Case Status'] == 'Not a Case']) > 0:
+                            mark_reviewed = True
+                    elif len(existing_investigations) is None:
+                        print("Patient has a perinatal investigation, leave for an epi")
+                        parinatal_inv = True
+                        parinatal_inv_ids.append(event_id)
+                        what_do.append("Patient has a perinatal investigation, leave for an epi")
+                        NBS.go_to_home()
+                        continue
+    
+                case_less_than_not_detected = resulted_test_table["Coded Result / Organism Name"].astype(str).str.contains("<").iloc[0] or resulted_test_table["Text Result"].astype(str).str.contains("<").iloc[0] or resulted_test_table["Numeric Result"].astype(str).str.contains("<").iloc[0] and bool(resulted_test_table['Result Comments'].str.contains("not detected|Not Detected").any())
+                if case_less_than_not_detected or (any(x in str(resulted_test_table["Coded Result / Organism Name"]) for x in ["POS", "Positive", "POSITIVE", "Reactive", "REACTIVE", "Detected", "DETECTED"]) or any(x in str(resulted_test_table["Text Result"]) for x in ["POS", "Positive", "POSITIVE", "Reactive", "REACTIVE", "Detected", "DETECTED"])) and ("Non-Reactive" not in resulted_test_table["Text Result"].iloc[0] and "Non Reactive" not in resulted_test_table["Text Result"].iloc[0] and "Non-Reactive" not in resulted_test_table["Coded Result / Organism Name"].iloc[0] and "Non Reactive" not in resulted_test_table["Coded Result / Organism Name"].iloc[0] and "NON-REACTIVE" not in resulted_test_table["Coded Result / Organism Name"].iloc[0] and "NON-REACTIVE" not in resulted_test_table["Text Result"].iloc[0]): 
                     #grab all negative RNA\Genotype labs within a year, but not after
                     Gen_rna_lab = lab_report_table[lab_report_table["Test Results"].str.contains("Gen|RNA")]
                     Gen_rna_lab = Gen_rna_lab[Gen_rna_lab["Test Results"].str.contains("HEPATITIS C|HCV|Hepatitis C")]
@@ -434,14 +509,14 @@ def start_audrey(username, passcode):
                     mmwr_week = Week(year, 1)
                     
                     #put space in front to avoid grabbing tests that have the results in the reference range
-                    Neg_Gen_rna_lab = Gen_rna_lab[Gen_rna_lab["Test Results"].str.contains(" Neg| NEG| neg| See Below| UNDETECTED| Undetected| undetected| Non-Reactive| NON-REACTIVE| NOT DETECTED| Not Detected")]
+                    Neg_Gen_rna_lab = Gen_rna_lab[Gen_rna_lab["Test Results"].str.contains(" Neg| NEG| neg| See Below| UNDETECTED| Undetected| undetected| Non-Reactive| NON-REACTIVE| NOT DETECTED| Not Detected")] 
                     #grab all negative genotype or RNA tests to use as an index to find all positive genotype or RNA tests
                     Pos_Gen_rna_lab = Gen_rna_lab.drop(Neg_Gen_rna_lab.index)
                     Neg_Gen_rna_lab["Date Collected"] = pd.to_datetime(Neg_Gen_rna_lab["Date Collected"]).dt.date
                     Neg_Gen_rna_lab = Neg_Gen_rna_lab[Neg_Gen_rna_lab["Date Collected"]>mmwr_week.startdate()]
                     
                     #grab all negative labs within a year, add a space for the name so it doesn't trigger on the reference range
-                    Neg_lab = lab_report_table[lab_report_table["Test Results"].str.contains(" Neg| NEG| neg| Not Detected| NOT DETECTED| UNDETECTED| Undetected| undetected")]
+                    Neg_lab = lab_report_table[lab_report_table["Test Results"].str.contains(" Neg| NEG| neg| Not Detected| NOT DETECTED| UNDETECTED| Undetected| undetected")] 
                     Neg_lab = Neg_lab[Neg_lab["Test Results"].str.contains("HEPATITIS C|HCV|Hepatitis C")]
                     Neg_lab["Date Collected"].replace('No Date', pd.NA, inplace=True)
                     Neg_lab["Date Collected"] = pd.to_datetime(Neg_lab["Date Collected"]).dt.date
@@ -466,13 +541,29 @@ def start_audrey(username, passcode):
                     elif len(Pos_Gen_rna_lab) > 0:
                             print("Skip, Previous positive RNA/Genotype. Should already have investigation created")
                             what_do.append("Skip, Previous positive RNA/Genotype. Should already have investigation created")
-                        
                 else:
                     #Mark as reviewed
                     mark_reviewed = True
             
             ###Hepatitis C RNA/Genotype logic###
             if test_condition == "Hepatitis C" and test_type in ("RNA", "DNA", "Genotype"):
+                if inv_found:
+                    age = lab_date - pat_dob
+                    if age.days < 1095:
+                    #If there is an existing perinatal investigation we are going to leave the ELR alone.
+                        perinatal_inv = existing_investigations[existing_investigations["Condition"].str.contains("perinatal")]
+                        if len(perinatal_inv) >= 1:
+                            associate = True
+                            
+                    elif existing_investigations is None or len(existing_investigations)==0 or len(existing_investigations.loc[existing_investigations['Case Status'] == 'Not a Case']) > 0:
+                        print("Patient has a perinatal investigation, leave for an epi")
+                        parinatal_inv = True
+                        parinatal_inv_ids.append(event_id)
+                        what_do.append("Patient has a perinatal investigation, leave for an epi")
+                        NBS.go_to_home()
+                        continue
+    
+                case_less_than_not_detected = resulted_test_table["Coded Result / Organism Name"].astype(str).str.contains("<").iloc[0] or resulted_test_table["Text Result"].astype(str).str.contains("<").iloc[0] or resulted_test_table["Numeric Result"].astype(str).str.contains("<").iloc[0] and bool(resulted_test_table['Result Comments'].str.contains("not detected|Not Detected").any()) # if < in result, comments should say not detected
                 if type(resulted_test_table["Numeric Result"].iloc[0]) == str  and resulted_test_table["Numeric Result"].iloc[0] != "" and bool(re.search(r'\d', resulted_test_table["Numeric Result"].iloc[0])):
                     if resulted_test_table["Numeric Result"].str.extract(r'(\d+)').astype(int).iloc[0,0] > 0:
                         num_res = True
@@ -511,12 +602,12 @@ def start_audrey(username, passcode):
                 else:
                     num_res = False
                 #grab negative labs within the last year, put a space for the name so that we don't grab the reference range by accident
-                Neg_lab = lab_report_table[lab_report_table["Test Results"].str.contains(" Neg| NEG| Not Detected| NOT DETECTED| UNDETECTED")]
+                Neg_lab = lab_report_table[lab_report_table["Test Results"].str.contains(" Neg| NEG| Not Detected| NOT DETECTED| UNDETECTED")]       
                 Neg_lab = Neg_lab[Neg_lab["Test Results"].str.contains("HEPATITIS C|HCV|Hepatitis C")]
                 Neg_lab["Date Collected"] = pd.to_datetime(Neg_lab["Date Collected"]).dt.date
                 Neg_lab = Neg_lab[Neg_lab["Date Collected"]>lab_date-relativedelta(years=1)]
                 
-                if "Not Detected" not in resulted_test_table["Coded Result / Organism Name"].values and "Below threshold" not in resulted_test_table["Coded Result / Organism Name"].values and "Not Detected" not in resulted_test_table["Text Result"].values and "Below threshold" not in resulted_test_table["Text Result"].values and "Unable" not in resulted_test_table["Text Result"].values and "Unable" not in resulted_test_table["Coded Result / Organism Name"].values and "HCV RNA Not Detected" not in resulted_test_table["Result Comments"].values and num_res:
+                if not case_less_than_not_detected or ("Not Detected" not in resulted_test_table["Coded Result / Organism Name"].values and "Below threshold" not in resulted_test_table["Coded Result / Organism Name"].values and "Not Detected" not in resulted_test_table["Text Result"].values and "Below threshold" not in resulted_test_table["Text Result"].values and "Unable" not in resulted_test_table["Text Result"].values and "Unable" not in resulted_test_table["Coded Result / Organism Name"].values and "HCV RNA Not Detected" not in resulted_test_table["Result Comments"].values and num_res):
                     if chronic_inv is not None and acute_inv is not None:
                         if len(chronic_inv) > 0 and "Confirmed" in chronic_inv["Case Status"].values:
                             #Mark as reviewed
@@ -545,7 +636,7 @@ def start_audrey(username, passcode):
                                 condition = "Hepatitis C, acute"
                         else:
                             condition = "Hepatitis C, chronic"
-                elif any(x in str(resulted_test_table["Coded Result / Organism Name"]) for x in ["Undetected", "Not Detected", "UNDETECTED", "NOT DETECTED", "Negative", "NEGATIVE", "Unable"])  or any(x in str(resulted_test_table["Text Result"]) for x in ["Undetected", "Not Detected", "UNDETECTED", "NOT DETECTED", "Negative", "NEGATIVE", "Unable"]) or any(x in str(resulted_test_table["Result Comments"]) for x in ["HCV RNA Not Detected"]):
+                elif case_less_than_not_detected or (any(x in str(resulted_test_table["Coded Result / Organism Name"]) for x in ["Undetected", "Not Detected", "UNDETECTED", "NOT DETECTED", "Negative", "NEGATIVE", "Unable" ])  or any(x in str(resulted_test_table["Text Result"]) for x in ["Undetected", "Not Detected", "UNDETECTED", "NOT DETECTED", "Negative", "NEGATIVE", "Unable"]) or any(x in str(resulted_test_table["Result Comments"]) for x in ["HCV RNA Not Detected"])): 
                     if acute_inv is not None and chronic_inv is not None: 
                         year = int(datetime.today().strftime("%Y"))
                         mmwr_week = Week(year, 1)
@@ -570,10 +661,23 @@ def start_audrey(username, passcode):
                     print("Do nothing") 
                     what_do.append("Skip, ambiguous result")
                     mark_reviewed = False
+            
+            #########Hep_B logic#########
                     
-            ###Hepatitis B Logic###
             if test_condition == "Hepatitis B":
-                if "Not Detected" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]) or "Below threshold" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]) or "Not Detected" in str(resulted_test_table["Text Result"].iloc[0]) or "Below threshold" in str(resulted_test_table["Text Result"].iloc[0]) or "Unable" in str(resulted_test_table["Text Result"].iloc[0]) or "Unable" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]) or "not detected" in str(resulted_test_table["Text Result"].iloc[0]) or "not detected" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]) or "UNDETECTED" in str(resulted_test_table["Text Result"].iloc[0]) or "UNDETECTED" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]) or "UNDETECTED" in str(resulted_test_table["Numeric Result"].iloc[0]) or "Negative" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]) or "Negative" in str(resulted_test_table["Numeric Result"].iloc[0]) or "Non-Reactive" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]) or "Non-Reactive" in str(resulted_test_table["Numeric Result"].iloc[0]) or "Non-Reactive" in str(resulted_test_table["Text Result"].iloc[0]) or "NEG" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]) or "NEG" in str(resulted_test_table["Numeric Result"].iloc[0]) or "NEG" in str(resulted_test_table["Text Result"].iloc[0]) or "NON-REACTIVE" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]) or "NON-REACTIVE" in str(resulted_test_table["Numeric Result"].iloc[0]) or "NON-REACTIVE" in str(resulted_test_table["Text Result"].iloc[0]):
+                if inv_found:
+                    #If there is an existing perinatal investigation we are going to leave the ELR alone.
+                    perinatal_inv = existing_investigations[existing_investigations["Condition"].str.contains("perinatal")]
+                    if len(perinatal_inv) >= 1:
+                        print("Patient has a perinatal investigation, leave for an epi")
+                        what_do.append("Patient has a perinatal investigation, leave for an epi")
+                        NBS.go_to_home()
+                        continue
+                if test_type == "Antigen" and resulted_test_table["Result Comments"].str.contains("To be confirmed by Neutralization Assay").any():
+                    mark_reviewed = True
+                case_less_than_not_detected = resulted_test_table["Coded Result / Organism Name"].astype(str).str.contains("<").iloc[0] or resulted_test_table["Text Result"].astype(str).str.contains("<").iloc[0] or resulted_test_table["Numeric Result"].astype(str).str.contains("<").iloc[0] and bool(resulted_test_table['Result Comments'].str.contains("not detected|Not Detected").any())
+                
+                if case_less_than_not_detected or ("Not Detected" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]) or "Below threshold" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]) or "Not Detected" in str(resulted_test_table["Text Result"].iloc[0]) or "Below threshold" in str(resulted_test_table["Text Result"].iloc[0]) or "Unable" in str(resulted_test_table["Text Result"].iloc[0]) or "Unable" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]) or "not detected" in str(resulted_test_table["Text Result"].iloc[0]) or "not detected" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]) or "UNDETECTED" in str(resulted_test_table["Text Result"].iloc[0]) or "UNDETECTED" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]) or "UNDETECTED" in str(resulted_test_table["Numeric Result"].iloc[0]) or "Negative" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]) or "Negative" in str(resulted_test_table["Numeric Result"].iloc[0]) or "Non-Reactive" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]) or "Non-Reactive" in str(resulted_test_table["Numeric Result"].iloc[0]) or "Non-Reactive" in str(resulted_test_table["Text Result"].iloc[0]) or "NEG" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]) or "NEG" in str(resulted_test_table["Numeric Result"].iloc[0]) or "NEG" in str(resulted_test_table["Text Result"].iloc[0]) or "NON-REACTIVE" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]) or "NON-REACTIVE" in str(resulted_test_table["Numeric Result"].iloc[0]) or "NON-REACTIVE" in str(resulted_test_table["Text Result"].iloc[0])):
                     mark_reviewed = True
                 else:
                     IgM_lab = lab_report_table[lab_report_table["Test Results"].str.contains("IgM|IGM")]
@@ -588,19 +692,22 @@ def start_audrey(username, passcode):
                         
                     Neg_IgM_lab = IgM_lab[IgM_lab["Test Results"].str.contains("Neg|NEG|See Below")]
                     Pos_IgM_lab = IgM_lab[IgM_lab["Test Results"].str.contains("Pos|POS|Det|DET|REA|Rea")]
+                    
                     if acute_inv is None and chronic_inv is None:
                         if len(resulted_test_table) == 1 and test_type == "Antibody" and "IgM" not in str(resulted_test_table["Resulted Test"]) and "IGM" not in str(resulted_test_table["Resulted Test"]): #add in logic for IgM
                             mark_reviewed = True
                         elif len(resulted_test_table) == 1 and test_type == "Antibody" and ("IgM" in str(resulted_test_table["Resulted Test"]) or "IGM" in str(resulted_test_table["Resulted Test"])) and "EQUIVOCAL" not in resulted_test_table["Coded Result / Organism Name"].iloc[0]:
                             #create_inv = True
                             #condition = "Hepatitis B, acute"
+                            Hep_inv_assign = True
+                            Hep_inv_assign_ids.append(event_id)
                             print("Hepatitis B, acute investigation to be assigned out")
                             what_do.append("Hepatitis B, acute investigation to be assigned out")
                             NBS.go_to_home()
                             continue
                         elif len(resulted_test_table) == 1 and test_type == "Antibody" and ("IgM" in str(resulted_test_table["Resulted Test"]) or "IGM" in str(resulted_test_table["Resulted Test"]))  and "EQUIVOCAL" in resulted_test_table["Coded Result / Organism Name"].iloc[0]:
                             mark_reviewed = True
-                        elif test_type in ("Antigen", "DNA", "RNA"):
+                        elif test_type in ("Antigen", "DNA", "RNA"): 
                             #add in logic to check IgM and ALT results
                             if len(IgM_lab) == 0:
                                 #create_inv = True
@@ -613,12 +720,16 @@ def start_audrey(username, passcode):
                                         continue
                                     else:
                                         #condition = "Hepatitis B, acute"
+                                        Hep_inv_assign = True
+                                        Hep_inv_assign_ids.append(event_id)
                                         print("Hepatitis B, acute investigation to be assigned out")
                                         what_do.append("Hepatitis B, acute investigation to be assigned out")
                                         NBS.go_to_home()
                                         continue
                                 else:
                                     #condition = 'Hepatitis B virus infection, chronic'
+                                    Hep_inv_assign = True
+                                    Hep_inv_assign_ids.append(event_id)
                                     print("Hepatitis B, chronic investigation to be assigned out")
                                     what_do.append("Hepatitis B, chronic investigation to be assigned out")
                                     NBS.go_to_home()
@@ -626,6 +737,8 @@ def start_audrey(username, passcode):
                             elif len(Pos_IgM_lab) > 0:
                                 #create_inv = True
                                 #condition = "Hepatitis B, acute"
+                                Hep_inv_assign = True
+                                Hep_inv_assign_ids.append(event_id)
                                 print("Hepatitis B, acute investigation to be assigned out")
                                 what_do.append("Hepatitis B, acute investigation to be assigned out")
                                 NBS.go_to_home()
@@ -633,6 +746,8 @@ def start_audrey(username, passcode):
                             elif len(Neg_IgM_lab) > 0:
                                 #create_inv = True
                                 #condition = "Hepatitis B virus infection, Chronic"
+                                Hep_inv_assign = True
+                                Hep_inv_assign_ids.append(event_id)
                                 print("Hepatitis B, chronic investigation to be assigned out")
                                 what_do.append("Hepatitis B, chronic investigation to be assigned out")
                                 NBS.go_to_home()
@@ -650,6 +765,8 @@ def start_audrey(username, passcode):
                         if len(acute_inv) > 0 and "Confirmed" in acute_inv["Case Status"].values and diff_days >= 183 and len(chronic_inv) == 0:
                             #create_inv = True
                             #condition = "Hepatitis B virus infection, Chronic"
+                            Hep_inv_assign = True
+                            Hep_inv_assign_ids.append(event_id)
                             print("Hepatitis B, chronic investigation to be assigned out")
                             what_do.append("Hepatitis B, chronic investigation to be assigned out")
                             NBS.go_to_home()
@@ -665,6 +782,8 @@ def start_audrey(username, passcode):
                         elif len(acute_inv) > 0 and "Probable" in acute_inv["Case Status"].values and diff_days >= 183 and len(chronic_inv) == 0:
                             #create_inv = True
                             #condition = "Hepatitis B virus infection, Chronic"
+                            Hep_inv_assign = True
+                            Hep_inv_assign_ids.append(event_id)
                             print("Hepatitis B, chronic investigation to be assigned out")
                             what_do.append("Hepatitis B, chronic investigation to be assigned out")
                             NBS.go_to_home()
@@ -677,106 +796,66 @@ def start_audrey(username, passcode):
                             update_inv_type = True
                             condition = "Hepatitis B, acute"
                         else:
-                            mark_reviewed = True
-                        
+                            mark_reviewed = True 
+                
+                                    
             ###ALT Logic###
             #Sometimes the numeric result will have a < or > in it which converts the type to a string so we have to deal with that
-            if test_condition == "Hepatitis" and test_type == "Alanine":
-                if len(resulted_test_table) == 1:
-                    if type(resulted_test_table["Numeric Result"].iloc[0]) == str  and resulted_test_table["Numeric Result"].iloc[0] != "" and bool(re.search(r'\d', resulted_test_table["Numeric Result"].iloc[0])):
-                        if resulted_test_table["Numeric Result"].str.extract(r'(\d+)').astype(int).loc[0,0] > 200:
-                            if acute_inv is not None and chronic_inv is not None and diff_days > 92:
-                                mark_reviewed = True
-                            elif acute_inv is not None and chronic_inv is not None and diff_days < 92:
-                                if len(acute_inv) > 0:
-                                    mark_reviewed = True
-                                elif chronic_inv["Status"].iloc[0] == "Open":
-                                    associate = True
-                                    send_alt_email = True
-                                elif chronic_inv["Status"].iloc[0] == "Closed" and "Hepatitis C" in chronic_inv["Condition"].iloc[0]:
-                                    associate = True
-                                    condition = "Hepatitis C, acute"
-                                    send_alt_email = True
-                                elif chronic_inv["Status"].iloc[0] == "Closed" and "Hepatitis B" in chronic_inv["Condition"].iloc[0]:
-                                    send_alt_email = True
-                            elif chronic_inv is None and acute_inv is None:
-                                mark_reviewed = True
-                        elif resulted_test_table["Numeric Result"].str.extract(r'(\d+)').astype(int).loc[0,0]  <= 200:
-                            mark_reviewed = True
-                elif type(resulted_test_table["Text Result"].iloc[0]) == str  and resulted_test_table["Text Result"].iloc[0] != "" and bool(re.search(r'\d', resulted_test_table["Text Result"].iloc[0])):
-                        if resulted_test_table["Text Result"].str.extract(r'(\d+)').astype(int).loc[0,0] > 200:
-                            if acute_inv is not None and chronic_inv is not None and diff_days > 92:
-                                mark_reviewed = True
-                            elif acute_inv is not None and chronic_inv is not None and diff_days < 92:
-                                if len(acute_inv) > 0:
-                                    mark_reviewed = True
-                                elif chronic_inv["Status"].iloc[0] == "Open":
-                                    associate = True
-                                    send_alt_email = True
-                                elif chronic_inv["Status"].iloc[0] == "Closed" and "Hepatitis C" in chronic_inv["Condition"].iloc[0]:
-                                    associate = True
-                                    condition = "Hepatitis C, acute"
-                                    send_alt_email = True
-                                elif chronic_inv["Status"].iloc[0] == "Closed" and "Hepatitis B" in chronic_inv["Condition"].iloc[0]:
-                                    send_alt_email = True
-                            elif chronic_inv is None and acute_inv is None:
-                                mark_reviewed = True
-                        elif resulted_test_table["Text Result"].str.extract(r'(\d+)').astype(int).loc[0,0]  <= 200:
-                            mark_reviewed = True
-                elif type(resulted_test_table["Numeric Result"].iloc[0]) == np.int64:
-                    if int(resulted_test_table["Numeric Result"].iloc[0])  <= 200:
-                        mark_reviewed = True
-                    elif int(resulted_test_table["Numeric Result"].iloc[0]) > 200:
-                        #add in within 3 months of lab specimen collection date in investigation
-                        if acute_inv is not None and chronic_inv is not None and diff_days > 92:
-                            mark_reviewed = True
-                        elif acute_inv is not None and chronic_inv is not None and diff_days <= 92:
-                            if len(acute_inv) > 0:
-                                mark_reviewed = True
-                            elif chronic_inv["Status"].iloc[0] == "Open":
-                                associate = True
-                                send_alt_email = True
-                            elif chronic_inv["Status"].iloc[0] == "Closed" and "Hepatitis C" in chronic_inv["Condition"].iloc[0]:
-                                associate = True
-                                condition = "Hepatitis C, acute"
-                                send_alt_email = True
-                            elif chronic_inv["Status"].iloc[0] == "Closed" and "Hepatitis B" in chronic_inv["Condition"].iloc[0]:
-                                send_alt_email = True
-                        elif chronic_inv is None and acute_inv is None:
-                            mark_reviewed = True
-                elif type(resulted_test_table["Text Result"].iloc[0]) == np.int64:
-                        if int(resulted_test_table["Text Result"].iloc[0])  <= 200:
-                            mark_reviewed = True
-                        elif int(resulted_test_table["Text Result"].iloc[0]) > 200:
-                            #add in within 3 months of lab specimen collection date in investigation
-                            if acute_inv is not None and chronic_inv is not None and diff_days > 92:
-                                mark_reviewed = True
-                            elif acute_inv is not None and chronic_inv is not None and diff_days < 92:  
-                                if len(acute_inv) > 0:
-                                    mark_reviewed = True
-                                elif chronic_inv["Status"].iloc[0] == "Open":
-                                    associate = True
-                                    send_alt_email = True
-                                elif chronic_inv["Status"].iloc[0] == "Closed" and "Hepatitis C" in chronic_inv["Condition"].iloc[0]:
-                                    associate = True
-                                    condition = "Hepatitis C, acute"
-                                    send_alt_email = True
-                                elif chronic_inv["Status"].iloc[0] == "Closed" and "Hepatitis B" in chronic_inv["Condition"].iloc[0]:
-                                    send_alt_email = True
-                            elif chronic_inv is None and acute_inv is None:
-                                mark_reviewed = True
-                else:
-                    print("Could not parse")
+            if test_condition == "Hepatitis" and test_type == "Alanine": 
+                if resulted_test_table.empty: 
+                    print("Could not parse") 
                     what_do.append("Could not parse result, skipped")
-        else:
-            #pass
-            print("More than one test in ELR")
+                else: 
+                    # Extract Numeric Result (if available) 
+                    numeric_result = None 
+                    text_result = None 
+                    if "Numeric Result" in resulted_test_table.columns and not resulted_test_table["Numeric Result"].isna().iloc[0]: 
+                        try: 
+                            numeric_result = int(resulted_test_table["Numeric Result"].iloc[0])
+                        except ValueError:
+                            match = re.search(r'\d+', str(resulted_test_table["Numeric Result"].iloc[0])) 
+                            if match:
+                                numeric_result = int(match.group()) 
+                    if "Text Result" in resulted_test_table.columns and not resulted_test_table["Text Result"].isna().iloc[0]: 
+                        try: 
+                            text_result = int(resulted_test_table["Text Result"].iloc[0]) 
+                        except ValueError: 
+                            match = re.search(r'\d+', str(resulted_test_table["Text Result"].iloc[0])) 
+                            if match: 
+                                text_result = int(match.group())
+                    # Determine the result value 
+                    result_value = numeric_result if numeric_result is not None else text_result 
+                    if result_value is not None:
+                        if result_value > 200: 
+                            if acute_inv is not None and chronic_inv is not None: 
+                                if diff_days > 92: 
+                                    mark_reviewed = True
+                                elif diff_days <= 92: 
+                                    if len(acute_inv) > 0:
+                                        mark_reviewed = True 
+                                    elif chronic_inv["Status"].iloc[0] == "Open":
+                                        associate = True
+                                        send_alt_email = True
+                                    elif chronic_inv["Status"].iloc[0] == "Closed": 
+                                        if "Hepatitis C" in chronic_inv["Condition"].iloc[0]:
+                                            associate = True 
+                                            condition = "Hepatitis C, acute"
+                                            send_alt_email = True 
+                                        elif "Hepatitis B" in chronic_inv["Condition"].iloc[0]: 
+                                            send_alt_email = True 
+                            elif chronic_inv is None and acute_inv is None: 
+                                mark_reviewed = True 		
+                        else: 
+                            mark_reviewed = True 
+                    else: 
+                        print("Could not parse result")
+                        what_do.append("Could not parse result, skipped")
+        else: 
+            print("More than one test in ELR") 
             what_do.append("Skip, more than one test in ELR")
             print(review_queue_table[review_queue_table["Local ID"] == event_id]["Patient"])
             NBS.go_to_home()
             continue
-        print(review_queue_table[review_queue_table["Local ID"] == event_id]["Patient"])
-        
         ###If there is an open investigation, associate the lab to that investigation###
         if investigation_table is not None:
             open_inv = None
@@ -795,15 +874,22 @@ def start_audrey(username, passcode):
             NBS.find_element(By.XPATH, '//*[@id="doc3"]/div[2]/table/tbody/tr/td[1]/input').click()
             print("Mark as Reviewed")
             what_do.append("Mark as Reviewed")
+        
+        
         elif create_inv == True and update_status == False:
             #don't create an investigation for female patients that are 14-49 
+
             if test_condition == "Hepatitis C" and pat_gen == "Female" and  5113 <= age.days <= 18263:
+                Female_handled_epi=True
+                Female_handled_epi_ids.append(event_id)
                 print("Female patient between 14-49, let an epi handle this investigation")
                 what_do.append("Female patient between 14-49, let an epi handle this investigation")
                 NBS.go_to_home()
                 continue
-            #Hep C acute investigations need to be followed up by a field epi
+                #Hep C acute investigations need to be followed up by a field epi
             if condition == "Hepatitis C, acute":
+                Hep_inv_assign=True
+                Hep_inv_assign_ids.append(event_id)
                 print("Hepatitis C, acute investigation. Leave for field epi follow up.")
                 what_do.append("Hepatitis C, acute investigation. Leave for field epi follow up.")
                 NBS.go_to_home()
@@ -847,8 +933,6 @@ def start_audrey(username, passcode):
             WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, create_investigation_button_path)))
             NBS.find_element(By.XPATH, create_investigation_button_path).click()
             select_condition_field_path = '//*[@id="ccd_ac_table"]/tbody/tr[1]/td/input'
-            
-            
             WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, select_condition_field_path)))
             NBS.find_element(By.XPATH, select_condition_field_path).send_keys(condition)
             submit_button_path = '/html/body/table/tbody/tr/td/table/tbody/tr[3]/td/table/thead/tr[2]/td/div/table/tbody/tr/td/table/tbody/tr/td[4]/table[1]/tbody/tr[1]/td/input'
@@ -870,14 +954,23 @@ def start_audrey(username, passcode):
                 NBS.incomplete_address_log.append(NBS.ReadPatientID())
                 body = f"A new investigation has been created for patient {NBS.ReadPatientID()}, but they are missing demographic information. The investigation has been left open for manual review."
                 NBS.send_smtp_email("chloe.manchester@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot', body, 'Hepatitis Investigation Missing Demographic Info email')
+            
             NBS.GoToCaseInfo()
-            #NBS.set_investigation_status_closed()
             investigation_status_down_arrow = '//*[@id="NBS_UI_19"]/tbody/tr[4]/td[2]/img'
+            '''open_option = '//*[@id="INV109"]/option[2]'
+            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, investigation_status_down_arrow)))
+            NBS.find_element(By.XPATH, investigation_status_down_arrow).click()
+            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, open_option)))
+            NBS.find_element(By.XPATH, open_option).click()''' 
+               
+            #set investigation status to open or closed
             #set this to option[2] for open or option[1] for closed
+
             if len(NBS.incomplete_address_log) > 0: 
-                closed_option = '//*[@id="INV109"]/option[2]' 
+                closed_option = '//*[@id="INV109"]/option[3]' 
             else:
-                closed_option = '//*[@id="INV109"]/option[1]' 
+                closed_option = '//*[@id="INV109"]/option[2]' 
+
             WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, investigation_status_down_arrow)))
             NBS.find_element(By.XPATH, investigation_status_down_arrow).click()
             WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, closed_option)))
@@ -1303,25 +1396,88 @@ def start_audrey(username, passcode):
                 what_do.append("Associate with Investigation")
         if send_alt_email == True:
             body = f"An Alanine Aminotransferase ELR needs to be manually reviewed. The lab ID is {event_id}"
-            NBS.send_smtp_email("chloe.manchester@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot', body, 'Hepatitis Manual Review email')
+            NBS.send_smtp_email("vaishnavi.appidi@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot from test', body, 'Hepatitis Manual Review email')
             what_do.append("Send ALT Email")
+        
         if send_inv_email == True:
             body = f"A patient has multiple Hepatitis investigations of the same condition with a probable/confirmed status. {existing_investigations}"
-            NBS.send_smtp_email("chloe.manchester@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot', body, 'Hepatitis Investigation Review email')
+            NBS.send_smtp_email("vaishnavi.appidi@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot from test', body, 'Hepatitis Investigation Review email')
             what_do.append("Send Multiple Investigation Email")
+
+
         NBS.go_to_home()
         time.sleep(3)
+
+    if Hep_inv_assign_ids or Female_handled_epi_ids or parinatal_inv_ids:
+        email_body = ""
+    
+    
+        if Hep_inv_assign_ids:
+            print("collected Hepatitis investigation ids:",Hep_inv_assign_ids)
+            email_body += f"Hepatitis investigation to be assigned out. The lab ID is {Hep_inv_assign_ids}\n\n"
+            #body = f"Hepatitis investigation to be assigned out. The lab ID is {Hep_inv_assign_ids}\n\n"
+            #print(f"Hep_inv_assign_ids: {Hep_inv_assign_ids}")
+            #NBS.send_smtp_email("vaishnavi.appidi@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot From Test', body, 'Hepatitis Manual Review email')
+                
+            
+        if Female_handled_epi_ids :
+            print("collected female handled epi ids:",Female_handled_epi_ids)
+            email_body += f"Female patient between 14-49, let an epi handle this investigation. The lab ID is {Female_handled_epi_ids}\n\n"
+            #body = f"Female patient between 14-49, let an epi handle this investigation. The lab ID is {Female_handled_epi_ids}\n\n"
+            #print(f"Female_handled_epi_ids: {Female_handled_epi_ids}")
+            #NBS.send_smtp_email("vaishnavi.appidi@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot From Test', body, 'Hepatitis Manual Review email')
+            
+        if parinatal_inv_ids:
+            print("collected perinatal investigation ids:",parinatal_inv_ids)
+            email_body += f"Patient has a perinatal investigation, leave for an epi. The lab ID is {parinatal_inv_ids}\n\n"
         
+        if email_body:
+            NBS.send_smtp_email("vaishnavi.appidi@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot From Test', email_body, 'Hepatitis Manual Review email')
+   
+       
     if len(merges) >= 1:
-        # Patient Ids: {merge_ids}
+            # Patient Ids: {merge_ids}
         body = f"Potential merges have been identified for patients associated with the following ELRs: {merges}."
-        NBS.send_smtp_email("disease.reporting@maine.gov", 'Merge Report: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot', body, 'Hepatitis Merge Review email')
+        NBS.send_smtp_email("vaishnavi.appidi@maine.gov", 'Merge Report: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot From Test', body, 'Hepatitis Merge Review email')
+
+    
+    print(len(reviewed_ids))
+    print(len(what_do))
 
     bot_act = pd.DataFrame(
         {'Lab ID': reviewed_ids,
         'Action': what_do
         })
     bot_act.to_excel(f"Hepatitis_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx")
+    print("Excel file created")
+
+
+def get_test_condition(resulted_test_table, test_type):
+    if any(x in str(resulted_test_table["Resulted Test"].values[0]) for x in ["Hepatitis C", "HEPATITIS C", "HCV"]):         
+        test_condition = "Hepatitis C"
+    elif any(x in str(resulted_test_table["Resulted Test"].values[0]) for x in ["Hepatitis B", "HEPATITIS B", "HBV"]):         
+        test_condition = "Hepatitis B"
+    elif any(x in str(resulted_test_table["Resulted Test"].values[0]) for x in ["Alanine", "ALT"]): 
+        test_condition = "Hepatitis"
+    else:
+        test_condition = "Hepatitis A"
+    # Check if the test is antibody, antigen, RNA, DNA or genotype
+    if any(x in str(resulted_test_table["Resulted Test"].values[0]) for x in ["Ab", "AB", "IgG", "IgM", "ANTIBODY", "Antibody", "antibody", "IGG", "IgG"]):         
+        test_type = "Antibody"
+    elif any(x in str(resulted_test_table["Resulted Test"].values[0]) for x in ["RNA", "Qnt", "Quant"]):         
+        test_type = "RNA"
+    elif "DNA" in str(resulted_test_table["Resulted Test"].values[0]):         
+        test_type = "DNA"
+    elif any(x in str(resulted_test_table["Resulted Test"].values[0]) for x in [" Ag", " AG", "Antigen", "antigen", "ANTIGEN"]):         
+        test_type = "Antigen"
+    elif any(x in str(resulted_test_table["Resulted Test"].values[0]) for x in ["Gen", "gen", "GEN"]):         
+        test_type = "Genotype"
+    elif any(x in str(resulted_test_table["Resulted Test"].values[0]) for x in ["Alanine", "ALT"]): 
+        test_type = "Alanine"
+        
+    return test_condition, test_type
+            
+        
 
 if __name__ == '__main__':
     start_audrey()

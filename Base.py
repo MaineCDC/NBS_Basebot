@@ -1,11 +1,25 @@
+# new code added to install chromedriver automatically with chromedriver manager
 from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+Chromedriverpath=(ChromeDriverManager().install())
+print(f"chromedriverpath: {Chromedriverpath}")
+
+#from selenium import webdriver
+#from selenium.webdriver.chrome.service import Service
 
 # initialize chromedriver
-chrome_driver_path = "./chromedriver.exe"  # Replace with your custom path
-service = Service(chrome_driver_path)
-driver = webdriver.Chrome(service=service)
+#chrome_driver_path ="C:/Desktop/chromedriver.exe"  # Replace with your custom path
+#service = Service(chrome_driver_path)
+#driver = webdriver.Chrome(service=service)
+#print("")
 
+
+#service = Service(driver)
+#driver = webdriver.Chrome() 
+
+                           
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -56,6 +70,7 @@ class NBSdriver(webdriver.Chrome):
 
         self.options = webdriver.ChromeOptions()
         self.options.add_argument('log-level=3')
+        #self.options.add_argument('--headless')
         self.options.add_argument('--ignore-ssl-errors=yes')
         self.options.add_argument('--ignore-certificate-errors')
         super(NBSdriver, self).__init__(options = self.options)
@@ -164,6 +179,41 @@ class NBSdriver(webdriver.Chrome):
             #check if phone is ten digits if it exists
             if len(re.findall(r'\d', str(cell_phone))) != 10:
                 self.issues.append('Phone number is not ten digits.')
+    
+############ Demographic/Address Check Methods #####################
+    def CheckStAddr(self):
+        """ Must provide street address. """
+        street_address = self.CheckForValue( '//*[@id="DEM159"]', 'Street address is blank.')
+    
+    def CheckZip(self):
+        """ Must provide zip code. """
+        self.zipcode = self.CheckForValue( '//*[@id="DEM163"]', 'Zip code is blank.')
+
+    def CheckCounty(self):
+        """ Must provide county unless the jurisdiction is 'Out of State'. """
+        self.county = self.CheckForValue( '//*[@id="DEM165"]', 'County is blank.')
+        if self.jurisdiction == 'Out of State':                                        #new code
+            return #skip further county checks if out of state                       #new code
+        
+    def CheckCountry(self):
+        """ Must provide country. """
+        self.country = self.CheckForValue( '//*[@id="DEM167"]', 'Country is blank.')
+        if self.country != 'UNITED STATES':
+            # self.GoToApprovalQueue
+            return
+            # self.issues.append('Out of State') #new code
+            # Country listed is not USA.
+
+    def CheckState(self):
+        """ Must provide state and if it is not Maine case should be not a case. """
+        state = self.CheckForValue( '//*[@id="DEM162"]', 'State is blank.')
+        if state != 'Maine':
+            self.issues.append('State is not Maine.')
+            print(f"state: {state}")
+    
+    def CheckCity(self):
+        """ Must provide city. """
+        self.city = self.CheckForValue( '//*[@id="DEM161"]', 'City is blank.')
 
 ################### Personal Details check methods ####################
 
@@ -200,6 +250,25 @@ class NBSdriver(webdriver.Chrome):
             comment = self.ReadText('//*[@id="DEM196"]')
             if not comment:
                 self.issues.append('Patient sex is Unknown without a note.')
+
+    ############ Ethnicity and Race Information Check Methods #####################
+    def CheckEthnicity(self):
+        """ Must provide ethnicity. """
+        self.ethnicity = self.CheckForValue('//*[@id="DEM155"]','Ethnicity is blank.')
+
+    def CheckRaceAna(self):
+        """ Must provide race and selection must make sense. """
+        self.race = self.CheckForValue('//*[@id="patientRacesViewContainer"]','Race is blank.')
+        #If white is selected, other should not be selected
+        if "White" in self.race and "Unknown" in self.race:
+            self.issues.append("White and Unknown race should not be selected at the same time.")
+        if "Other" in self.race:
+            self.CheckForValue('//*[@id="DEM196"]', "If Other race is selected there needs to be a comment.")
+        # Race should only be unknown if no other options are selected.
+        ambiguous_answers = ['Unknown', 'Other', 'Refused to answer', 'Not Asked']
+        for answer in ambiguous_answers:
+            if (answer in self.race) and (self.race != answer) and (self.race == 'Native Hawaiian or Other Pacific Islander'):
+                self.issues.append('"'+ answer + '"' + ' selected in addition to other options for race.')
 
     def go_to_id(self, id):
         """ Navigate to specific patient by NBS ID from Home. """
@@ -540,14 +609,7 @@ class NBSdriver(webdriver.Chrome):
                 self.issues.append('Missing investigator assigned date.')
                 print(f"investigator_assigned_date: {assigned_date}")
 
-    def CheckInvestigatorAna(self):
-        """ Check if an investigator was assigned to the case. """
-        investigator = self.ReadText('//*[@id="INV180"]')
-        self.investigator_name = investigator
-        if not investigator:
-            self.issues.append('Investigator is blank.')
-            print(f"investigator: {investigator}")
-
+   
     def CheckInvestigator(self):
         """ Check if an investigator was assigned to the case. """
         investigator = self.ReadText('//*[@id="INV180"]')
@@ -595,65 +657,6 @@ class NBSdriver(webdriver.Chrome):
                 if current_county_date != current_state_date:
                     self.issues.append('Earliest dates reported to county and state do not match.')
 
-############ Demographic/Address Check Methods #####################
-    def CheckStAddr(self):
-        """ Must provide street address. """
-        street_address = self.CheckForValue( '//*[@id="DEM159"]', 'Street address is blank.')
-    
-    def CheckZip(self):
-        """ Must provide zip code. """
-        self.zipcode = self.CheckForValue( '//*[@id="DEM163"]', 'Zip code is blank.')
-
-    def CheckCounty(self):
-        """ Must provide county unless the jurisdiction is 'Out of State'. """
-        self.county = self.CheckForValue( '//*[@id="DEM165"]', 'County is blank.')
-        if self.jurisdiction == 'Out of State':                                        #new code
-            return #skip further county checks if out of state                       #new code
-        
-    def CheckCountry(self):
-        """ Must provide country. """
-        self.country = self.CheckForValue( '//*[@id="DEM167"]', 'Country is blank.')
-        if self.country != 'UNITED STATES':
-            # self.GoToApprovalQueue
-            return
-            # self.issues.append('Out of State') #new code
-            # Country listed is not USA.
-
-    def CheckState(self):
-        """ Must provide state and if it is not Maine case should be not a case. """
-        state = self.CheckForValue( '//*[@id="DEM162"]', 'State is blank.')
-        if state != 'Maine':
-            self.issues.append('State is not Maine.')
-            print(f"state: {state}")
-    
-    def CheckCity(self):
-        """ Must provide city. """
-        self.city = self.CheckForValue( '//*[@id="DEM161"]', 'City is blank.')
-
-
-    def check_jurisdiction(self):
-        """ After completing an investigation check if the patient's county and
-        jurisdiction match. If a county is available that does not match the
-        jurisdication then update the jurisdiction accordingly."""
-        county_path = '//*[@id="DEM165"]'
-        jurisdiction_path = '//*[@id="INV107"]'
-        transfer_ownership_path = '/html/body/div/div/form/div[2]/div[1]/table[2]/tbody/tr/td[1]/table/tbody/tr/td[3]/input'
-        new_jurisdiction_path = '//*[@id="subsect_transferOwn"]/tbody/tr[2]/td[2]/input'
-        submit_jurisdiction_path = '//*[@id="topButtId"]/input[1]'
-        county = self.ReadText(county_path)
-        if county and (not county.isnumeric()):
-            self.GoToCaseInfo()
-            jurisdiction = self.ReadText(jurisdiction_path)
-            if not jurisdiction in county:
-                self.find_element(By.XPATH, transfer_ownership_path).click()
-                self.switch_to_secondary_window()
-                self.find_element(By.XPATH, new_jurisdiction_path).send_keys(Keys.CONTROL+'a')
-                self.find_element(By.XPATH, new_jurisdiction_path).send_keys(county[0:3])
-                self.find_element(By.XPATH, submit_jurisdiction_path).click()
-                self.switch_to.window(self.main_window_handle)
-        elif county.isnumeric():
-            self.incomplete_address_log.append(self.ReadPatientID())
-
 
 ################# Check Jurisdiction ####################
     def CheckJurisdiction(self):
@@ -681,52 +684,6 @@ class NBSdriver(webdriver.Chrome):
         elif self.investigation_start_date > self.now:
             self.issues.append('Investigation start date cannot be in the future.') 
 
-#################### Hospital Check Methods ###################################
-    def CheckHospitalizationIndicator(self):
-        """ Read hospitalization status. If an investigation was conducted it must be Yes or No """
-        self.hospitalization_indicator = self.ReadText('//*[@id="INV128"]')
-        if (self.ltf != 'Yes') & (self.investigator):
-            if self.hospitalization_indicator not in ['Yes', 'No']:
-                self.issues.append("Patient hospitalized must be 'Yes' or 'No'.")
-
-    def CheckHospitalName(self):
-        """" If the case is hospitalized then a hospital name must be provided. """
-        hospital_name = self.ReadText('//*[@id="INV184"]')
-        if not hospital_name:
-            self.issues.append('Hospital name missing.')
-    
-    def CheckIcuIndicator(self):
-        """ If case is hospitalized then we should know if they were ever in the ICU."""
-        self.icu_indicator = self.ReadText('//*[@id="309904001"]')
-        if (self.ltf != 'Yes') & (self.hospitalization_indicator == 'Yes') & (self.investigator):
-            if not self.icu_indicator:
-                self.issues.append('ICU indicator is blank.')
-
-    def CheckIcuAdmissionDate(self):
-        """ Check for ICU admission date."""
-        self.icu_admission_date = self.ReadDate('//*[@id="NBS679"]')
-        if not self.icu_admission_date:
-            self.issues.append('ICU admission date is missing.')
-        elif self.icu_admission_date > self.now:
-            self.issues.append('ICU admission date cannot be in the future.')
-
-    def CheckIcuDischargeDate(self):
-        """ Check for ICU discharge date. """
-        icu_discharge_date = self.ReadDate('//*[@id="NBS680"]')
-        if not icu_discharge_date:
-            self.issues.append('ICU discharge date is missing.')
-        elif icu_discharge_date < self.icu_admission_date:
-            self.issues.append('ICU discharge date must be after admission date.')
-        elif icu_discharge_date > self.now:
-            self.issues.append('ICU discharge date cannot be in the future.')
-
-
-
-############## Check Death Date################
-    def CheckDieFromIllness(self):
-        """ Died from illness should be yes or no. """
-        self.death_indicator =  self.CheckForValue('//*[@id="INV145"]','Died from illness must be yes or no.')
-   
 
 
 ################### Reporting Organization Check Methods #######################
@@ -804,6 +761,7 @@ class NBSdriver(webdriver.Chrome):
             self.issues.append('Discharge date cannot be in the future.')
             print(f"discharge_date: {discharge_date}")
 
+    ############MMWR check should not be blank####################
     def CheckMmwrWeek(self):
         """ MMWR week must be provided."""
         mmwr_week = self.CheckForValue( '//*[@id="INV165"]', "MMWR Week is blank.")
@@ -851,30 +809,6 @@ class NBSdriver(webdriver.Chrome):
                 print(f"illness_duration_units: {self.IllnessDurationUnits}")
     
 
-############ Ethnicity and Race Information Check Methods #####################
-    def CheckEthnicity(self):
-        """ Must provide ethnicity. """
-        self.ethnicity = self.CheckForValue('//*[@id="DEM155"]','Ethnicity is blank.')
-
-    def CheckRaceAna(self):
-        """ Must provide race and selection must make sense. """
-        self.race = self.CheckForValue('//*[@id="patientRacesViewContainer"]','Race is blank.')
-        #If white is selected, other should not be selected
-        if "White" in self.race and "Unknown" in self.race:
-            self.issues.append("White and Unknown race should not be selected at the same time.")
-        if "Other" in self.race:
-            self.CheckForValue('//*[@id="DEM196"]', "If Other race is selected there needs to be a comment.")
-        # Race should only be unknown if no other options are selected.
-        ambiguous_answers = ['Unknown', 'Other', 'Refused to answer', 'Not Asked']
-        for answer in ambiguous_answers:
-            if (answer in self.race) and (self.race != answer) and (self.race == 'Native Hawaiian or Other Pacific Islander'):
-                self.issues.append('"'+ answer + '"' + ' selected in addition to other options for race.')
-
-##############TickBorne Method############
-    def GoToTickBorne(self):
-        Tickborne_path = '//*[@id="tabs0head1"]'
-        WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, Tickborne_path)))
-        self.find_element(By.XPATH, Tickborne_path).click()
 
 ############### Preforming Lab Check Methods ##################################
     def CheckPreformingLaboratory(self):
@@ -892,6 +826,15 @@ class NBSdriver(webdriver.Chrome):
         # if not value:
         #     self.issues.append(blank_message)
         return value
+    
+    def ReadText(self, xpath):
+        """ A method to read the text of any web element identified by an Xpath
+        and remove leading an trailing carriage returns sometimes included by
+        Selenium's get_attribute('innerText')."""
+        value = self.find_element(By.XPATH, xpath).get_attribute('innerText')
+        value = value.replace('\n','')
+        return value
+
 
     def check_for_value_bool(self, path):
         """ Return boolean value based on whether a value is present."""
@@ -921,14 +864,7 @@ class NBSdriver(webdriver.Chrome):
             if not child:
                 self.issues.append(message)
 
-    def ReadText(self, xpath):
-        """ A method to read the text of any web element identified by an Xpath
-        and remove leading an trailing carriage returns sometimes included by
-        Selenium's get_attribute('innerText')."""
-        value = self.find_element(By.XPATH, xpath).get_attribute('innerText')
-        value = value.replace('\n','')
-        return value
-
+    
     def ReadTableToDF(self, xpath):
         """ A method to read tables into pandas Data Frames for easy manipulation. """
         try:
@@ -1087,7 +1023,23 @@ class NBSdriver(webdriver.Chrome):
             nbs_error = False
         return nbs_error
 
-################# Notification Check############
+
+
+    def go_to_home_from_error_page(self):
+        """ Go to NBS Home page from an NBS error page. """
+        xpath = '/html/body/table/tbody/tr/td/table/tbody/tr[1]/td/table/tbody/tr/td/table/tbody/tr/td[1]/a'
+        for _ in range(self.num_attempts):
+            try:
+                WebDriverWait(self,self.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, xpath)))
+                self.find_element(By.XPATH, xpath).click()
+                self.home_loaded = True
+                break
+            except TimeoutException:
+                self.home_loaded = False
+        if not self.home_loaded:
+            sys.exit(print(f"Made {self.num_attempts} unsuccessful attempts to load Home page. A persistent issue with NBS was encountered."))
+
+    ################# Notification Check############
 
     def RejectNotification(self):
         """ Reject notification on first case in notification queue.
@@ -1123,40 +1075,50 @@ class NBSdriver(webdriver.Chrome):
         self.switch_to.window(main_window_handle)
         self.num_approved += 1
 
-    def go_to_home_from_error_page(self):
-        """ Go to NBS Home page from an NBS error page. """
-        xpath = '/html/body/table/tbody/tr/td/table/tbody/tr[1]/td/table/tbody/tr/td/table/tbody/tr/td[1]/a'
-        for _ in range(self.num_attempts):
-            try:
-                WebDriverWait(self,self.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, xpath)))
-                self.find_element(By.XPATH, xpath).click()
-                self.home_loaded = True
-                break
-            except TimeoutException:
-                self.home_loaded = False
-        if not self.home_loaded:
-            sys.exit(print(f"Made {self.num_attempts} unsuccessful attempts to load Home page. A persistent issue with NBS was encountered."))
+#################### Hospital Check Methods ###################################
+    ###specific to athena (in athena.py)####
+    '''def CheckHospitalizationIndicator(self):
+        """ Read hospitalization status. If an investigation was conducted it must be Yes or No """
+        self.hospitalization_indicator = self.ReadText('//*[@id="INV128"]')
+        if (self.ltf != 'Yes') & (self.investigator):
+            if self.hospitalization_indicator not in ['Yes', 'No']:
+                self.issues.append("Patient hospitalized must be 'Yes' or 'No'.")
 
-    def write_general_comment(self, note):
-        """Write a note in the general comments box of an investigation."""
-        xpath = '//*[@id="INV167"]'
-        self.find_element(By.XPATH, xpath).send_keys(note)
+    def CheckHospitalName(self):
+        """" If the case is hospitalized then a hospital name must be provided. """
+        hospital_name = self.ReadText('//*[@id="INV184"]')
+        if not hospital_name:
+            self.issues.append('Hospital name missing.')
+    
+    def CheckIcuIndicator(self):
+        """ If case is hospitalized then we should know if they were ever in the ICU."""
+        self.icu_indicator = self.ReadText('//*[@id="309904001"]')
+        if (self.ltf != 'Yes') & (self.hospitalization_indicator == 'Yes') & (self.investigator):
+            if not self.icu_indicator:
+                self.issues.append('ICU indicator is blank.')
 
-    #new code added from covidnotificationbot, it also inherits from here
-    def SendManualReviewEmail(self):
-        """ Send email containing NBS IDs that required manual review."""
-        if (len(self.not_a_case_log) > 0) | (len(self.lab_data_issues_log) > 0):
-            subject = 'Cases Requiring Manual Review'
-            email_name = 'manual review email'
-            body = "COVID Commander,\nThe case(s) listed below have been moved to the rejected notification queue and require manual review.\n\nNot a case:"
-            for id in self.not_a_case_log:
-                body = body + f'\n{id}'
-            body = body + '\n\nAssociated lab issues:'
-            for id in self.lab_data_issues_log:
-                body = body + f'\n{id}'
-            body = body + '\n\n-Nbsbot'
-            #self.send_smtp_email(recipient, cc, subject, body)
-            self.send_smtp_email(self.covid_commander, subject, body, email_name)
-            self.not_a_case_log = []
-            self.lab_data_issues_log = []
+    def CheckIcuAdmissionDate(self):
+        """ Check for ICU admission date."""
+        self.icu_admission_date = self.ReadDate('//*[@id="NBS679"]')
+        if not self.icu_admission_date:
+            self.issues.append('ICU admission date is missing.')
+        elif self.icu_admission_date > self.now:
+            self.issues.append('ICU admission date cannot be in the future.')
+
+    def CheckIcuDischargeDate(self):
+        """ Check for ICU discharge date. """
+        icu_discharge_date = self.ReadDate('//*[@id="NBS680"]')
+        if not icu_discharge_date:
+            self.issues.append('ICU discharge date is missing.')
+        elif icu_discharge_date < self.icu_admission_date:
+            self.issues.append('ICU discharge date must be after admission date.')
+        elif icu_discharge_date > self.now:
+            self.issues.append('ICU discharge date cannot be in the future.')
+
+############## Check Death Date################
+    def CheckDieFromIllness(self):
+        """ Died from illness should be yes or no. """
+        self.death_indicator =  self.CheckForValue('//*[@id="INV145"]','Died from illness must be yes or no.')'''
+   
+
     

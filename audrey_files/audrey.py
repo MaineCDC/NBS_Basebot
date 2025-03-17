@@ -12,6 +12,7 @@ from epiweeks import Week
 from selenium.common.exceptions import ElementNotInteractableException
 from selenium.common.exceptions import NoSuchElementException
 from time import sleep
+import dask.dataframe as dd
 
 class Audrey(NBSdriver):
     """ A class inherits all basic NBS functionality from NBSdriver and adds
@@ -100,6 +101,12 @@ class Audrey(NBSdriver):
         self.patient_list = self.patient_list.drop_duplicates(ignore_index=True)
         Connection.close()
         print ('Data recieved and database connection closed.')
+        
+        
+    def write_general_comment(self, note):
+        """Write a note in the general comments box of an investigation."""
+        xpath = '//*[@id="INV167"]'
+        self.find_element(By.XPATH, xpath).send_keys(note)
 
     def get_unassigned_covid_labs(self):
         """ Connect to the analyis NBS database and execute a query to return a
@@ -431,27 +438,45 @@ class Audrey(NBSdriver):
 
     def read_street(self):
         """ Read the current street address."""
-        self.street = self.find_element(By.XPATH, self.street_path).get_attribute('value')
+        try:
+            self.street = self.find_element(By.XPATH, self.street_path).get_attribute('value')
+        except Exception as e:
+            self.street = None
 
     def read_city(self):
         """Read the current city/town."""
-        self.city = self.find_element(By.XPATH, self.city_path).get_attribute('value')
+        try:
+            self.city = self.find_element(By.XPATH, self.city_path).get_attribute('value')
+        except Exception as e:
+            self.city = None
 
     def read_zip(self):
         """Read the current zip code. """
-        self.zip_code = self.find_element(By.XPATH, self.zip_path).get_attribute('value')
+        try:
+            self.zip_code = self.find_element(By.XPATH, self.zip_path).get_attribute('value')
+        except Exception as e:
+            self.zip_code = None
 
     def write_zip(self):
         """Write zip code. Intended for use after looking up a missing zip code with zip_code_lookup()."""
-        self.find_element(By.XPATH, self.zip_path).send_keys(self.zip_code)
+        try:
+            self.find_element(By.XPATH, self.zip_path).send_keys(self.zip_code)
+        except Exception as e:
+            print("")
 
     def read_county(self):
         """Read the current county. """
-        self.county = self.find_element(By.XPATH, self.county_path).get_attribute('value')
+        try:
+            self.county = self.find_element(By.XPATH, self.county_path).get_attribute('value')
+        except Exception as e:
+            self.county = None
 
     def write_county(self):
         """Write county. Intended for use after looking up a missing missing count with county_lookup()."""
-        self.find_element(By.XPATH, self.county_path).send_keys(self.county)
+        try:
+            self.find_element(By.XPATH, self.county_path).send_keys(self.county)
+        except Exception as e:
+            print("")
 
     def read_address(self):
         """ Read parts of the patient address except for state and country."""
