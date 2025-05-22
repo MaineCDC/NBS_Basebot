@@ -1,19 +1,19 @@
 # new code added to install chromedriver automatically with chromedriver manager
-from selenium import webdriver
+'''from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-Chromedriverpath=(ChromeDriverManager().install())
-print(f"chromedriverpath: {Chromedriverpath}")
+Chromedriverpath=(ChromeDriverManager(driver_version="134.0.6998.90").install())
+print(f"chromedriverpath: {Chromedriverpath}")'''
 
-#from selenium import webdriver
-#from selenium.webdriver.chrome.service import Service
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 
 # initialize chromedriver
-#chrome_driver_path ="C:/Desktop/chromedriver.exe"  # Replace with your custom path
-#service = Service(chrome_driver_path)
-#driver = webdriver.Chrome(service=service)
-#print("")
+chrome_driver_path ="C:/Users/vaishnavi.appidi/OneDrive - State of Maine/Desktop/chromedriver-win32/chromedriver.exe"  # Replace with your custom path
+service = Service(chrome_driver_path)
+driver = webdriver.Chrome(service=service)
+print("")
 
 
 #service = Service(driver)
@@ -41,7 +41,7 @@ import time
 from selenium.common.exceptions import TimeoutException, ElementNotInteractableException
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import ElementClickInterceptedException
-from selenium.common.exceptions import NoAlertPresentException
+from selenium.common.exceptions import NoAlertPresentException, StaleElementReferenceException
 import configparser
 import smtplib
 from email.message import EmailMessage
@@ -50,6 +50,8 @@ from geopy.geocoders import Nominatim
 from usps import USPSApi, Address
 import json
 from io import StringIO
+from strep_files.strep_bot import start_strep 
+
 
 class NBSdriver(webdriver.Chrome):
     """ A class to provide basic functionality in NBS via Selenium. """
@@ -90,13 +92,14 @@ class NBSdriver(webdriver.Chrome):
         self.issues = []
         self.now = datetime.now().date()
         self.collection_date = None
+        self.received_date = None
         self.cong_aoe = None
         self.cong_setting_indicator = None
         self.county = None
         self.country = None #new variable
         self.current_report_date = None
         self.current_status = None
-        self.death_indicator = None
+        self.patient_die_from_illness = None
         self.dob = None
         self.first_responder = None
         self.fr_aoe = None
@@ -109,20 +112,20 @@ class NBSdriver(webdriver.Chrome):
         self.immpact = None
         self.investigation_start_date = None
         self.investigator = None
-        self.jurisdiction = None #new variable to allow access from multiple functions
+        self.jurisdiction = None        #new variable to allow access from multiple functions
         self.labs = None
         self.ltf = None
         self.preg_aoe = None
-        self.report_date = None
+        #self.report_date = None
         self.status = None
         self.symp_aoe = None
         self.symptoms = None
-        self.symptoms_list = [] #new variable initially undeclared
+        self.symptoms_list = []         #new variable initially undeclared
         self.vax_recieved = None
-        self.initial_name = None #new variable initially undeclared
-        self.final_name = None  #new variable initially undeclared
-        self.CaseStatus = None  #new variable initially undeclared
-        self.CorrectCaseStatus = None  #new variable initially undeclared
+        self.initial_name = None        #new variable initially undeclared
+        self.final_name = None          #new variable initially undeclared
+        self.CaseStatus = None          #new variable initially undeclared
+        self.CorrectCaseStatus = None   #new variable initially undeclared
 
     ########################### NBS Navigation Methods ############################
     def get_credentials(self):
@@ -155,11 +158,15 @@ class NBSdriver(webdriver.Chrome):
 ################### Name Details check methods####################
     def CheckFirstName(self):
         """ Must provide first name. """
-        first_name = self.CheckForValue( '//*[@id="DEM104"]', 'First name is blank.')
+        first_name = self.ReadText('//*[@id="DEM104"]') 
+        if not first_name:
+            self.issues.append('First name is blank.')
 
     def CheckLastName(self):
         """ Must provide last name. """
-        last_name = self.CheckForValue( '//*[@id="DEM102"]', 'last name is blank.')
+        last_name = self.ReadText( '//*[@id="DEM102"]')
+        if not last_name:
+            self.issues.append('Last name is blank.')
 
 ################ Check Phone Methods #####################
     def CheckPhone(self):
@@ -183,37 +190,53 @@ class NBSdriver(webdriver.Chrome):
 ############ Demographic/Address Check Methods #####################
     def CheckStAddr(self):
         """ Must provide street address. """
-        street_address = self.CheckForValue( '//*[@id="DEM159"]', 'Street address is blank.')
+        street_address = self.ReadText( '//*[@id="DEM159"]')
+        if not street_address:
+            self.issues.append('Street address is blank.')
+            
+    def CheckCity(self):
+        """ Must provide city. """
+        self.city = self.ReadText( '//*[@id="DEM161"]')
+        if not self.city:
+            self.issues.append('City is blank.')
+            
+    def CheckState(self):
+        """ Must provide state and if it is not Maine case should be not a case. """
+        self.state = self.ReadText( '//*[@id="DEM162"]')
+        if not self.state:
+            self.issues.append('State is blank.')
+        if self.state != 'Maine':
+            self.issues.append('State is not Maine.')
+            print(f"state: {self.state}")
+    
     
     def CheckZip(self):
         """ Must provide zip code. """
-        self.zipcode = self.CheckForValue( '//*[@id="DEM163"]', 'Zip code is blank.')
+        self.zipcode = self.ReadText( '//*[@id="DEM163"]')
+        if not self.zipcode:    
+            self.issues.append('Zip code is blank.')
 
     def CheckCounty(self):
         """ Must provide county unless the jurisdiction is 'Out of State'. """
-        self.county = self.CheckForValue( '//*[@id="DEM165"]', 'County is blank.')
+        self.county = self.ReadText( '//*[@id="DEM165"]')
+        if not self.county:
+            self.issues.append('County is blank.')
         if self.jurisdiction == 'Out of State':                                        #new code
             return #skip further county checks if out of state                       #new code
         
     def CheckCountry(self):
         """ Must provide country. """
-        self.country = self.CheckForValue( '//*[@id="DEM167"]', 'Country is blank.')
+        self.country = self.ReadText( '//*[@id="DEM167"]')
+        if not self.country:
+            self.issues.append('Country is blank.')
         if self.country != 'UNITED STATES':
             # self.GoToApprovalQueue
             return
             # self.issues.append('Out of State') #new code
             # Country listed is not USA.
 
-    def CheckState(self):
-        """ Must provide state and if it is not Maine case should be not a case. """
-        state = self.CheckForValue( '//*[@id="DEM162"]', 'State is blank.')
-        if state != 'Maine':
-            self.issues.append('State is not Maine.')
-            print(f"state: {state}")
     
-    def CheckCity(self):
-        """ Must provide city. """
-        self.city = self.CheckForValue( '//*[@id="DEM161"]', 'City is blank.')
+    
 
 ################### Personal Details check methods ####################
 
@@ -222,10 +245,8 @@ class NBSdriver(webdriver.Chrome):
         self.dob = self.ReadDate('//*[@id="DEM115"]')
         if not self.dob:
             self.issues.append('DOB is blank.')
-            print(f"dob: {self.dob}")
         elif self.dob > self.now:
             self.issues.append('DOB cannot be in the future.')
-            print(f"dob: {self.dob}")
 
     def CheckAge(self):
         """ Must provide age. """
@@ -243,10 +264,10 @@ class NBSdriver(webdriver.Chrome):
 
     def CheckCurrentSex(self):
         """ Ensure patient current sex is not blank. """
-        patient_sex = self.ReadText('//*[@id="DEM113"]')
-        if not patient_sex:
+        self.patient_sex = self.ReadText('//*[@id="DEM113"]')
+        if not self.patient_sex:
             self.issues.append('Patient sex is blank.')
-        elif patient_sex == "Unknown":
+        elif self.patient_sex == "Unknown":
             comment = self.ReadText('//*[@id="DEM196"]')
             if not comment:
                 self.issues.append('Patient sex is Unknown without a note.')
@@ -254,7 +275,20 @@ class NBSdriver(webdriver.Chrome):
     ############ Ethnicity and Race Information Check Methods #####################
     def CheckEthnicity(self):
         """ Must provide ethnicity. """
-        self.ethnicity = self.CheckForValue('//*[@id="DEM155"]','Ethnicity is blank.')
+        self.ethnicity = self.ReadText('//*[@id="DEM155"]')
+        if not self.ethnicity:
+            self.issues.append('Ethnicity is blank.')
+        
+    
+    def CheckRace(self):
+        """ Must provide race and selection must make sense. """
+        self.race = self.CheckForValue('//*[@id="patientRacesViewContainer"]','Race is blank.')
+        # Race should only be unknown if no other options are selected.
+        ambiguous_answers = ['Unknown', 'Other', 'Refused to answer', 'Not Asked']
+        for answer in ambiguous_answers:
+            if (answer in self.race) and (self.race != answer) and (self.race == 'Native Hawaiian or Other Pacific Islander'):
+                self.issues.append('"'+ answer + '"' + ' selected in addition to other options for race.')
+
 
     def CheckRaceAna(self):
         """ Must provide race and selection must make sense. """
@@ -312,18 +346,22 @@ class NBSdriver(webdriver.Chrome):
         """ Go to NBS Home page. """
         #xpath = '//*[@id="bd"]/table[1]/tbody/tr/td[1]/table/tbody/tr/td[1]/a'
         partial_link = 'Home'
-        for _ in range(self.num_attempts):
+        for i in range(3):
             try:
                 #WebDriverWait(self,self.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, xpath)))
                 #self.find_element(By.XPATH, xpath).click()
-                WebDriverWait(self,self.wait_before_timeout).until(EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, partial_link)))
+                timeout = self.wait_before_timeout + i*10
+                WebDriverWait(self, timeout).until(EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, partial_link)))
                 self.find_element(By.PARTIAL_LINK_TEXT, partial_link).click()
                 self.home_loaded = True
                 break
+            except StaleElementReferenceException:
+                print("StaleElementReferenceException encountered, retrying...")
+                self.home_loaded = False
             except TimeoutException:
                 self.home_loaded = False
         if not self.home_loaded:
-            sys.exit(print(f"Made {self.num_attempts} unsuccessful attempts to load Home page. A persistent issue with NBS was encountered."))
+            sys.exit(print(f"Made {i} unsuccessful attempts to load Home page. A persistent issue with NBS was encountered."))
 
     def GoToApprovalQueue(self):
         """ Navigate to approval queue from Home page. """
@@ -383,9 +421,9 @@ class NBSdriver(webdriver.Chrome):
                 self.find_element(By.XPATH, paths['click_cancel_path']).click()
                 #self.go_to_home()
                 time.sleep(3)
-                self.Sleep()
+                #self.Sleep()
                 #this wont work if we are not running the for loop to cycle through the queue,
-                #c]omment out if not running the whole thing
+                #comment out if not running the whole thing
                 
             time.sleep(1)
 
@@ -427,16 +465,30 @@ class NBSdriver(webdriver.Chrome):
             self.find_element(By.XPATH, clear_checkbox_path).click()
             try:
                 # Click on the 2019 Novel Coronavirus checkbox
-                self.find_element(By.XPATH, "//label[contains(text(),'2019 Novel Coronavirus')]/input").click()
+                self.find_element(By.XPATH, "//label[contains(text(),'Group A Streptococcus, invasive')]/input").click()
+                try:
+                    self.find_element(By.XPATH, "//label[contains(text(),'STREPTOCOCCUS PYOGENES')]/input").click()
+                except Exception as e:
+                    print(f"Error encountered: {e}")
                 # Click on the okay button
                 self.find_element(By.XPATH,'/html/body/div[2]/form/div/table[2]/tbody/tr/td/table/thead/tr/th[8]/div/label[1]/input[1]').click()
             except NoSuchElementException:
                 self.find_element(By.XPATH,'/html/body/div[2]/form/div/table[2]/tbody/tr/td/table/thead/tr/th[8]/div/label[1]/input[2]').click()             
+            except Exception as e:
+                print(f"Error encountered: {e}")
             # Double click submit date for chronological order.
-            WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, submit_date_path)))
-            self.find_element(By.XPATH, submit_date_path).click()
-            WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, submit_date_path)))
-            self.find_element(By.XPATH, submit_date_path).click()
+            
+            for i in range(3):
+                try:
+                    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, submit_date_path)))
+                    self.find_element(By.XPATH, submit_date_path).click()
+                    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, submit_date_path)))
+                    self.find_element(By.XPATH, submit_date_path).click()
+                    break
+                except StaleElementReferenceException:
+                    print(f"StaleElementReferenceException for submit_date_path, trying again... retry_number: {i}")
+                except TimeoutException:
+                    print(f"TimeoutException for submit_date_path, trying again... retry_number: {i}")
             # Double click condition for reverse alpha order.
             WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, condition_path)))
             self.find_element(By.XPATH,condition_path).click()
@@ -560,7 +612,21 @@ class NBSdriver(webdriver.Chrome):
     def click_submit(self):
         """ Click submit button to save changes."""
         submit_button_path = '/html/body/div/div/form/div[2]/div[1]/table[2]/tbody/tr/td[2]/table/tbody/tr/td[1]/input'
-        self.find_element(By.XPATH, submit_button_path).click()
+        for i in range(3):
+            try:
+                timeout = self.wait_before_timeout + i*10
+                element = WebDriverWait(self, timeout).until(EC.element_to_be_clickable((By.XPATH, submit_button_path)))
+                element.click()
+                break
+            except TimeoutException:
+                print(f"TimeoutException for submit_button_path, trying again... retry_number: {i}")
+            except StaleElementReferenceException:
+                print(f"StaleElementReferenceException for submit_button_path, trying again... retry_number: {i}")
+            except NoSuchElementException:
+                print(f"No submit_button_path found, trying again... retry_number: {i}")
+                time.sleep(1)
+            except Exception as e:
+                print(f"{e} has occured for submit_button_path, retry_number: {i}")
 
     def click_manage_associations_submit(self):
         """ Click submit button in the Manage Associations window."""
@@ -607,17 +673,15 @@ class NBSdriver(webdriver.Chrome):
             assigned_date = self.ReadText('//*[@id="INV110"]')
             if not assigned_date:
                 self.issues.append('Missing investigator assigned date.')
-                print(f"investigator_assigned_date: {assigned_date}")
 
    
     def CheckInvestigator(self):
         """ Check if an investigator was assigned to the case. """
         investigator = self.ReadText('//*[@id="INV180"]')
         self.investigator_name = investigator
-        if investigator:
-            self.investigator = True
-        else:
-            self.investigator = False
+        if not investigator:
+            self.issues.append('Investigator is blank.')
+
         
 
 ################# Key Report Dates Check Methods ###############################
@@ -626,11 +690,12 @@ class NBSdriver(webdriver.Chrome):
         Report Date from the associated labs. """
         self.current_report_date = self.ReadDate('//*[@id="INV111"]')
         if not self.current_report_date:
-            self.issues.append('Missing report date.')
+            self.issues.append('Report date is blank.')
         elif self.current_report_date > self.investigation_start_date:
             self.issues.append('Report date cannot be after investigation start date.')
-        elif self.report_date != self.current_report_date:
+        elif self.received_date and self.received_date != self.current_report_date:
             self.issues.append('Report date mismatch.')
+       
 
     def CheckCountyStateReportDate(self):
         """ Check if the current value of county report date is consistent with
@@ -651,8 +716,9 @@ class NBSdriver(webdriver.Chrome):
             self.issues.append('Earliest report to state cannot be prior to inital report date.')
         elif current_state_date > self.investigation_start_date:
             self.issues.append('Earliest report to state date cannot be after investigation start date.')
-
-        if current_county_date:
+        if not current_county_date:
+            self.issues.append('Earliest report to county date is blank.')
+        elif current_county_date:
             if current_state_date:
                 if current_county_date != current_state_date:
                     self.issues.append('Earliest dates reported to county and state do not match.')
@@ -665,12 +731,7 @@ class NBSdriver(webdriver.Chrome):
         if jurisdiction not in self.county:
             self.issues.append('County and jurisdiction mismatch.')
 
-    def CheckProgramArea(self):
-        """ Program area must be Airborne. """
-        program_area = self.CheckForValue('//*[@id="INV108"]','Program Area is blank.')
-        if program_area != 'Airborne and Direct Contact Diseases':
-            self.issues.append('Program Area is not "Airborne and Direct Contact Diseases".')
-
+    
 
  ################### Investigation Details Check Methods ########################
 
@@ -679,10 +740,10 @@ class NBSdriver(webdriver.Chrome):
         self.investigation_start_date = self.ReadDate('//*[@id="INV147"]')
         if not self.investigation_start_date:
             self.issues.append('Investigation start date is blank.')
-        elif self.investigation_start_date < self.report_date:
+        elif self.name_match and self.investigation_start_date < self.received_date:
             self.issues.append('Investigation start date must be on or after report date.')
         elif self.investigation_start_date > self.now:
-            self.issues.append('Investigation start date cannot be in the future.') 
+            self.issues.append('Investigation start date cannot be in the future.')
 
 
 
@@ -692,6 +753,10 @@ class NBSdriver(webdriver.Chrome):
         reporting_source_type = self.ReadText('//*[@id="INV112"]')
         if not reporting_source_type:
             self.issues.append('Reporting source type is blank.')
+        elif reporting_source_type == 'Other':
+            reporting_source_type_other = self.ReadText('//*[@id="INV183"]')
+            if not reporting_source_type_other:
+                self.issues.append('Reporting source type is Other but no other type provided.')
 
     def CheckReportingOrganization(self):
         """ Ensure that reporting organization is not empty. """
@@ -699,8 +764,25 @@ class NBSdriver(webdriver.Chrome):
         if not reporting_organization:
             self.issues.append('Reporting organization is blank.')
     
+    def CheckReportingProvider(self):
+        """ Ensure that reporting provider is not empty. """
+        reporting_provider = self.ReadText('//*[@id="INV181"]')
+        if not reporting_provider:
+            self.issues.append('Reporting Provider is blank.')
+    
+    def CheckReportingCounty(self):
+        """ Ensure that reporting county is not empty. """
+        reporting_county = self.ReadText('//*[@id="NOT113"]')
+        if not reporting_county:
+            self.issues.append('Reporting county is blank.')
+    
     ######################### Case Status Check Methods ############################
-
+    def CheckTransmissionMode(self):
+        """ Transmission mode should blank or airborne"""
+        transmission_method =  self.ReadText('//*[@id="INV157"]')
+        if transmission_method not in ['', 'Airborne']:
+            self.issues.append('Transmission mode should be blank or airborne.')
+    
     def CheckConfirmationMethod(self):
         """ Confirmation Method must be blank or consistent with correct case status."""
         confirmation_method =  self.ReadText('//*[@id="INV161"]')
@@ -728,7 +810,7 @@ class NBSdriver(webdriver.Chrome):
         if not confirmation_date:
             self.issues.append('Confirmation date is blank.')
             print(f"confirmation_date: {confirmation_date}")
-        elif confirmation_date < self.report_date:
+        elif self.received_date and confirmation_date < self.received_date:
             self.issues.append('Confirmation date cannot be prior to report date.')
             print(f"confirmation_date: {confirmation_date}")
         elif confirmation_date > self.now:
@@ -743,18 +825,18 @@ class NBSdriver(webdriver.Chrome):
         if not self.admission_date:
             self.issues.append('Admission date is missing.')
             print(f"admission_date: {self.admission_date}")
-        elif self.admission_date > self.now:
+        elif self.admission_date and self.admission_date > self.now:
             self.issues.append('Admission date cannot be in the future.')
             print(f"admission_date: {self.admission_date}")
 
     def CheckDischargeDate(self):
         """ Check for hospital discharge date."""
-        discharge_date = self.ReadDate('//*[@id="INV133"]')
-        if not discharge_date:                                                         #commented out
-            return
-            #self.issues.append('Discharge date is missing.')                           #commented out
+        discharge_date = self.ReadDate('//*[@id="NBS_INV_GENV2_UI_3"]/tbody/tr[4]/td[2]|//*[@id="INV133"]')
+        if self.self.patient_die_from_illness == "Yes" and self.hospitalization_indicator == "Yes":
+            if not discharge_date:                                                         #commented out
+                self.issues.append('Discharge date is blank.')                           #commented out
         if self.admission_date:
-            if discharge_date < self.admission_date:
+            if discharge_date and discharge_date < self.admission_date:
                 self.issues.append('Discharge date must be after admission date.')
                 print(f"discharge_date: {discharge_date}")
         elif discharge_date > self.now:
@@ -768,13 +850,20 @@ class NBSdriver(webdriver.Chrome):
 
     def CheckMmwrYear(self):
         """ MMWR year must be provided."""
-        mmwr_year = self.CheckForValue( '//*[@id="INV166"]', "MMWR Year is blank.")
-
+        mmwr_year = self.CheckForValue( '//*[@id="INV166"]')
+        date_specimen = self.ReadDate('//*[@id="ME8117"]')
+        if not mmwr_year:
+            self.issues.append('MMWR Year is blank.')
+        elif date_specimen and mmwr_year != date_specimen.year:
+            self.issues.append('MMWR Year does not match specimen collection date.')
+            
+            
+            
 ####################### Patient Status Check Methods ############################
     def CheckDeath(self):
         """If died from illness is yes or no, need a death date """
-        self.death_indicator =  self.CheckForValue('//*[@id="INV145"]','Died from illness must be yes or no.')
-        if self.death_indicator == "Yes":
+        self.self.patient_die_from_illness =  self.CheckForValue('//*[@id="INV145"]','Died from illness must be yes or no.')
+        if self.self.patient_die_from_illness == "Yes":
             """ Death date must be present."""
             death_date = self.ReadDate('//*[@id="INV146"]')
             if not death_date:
@@ -792,7 +881,7 @@ class NBSdriver(webdriver.Chrome):
                 print(f"hospitalization, hospital_name: {hospital_name}")
             self.admission_date = self.ReadDate('//*[@id="INV132"]')
             if not self.admission_date:
-                self.issues.append('Admission date is missing.')
+                self.issues.append('Admission date is blank.')
                 print(f"hospitalization, admission_date: {self.admission_date}")
             elif self.admission_date > self.now:
                 self.issues.append('Admission date cannot be in the future.')
@@ -828,12 +917,26 @@ class NBSdriver(webdriver.Chrome):
         return value
     
     def ReadText(self, xpath):
+        from time import sleep
         """ A method to read the text of any web element identified by an Xpath
         and remove leading an trailing carriage returns sometimes included by
         Selenium's get_attribute('innerText')."""
-        value = self.find_element(By.XPATH, xpath).get_attribute('innerText')
-        value = value.replace('\n','')
-        return value
+        for i in range(self.num_attempts): 
+            try:
+                value = self.find_element(By.XPATH, xpath).get_attribute('innerText')
+                value = value.replace('\n','')
+                return value
+            except NoSuchElementException:
+                sleep((i+1)*10)
+                print(f"no value ReadText for xpath: {xpath}, retry_number:{i}")
+            except TimeoutException:
+                print(f"Timeout waiting for ReadText for xpath: {xpath}, retry_number: {i}")
+            except StaleElementReferenceException:
+                sleep((i+1)*10)
+                print(f"StaleElementReferenceException for ReadText for xpath: {xpath}, trying again... retry_number: {i}")
+            except Exception as e:
+                print(f"{e} has occured for ReadText for xpath: {xpath}, retry_number: {i}") 
+
 
 
     def check_for_value_bool(self, path):
@@ -848,6 +951,7 @@ class NBSdriver(webdriver.Chrome):
     def ReadDate(self, xpath, attribute='innerText'):
         """ Read date from NBS and return a datetime.date object. """
         date = self.find_element(By.XPATH, xpath).get_attribute(attribute)
+        date = date.replace('\n','')
         try:
             date = datetime.strptime(date, '%m/%d/%Y').date()
         except ValueError:
