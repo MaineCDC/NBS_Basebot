@@ -61,8 +61,6 @@ Hep_inv_assign_ids = []
 caseless_assign_ids = []
 parinatal_inv_ids = []
 
-
-
 is_in_production = os.getenv('ENVIRONMENT', 'production') != 'development'
 
 @error_handle
@@ -75,9 +73,9 @@ def start_audrey(username, passcode):
     NBS = Audrey(production=True)   # true for production, is_in_production for development
     
     if is_in_production:
-        print("Production Environment")
-    else:
         print("Development Environment")
+    else:
+        print("Production Environment")
 
     NBS.set_credentials(username, passcode)
     NBS.log_in()
@@ -86,7 +84,7 @@ def start_audrey(username, passcode):
     NBS.get_patient_table()
     NBS.pause_for_database()
 
-    limit = 150
+    limit = 550
     loop = tqdm(generator())
     for _ in loop:
         #check if the bot has gone through the set limit of reviews
@@ -101,7 +99,7 @@ def start_audrey(username, passcode):
         
         #Sort review queue so that only hepatitis cases are listed
         clear_filter_path = '//*[@id="removeFilters"]/table/tbody/tr/td[2]/a'
-        description_path = '/html/body/div[2]/form/div/table[2]/tbody/tr/td/table/thead/tr/th[6]/img'
+        description_path = '(//*[@id="queueIcon"])[5]|/html/body/div[2]/form/div/table[2]/tbody/tr/td/table/thead/tr/th[6]/img'
         clear_checkbox_path = '//*[@id="parent"]/thead/tr/th[6]/div/label[2]/input'
         click_ok_path = '/html/body/div[2]/form/div/table[2]/tbody/tr/td/table/thead/tr/th[6]/div/label[1]/input[1]'
         click_cancel_path = '/html/body/div[2]/form/div/table[2]/tbody/tr/td/table/thead/tr/th[6]/div/label[1]/input[2]'
@@ -160,7 +158,7 @@ def start_audrey(username, passcode):
         
         
         #select all hepatitis tests
-        tests =  ["Hep", "HEP", "HAV", "HBV", "HCV","Alanine", "ALT" ]      # 
+        tests =  ["Hep", "HEP", "HAV", "HBV", "HCV","Alanine", "ALT"]  
         for test in tests:
             try:
                 results = NBS.find_elements(By.XPATH,f"//label[contains(text(),'{test}')]")
@@ -279,10 +277,11 @@ def start_audrey(username, passcode):
         except IndexError:
             print("No IDs to review. Stopping...")
             break
-
+        hist = dict()
         #grab the first local ID we haven't reviewed and append it to the list for later use 
         event_id = review_queue_table["Local ID"].iloc[i]
         reviewed_ids.append(event_id) 
+        hist[event_id] = []
         #identify the element that has the event id to be reviewed and navigate to that Lab Report
         
         try:
@@ -291,6 +290,7 @@ def start_audrey(username, passcode):
             anc = NBS.find_element(By.XPATH,f"//font[contains(text(),'{event_id}')]/../../td/a")
         anc.click()
         
+        skip_patient = False
         #check the patient name if it is a source patient skip, look for numbers in the name
         for i in range(3):
             try:
@@ -298,12 +298,18 @@ def start_audrey(username, passcode):
                 pat_name = pat_name_elem.text
                 if bool(re.search(r'\d', pat_name)) or bool(re.search(r'SRC', pat_name)):
                     print("Source patient, skip")
-                    what_do.append("Source patient, skip")
                     print(f"incrementing what_do for index: {loop.n}")
-                    continue
+                    skip_patient = True
+                break
             except NoSuchElementException as e:
                 print(f"No patient name found, retrying {i}")
-            
+            except Exception as e:
+                print(f"exception: {e} occurred for source patient skip, trying again... retry_number: {i}")
+        if skip_patient:
+            NBS.go_to_home()
+            what_do.append("Source patient, skip")
+            hist[event_id].append("Source patient, skip")
+            continue
         
         #grab the patients age, if younger the 3 years do not continue
         for i in range(3):
@@ -414,6 +420,7 @@ def start_audrey(username, passcode):
             NBS.go_to_home()
             print("Patient under 36 months old")
             what_do.append("Too young")
+            hist[event_id].append("Too young")
             continue
         
             
@@ -437,7 +444,6 @@ def start_audrey(username, passcode):
                     alt_lab = alt_lab_table[alt_lab_table.index == alt_lab_table["num_res"].idxmax()]
                 except ValueError:
                     pass
-        
         
         #grab date reported to public health from lab report
         #WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="NBS_LAB201"]')))
@@ -474,10 +480,7 @@ def start_audrey(username, passcode):
         parinatal_inv = False
         NBS.incomplete_address_log = []
         NBS.incomplete_address = False
-        
             
-        
-        
         if len(resulted_test_table) == 2:
             test_condition, test_type = get_test_condition(resulted_test_table, test_type)
             if test_condition == "Hepatitis B":
@@ -565,6 +568,7 @@ def start_audrey(username, passcode):
                         NBS.go_to_home()
                         print("More than one acute investigation of the same condition")
                         what_do.append("Multiple Investigations of same condition")
+                        hist[event_id].append("Multiple Investigations of same condition")
                         continue  
                 if len(chronic_inv) > 1:
                     if len(np.unique(chronic_inv.Condition)) == 1 and len(chronic_inv[chronic_inv["Case Status"].str.contains("Probable|Confirmed")]) >=2:
@@ -572,6 +576,7 @@ def start_audrey(username, passcode):
                         NBS.go_to_home()
                         print("More than one chronic investigation of the same condition")
                         what_do.append("Multiple Investigations of same condition")
+                        hist[event_id].append("Multiple Investigations of same condition")
                         continue
 
             #If there is a "<" in the results skip for now, could be either negative or positive and it is hard to tell without manual review
@@ -591,7 +596,7 @@ def start_audrey(username, passcode):
                 print("Presumptive result, mark as reviewed")
                 
             ###Hepatitis A###
-            if test_condition == "Hepatitis A":
+            elif test_condition == "Hepatitis A":
                 if test_type == "Antibody" and "igm" not in str(resulted_test_table["Resulted Test"]).lower():
                     mark_reviewed = True
                 elif test_type == "Antibody" and  "igm" in str(resulted_test_table["Resulted Test"]).lower() and (resulted_test_table["Coded Result / Organism Name"].str.contains("Neg|NEG|neg|See Below|UNDETECTED|Undetected|undetected|Non-Reactive|NON-REACTIVE|NOT DETECTED|Not Detected").any()):
@@ -601,6 +606,7 @@ def start_audrey(username, passcode):
                     Hep_inv_assign_ids.append(event_id)
                     print("Hepatitis A, Leave for field epi follow up.")
                     what_do.append("Hepatitis A, Leave for field epi follow up.")
+                    hist[event_id].append("Hepatitis A, Leave for field epi follow up.")
                     NBS.go_to_home()
                     continue
                 elif test_type == "Antibody":
@@ -608,12 +614,12 @@ def start_audrey(username, passcode):
                 else:
                     print("Hepatitis A, skip")
                     what_do.append("Hepatitis A, skip")
+                    hist[event_id].append("Hepatitis A, skip")
                     NBS.go_to_home()
                     continue
             
-            
             ###Hepatitis C Antibody test logic###
-            if test_condition == "Hepatitis C" and test_type == "Antibody":
+            elif test_condition == "Hepatitis C" and test_type == "Antibody":
                 if inv_found:
                     age = lab_date - pat_dob
                     if age.days < 1095:
@@ -626,6 +632,7 @@ def start_audrey(username, passcode):
                         parinatal_inv = True
                         parinatal_inv_ids.append(event_id)
                         what_do.append("Patient has a perinatal investigation, leave for an epi")
+                        hist[event_id].append("Patient has a perinatal investigation, leave for an epi")
                         NBS.go_to_home()
                         continue
     
@@ -680,12 +687,15 @@ def start_audrey(username, passcode):
                     elif len(Pos_Gen_rna_lab) > 0:
                             print("Skip, Previous positive RNA/Genotype. Should already have investigation created")
                             what_do.append("Skip, Previous positive RNA/Genotype. Should already have investigation created")
+                            hist[event_id].append("Skip, Previous positive RNA/Genotype. Should already have investigation created")
+                            NBS.go_to_home()
+                            continue
                 else:
                     #Mark as reviewed
                     mark_reviewed = True
             
             ###Hepatitis C RNA/Genotype logic###
-            if test_condition == "Hepatitis C" and test_type in ("RNA", "DNA", "Genotype"):
+            elif test_condition == "Hepatitis C" and test_type in ("RNA", "DNA", "Genotype"):
                 if inv_found:
                     age = lab_date - pat_dob
                     if age.days < 1095:
@@ -699,6 +709,7 @@ def start_audrey(username, passcode):
                         parinatal_inv = True
                         parinatal_inv_ids.append(event_id)
                         what_do.append("Patient has a perinatal investigation, leave for an epi")
+                        hist[event_id].append("Patient has a perinatal investigation, leave for an epi")
                         NBS.go_to_home()
                         continue
     
@@ -799,17 +810,21 @@ def start_audrey(username, passcode):
                 if "See Below" in resulted_test_table["Text Result"].values:
                     print("Do nothing") 
                     what_do.append("Skip, ambiguous result")
+                    hist[event_id].append("Skip, ambiguous result")
                     mark_reviewed = False
+                    NBS.go_to_home()
+                    continue
             
             #########Hep_B logic#########
                     
-            if test_condition == "Hepatitis B":
+            elif test_condition == "Hepatitis B":
                 if inv_found:
                     #If there is an existing perinatal investigation we are going to leave the ELR alone.
                     perinatal_inv = existing_investigations[existing_investigations["Condition"].str.contains("perinatal")]
                     if len(perinatal_inv) >= 1:
                         print("Patient has a perinatal investigation, leave for an epi")
                         what_do.append("Patient has a perinatal investigation, leave for an epi")
+                        hist[event_id].append("Patient has a perinatal investigation, leave for an epi")
                         NBS.go_to_home()
                         continue
                 if test_type == "Antigen" and resulted_test_table["Result Comments"].str.contains("To be confirmed by Neutralization Assay").any():
@@ -845,6 +860,7 @@ def start_audrey(username, passcode):
                             Hep_inv_assign_ids.append(event_id)
                             print("Hepatitis B, acute investigation to be assigned out")
                             what_do.append("Hepatitis B, acute investigation to be assigned out")
+                            hist[event_id].append("Hepatitis B, acute investigation to be assigned out")
                             NBS.go_to_home()
                             continue
                         elif len(resulted_test_table) == 1 and test_type == "Antibody" and "IgM" in str(resulted_test_table["Resulted Test"]).lower()  and "EQUIVOCAL" in resulted_test_table["Coded Result / Organism Name"].iloc[0] or "EQUIVOCAL" in resulted_test_table["Text Result"].iloc[0]:
@@ -858,6 +874,7 @@ def start_audrey(username, passcode):
                                         #condition = 'Hepatitis B virus infection, chronic'
                                         print("Hepatitis B, chronic investigation to be assigned out")
                                         what_do.append("Hepatitis B, chronic investigation to be assigned out")
+                                        hist[event_id].append("Hepatitis B, chronic investigation to be assigned out")
                                         NBS.go_to_home()
                                         continue
                                     else:
@@ -866,6 +883,7 @@ def start_audrey(username, passcode):
                                         Hep_inv_assign_ids.append(event_id)
                                         print("Hepatitis B, acute investigation to be assigned out")
                                         what_do.append("Hepatitis B, acute investigation to be assigned out")
+                                        hist[event_id].append("Hepatitis B, acute investigation to be assigned out")
                                         NBS.go_to_home()
                                         continue
                                 else:
@@ -874,6 +892,7 @@ def start_audrey(username, passcode):
                                     Hep_inv_assign_ids.append(event_id)
                                     print("Hepatitis B, chronic investigation to be assigned out")
                                     what_do.append("Hepatitis B, chronic investigation to be assigned out")
+                                    hist[event_id].append("Hepatitis B, chronic investigation to be assigned out")
                                     NBS.go_to_home()
                                     continue
                             elif len(Pos_IgM_lab) > 0:
@@ -883,6 +902,7 @@ def start_audrey(username, passcode):
                                 Hep_inv_assign_ids.append(event_id)
                                 print("Hepatitis B, acute investigation to be assigned out")
                                 what_do.append("Hepatitis B, acute investigation to be assigned out")
+                                hist[event_id].append("Hepatitis B, acute investigation to be assigned out")
                                 NBS.go_to_home()
                                 continue
                             elif len(Neg_IgM_lab) > 0:
@@ -892,6 +912,7 @@ def start_audrey(username, passcode):
                                 Hep_inv_assign_ids.append(event_id)
                                 print("Hepatitis B, chronic investigation to be assigned out")
                                 what_do.append("Hepatitis B, chronic investigation to be assigned out")
+                                hist[event_id].append("Hepatitis B, chronic investigation to be assigned out")
                                 NBS.go_to_home()
                                 continue
                     elif chronic_inv is not None and acute_inv is not None and test_type in ("Antigen", "DNA", "RNA"):
@@ -911,6 +932,7 @@ def start_audrey(username, passcode):
                             Hep_inv_assign_ids.append(event_id)
                             print("Hepatitis B, chronic investigation to be assigned out")
                             what_do.append("Hepatitis B, chronic investigation to be assigned out")
+                            hist[event_id].append("Hepatitis B, chronic investigation to be assigned out")
                             NBS.go_to_home()
                             continue
                         elif len(acute_inv) > 0 and "Confirmed" in acute_inv["Case Status"].values and diff_days < 183:
@@ -928,6 +950,7 @@ def start_audrey(username, passcode):
                             Hep_inv_assign_ids.append(event_id)
                             print("Hepatitis B, chronic investigation to be assigned out")
                             what_do.append("Hepatitis B, chronic investigation to be assigned out")
+                            hist[event_id].append("Hepatitis B, chronic investigation to be assigned out")
                             NBS.go_to_home()
                             continue
                     elif acute_inv is not None and chronic_inv is not None and test_type in "Antibody":
@@ -940,13 +963,15 @@ def start_audrey(username, passcode):
                         else:
                             mark_reviewed = True 
                 
-                                    
             ###ALT Logic###
             #Sometimes the numeric result will have a < or > in it which converts the type to a string so we have to deal with that
-            if test_condition == "Hepatitis" and test_type == "Alanine": 
+            elif test_condition == "Hepatitis" and test_type == "Alanine": 
                 if resulted_test_table.empty: 
                     print("Could not parse") 
                     what_do.append("Could not parse result, skipped")
+                    hist[event_id].append("Could not parse result, skipped")
+                    NBS.go_to_home()
+                    continue
                 else: 
                     # Extract Numeric Result (if available) 
                     numeric_result = None 
@@ -992,9 +1017,13 @@ def start_audrey(username, passcode):
                     else: 
                         print("Could not parse result")
                         what_do.append("Could not parse result, skipped")
+                        hist[event_id].append("Could not parse result, skipped")
+                        NBS.go_to_home()
+                        continue
         else: 
             print("More than one test in ELR") 
             what_do.append("Skip, more than one test in ELR")
+            hist[event_id].append("Skip, more than one test in ELR")
             print(review_queue_table[review_queue_table["Local ID"] == event_id]["Patient"])
             NBS.go_to_home()
             continue
@@ -1012,6 +1041,7 @@ def start_audrey(username, passcode):
         
         #Now that we have determined what action we want to take, we need to actually do it
         if mark_reviewed == True and create_inv == False and update_status == False:
+            
             for i in range(3):
                 try:
                     timeout= NBS.wait_before_timeout + i*10
@@ -1019,6 +1049,7 @@ def start_audrey(username, passcode):
                     NBS.find_element(By.XPATH, '//*[@id="doc3"]/div[2]/table/tbody/tr/td[1]/input').click()
                     print("Mark as Reviewed")
                     what_do.append("Mark as Reviewed")
+                    hist[event_id].append("Mark as Reviewed")
                     break
                 except TimeoutException:
                     print(f"Timeout waiting for mark_reviewed, retry_number: {i}")
@@ -1036,6 +1067,7 @@ def start_audrey(username, passcode):
                 Female_handled_epi_ids.append(event_id)
                 print("Female patient between 14-49, let an epi handle this investigation")
                 what_do.append("Female patient between 14-49, let an epi handle this investigation")
+                hist[event_id].append("Female patient between 14-49, let an epi handle this investigation")
                 NBS.go_to_home()
                 continue
                 #Hep C acute investigations need to be followed up by a field epi
@@ -1044,6 +1076,7 @@ def start_audrey(username, passcode):
                 Hep_inv_assign_ids.append(event_id)
                 print("Hepatitis C, acute investigation. Leave for field epi follow up.")
                 what_do.append("Hepatitis C, acute investigation. Leave for field epi follow up.")
+                hist[event_id].append("Hepatitis C, acute investigation. Leave for field epi follow up.")
                 NBS.go_to_home()
                 continue
             
@@ -1065,6 +1098,7 @@ def start_audrey(username, passcode):
             if len(unique_profiles) >= 2:
                 print('Possible merge(s) found. Lab skipped.')
                 what_do.append('Possible merge(s) found. Lab skipped.')
+                hist[event_id].append('Possible merge(s) found. Lab skipped.')
                 merges.append(event_id)
                 merge_ids.append(str(unique_profiles))
                 NBS.go_to_home()
@@ -1077,6 +1111,7 @@ def start_audrey(username, passcode):
             if 'ME' not in address:
                 print('Out of State Patient Lab skipped.')
                 what_do.append('Out of State Patient Lab skipped.')
+                hist[event_id].append('Out of State Patient Lab skipped.')
                 NBS.go_to_home()
                 continue
             
@@ -1105,7 +1140,7 @@ def start_audrey(username, passcode):
             if not all([NBS.street, NBS.city, NBS.zip_code, NBS.county, NBS.ethnicity, NBS.unambiguous_race]):
                 NBS.incomplete_address_log.append(NBS.ReadPatientID())
                 body = f"A new investigation has been created for patient {NBS.ReadPatientID()}, but they are missing demographic information. The investigation has been left open for manual review."
-                NBS.send_smtp_email("chloe.manchester@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot', body, 'Hepatitis Investigation Missing Demographic Info email')
+                NBS.send_smtp_email("Chloe.Manchester@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot', body, 'Hepatitis Investigation Missing Demographic Info email')
             
             NBS.GoToCaseInfo()
             investigation_status_down_arrow = '//*[@id="NBS_UI_19"]/tbody/tr[4]/td[2]/img'
@@ -1156,18 +1191,43 @@ def start_audrey(username, passcode):
             
             NBS.find_element(By.XPATH, case_status_path).send_keys(Keys.CONTROL+'a')
             if test_type != "Antibody":
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, case_status_path)))
-                NBS.find_element(By.XPATH, case_status_path).send_keys("Confirmed")
-                #set confirmation method to laboratory confirmed
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="INV161"]/option[6]')))
-                NBS.find_element(By.XPATH, '//*[@id="INV161"]/option[6]').click()
+                for i in range(3):
+                    try:
+                        timeout= NBS.wait_before_timeout + i*10
+                        WebDriverWait(NBS,timeout).until(EC.presence_of_element_located((By.XPATH, case_status_path)))
+                        NBS.find_element(By.XPATH, case_status_path).send_keys("Confirmed")
+                        #set confirmation method to laboratory confirmed
+                        WebDriverWait(NBS,timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="INV161"]/option[6]')))
+                        NBS.find_element(By.XPATH, '//*[@id="INV161"]/option[6]').click()
+                        break
+                    except TimeoutException:
+                        print(f"TimeoutException for case_status_path confirmed, trying again... retry_number: {i}")
+                    except StaleElementReferenceException:
+                        print(f"StaleElementReferenceException for case_status_path confirmed, trying again... retry_number: {i}")
+                    except NoSuchElementException:
+                        print(f"No case_status_path confirmed found, trying again... retry_number: {i}")
+                        time.sleep(1)
+                    except Exception as e:
+                        print(f"{e} has occured for case_status_path confirmed, retry_number: {i}")
             elif test_type == "Antibody":
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, case_status_path)))
-                NBS.find_element(By.XPATH, case_status_path).send_keys("Probable")
-                #set confirmation method to lab report
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="INV161"]/option[7]')))
-                NBS.find_element(By.XPATH, '//*[@id="INV161"]/option[7]').click()
-            
+                for i in range(3):
+                    try:
+                        timeout= NBS.wait_before_timeout + i*10
+                        WebDriverWait(NBS,timeout).until(EC.presence_of_element_located((By.XPATH, case_status_path)))
+                        NBS.find_element(By.XPATH, case_status_path).send_keys("Probable")
+                        #set confirmation method to lab report
+                        WebDriverWait(NBS,timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="INV161"]/option[7]')))
+                        NBS.find_element(By.XPATH, '//*[@id="INV161"]/option[7]').click()
+                        break
+                    except TimeoutException:
+                        print(f"TimeoutException for case_status_path Probable, trying again... retry_number: {i}")
+                    except StaleElementReferenceException:
+                        print(f"StaleElementReferenceException for case_status_path Probable, trying again... retry_number: {i}")
+                    except NoSuchElementException:
+                        print(f"No case_status_path Probable found, trying again... retry_number: {i}")
+                        time.sleep(1)
+                    except Exception as e:
+                        print(f"{e} has occured for case_status_path Probable, retry_number: {i}")
             NBS.set_confirmation_date()
             
             NBS.write_general_comment(f'Created investigation from lab {event_id}. -nbsbot {NBS.now_str}')
@@ -1271,6 +1331,7 @@ def start_audrey(username, passcode):
             #in covidlabreview, changed transfer_ownership_path to [4] instead of [3]
             print("Create Investigation: " + condition)
             what_do.append("Create Investigation: " + condition)
+            hist[event_id].append("Create Investigation: " + condition)
         elif update_status == True and create_inv == False:
             #update investigation status
             #go to events 
@@ -1331,7 +1392,6 @@ def start_audrey(username, passcode):
             inv_type_elem = NBS.find_element(By.XPATH, '//*[@id="bd"]/h1/table/tbody/tr[1]/td[1]/a')
             inv_type = inv_type_elem.text
             
-                
             if test_condition == "Hepatitis B" and test_type in ("Antigen", "DNA", "RNA") and "acute" in inv_type and not_a_case == False:
                 NBS.write_general_comment(f'\nNew HBsAg+, HBeAg+, HBV DNA+ within 6 months. Case classification is changed from probable to confirmed. Lab Id: {event_id} -nbsbot {NBS.now_str}')
             if test_condition == "Hepatitis B" and test_type in ("Antigen", "DNA", "RNA") and "Chronic" in inv_type and not_a_case == False:
@@ -1341,7 +1401,6 @@ def start_audrey(username, passcode):
             if test_condition == "Hepatitis C" and test_type in ("Genotype", "RNA") and "chronic" in inv_type and not_a_case == False:
                 NBS.write_general_comment(f'\nNew hepatitis C NAAT. Case classification is changed from probable to confirmed. Lab Id: {event_id} -nbsbot {NBS.now_str}')
                 
-            
             #add in lab info
             #Do we want to overwrite if there is already a test? No
             NBS.find_element(By.XPATH, '//*[@id="tabs0head2"]').click()
@@ -1475,7 +1534,7 @@ def start_audrey(username, passcode):
                 anc.click()
                 
         #update investigation to acute if ALT > 200 and there is a closed chronic Hep C investigation, update if there is a Hep acute and there is a negative RNA test
-        if update_inv_type == True:
+        elif update_inv_type == True:
             #change condition status to acute
             #go to events 
             WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="doc3"]/div[1]/a')))
@@ -1564,6 +1623,7 @@ def start_audrey(username, passcode):
                     NBS.find_element(By.XPATH, '//*[@id="SubmitTop"]').click()
                     print("Update investigation to acute")
                     what_do.append("Update investigation to acute")
+                    hist[event_id].append("Update investigation to acute")
                     break
                 except StaleElementReferenceException:
                     print(f"StaleElementReferenceException for click submit for Update investigation to acute , trying again... retry_number: {i}")
@@ -1592,25 +1652,27 @@ def start_audrey(username, passcode):
             print("Associate with Investigation")
             if update_status == True:
                 what_do.append("Update and Associate with Investigation")
+                hist[event_id].append("Update and Associate with Investigation")
             else:
                 what_do.append("Associate with Investigation")
+                hist[event_id].append("Associate with Investigation")
         if send_alt_email == True:
             body = f"An Alanine Aminotransferase ELR needs to be manually reviewed. The lab ID is {event_id}"
-            NBS.send_smtp_email("chloe.manchester@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot', body, 'Hepatitis Manual Review email')
+            NBS.send_smtp_email("Chloe.Manchester@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot', body, 'Hepatitis Manual Review email')
             what_do.append("Send ALT Email")
+            hist[event_id].append("Send ALT Email")
         
-        if send_inv_email == True:
+        elif send_inv_email == True:
             body = f"A patient has multiple Hepatitis investigations of the same condition with a probable/confirmed status. {existing_investigations}"
-            NBS.send_smtp_email("chloe.manchester@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot', body, 'Hepatitis Investigation Review email')
+            NBS.send_smtp_email("Chloe.Manchester@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot', body, 'Hepatitis Investigation Review email')
             what_do.append("Send Multiple Investigation Email")
-
+            hist[event_id].append("Send Multiple Investigation Email")
 
         NBS.go_to_home()
         time.sleep(3)
 
     if Hep_inv_assign_ids or Female_handled_epi_ids or parinatal_inv_ids or caseless_assign_ids:
         email_body = ""
-    
     
         if Hep_inv_assign_ids:
             print("collected Hepatitis investigation ids:",Hep_inv_assign_ids)
@@ -1619,7 +1681,6 @@ def start_audrey(username, passcode):
             #print(f"Hep_inv_assign_ids: {Hep_inv_assign_ids}")
             #NBS.send_smtp_email("vaishnavi.appidi@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot ', body, 'Hepatitis Manual Review email')
                 
-            
         if Female_handled_epi_ids :
             print("collected female handled epi ids:",Female_handled_epi_ids)
             email_body += f"Female patient between 14-49, let an epi handle this investigation. The lab ID is {Female_handled_epi_ids}\n\n"
@@ -1639,18 +1700,14 @@ def start_audrey(username, passcode):
     if len(merges) >= 1:
             # Patient Ids: {merge_ids}
         body = f"Potential merges have been identified for patients associated with the following ELRs: {merges}."
-        NBS.send_smtp_email("chloe.manchester@maine.gov", 'Merge Report: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot', body, 'Hepatitis Merge Review email')
+        NBS.send_smtp_email("Chloe.Manchester@maine.gov", 'Merge Report: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot', body, 'Hepatitis Merge Review email')
 
     
     print(len(reviewed_ids))
     print(len(what_do))
-
-    bot_act = pd.DataFrame(
-        {'Lab ID': reviewed_ids,
-        'Action': what_do
-        })
-    bot_act.to_excel(f"Hepatitis_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx")
-    print("Excel file created")
+    for key, value in hist.items():
+        if len(value) > 1:
+            print(f"{key}: {value}")
     
     completion_message = (
     f"Audrey has finished running on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}. "
@@ -1659,6 +1716,13 @@ def start_audrey(username, passcode):
 
     NBS.send_smtp_email("disease.reporting@maine.gov", "Audrey Completed", completion_message, "Daily Bot Run Notification")
 
+    bot_act = pd.DataFrame(
+        {'Lab ID': reviewed_ids,
+        'Action': what_do
+        })
+    bot_act.to_excel(f"Hepatitis_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx")
+    print("Excel file created")
+    
 
 def get_test_condition(resulted_test_table, test_type):
     if any(x in str(resulted_test_table["Resulted Test"].values[0]) for x in ["Hepatitis C", "HEPATITIS C", "HCV", "Hep C"]):         
@@ -1685,7 +1749,5 @@ def get_test_condition(resulted_test_table, test_type):
         
     return test_condition, test_type
             
-        
-
 if __name__ == '__main__':
     start_audrey()
