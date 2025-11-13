@@ -13,13 +13,10 @@ from selenium.webdriver.chrome.service import Service
 chrome_driver_path ="C:/Users/vaishnavi.appidi/OneDrive - State of Maine/Desktop/chromedriver-win32/chromedriver.exe"  # Replace with your custom path
 service = Service(chrome_driver_path)
 driver = webdriver.Chrome(service=service)
-print("")
-
 
 #service = Service(driver)
 #driver = webdriver.Chrome() 
 
-                           
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -52,7 +49,6 @@ import json
 from io import StringIO
 from strep_files.strep_bot import start_strep 
 
-
 class NBSdriver(webdriver.Chrome):
     """ A class to provide basic functionality in NBS via Selenium. """
     def __init__(self, production=False):
@@ -77,6 +73,11 @@ class NBSdriver(webdriver.Chrome):
         self.options.add_argument('--ignore-certificate-errors')
         super(NBSdriver, self).__init__(options = self.options)
         self.issues = []
+        self.reviewed_ids = []
+        self.what_do = []
+        self.reason = []
+        self.HepB_notification_bot = False
+        self.iGAS_notification_bot = False
         self.num_attempts = 3
         self.queue_loaded = None
         self.wait_before_timeout = 30
@@ -205,7 +206,7 @@ class NBSdriver(webdriver.Chrome):
         self.state = self.ReadText( '//*[@id="DEM162"]')
         if not self.state:
             self.issues.append('State is blank.')
-        if self.state != 'Maine':
+        elif self.state != 'Maine':
             self.issues.append('State is not Maine.')
             print(f"state: {self.state}")
     
@@ -219,6 +220,7 @@ class NBSdriver(webdriver.Chrome):
     def CheckCounty(self):
         """ Must provide county unless the jurisdiction is 'Out of State'. """
         self.county = self.ReadText( '//*[@id="DEM165"]')
+        self.jurisdiction = self.ReadText('//*[@id="INV107"]')
         if not self.county:
             self.issues.append('County is blank.')
         if self.jurisdiction == 'Out of State':                                        #new code
@@ -229,20 +231,16 @@ class NBSdriver(webdriver.Chrome):
         self.country = self.ReadText( '//*[@id="DEM167"]')
         if not self.country:
             self.issues.append('Country is blank.')
-        if self.country != 'UNITED STATES':
-            # self.GoToApprovalQueue
-            return
-            # self.issues.append('Out of State') #new code
-            # Country listed is not USA.
+        elif self.country != 'UNITED STATES':
+            self.issues.append('Out of State') #new code
 
     
-    
-
 ################### Personal Details check methods ####################
 
     def CheckDOB(self):
         """ Must provide DOB. """
         self.dob = self.ReadDate('//*[@id="DEM115"]')
+        self.age = self.ReadText('//*[@id="INV2001"]')
         if not self.dob:
             self.issues.append('DOB is blank.')
         elif self.dob > self.now:
@@ -251,9 +249,18 @@ class NBSdriver(webdriver.Chrome):
     def CheckAge(self):
         """ Must provide age. """
         self.age = self.ReadText('//*[@id="INV2001"]')
+        self.age_units = self.ReadText('//*[@id="INV2002"]')
+        self.current_report_date = self.ReadDate('//*[@id="INV111"]')
+        self.investigation_start_date = self.ReadDate('//*[@id="INV147"]')
         if not self.age:
-            self.issues.append('Age is blank.')
-        
+            self.issues.append('Correct Age is blank.') 
+        if self.age_units == 'Years':
+            if int((self.investigation_start_date - self.dob).days / 365.25) != int(self.age):
+                self.issues.append('Age mismatch.')
+        elif self.age_units == 'Months':
+            if int((self.investigation_start_date - self.dob).days / 30) != int(self.age):
+                self.issues.append('Age mismatch.')
+             
     def CheckAgeType(self):
         """ Must age type must be one of Days, Months, Years. """
         self.age_type = self.ReadText('//*[@id="INV2002"]')
@@ -278,7 +285,6 @@ class NBSdriver(webdriver.Chrome):
         self.ethnicity = self.ReadText('//*[@id="DEM155"]')
         if not self.ethnicity:
             self.issues.append('Ethnicity is blank.')
-        
     
     def CheckRace(self):
         """ Must provide race and selection must make sense. """
@@ -288,7 +294,6 @@ class NBSdriver(webdriver.Chrome):
         for answer in ambiguous_answers:
             if (answer in self.race) and (self.race != answer) and (self.race == 'Native Hawaiian or Other Pacific Islander'):
                 self.issues.append('"'+ answer + '"' + ' selected in addition to other options for race.')
-
 
     def CheckRaceAna(self):
         """ Must provide race and selection must make sense. """
@@ -336,7 +341,7 @@ class NBSdriver(webdriver.Chrome):
             error_encountered = True
         return error_encountered
 
-    def go_to_demographics(self):
+    def cgo_to_demographics(self):
         """ Within a patient profile navigate to the Demographics tab."""
         demographics_path = '//*[@id="tabs0head2"]'
         WebDriverWait(self,self.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, demographics_path)))
@@ -389,7 +394,6 @@ class NBSdriver(webdriver.Chrome):
             self.find_element(By.XPATH, paths['clear_filter_path']).click()
             time.sleep(5)
 
-            
             #open condition dropdown menu
             WebDriverWait(self,self.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, paths['description_path'])))
             WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, paths['description_path'])))
@@ -523,6 +527,10 @@ class NBSdriver(webdriver.Chrome):
         except NoSuchElementException:
             self.condition = None
             self.patient_name = None
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+            self.condition = None
+            self.patient_name = None
 
     def GoToFirstCaseInApprovalQueue(self):
         """ Navigate to first case in the approval queue. """
@@ -574,6 +582,7 @@ class NBSdriver(webdriver.Chrome):
             lab_path = '/html/body/div[2]/form/div/table[4]/tbody/tr[2]/td/div[2]/table/tbody/tr/td/div[1]/div[5]/div/table/tbody/tr/td/table/tbody/tr/td[1]/a'
         self.find_element(By.XPATH,lab_path).click()
 
+    # adding code to read investigation table
     def read_investigation_table(self):
         """ Read the investigations table in the Events tab of a patient profile
         of all investigations on record, both open and closed."""
@@ -657,13 +666,12 @@ class NBSdriver(webdriver.Chrome):
         except NoAlertPresentException:
             pass
 
-            
     def CheckInvestigationStatus(self):
         """ Only accept closed investigations for review. """
         inv_status = self.ReadText('//*[@id="INV109"]')
         if not inv_status:
             self.issues.append('Investigation status is blank.')
-        elif inv_status == 'Open':
+        elif inv_status.lower() == 'open':
             self.issues.append('Investigation status is open.')
 
     def CheckInvestigatorAssignDate(self):
@@ -673,7 +681,6 @@ class NBSdriver(webdriver.Chrome):
             assigned_date = self.ReadText('//*[@id="INV110"]')
             if not assigned_date:
                 self.issues.append('Missing investigator assigned date.')
-
    
     def CheckInvestigator(self):
         """ Check if an investigator was assigned to the case. """
@@ -681,8 +688,6 @@ class NBSdriver(webdriver.Chrome):
         self.investigator_name = investigator
         if not investigator:
             self.issues.append('Investigator is blank.')
-
-        
 
 ################# Key Report Dates Check Methods ###############################
     def CheckReportDate(self):
@@ -693,59 +698,56 @@ class NBSdriver(webdriver.Chrome):
             self.issues.append('Report date is blank.')
         elif self.current_report_date > self.investigation_start_date:
             self.issues.append('Report date cannot be after investigation start date.')
-        elif self.received_date and self.received_date != self.current_report_date:
-            self.issues.append('Report date mismatch.')
-       
 
     def CheckCountyStateReportDate(self):
         """ Check if the current value of county report date is consistent with
         the current value of earliest report to state date and the report date. """
         current_county_date = self.ReadDate('//*[@id="INV120"]')
         current_state_date = self.ReadDate('//*[@id="INV121"]')
-
         if not current_county_date:
             self.issues.append('Report to county date missing.')
         elif current_county_date < self.current_report_date:
             self.issues.append('Earliest report to county cannot be prior to inital report date.')
         elif current_county_date > self.investigation_start_date:
             self.issues.append('Earliest report to county date cannot be after investigation start date')
-
         if not current_state_date:
             self.issues.append('Report to state date missing.')
         elif current_state_date < self.current_report_date:
             self.issues.append('Earliest report to state cannot be prior to inital report date.')
         elif current_state_date > self.investigation_start_date:
             self.issues.append('Earliest report to state date cannot be after investigation start date.')
-        if not current_county_date:
-            self.issues.append('Earliest report to county date is blank.')
-        elif current_county_date:
-            if current_state_date:
-                if current_county_date != current_state_date:
-                    self.issues.append('Earliest dates reported to county and state do not match.')
-
+        if current_county_date != current_state_date:
+            self.issues.append('Earliest dates reported to county and state do not match.')
 
 ################# Check Jurisdiction ####################
     def CheckJurisdiction(self):
         """ Jurisdiction and county must match. """
-        jurisdiction = self.CheckForValue('//*[@id="INV107"]','Jurisdiction is blank.')
-        if jurisdiction not in self.county:
+        self.jurisdiction = self.ReadText('//*[@id="INV107"]')
+        if not self.jurisdiction:
+            self.issues.append('Jurisdiction is blank.')
+        if self.jurisdiction not in self.county:
             self.issues.append('County and jurisdiction mismatch.')
 
-    
-
  ################### Investigation Details Check Methods ########################
-
     def CheckInvestigationStartDate(self):
         """ Verify investigation start date is on or after report date. """
         self.investigation_start_date = self.ReadDate('//*[@id="INV147"]')
         if not self.investigation_start_date:
             self.issues.append('Investigation start date is blank.')
-        elif self.name_match and self.investigation_start_date < self.received_date:
-            self.issues.append('Investigation start date must be on or after report date.')
         elif self.investigation_start_date > self.now:
             self.issues.append('Investigation start date cannot be in the future.')
 
-
+    def CheckStateCaseID(self):
+        """ State Case ID must be provided. """
+        case_id = self.ReadText('//*[@id="INV173"]')
+        if not case_id:
+            self.issues.append('State Case ID is blank.')
+            
+    def CheckSharedIndicator(self):
+        """ Ensure shared indicator is yes. """
+        shared_indicator = self.ReadText('//*[@id="NBS_UI_19"]/tbody/tr[5]/td[2]')
+        if shared_indicator != 'Yes':
+            self.issues.append('Shared indicator not selected.')
 
 ################### Reporting Organization Check Methods #######################
     def CheckReportingSourceType(self):
@@ -816,7 +818,6 @@ class NBSdriver(webdriver.Chrome):
         elif confirmation_date > self.now:
             self.issues.append('Confirmation date cannot be in the future.')
             print(f"confirmation_date: {confirmation_date}")
-        
         return confirmation_date
     
     def CheckAdmissionDate(self):
@@ -846,17 +847,18 @@ class NBSdriver(webdriver.Chrome):
     ############MMWR check should not be blank####################
     def CheckMmwrWeek(self):
         """ MMWR week must be provided."""
-        mmwr_week = self.CheckForValue( '//*[@id="INV165"]', "MMWR Week is blank.")
+        mmwr_week = self.ReadText( '//*[@id="INV165"]')
+        if not mmwr_week:
+            self.issues.append('MMWR Week is blank.')
 
     def CheckMmwrYear(self):
         """ MMWR year must be provided."""
-        mmwr_year = self.CheckForValue( '//*[@id="INV166"]')
-        date_specimen = self.ReadDate('//*[@id="ME8117"]')
+        mmwr_year = self.ReadText( '//*[@id="INV166"]')
         if not mmwr_year:
             self.issues.append('MMWR Year is blank.')
-        elif date_specimen and mmwr_year != date_specimen.year:
-            self.issues.append('MMWR Year does not match specimen collection date.')
-            
+        elif self.collection_date and int(mmwr_year) != self.collection_date.year:
+            self.issues.append('MMWR Year does not match specimen collection date year.')
+            print(f"mmwr_year: {mmwr_year}, collection_date: {self.collection_date}")
             
             
 ####################### Patient Status Check Methods ############################
@@ -897,8 +899,6 @@ class NBSdriver(webdriver.Chrome):
                 self.issues.append('Illness Duration is not in Days, Months, or Years.')
                 print(f"illness_duration_units: {self.IllnessDurationUnits}")
     
-
-
 ############### Preforming Lab Check Methods ##################################
     def CheckPreformingLaboratory(self):
         """ Ensure that preforming laboratory is not empty. """
@@ -907,7 +907,6 @@ class NBSdriver(webdriver.Chrome):
             self.issues.append('Performing laboratory is blank.')
 
 ############################# Data Reading/Validation Methods ##################################
-
     def CheckForValue(self, xpath, blank_message):
         """ If value is blank add appropriate message to list of issues. """
         value = self.find_element(By.XPATH, xpath).get_attribute('innerText')
@@ -936,8 +935,14 @@ class NBSdriver(webdriver.Chrome):
                 print(f"StaleElementReferenceException for ReadText for xpath: {xpath}, trying again... retry_number: {i}")
             except Exception as e:
                 print(f"{e} has occured for ReadText for xpath: {xpath}, retry_number: {i}") 
-
-
+    def ReadElement(self, xpath):
+        """ A method to read the web element identified by an Xpath."""
+        try:
+            element = self.find_element(By.XPATH, xpath)
+            return element
+        except Exception as e:
+            print(f"Error reading element for xpath: {xpath}, {e}")
+            return None
 
     def check_for_value_bool(self, path):
         """ Return boolean value based on whether a value is present."""
@@ -968,7 +973,6 @@ class NBSdriver(webdriver.Chrome):
             if not child:
                 self.issues.append(message)
 
-    
     def ReadTableToDF(self, xpath):
         """ A method to read tables into pandas Data Frames for easy manipulation. """
         try:
@@ -1127,8 +1131,6 @@ class NBSdriver(webdriver.Chrome):
             nbs_error = False
         return nbs_error
 
-
-
     def go_to_home_from_error_page(self):
         """ Go to NBS Home page from an NBS error page. """
         xpath = '/html/body/table/tbody/tr/td/table/tbody/tr[1]/td/table/tbody/tr/td/table/tbody/tr/td[1]/a'
@@ -1144,7 +1146,6 @@ class NBSdriver(webdriver.Chrome):
             sys.exit(print(f"Made {self.num_attempts} unsuccessful attempts to load Home page. A persistent issue with NBS was encountered."))
 
     ################# Notification Check############
-
     def RejectNotification(self):
         """ Reject notification on first case in notification queue.
         To be used when issues were encountered during review of the case."""
@@ -1179,50 +1180,32 @@ class NBSdriver(webdriver.Chrome):
         self.switch_to.window(main_window_handle)
         self.num_approved += 1
 
-#################### Hospital Check Methods ###################################
-    ###specific to athena (in athena.py)####
-    '''def CheckHospitalizationIndicator(self):
-        """ Read hospitalization status. If an investigation was conducted it must be Yes or No """
-        self.hospitalization_indicator = self.ReadText('//*[@id="INV128"]')
-        if (self.ltf != 'Yes') & (self.investigator):
-            if self.hospitalization_indicator not in ['Yes', 'No']:
-                self.issues.append("Patient hospitalized must be 'Yes' or 'No'.")
-
-    def CheckHospitalName(self):
-        """" If the case is hospitalized then a hospital name must be provided. """
-        hospital_name = self.ReadText('//*[@id="INV184"]')
-        if not hospital_name:
-            self.issues.append('Hospital name missing.')
-    
-    def CheckIcuIndicator(self):
-        """ If case is hospitalized then we should know if they were ever in the ICU."""
-        self.icu_indicator = self.ReadText('//*[@id="309904001"]')
-        if (self.ltf != 'Yes') & (self.hospitalization_indicator == 'Yes') & (self.investigator):
-            if not self.icu_indicator:
-                self.issues.append('ICU indicator is blank.')
-
-    def CheckIcuAdmissionDate(self):
-        """ Check for ICU admission date."""
-        self.icu_admission_date = self.ReadDate('//*[@id="NBS679"]')
-        if not self.icu_admission_date:
-            self.issues.append('ICU admission date is missing.')
-        elif self.icu_admission_date > self.now:
-            self.issues.append('ICU admission date cannot be in the future.')
-
-    def CheckIcuDischargeDate(self):
-        """ Check for ICU discharge date. """
-        icu_discharge_date = self.ReadDate('//*[@id="NBS680"]')
-        if not icu_discharge_date:
-            self.issues.append('ICU discharge date is missing.')
-        elif icu_discharge_date < self.icu_admission_date:
-            self.issues.append('ICU discharge date must be after admission date.')
-        elif icu_discharge_date > self.now:
-            self.issues.append('ICU discharge date cannot be in the future.')
-
-############## Check Death Date################
-    def CheckDieFromIllness(self):
-        """ Died from illness should be yes or no. """
-        self.death_indicator =  self.CheckForValue('//*[@id="INV145"]','Died from illness must be yes or no.')'''
+    ### Specific to case closing bots ###
+    ### these functions are for sending email and creating excel sheet at end of bot run ###
+    def SendBotRunEmail(self):
+        if self.HepB_notification_bot == True:
+            bot_name = "Hepatitis B Case Closing Bot"
+        elif self.iGAS_notification_bot == True:
+            bot_name = "iGAS Case Closing Bot"
+        completion_message = (
+    f"{bot_name} has finished running on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}. ")
+    #f"Total labs reviewed: {len(self.reviewed_ids)} , self.reviewed_ids = {self.reviewed_ids}.")
+        self.send_smtp_email("disease.reporting@maine.gov", f"{bot_name} ", completion_message, "Daily Bot Run Notification")
    
+    def CreateExcelSheet(self):
+        """ Create an Excel spreadsheet summarizing the cases reviewed."""
+        print("ending, printing, saving")
+        bot_act = pd.DataFrame(
+            {'Inv ID': self.reviewed_ids,
+            'Action': self.what_do,
+            'Reason': self.reason
+            })
+        if self.HepB_notification_bot == True:
+            bot_act.to_excel(f"saved/HepB/HepB_bot_activity_{datetime.now().date().strftime('%m_%d_%Y %H:%M:%S')}.xlsx")
+            print("excel sheet created")
+        if self.iGAS_notification_bot == True:
+            bot_act.to_excel(f"saved/iGAS/iGAS_bot_activity_{datetime.now().date().strftime('%m_%d_%Y %H:%M:%S')}.xlsx")
+            print("excel sheet created")
+    
 
     
