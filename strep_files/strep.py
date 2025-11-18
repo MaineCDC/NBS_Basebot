@@ -495,6 +495,7 @@ class Strep(NBSdriver):
             if not hypotension:
                 self.issues.append('Hypotension is blank.')
         
+        
 #########Disease Acquisition##########
     def CheckDiseaseAcquisition(self):
         """ Check if disease acquisition is indicated. """
