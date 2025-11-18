@@ -179,7 +179,7 @@ class Strep(NBSdriver):
         self.labs = self.ReadTableToDF('//*[@id="viewSupplementalInformation1"]/tbody')
         self.name_match = False
         lab_reports = self.find_elements(By.XPATH, '//*[@id="eventLabReport"]/tbody/tr')
-        tests = ['STREPTOCOCCUS GROUP A|Streptococcus pyogenes|MICROORGANISM IDENTIFIED: BETA-HEMOLYTIC STREPTOCOCCUS, GROUP A|Streptococci, beta hemolytic group A|Beta-hemolytic streptococcus|S pyogenes hsp60 Bld Pos Ql Probe']
+        tests = ['STREPTOCOCCUS GROUP A|Streptococcus pyogenes| Strep pyogenes (Grp A)|MICROORGANISM IDENTIFIED: BETA-HEMOLYTIC STREPTOCOCCUS, GROUP A|Streptococci, beta hemolytic group A|Beta-hemolytic streptococcus|S pyogenes hsp60 Bld Pos Ql Probe']
         self.dna_dates = []
         for risk in lab_reports:
             cells = risk.find_elements(By.TAG_NAME, 'td')
@@ -189,15 +189,46 @@ class Strep(NBSdriver):
                 date_collected = datetime.strptime(cells[2].text.strip(), "%m/%d/%Y").date()
             except ValueError:
                 continue
-            lab_test = cells[3].text.strip()
-            if any(pd.Series(lab_test).str.contains(test, na=False, case=False).any() for test in tests):
+            '''lab_test = " ".join(cells[3].text.split())
+            tests = [t.casefold() for t in tests]
+            print(lab_test.lower())
+            print(tests)
+            if any(t in lab_test.lower() for t in tests):
                 self.name_match = True
                 self.dna_dates.append(date_collected)
-    
-        if not self.name_match:
-            self.labs = pd.DataFrame()
-            self.issues.append('Test results does not have strep A.')
-        return self.dna_dates
+            if any(t in lab_test.lower() for t in tests):
+                if not self.name_match:
+                    self.labs = pd.DataFrame()
+                    self.issues.append('Test results does not have strep A.')
+                return self.dna_dates'''
+            lab_text = " ".join(cells[3].text.split()).casefold()
+
+            if isinstance(tests, str):
+                test_list = [p.strip().casefold() for p in tests.split("|")]
+            else:
+                test_list = [
+                    piece.strip().casefold()
+                    for item in tests
+                    for piece in str(item).split("|")
+                ]
+            
+            print(f"lab_text: {lab_text!r}")
+            print(f"test_list: {test_list!r}")
+            
+            matches = [t for t in test_list if t and t in lab_text]
+            print(f"matches: {matches!r}")
+            
+            has_match = bool(matches)
+            print(f"has_match: {has_match}, name_match_before: {self.name_match}")
+            
+            if has_match:
+                self.name_match = True
+                self.dna_dates.append(date_collected)
+            else:
+                if not self.name_match:
+                    self.labs = pd.DataFrame()
+                    self.issues.append("Test results does not have strep A.")
+                return self.dna_dates
 
     def GetReceivedDate(self):
         """Find earliest report date by reviewing associated labs"""
@@ -227,7 +258,7 @@ class Strep(NBSdriver):
             #date_specimen = self.ReadDate('//*[@id="ME8117"]')
             if no_col_dt_labs:
                 self.labs['Date Collected'] = '01/01/2100'
-                self.issues.insert(0,'**SOME ASSOCIATED LABS MISSING COLLECTION DATE: CENTRAL EPI REVIEW REQUIRED**')
+                self.issues.insert(0,'**SOME ASSOCIATED LABS MISSING COLLECTION DATE: EOC REVIEW REQUIRED**')
                 self.lab_data_issues_log.append(self.ReadPatientID())   
             #self.labs['Date Collected'] = pd.to_datetime(self.labs['Date Collected'], format = '%m/%d/%Y').date()
             #self.collection_date = self.labs['Date Collected'].min()  
@@ -486,7 +517,6 @@ class Strep(NBSdriver):
                 self.issues.append('Detection method is blank.')
             if not confirmation_method:
                 self.issues.append('Confirmation method is blank.')
-                
             if not confirmation_date:
                 self.issues.append('Confirmation date is blank.')
             elif self.investigation_start_date and confirmation_date < self.investigation_start_date:
@@ -517,7 +547,7 @@ class Strep(NBSdriver):
                 
         if self.state == 'Maine' and self.current_case_status == 'Not a Case':
             if self.sterile_site and len(self.issues) > 0:
-                self.issues.append('State is Maine and current_case_status is "Not a Case" and has issues so it needs manual review.')
+                self.issues.append('State is Maine and current_case_status is "Not a Case" and has issues so it needs EOC review.')
             
         if self.current_case_status == 'Not a Case' and self.state == 'Maine' and self.jurisdiction != 'Out of State':
             if not self.collection_date and not self.date_specimen and not self.non_sterile_site:
