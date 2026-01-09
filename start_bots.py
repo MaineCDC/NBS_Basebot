@@ -5,12 +5,22 @@ import time
 from anaplasma_files.anaplasma_bot import start_anaplasma
 from audrey_files.audrey_bot import start_audrey
 from athena_files.athena_bot import start_athena
+from strep_files.strep_bot import start_strep
+from CovidECR_files.CovidEcr_bot import start_CovidEcr
+from HepBnotificationreview_files.HepBnotificationreview_bot import start_HepBnotificationreview
+from Gonorrhea_files.Gonorrhea_bot import start_Gonorrhea
+from ILIOutbreak_files.ILIOutbreak_bot import start_ILIOutbreak
 # run the get credentials function
 bots = {
     1: start_athena,
     2: start_audrey,
-    3: start_anaplasma
-}
+    3: start_anaplasma,
+    4: start_strep,
+    5: start_CovidEcr,
+    6: start_HepBnotificationreview,
+    7: start_Gonorrhea,
+    8: start_ILIOutbreak
+    }
 targets = []
 def selection():
     select = input("Enter selections as space-separated numbers..: ")
@@ -24,7 +34,6 @@ def selection():
             targets.clear()
             selection()
 
-
 def run_bots():
     # targets = []
     threads = []
@@ -32,6 +41,11 @@ def run_bots():
     print("1. athena")
     print("2. audrey")
     print("3. anaplasma")
+    print("4. strep")
+    print("5. CovidEcr")
+    print("6. HepBnotificationreview")
+    print("7. Gonorrhea")
+    print("8. ILIOutbreak")
     selection()
     try:
         for  target in targets:

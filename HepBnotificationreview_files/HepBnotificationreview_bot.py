@@ -25,9 +25,9 @@ def generator():
     while True:
         yield
 
-#reviewed_ids = []
-#what_do = []
-#reason = []
+reviewed_ids = []
+what_do = []
+reason = []
 
 is_in_production = os.getenv('ENVIRONMENT', 'production') != 'development'
 
@@ -38,7 +38,7 @@ def start_HepBnotificationreview(username, passcode):
     
     load_dotenv()
     
-    NBS = HepBNotificationReview(production=is_in_production)
+    NBS = HepBNotificationReview(production=True)
     if is_in_production:
         print("Production Environment")
     else:
@@ -56,10 +56,10 @@ def start_HepBnotificationreview(username, passcode):
     '''with open("patients_to_skip.txt", "r") as patient_reader:
         patients_to_skip.append(patient_reader.readlines())'''
 
-    limit = 2
+    limit = 3
     loop = tqdm(generator())
     for _ in loop:
-        #check if the bot haa gone through the set limit of reviews
+        #check if the bot has gone through the set limit of reviews
         if loop.n == limit:
             break
         try:
@@ -154,8 +154,8 @@ def start_HepBnotificationreview(username, passcode):
             error = True
         #     # print(tb)
         #     with open("error_log.txt", "a") as log:
-        #         log.write(f"{datetime.now().date().strftime('%m_%d_%Y')} | anaplasma - {str(tb)}")
-        #     #NBS.send_smtp_email(NBS.covid_informatics_list, 'ERROR REPORT: NBSbot(Anaplasma Notification Review) AKA Athena', tb, 'error email')
+        #         log.write(f"{datetime.now().date().strftime('%m_%d_%Y')} | HepB - {str(tb)}")
+        #     #NBS.send_smtp_email(NBS.covid_informatics_list, 'ERROR REPORT: NBSbot(HepB Notification Review) AKA HepB', tb, 'error email')
             
     NBS.HepB_notification_bot = True
     NBS.SendBotRunEmail()

@@ -158,7 +158,7 @@ class HepBNotificationReview(NBSdriver):
             self.issues.append('Date of death date cannot be in the future')
 
     def CheckProgramArea(self):
-        """ Program area must be Airborne. """
+        """ Program area must be Hepatitis. """
         program_area = self.ReadText('//*[@id="INV108"]')
         if not program_area:
             self.issues.append('Program area is blank.')
@@ -171,16 +171,17 @@ class HepBNotificationReview(NBSdriver):
         if shared_indicator.lower() != 'yes':
             self.issues.append('Shared indicator not selected.')
 
-    def CheckStateCaseID(self):
+    '''def CheckStateCaseID(self):
         """ State Case ID must be provided. """
         case_id = self.ReadText('//*[@id="INV173"]')
         if not case_id:
-            self.issues.append('State Case ID is blank.')
+            self.issues.append('State Case ID is blank.')'''
 
 ########################### Parse and process labs ############################
     def GoToSupplementalTab(self):
         """ Navigate to the supplemental information tab."""
-        supplemental_info_tab_path = '//*[@id="tabs0head6"]'
+        #supplemental_info_tab_path = '//*[@id="tabs0head6"]' ### for testing env
+        supplemental_info_tab_path = '//*[@id="tabs0head4"]'  ### for production env
         for i in range(3):
             try:
                 WebDriverWait(self,self.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, supplemental_info_tab_path)))
@@ -199,10 +200,10 @@ class HepBNotificationReview(NBSdriver):
         self.test_names = []
         self.text = ['hepatitis b virus dna', 'hepatitis b virus, dna', 'hepatitis b virus (hbv)','Hepatitis B virus (HBV)']
         self.text1 = ['hepatitis b virus surface antigen (hbsag)','hepatitis b virus surface antigen', 'hepatitis b virus surface ag', 'hbsag', 'hepatitis b surface ag','hepatitis b virus surface antigen, neutralization','hbsag confirmation','hep b surface ag','hepatitis b virus, antigen'] 
-        self.text3 = ['igm anti-hbc', 'hep b core ab, igm', 'hepatitis b virus igm antibody', 'hepatitis b virus core antibody, igm']
+        self.text3 = ['igm anti-hbc', 'hep b core ab, igm', 'hepatitis b virus igm antibody', 'hepatitis b virus core antibody, igm','hepatitis b virus core ab.igg+igm']
         self.text2 = ['hepatitis b virus core ab', 'hepatitis b virus core antibody', 'hepatitis b virus total antibody', 'hbv core ab, igg/igm diff', 'hep b core ab, tot', 'total anti-hbc', 'hepatitis b virus core antibodies, total']
         self.text4 = ['hbeag', 'hepatitis b virus e antigen', 'hep b e ag', 'hepatitis be virus antigen (hbeag)']
-        self.text5 = ['hepatitis b virus surface antibody', 'hepatitis b virus (hbv), antibody', 'hepatitis b virus surface antibody (hbsab)']
+        self.text5 = ['hepatitis b virus surface antibody', 'hepatitis b virus (hbv), antibody', 'hepatitis b virus surface antibody (hbsab)','hepatitis b virus surface ab', 'hbv surface ab', 'hep b surface ab','hbv surface antibody','hbsab']
         self.text6 = ['anti-hbe', 'anti-hbe antibody', 'hepatitis b virus e antibody', 'hep be ab']
         for risk in lab_reports:
             cells = risk.find_elements(By.TAG_NAME, 'td')
@@ -456,8 +457,8 @@ class HepBNotificationReview(NBSdriver):
         self.illness_end_date = self.ReadDate('//*[@id="INV138"]')
         if self.illness_end_date and self.illness_end_date < self.illness_onset_date:
             self.issues.append('Illness end date cannot be before onset date.')
-        if self.hospitalization_indicator.lower() == 'yes' and not self.did_patient_die_from_illness:
-            self.issues.append(f'patient hospitalized is {self.hospitalization_indicator} but "Did the patient die from this illness" is blank.')
+        #if self.hospitalization_indicator.lower() == 'yes' and not self.did_patient_die_from_illness:
+            #self.issues.append(f'patient hospitalized is {self.hospitalization_indicator} but "Did the patient die from this illness" is blank.')
         elif self.did_patient_die_from_illness.lower() == 'yes':
             if not self.is_patient_deceased or self.is_patient_deceased.lower() == 'no':
                 self.issues.append(f'Patient died from illness is {self.did_patient_die_from_illness} but patient deceased is {self.is_patient_deceased}.')
@@ -512,8 +513,8 @@ class HepBNotificationReview(NBSdriver):
         dna_dates_new = {
             'hepatitis b virus, dna': [self.hbdna_result, self.hbdna_specimen_date],
             'hepatitis b virus surface antigen': [self.hbsag_result, self.hbsag_specimen_date],
-            'hepatitis b virus core ab': [self.total_hbc_result, self.total_hbc_specimen_date],
             'igm anti-hbc': [self.igm_hbc_result, self.igm_hbc_specimen_date],
+            'hepatitis b virus core ab': [self.total_hbc_result, self.total_hbc_specimen_date],
             'hepatitis b virus e antigen': [self.hbeag_result, self.hbeag_specimen_date],
             'hepatitis b virus surface antibody': [self.hbsab_result, self.hbsab_specimen_date],
             'anti-hbe': [self.hbeab_result, self.hbeab_specimen_date]
@@ -527,88 +528,99 @@ class HepBNotificationReview(NBSdriver):
                 if not self.hbdna_result:
                     self.issues.append('Hepatitis B DNA result is missing.')
                 if not self.hbdna_specimen_date:
-                    self.issues.append('Hepatitis B DNA result is provided but specimen date is not.')
-                if self.dna_date and self.hbdna_specimen_date != self.dna_date:
+                    self.issues.append('Hepatitis B DNA collection date is missing.')
+                if self.dna_date and self.hbdna_specimen_date and self.hbdna_specimen_date != self.dna_date:
                     self.issues.append('Hepatitis B DNA specimen date does not match the collection date from associated lab reports.')
                 result_dna = (any(x in self.result_check_dna.lower() for x in self.positive_results) and any(x in self.hbdna_result.lower() for x in self.positive_results)) or (any(x in self.result_check_dna.lower() for x in self.negative_results) and any(x in self.hbdna_result.lower() for x in self.negative_results))
-                if not result_dna:
+                if self.hbdna_result and not result_dna:
                     self.issues.append(f'Hepatitis B DNA result and associated lab result- result mismatch.')
-            if item.lower() in self.data:
-                if item.lower() in self.text1:
-                    if item.lower() in dna_dates_new or [x for x in self.text1 if x == item.lower()]:
-                        del dna_dates_new[item.lower()]
-                    if not self.hbsag_result:
-                        self.issues.append('Hepatitis B surface antigen result is missing.')
-                    if self.hbsag_result and not self.hbsag_specimen_date:
-                        self.issues.append('Hepatitis B surface antigen result is provided but specimen date is not.')
-                    if self.hbsag_date and self.hbsag_specimen_date != self.hbsag_date:
-                        self.issues.append('Hepatitis B surface antigen specimen date does not match the collection date from associated lab reports.')
-                    result_ag = (any(x in self.result_check_antigen.lower() for x in self.positive_results) and any(x in self.hbsag_result.lower() for x in self.positive_results)) or (any(x in self.result_check_antigen.lower() for x in self.negative_results) and any(x in self.hbsag_result.lower() for x in self.negative_results))
-                    if not result_ag:
-                        self.issues.append(f'Hepatitis B surface antigen result and associated lab result- result mismatch.')
-            if item.lower() in self.text2:
-                if item.lower() in dna_dates_new or [x for x in self.text2 if x == item.lower()]:
+            #elif item.lower() in self.data:
+            elif item.lower() in self.text1:
+                if item.lower() in dna_dates_new or [x for x in self.text1 if x == item.lower()]:
                     del dna_dates_new[item.lower()]
-                if not self.total_hbc_result:
-                    self.issues.append('Total Hepatitis B core antibody result is missing.')
-                if self.total_hbc_result and not self.total_hbc_specimen_date:
-                    self.issues.append('Total Hepatitis B core antibody result is provided but specimen date is not.')
-                if self.total_anti_hbc_date and self.total_hbc_specimen_date != self.total_anti_hbc_date:
-                    self.issues.append('Total Hepatitis B core antibody specimen date does not match the collection date from associated lab reports.')
-                result_core = (any(x in self.result_check_core.lower() for x in self.positive_results) and any(x in self.total_hbc_result.lower() for x in self.positive_results)) or (any(x in self.result_check_core.lower() for x in self.negative_results) and any(x in self.total_hbc_result.lower() for x in self.negative_results))
-                if not result_core:
-                    self.issues.append(f'Total Hepatitis B core antibody result and associated lab result- result mismatch.')
-
-            if item.lower() in self.text3:
+                if not self.hbsag_result:
+                    self.issues.append('Hepatitis B surface antigen result is missing.')
+                if not self.hbsag_specimen_date:
+                    self.issues.append('Hepatitis B surface antigen collection date is missing.')
+                if self.hbsag_result and not self.hbsag_specimen_date:
+                    self.issues.append('Hepatitis B surface antigen result is provided but specimen date is not.')
+                if self.hbsag_date and self.hbsag_specimen_date and self.hbsag_specimen_date != self.hbsag_date:
+                    self.issues.append('Hepatitis B surface antigen specimen date does not match the collection date from associated lab reports.')
+                result_ag = (any(x in self.result_check_antigen.lower() for x in self.positive_results) and any(x in self.hbsag_result.lower() for x in self.positive_results)) or (any(x in self.result_check_antigen.lower() for x in self.negative_results) and any(x in self.hbsag_result.lower() for x in self.negative_results))
+                if self.hbsag_result and not result_ag:
+                    self.issues.append(f'Hepatitis B surface antigen result and associated lab result- result mismatch.')
+            elif item.lower() in self.text3:
                 if item.lower() in dna_dates_new or [x for x in self.text3 if x == item.lower()]:
                     del dna_dates_new[item.lower()]
                 if not self.igm_hbc_result:
                     self.issues.append('IgM Hepatitis B core antibody result is missing.')
+                if not self.igm_hbc_specimen_date:
+                    self.issues.append('IgM Hepatitis B core antibody collection date is missing.')
                 if self.igm_hbc_result and not self.igm_hbc_specimen_date:
                     self.issues.append('IgM Hepatitis B core antibody result is provided but specimen date is not.')
-                if self.igm_anti_hbc_date and self.igm_hbc_specimen_date != self.igm_anti_hbc_date:
+                if self.igm_anti_hbc_date and self.igm_hbc_specimen_date and self.igm_hbc_specimen_date != self.igm_anti_hbc_date:
                     self.issues.append('IgM Hepatitis B core antibody specimen date does not match the collection date from associated lab reports.')
                 result_igm = (any(x in self.result_check_igm.lower() for x in self.positive_results) and any(x in self.igm_hbc_result.lower() for x in self.positive_results)) or (any(x in self.result_check_igm.lower() for x in self.negative_results) and any(x in self.igm_hbc_result.lower() for x in self.negative_results))
-                if not result_igm:
+                if self.igm_hbc_result and not result_igm:
                     self.issues.append(f'IgM Hepatitis B core antibody result and associated lab result- result mismatch.')
+            elif item.lower() in self.text2:
+                if item.lower() in dna_dates_new or [x for x in self.text2 if x == item.lower()]:
+                    del dna_dates_new[item.lower()]
+                    if not self.total_hbc_result:
+                        self.issues.append('Total Hepatitis B core antibody result is missing.')
+                    if  not self.total_hbc_specimen_date:
+                        self.issues.append('Total Hepatitis B core antibody collection date is missing.')
+                    if self.total_hbc_result and not self.total_hbc_specimen_date:
+                        self.issues.append('Total Hepatitis B core antibody result is provided but specimen date is not.')
+                    if self.total_anti_hbc_date and self.total_hbc_specimen_date and self.total_hbc_specimen_date != self.total_anti_hbc_date:
+                        self.issues.append('Total Hepatitis B core antibody specimen date does not match the collection date from associated lab reports.')
+                    result_core = (any(x in self.result_check_core.lower() for x in self.positive_results) and any(x in self.total_hbc_result.lower() for x in self.positive_results)) or (any(x in self.result_check_core.lower() for x in self.negative_results) and any(x in self.total_hbc_result.lower() for x in self.negative_results))
+                    if self.total_hbc_result and not result_core:
+                        self.issues.append(f'Total Hepatitis B core antibody result and associated lab result- result mismatch.')
 
-            if item.lower() in self.text4:
+            elif item.lower() in self.text4:
                 if item.lower() in dna_dates_new or [x for x in self.text4 if x == item.lower()]:
                     del dna_dates_new[item.lower()]
                 if not self.hbeag_result:
                     self.issues.append('Hepatitis B e antigen result is missing.')
+                if not self.hbeag_specimen_date:
+                    self.issues.append('Hepatitis B e antigen collection date is missing.')
                 if self.hbeag_result and not self.hbeag_specimen_date:
                     self.issues.append('Hepatitis B e antigen result is provided but specimen date is not.')
                 if self.hbeag_date and self.hbeag_specimen_date and self.hbeag_specimen_date != self.hbeag_date:
                     self.issues.append('Hepatitis B e antigen specimen date does not match the collection date from associated lab reports.')
                 result_hbeag = (any(x in self.result_check_hbeag.lower() for x in self.positive_results) and any(x in self.hbeag_result.lower() for x in self.positive_results)) or (any(x in self.result_check_hbeag.lower() for x in self.negative_results) and any(x in self.hbeag_result.lower() for x in self.negative_results))
-                if not result_hbeag:
+                if self.hbeag_result and not result_hbeag:
                     self.issues.append(f'Hepatitis B e antigen result and associated lab result- result mismatch.')
 
-            if item.lower() in self.text5:
+            elif item.lower() in self.text5:
                 if item.lower() in dna_dates_new or [x for x in self.text5 if x == item.lower()]:
                     del dna_dates_new[item.lower()]
                 if not self.hbsab_result:
                     self.issues.append('Hepatitis B surface antibody result is missing.')
+                if not self.hbsab_specimen_date:
+                    self.issues.append('Hepatitis B surface antibody collection date is missing.')
                 if self.hbsab_result and not self.hbsab_specimen_date:
                     self.issues.append('Hepatitis B surface antibody result is provided but specimen date is not.')
-                if self.anti_hbs_date and self.hbsab_specimen_date != self.anti_hbs_date:
+                if self.anti_hbs_date and self.hbsab_specimen_date and self.hbsab_specimen_date != self.anti_hbs_date:
                     self.issues.append('Hepatitis B surface antibody specimen date does not match the collection date from associated lab reports.')
                 result_hbsab = (any(x in self.result_check_anti_hbs.lower() for x in self.positive_results) and any(x in self.hbsab_result.lower() for x in self.positive_results)) or (any(x in self.result_check_anti_hbs.lower() for x in self.negative_results) and any(x in self.hbsab_result.lower() for x in self.negative_results))
-                if not result_hbsab:
+                if self.hbsab_result and not result_hbsab:
                     self.issues.append(f'Hepatitis B surface antibody result and associated lab result- result mismatch.')
 
-            if item.lower() in self.text6:
+            elif item.lower() in self.text6:
                 if item.lower() in dna_dates_new or [x for x in self.text6 if x == item.lower()]:
                     del dna_dates_new[item.lower()]
                 if not self.hbeab_result:
                     self.issues.append('Hepatitis B e antibody result is missing.')
+                if not self.hbeab_specimen_date:
+                    self.issues.append('Hepatitis B e antibody collection date is missing.')
                 if self.hbeab_result and not self.hbeab_specimen_date:
                     self.issues.append('Hepatitis B e antibody result is provided but specimen date is not.')
-                if self.hbeab_date and self.hbeab_specimen_date != self.hbeab_date:
+                if self.hbeab_date and self.hbeab_specimen_date and self.hbeab_specimen_date != self.hbeab_date:
                     self.issues.append('Hepatitis B e antibody specimen date does not match the collection date from associated lab reports.')
-                result_hbeab = (any(x in self.result_check_anti_hbe for x in self.positive_results) and any(x in self.hbeab_result.lower() for x in self.positive_results)) or (any(x in self.result_check_anti_hbe.lower() for x in self.negative_results) and any(x in self.hbeab_result.lower() for x in self.negative_results))
-                if not result_hbeab:
+                result_hbeab = (any(x in self.result_check_anti_hbe.lower() for x in self.positive_results) and any(x in self.hbeab_result.lower() for x in self.positive_results)) or (any(x in self.result_check_anti_hbe.lower() for x in self.negative_results) and any(x in self.hbeab_result.lower() for x in self.negative_results))
+                if self.hbeab_result and not result_hbeab:
                     self.issues.append(f'Hepatitis B e antibody result and associated lab result- result mismatch.')
         for key, value in dna_dates_new.items():
             if value[0]:
@@ -640,7 +652,7 @@ class HepBNotificationReview(NBSdriver):
                 self.issues.append('If patient is pregnant or recently delivered then must be referred for perinatal case management.')
                     
     def CheckCaseStatusNew(self):
-        """ Transmission mode should blank or airborne"""
+        """ Transmission mode should blank or Hepatitis"""
         transmission_method =  self.ReadText('//*[@id="INV157"]')
         detection_method = self.ReadText('//*[@id="INV159"]')
         confirmation_method = self.ReadText('//*[@id="INV161"]')
@@ -656,7 +668,7 @@ class HepBNotificationReview(NBSdriver):
             self.issues.append('Confirmation method is blank.')
         elif self.current_case_status == 'Confirmed' and confirmation_method !='Laboratory confirmed':
             self.issues.append('Confirmation method should be Laboratory confirmed if case status is confirmed.')
-        elif self.current_case_status == 'Probable' and confirmation_method !='Laboratory report':
+        elif (self.current_case_status == 'Probable'and (not confirmation_method or 'laboratory report' not in confirmation_method.lower())):
             self.issues.append('If probable, confirmation method should be Laboratory Report.')
         if not confirmation_date:
             self.issues.append('Confirmation date is blank.')
@@ -684,7 +696,6 @@ class HepBNotificationReview(NBSdriver):
         total_bilirubin_result = self.ReadText('//*[@id="ME119001"]')
         self.is_patient_symptomatic = self.ReadText('//*[@id="INV576"]')
         self.was_patient_jaundiced = self.ReadText('//*[@id="INV578"]')
-        
         if not self.reason_for_testing:
             self.issues.append('Must select reason for testing.')
         elif self.reason_for_testing == 'Prenatal screening' and self.patient_sex != 'Female' and 14 <= self.age >= 49:
@@ -701,13 +712,14 @@ class HepBNotificationReview(NBSdriver):
                     row_data = []
                     if self.risks:
                         cells = self.risks.find_elements(By.TAG_NAME, 'td')
-                        #cells = [risk.text for risk in cells if risk.text]
-                        #row_data.extend(cells)
+                        cells = [risk.text for risk in cells if risk.text]
+                        row_data.extend(cells)
                     if patient_employed_medical: 
                         row_data.append(patient_employed_medical)
                     if mothers_country_of_birth:
                         row_data.append('Yes' if mothers_country_of_birth != "UNITED STATES" else "No")
-                    row_data1 = [x.split(':')[1].strip() for x in row_data]
+                    #row_data1 = [x.split(':')[1].strip() for x in row_data]
+                    row_data1 = [x.split(':')[1].strip() if ':' in x else x.strip() for x in row_data]
                     if 'Yes' in set(row_data1):
                         pass
                     elif 'Yes' not in set(row_data1):
@@ -876,9 +888,10 @@ class HepBNotificationReview(NBSdriver):
         previous_inv_acute_date = self.ReadDate('//*[@id="ME10099138"]')
         previous_investigation_chronic = self.ReadText('//*[@id="ME10099142"]')  
         previous_inv_chronic_date = self.ReadDate('//*[@id="ME10099140"]')
-        documented_neg_hbsag_test = self.ReadText('//*[@id="ME10095102"]') 
+        #documented_neg_hbsag_test = self.ReadText('//*[@id="ME10095102"]') # For Test env 
+        documented_neg_hbsag_test = self.ReadText('//*[@id="ME10078100"]')  # For Production env
         neg_hbsag_date = self.ReadDate('//*[@id="ME10083106"]')
-        self.symptoms_likely_diagnosis = self.ReadText('//*[@id="ME10083103"]')  # xpath for symptoms likely diagnosis
+        self.symptoms_likely_diagnosis = self.ReadText('//*[@id="ME10083103"]')  # Are symptoms or elevated liver enzymes attributed to a more likely diagnosis?:
         self.diagnosed_another_state = self.ReadText('//*[@id="ME10095108"]')  # xpath for diagnosed another state
         if self.diagnosed_another_state.lower() == "yes" and self.current_case_status.lower() != "not a case":
             self.issues.append('Incorrect case classification, should be not a case.')
@@ -981,7 +994,7 @@ class HepBNotificationReview(NBSdriver):
                                                     elif any(item in self.text2 for item in self.data) and any(x in self.result_check_core for x in self.negative_results):# total antibody negative
                                                         if self.chronic_inv == False or self.current_case_status.lower() != "probable":
                                                             self.issues.append('incorrect case classification, should be chronic probable.')
-                            else:
+                                else:
                                     if any(item in self.text1 for item in self.data) and any(x in self.result_check_antigen for x in self.negative_results):# surface antigen negative
                                         if any(item in self.text4 for item in self.data) and any(x in self.result_check_hbeag.lower() for x in self.positive_results):# hbeag positive
                                             if any(item in self.text3 for item in self.data) and any(x in self.result_check_igm.lower() for x in self.positive_results):# igm positive
@@ -1033,8 +1046,9 @@ class HepBNotificationReview(NBSdriver):
             elif self.current_case_status.lower() == "not a case":
                 self.issues = []
                 pass
+            
 #new code added from covidnotificationbot, it also inherits from here
-    def SendManualReviewEmail(self):
+    '''def SendManualReviewEmail(self):
         """ Send email containing NBS IDs that required manual review."""
         if (len(self.not_a_case_log) > 0) | (len(self.lab_data_issues_log) > 0):
             subject = 'Cases Requiring Manual Review'
@@ -1049,7 +1063,7 @@ class HepBNotificationReview(NBSdriver):
             #self.send_smtp_email(recipient, cc, subject, body)
             self.send_smtp_email(self.covid_commander, subject, body, email_name)
             self.not_a_case_log = []
-            self.lab_data_issues_log = []
+            self.lab_data_issues_log = []'''
     
     def SendHepBnotificationreviewEmail(self, body, inv_id):
         message = EmailMessage()

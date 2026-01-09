@@ -588,8 +588,12 @@ class NBSdriver(webdriver.Chrome):
         of all investigations on record, both open and closed."""
         investigation_table_path = '//*[@id="inv1"]'
         investigation_table = self.ReadTableToDF(investigation_table_path)
-        if type(investigation_table) == pd.core.frame.DataFrame:
+        '''if type(investigation_table) == pd.core.frame.DataFrame:
             investigation_table['Start Date'] = pd.to_datetime(investigation_table['Start Date'])
+        return investigation_table'''
+        if isinstance(investigation_table, pd.core.frame.DataFrame):
+            if 'Start Date' in investigation_table.columns:
+                investigation_table['Start Date'] = pd.to_datetime(investigation_table['Start Date'], errors='coerce')
         return investigation_table
 
     def go_to_investigation_by_index(self, index):

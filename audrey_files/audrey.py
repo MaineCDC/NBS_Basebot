@@ -102,7 +102,6 @@ class Audrey(NBSdriver):
         Connection.close()
         print ('Data recieved and database connection closed.')
         
-        
     def write_general_comment(self, note):
         """Write a note in the general comments box of an investigation."""
         xpath = '//*[@id="INV167"]'

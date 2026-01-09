@@ -179,57 +179,56 @@ class Strep(NBSdriver):
         self.labs = self.ReadTableToDF('//*[@id="viewSupplementalInformation1"]/tbody')
         self.name_match = False
         lab_reports = self.find_elements(By.XPATH, '//*[@id="eventLabReport"]/tbody/tr')
-        tests = ['STREPTOCOCCUS GROUP A|Streptococcus pyogenes| Strep pyogenes (Grp A)|MICROORGANISM IDENTIFIED: BETA-HEMOLYTIC STREPTOCOCCUS, GROUP A|Streptococci, beta hemolytic group A|Beta-hemolytic streptococcus|S pyogenes hsp60 Bld Pos Ql Probe']
+        #tests = ['STREPTOCOCCUS GROUP A|Streptococcus pyogenes|streptococcus pyogenes|Strep pyogenes (Grp A)|MICROORGANISM IDENTIFIED: BETA-HEMOLYTIC STREPTOCOCCUS, GROUP A|Streptococci, beta hemolytic group A|Beta-hemolytic streptococcus|S pyogenes hsp60 Bld Pos Ql Probe| s pyogenes hsp60 bld pos ql probe|microorganism identified: streptococcus pyogenes']
+        tests = [
+    'STREPTOCOCCUS GROUP A',
+    'Streptococcus pyogenes',
+    'streptococcus pyogenes',
+    'Strep pyogenes (Grp A)',
+    'MICROORGANISM IDENTIFIED: BETA-HEMOLYTIC STREPTOCOCCUS, GROUP A',
+    'microorganism identified: beta-hemolytic streptococcus, group a',
+    'MICROORGANISM IDENTIFIED: Strep pyogenes (Grp A)',
+    'BETA-HEMOLYTIC STREPTOCOCCUS, GROUP A',
+    'Streptococci, beta hemolytic group A',
+    'Beta-hemolytic streptococcus',
+    'S pyogenes hsp60 Bld Pos Ql Probe',
+    's pyogenes hsp60 bld pos ql probe',
+    'microorganism identified: streptococcus pyogenes'
+]
         self.dna_dates = []
         for risk in lab_reports:
             cells = risk.find_elements(By.TAG_NAME, 'td')
-            if not cells:
+            if not cells or len(cells) < 4:
                 continue
-            try:
-                date_collected = datetime.strptime(cells[2].text.strip(), "%m/%d/%Y").date()
-            except ValueError:
+            date_raw = cells[2].text.strip()
+            # more flexible date parsing
+            date_collected = None
+            for fmt in ("%m/%d/%Y", "%m/%d/%y", "%m/%d/%Y %H:%M", "%m/%d/%Y %I:%M %p", "%Y-%m-%d"):
+                try:
+                    date_collected = datetime.strptime(date_raw, fmt).date()
+                    break
+                except ValueError:
+                    pass
+ 
+            if not date_collected:
                 continue
-            '''lab_test = " ".join(cells[3].text.split())
             tests = [t.casefold() for t in tests]
-            print(lab_test.lower())
-            print(tests)
-            if any(t in lab_test.lower() for t in tests):
-                self.name_match = True
-                self.dna_dates.append(date_collected)
-            if any(t in lab_test.lower() for t in tests):
-                if not self.name_match:
-                    self.labs = pd.DataFrame()
-                    self.issues.append('Test results does not have strep A.')
-                return self.dna_dates'''
             lab_text = " ".join(cells[3].text.split()).casefold()
-
-            if isinstance(tests, str):
-                test_list = [p.strip().casefold() for p in tests.split("|")]
-            else:
-                test_list = [
-                    piece.strip().casefold()
-                    for item in tests
-                    for piece in str(item).split("|")
-                ]
-            
-            print(f"lab_text: {lab_text!r}")
-            print(f"test_list: {test_list!r}")
-            
-            matches = [t for t in test_list if t and t in lab_text]
-            print(f"matches: {matches!r}")
-            
+ 
+            matches = [t for t in tests if t in lab_text]
             has_match = bool(matches)
-            print(f"has_match: {has_match}, name_match_before: {self.name_match}")
-            
+ 
             if has_match:
                 self.name_match = True
                 self.dna_dates.append(date_collected)
-            else:
-                if not self.name_match:
-                    self.labs = pd.DataFrame()
-                    self.issues.append("Test results does not have strep A.")
-                return self.dna_dates
+ 
+        # decide AFTER checking all rows (don’t return inside the loop)
+        if not self.name_match:
+            self.labs = pd.DataFrame()
+            self.issues.append("Test results does not have strep A.")
 
+        return self.dna_dates
+        
     def GetReceivedDate(self):
         """Find earliest report date by reviewing associated labs"""
         #self.current_report_date = self.ReadDate('//*[@id="INV111"]')
@@ -398,9 +397,9 @@ class Strep(NBSdriver):
             if not did_underlying_condition:
                 self.issues.append('Underlying condition is blank.')        
             elif did_underlying_condition == 'Yes':
-                if not underlying_condition_yes_explain:
-                    self.issues.append('Underlying condition is yes but explanation is not filled.')
-                if underlying_condition_gas_stss == 'None' or underlying_condition_gas_stss == 'Unknown':
+                if not underlying_condition_yes_explain and underlying_condition_gas_stss in ['None', 'Unknown']:
+                    self.issues.append('Did Underlying condition is yes  and underlying condition GAS/STSS is none or unknown but underlying condition explain is blank.')
+                if underlying_condition_gas_stss in ['None', 'Unknown']:
                     self.issues.append(f'did underlying condition is {did_underlying_condition} but underlying condition is {underlying_condition_gas_stss}." .')
                 if not underlying_condition_gas_stss :
                     self.issues.append('Did Underlying condition exist is yes but underlying condition  is blank.')
@@ -440,14 +439,14 @@ class Strep(NBSdriver):
         discharge_prior_delivery = self.ReadText('//*[@id="ME128023"]')
         if self.current_case_status != 'Not a Case' :
             if not Have_surgery:
-                self.issues.append('Healthcare association is blank.')
+                self.issues.append('have surgery is blank.')
             elif Have_surgery == 'Yes':
                 if self.surgery_date and self.surgery_date > self.date_specimen:
                     self.issues.append('Surgery date cannot be after specimen collection date.')  
                 if self.surgery_date and self.surgery_date > self.now:
                     self.issues.append('Surgery date cannot be in the future.')
                 if not type_of_procedure or not Name_of_facility or not self.surgery_date or not discharged_prior_surgery or not Location_post_surgical:
-                    self.issues.append('Surgery is yes, below fields are missing.')
+                    self.issues.append('Surgery is yes, check below feild/fields is/are missing.')
             if self.patient_sex and self.patient_sex == 'Female':
                 if not Delivered_baby:
                     self.issues.append('Delivered baby is blank.')
