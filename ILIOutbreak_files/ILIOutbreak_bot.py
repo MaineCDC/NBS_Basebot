@@ -31,8 +31,6 @@ what_do = []
 reason = []
 
 is_in_production = os.getenv('ENVIRONMENT', 'production') != 'development'
-
-
 @error_handle
 def start_ILIOutbreak(username, passcode):
     
@@ -53,10 +51,7 @@ def start_ILIOutbreak(username, passcode):
     error = False
     n = 1
     attempt_counter = 0
-    '''with open("patients_to_skip.txt", "r") as patient_reader:
-        patients_to_skip.append(patient_reader.readlines())'''
-
-    limit = 41
+    limit = 8
     loop = tqdm(generator())
     for _ in loop:
         #check if the bot haa gone through the set limit of reviews
@@ -75,7 +70,6 @@ def start_ILIOutbreak(username, passcode):
             }
             
             NBS.SortQueue(paths)
-
             if NBS.queue_loaded:
                 NBS.queue_loaded = None
                 continue
@@ -84,22 +78,20 @@ def start_ILIOutbreak(username, passcode):
                 #NBS.SendManualReviewEmail()
                 #NBS.Sleep()
                 continue
-            
             NBS.CheckFirstCase()
             if NBS.condition == 'ILI Related Outbreak':
                 NBS.GoToNCaseInApprovalQueue(n)
                 if NBS.queue_loaded:
                     NBS.queue_loaded = None
                     continue
-                NBS.inv_id = NBS.find_element(By.XPATH,'//*[@id="bd"]/table[3]/tbody/tr[2]/td[1]/span[2]').text 
+                inv_id = NBS.ReadText('//*[@id="bd"]/table[3]/tbody/tr[2]/td[1]/span[2]')
                 NBS.StandardChecks()
                 if not NBS.issues:
-                    reviewed_ids.append(NBS.inv_id)
+                    NBS.reviewed_ids.append(inv_id)
                     what_do.append("Approved Notification")
                     reason.append('No issues found.')
                     print("Approved Notification")
                     NBS.ApproveNotification()
-                    #NBS.SendILIOutbreakEmail("Hey, please don't change anything at all and just click CN", NBS.inv_id)
                 NBS.ReturnApprovalQueue()
                 if NBS.queue_loaded:
                     NBS.queue_loaded = None
@@ -113,7 +105,7 @@ def start_ILIOutbreak(username, passcode):
 
                     NBS.final_name = NBS.patient_name
                     #if NBS.final_name == NBS.initial_name:
-                    reviewed_ids.append(NBS.inv_id)
+                    NBS.reviewed_ids.append(inv_id)
                     what_do.append("Reject Notification")
                     reason.append(' '.join(NBS.issues))
                     NBS.RejectNotification()
@@ -124,7 +116,7 @@ def start_ILIOutbreak(username, passcode):
                         body = f'Hey, please only update the case status to {NBS.CorrectCaseStatus}, then click CN for this case.'
                     if body:
                         print('mail', body)
-                        NBS.SendILIOutbreakEmail(NBS,body, NBS.inv_id)
+                        NBS.SendILIOutbreakEmail(NBS,body,inv_id)
                         # NBS.ReturnApprovalQueue()
                     #elif NBS.final_name != NBS.initial_name:
                         #print(f"here : {NBS.final_name} {NBS.initial_name}")
@@ -143,42 +135,20 @@ def start_ILIOutbreak(username, passcode):
             # raise Exception(e)
             error_list.append(str(e))
             error = True
-        #     # print(tb)
-        #     with open("error_log.txt", "a") as log:
-        #         log.write(f"{datetime.now().date().strftime('%m_%d_%Y')} | ILI Related Outbreak - {str(tb)}")
-        #     #NBS.send_smtp_email(NBS.covid_informatics_list, 'ERROR REPORT: NBSbot(ILI Related Outbreak Notification Review) AKA Athena', tb, 'error email')
-
+        
+    NBS.ILIOutbreak_notification_bot = True
+    NBS.SendEmailToIliAssign()
+    NBS.SendBotRunEmail() 
+    #NBS.CreateExcelSheet()
+    
     print("ending, printing, saving")
     bot_act = pd.DataFrame(
-        {'Inv ID': reviewed_ids,
+        {'Inv ID': NBS.reviewed_ids,
         'Action': what_do,
         'Reason': reason
         })
-    bot_act.to_excel(f"ILIOutbreak_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx")
+    bot_act.to_excel(f"saved/ILIOutbreak/ILIOutbreak_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx")
     print("Excel file created")
-
-    # body = "The list of ILI Related Outbreak notifications that need to be manually reviewed are in the attached spreadsheet."
-
-    # message = EmailMessage()
-    # message.set_content(body)
-    # message['Subject'] = 'Notification Review Report: NBSbot(ILI Related Outbreak Notification Review) AKA ILI Related Outbreak'
-    # message['From'] = NBS.nbsbot_email
-    # message['To'] = ', '.join(["disease.reporting@maine.gov"])
-    # with open(f"ILIOutbreak_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx", "rb") as f:
-    #     message.add_attachment(
-    #         f.read(),
-    #         filename=f"ILIOutbreak_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx",
-    #         maintype="application",
-    #         subtype="vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    #     )
-    # smtpObj = smtplib.SMTP(NBS.smtp_server)
-    # smtpObj.send_message(message)
-    
-    '''with open("patients_to_skip.txt", "w") as patient_writer:
-        for patient_id in patients_to_skip: patient_writer.write(f"{patient_id}\n")
-    if error is not None: 
-        raise Exception(error_list)'''
-    #NBS.send_smtp_email("disease.reporting@maine.gov", 'Notification Review Report: NBSbot(Anaplasma Notification Review) AKA ILI Related Outbreak', body, 'ILI Related Outbreak Notification Review email')
 
 if __name__ == '__main__':
     start_ILIOutbreak()

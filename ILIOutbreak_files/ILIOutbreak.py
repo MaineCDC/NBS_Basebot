@@ -26,7 +26,7 @@ class Logger:
 sys.stdout = Logger("logfile.txt")
 
 class ILIOutbreak(NBSdriver):
-    """ A class to review COVID-19 cases in the notification queue.
+    """ A class to review ILIOutbreak cases in the notification queue.
     It inherits from NBSdriver."""
     
     def __init__(self, production=False):
@@ -66,6 +66,7 @@ class ILIOutbreak(NBSdriver):
         self.GeneralComments()
         
         self.LabConfirmed()
+        self.PopulationWithIli()
         self.AffectedPopulation()
         self.LaboratoryConfirmation()
         self.CaseStatusIliOutbreak()
@@ -142,77 +143,65 @@ class ILIOutbreak(NBSdriver):
                       
     def AffectedPopulation(self):
         """ Check affected population."""
-        self.affected_population = self.ReadTableToDF('//*[@id="ME8107"]/tbody/tr[1]/td/table/tbody/tr/td[2]') # //*[@id="ME8107"]/tbody/tr[1]/td/table
+        self.affected_population = self.ReadTableToDF('//*[@id="ME8107"]//table') #  //*[@id="ME8107"]/tbody/tr[1]/td/table/tbody/tr/td[2], //*[@id="ME8107"]/tbody/tr[1]/td/table
         #self.lab_confirmed_values = []
         # initialize once (outside the loop)
         # Initialize once
         self.attack_rate_group_percent_list = []
-
+        self.affected_population_type_list = []
         if self.affected_population.empty:
             self.issues.append('Affected population is blank.')
-
         for i, row in self.affected_population.iterrows():
             row_num = i + 1
 
-            # ---- Affected Population Type ----
             affected_population_type = row.get('Affected Population Type')
             if not affected_population_type:
                 self.issues.append(f'Affected population type is blank for row {row_num}.')
+                continue
 
-            # ---- Population with ILI ----
             population_with_ili = row.get('Population with ILI (no lab)')
             if population_with_ili in [None, '']:
                 self.issues.append(f'Population with ILI (no lab) is blank for row {row_num}.')
                 continue
 
-            # ---- Lab-confirmed influenza ----
             lab_confirmed_influenza = row.get('Lab-confirmed influenza')
             if lab_confirmed_influenza in [None, '']:
                 self.issues.append(f'Lab Confirmed Influenza is blank for row {row_num}.')
                 continue
 
-            # ---- Total Population ----
             total_population = row.get('Total Population of Group')
-            if not total_population:
+            if not total_population and self.outbreak_reporting_facility != 'Acute Care / Nosocomial':
                 self.issues.append(f'Total Population of Group is blank for row {row_num}.')
                 continue
 
-            # ---- Attack Rate (Reported) ----
             attack_rate_group = row.get('Attack Rate of Group')
-            if attack_rate_group in [None, '']:
+            if attack_rate_group in [None, ''] and self.outbreak_reporting_facility != 'Acute Care / Nosocomial':
                 self.issues.append(f'Attack Rate of Group is blank for row {row_num}.')
                 continue
 
-            # ---- Convert to int safely ----
+            # convert
             try:
                 population_with_ili = int(population_with_ili)
                 lab_confirmed_influenza = int(lab_confirmed_influenza)
-                total_population = int(total_population)
-                attack_rate_group = int(attack_rate_group)
+                total_population = int(total_population or 0)
+                attack_rate_group = int(attack_rate_group or 0)
             except ValueError:
                 self.issues.append(f'Invalid numeric value in row {row_num}.')
                 continue
 
-            # ---- Calculate Attack Rate % ----
-            calculated_rate = (
-                (population_with_ili + lab_confirmed_influenza)
-                / total_population
-                * 100
-            )
+            # Only now append (row is valid)
+            self.affected_population_type_list.append(affected_population_type)
 
-            calculated_rate = int(round(calculated_rate))
+            if self.outbreak_reporting_facility != 'Acute Care / Nosocomial':
+                calculated_rate = ((population_with_ili + lab_confirmed_influenza) / total_population * 100)
+                calculated_rate = int(round(calculated_rate))
+                self.attack_rate_group_percent_list.append(calculated_rate)
 
-            # ---- Store for later validations ----
-            self.attack_rate_group_percent_list.append(calculated_rate)
+                if calculated_rate != attack_rate_group:
+                    self.issues.append(
+                        f'Attack Rate of Group {attack_rate_group} does not match calculated value {calculated_rate}% for row {row_num}.'
+                    )
 
-            # ---- Validate against reported value ----
-            if calculated_rate != attack_rate_group:
-                self.issues.append(
-                    f'Attack Rate of Group {attack_rate_group} does not match calculated value {calculated_rate}% for row {row_num}.'
-                )
-
-
-        
     ### sum of lab-confirmed influenza to check against laboratory confirmation total
     def LabConfirmed(self):
         self.lab_confirmed_values = []
@@ -224,6 +213,17 @@ class ILIOutbreak(NBSdriver):
         self.count_influenza = []
         self.count_influenza = [int(x) for x in self.lab_confirmed_values if x is not None and str(x).strip() != '']
         self.count = sum(self.count_influenza)
+    
+    def PopulationWithIli(self):
+        self.population_with_ili_values = []
+        self.affected_population = self.ReadTableToDF('//*[@id="ME8107"]/tbody/tr[1]/td/table/tbody/tr/td[2]') 
+        for i in range(len(self.affected_population)):
+            self.population_with_ili = self.affected_population.iloc[i]['Population with ILI (no lab)']
+            if self.population_with_ili is not None:
+                self.population_with_ili_values.append(self.population_with_ili)
+        self.count_ili = []
+        self.count_ili = [int(x) for x in self.population_with_ili_values if x is not None and str(x).strip() != '']
+        self.count_ili_total = sum(self.count_ili)
             
     ### laboratory confirmation checks
     import re
@@ -233,194 +233,72 @@ class ILIOutbreak(NBSdriver):
        lab_text_total = sum(counts_lab)
        if self.count != lab_text_total:
            self.issues.append(f'Sum of Lab-confirmed influenza in Affected Population ({self.count}) does not match total count in Laboratory Confirmation ({lab_text_total}).')
-    
+        
     def CaseStatusIliOutbreak(self):
-        ili_assign_email = False
-        ili_assign_email_id = []
-
-        # Time difference in days
-        self.time_difference = (
-            self.date_last_case_became_ill - self.date_first_case_became_ill
-        ).days
-
-        facility = self.outbreak_reporting_facility
-        status = self.current_case_status
-        count = self.count
-
-        # Always safely define row data
-        row = None
-        if self.affected_population is not None and not self.affected_population.empty:
-            row = self.affected_population.iloc[0]
-            lab_count = int(row.get('Lab-confirmed influenza', 0))
-            ili_count = int(row.get('Population with ILI (no lab)', 0))
-        else:
-            lab_count = 0
-            ili_count = 0
-
-        # School / Daycare
-        if facility == 'School (K-12) or Daycare' and status == 'Confirmed':
-            if not self.attack_rate_group_percent_list:
-                self.issues.append(
-                    'No Attack Rate of Group values available to evaluate school/daycare threshold.'
-                )
-                return
-
-            if not any(rate > 7.5 for rate in self.attack_rate_group_percent_list):
-                self.issues.append(
-                    'For confirmed school/daycare outbreaks, at least one Attack Rate of Group must be greater than 7.5%.'
-                )
-
-        # Acute Care / College / University
-        elif facility in (
-            'Acute Care / Nosocomial',
-            'College / University / Boarding School',
-        ):
-            if count > 3:
-                if status != 'Confirmed':
-                    self.issues.append(
-                        'If lab-confirmed influenza cases are more than 3, status should be Confirmed.'
-                    )
-
-            elif count == 3:
-                if self.time_difference > 3:
-                    self.issues.append(
-                        'For confirmed case status, 3 lab-confirmed influenza cases must be within 72 hours.'
-                    )
-                elif status != 'Confirmed':
-                    self.issues.append(
-                        'If 3 lab-confirmed influenza cases occur within 72 hours, status should be Confirmed.'
-                    )
-
-            else:  # count < 3
-                if status != 'Not a Case':
-                    self.issues.append(
-                        'If lab-confirmed influenza cases are less than 3, status should be Not a Case.'
-                    )
-
-        # Event
-        elif facility == 'Event (wedding, etc.)':
-            ili_assign_email = True
-            ili_assign_email_id.append(self.inv_id)
-            self.issues.append('Event outbreaks require manual review.')
-
-        # Health Care Workers
-        elif facility == 'Health Care Workers':
-            if status != 'Not a Case':
-                self.issues.append(
-                    'Health Care Worker outbreaks should be classified as Not a Case.'
-                )
-
-        # Institutional
-        elif facility == 'Institutional (workplace, jail, shelter, etc)':
-            ili_assign_email = True
-            ili_assign_email_id.append(self.inv_id)
-            self.issues.append('Institutional outbreaks require manual review.')
-
-        # Outpatient / Restaurant
-        elif facility in (
-            'Outpatient Healthcare Facility',
-            'Restaurant',
-        ):
-            if status != 'Not a Case':
-                self.issues.append(
-                    f'{facility} outbreaks should be classified as Not a Case.'
-                )
-
-        # Summer Camp
-        elif facility == 'Summer Camp':
-            if count >= 1:
-                if status != 'Confirmed':
-                    self.issues.append(
-                        'If at least 1 lab-confirmed influenza case exists, status should be Confirmed.'
-                    )
-            else:
-                if status != 'Not a Case':
-                    self.issues.append(
-                        'If no lab-confirmed influenza cases exist, status should be Not a Case.'
-                    )
-        # Long Term Care Facility
-        elif facility == 'Long Term Care Facility':
-            if len(self.affected_population) > 1:
-                ili_assign_email = True
-                ili_assign_email_id.append(self.inv_id)
-                self.issues.append(
-                    'Long Term Care Facility outbreaks with multiple affected populations require manual review.'
-                )
-                return
-
-            if lab_count < 2 and status == 'Confirmed':
-                self.issues.append(
-                    'At least 2 lab-confirmed influenza cases are required for confirmed status.'
-                )
-
-                if (lab_count == 1 and ili_count == 0) or (lab_count == 0 and ili_count == 1):
-                    self.issues.append(
-                        'Cannot determine whether cases are resident or staff; manual review required.'
-                    )
-                    ili_assign_email = True
-                    ili_assign_email_id.append(self.inv_id)
-
-            elif lab_count == 2:
-                if self.time_difference > 3:
-                    if status == 'Confirmed':
-                        self.issues.append(
-                            'For confirmed case status, 2 lab-confirmed cases must be within 72 hours.'
-                        )
-                    if status != 'Not a Case':
-                        self.issues.append(
-                            'If 2 lab-confirmed cases are not within 72 hours, status should be Not a Case.'
-                        )
-                else:
-                    if status != 'Confirmed':
-                        self.issues.append(
-                            'If 2 lab-confirmed cases occur within 72 hours, status should be Confirmed.'
-                        )
-
-        return ili_assign_email, ili_assign_email_id
-
-    '''def CaseStatusIliOutbreak(self):
-        ili_assign_email = False
-        ili_assign_email_id = []
+        inv_id = self.ReadText('//*[@id="bd"]/table[3]/tbody/tr[2]/td[1]/span[2]')
+        self.ili_assign_email = False
+        self.ili_assign_email_id = []
+        self.valid_affected_population_types = ['Staff','staff','Students','students']
         self.time_difference = (self.date_last_case_became_ill - self.date_first_case_became_ill).days
-        if (self.outbreak_reporting_facility == 'School (K-12) or Daycare' and self.current_case_status == 'Confirmed'):
-        # Ensure attack rates were calculated
-            if not self.attack_rate_group_percent_list:
-                self.issues.append('No Attack Rate of Group values available to evaluate school/daycare threshold.')
-                return
-            # Check if at least one attack rate is > 7.5%
-            has_valid_attack_rate = any(rate > 7.5 for rate in self.attack_rate_group_percent_list)
-            if not has_valid_attack_rate:
-                self.issues.append('For confirmed school/daycare outbreaks, at least one Attack Rate of Group must be greater than 7.5%.') 
-
+        if (self.outbreak_reporting_facility == 'School (K-12) or Daycare'):
+            if self.current_case_status == 'Confirmed':
+                if self.affected_population_type_list not in self.valid_affected_population_types:
+                    self.issues.append('Affected Population Type must be Staff or Students.')
+                elif len(self.affected_population) > 1: 
+                    for i in range(len(self.affected_population)):
+                        row_df = self.affected_population.iloc[i]
+                        calculated_rate = ((int(row_df['Population with ILI (no lab)']) + int(row_df['Lab-confirmed influenza']))/ int(row_df['Total Population of Group'])* 100)
+                        if row_df['Affected Population Type'] in self.valid_affected_population_types:
+                            if calculated_rate < 7.5:
+                                self.issues.append('incorrect case classification for school/daycare outbreaks:Attack Rate of Group must be greater or equal than 7.5%.')
+                elif len(self.affected_population) == 1:
+                    row_df = self.affected_population.iloc[0]
+                    calculated_rate = ((int(row_df['Population with ILI (no lab)']) + int(row_df['Lab-confirmed influenza']))/ int(row_df['Total Population of Group'])* 100)
+                    if row_df['Affected Population Type'] in self.valid_affected_population_types:
+                        if calculated_rate < 7.5:
+                            self.issues.append('incorrect case classification for school/daycare outbreaks:Attack Rate of Group must be greater or equal than 7.5%.')
+                    elif row_df['Affected Population Type'] not in self.valid_affected_population_types:
+                        self.issues.append('Affected Population Type must be Staff or Students.')
+            elif self.current_case_status == 'Probable':
+                self.issues.append('Probable case status is not allowed for school/daycare outbreaks.')
+            elif self.current_case_status == 'Not a Case':
+                if len(self.affected_population) > 1: 
+                    for i in range(len(self.affected_population)):
+                        row_df = self.affected_population.iloc[i]
+                        calculated_rate = ((int(row_df['Population with ILI (no lab)']) + int(row_df['Lab-confirmed influenza']))/ int(row_df['Total Population of Group'])* 100)
+                        if row_df['Affected Population Type'] in self.valid_affected_population_types:
+                            if calculated_rate >= 7.5:
+                                self.issues.append('incorrect case classification cannot be Not a Case.')
+                elif len(self.affected_population) == 1:
+                    row_df = self.affected_population.iloc[0]
+                    calculated_rate = ((int(row_df['Population with ILI (no lab)']) + int(row_df['Lab-confirmed influenza']))/ int(row_df['Total Population of Group'])* 100)
+                    if row_df['Affected Population Type'] in self.valid_affected_population_types:
+                        if calculated_rate >= 7.5:
+                            self.issues.append('incorrect case classification cannot be Not a Case.')
+                            
         elif self.outbreak_reporting_facility == 'Acute Care / Nosocomial':
-            for i in range(len(self.affected_population)): 
-                row_df = self.affected_population.iloc[[i]]
-            if len(self.affected_population) == 1:
-                if int(row_df['Lab-confirmed influenza']) > 3:
-                    pass
-                elif int(row_df['Lab-confirmed influenza']) == 3:
+            if len(self.affected_population) > 1:
+                self.ili_assign_email = True
+                self.ili_assign_email_id.append(inv_id)
+                self.issues.append('Acute Care / Nosocomial outbreaks with multiple affected populations require manual review .')
+            elif len(self.affected_population) == 1:
+                self.case2 = self.count_ili_total + self.count
+                if self.count != 0 and self.case2 > 3:
+                    if self.current_case_status != 'Confirmed':
+                        self.issues.append(f'incorrect case classification for acute care / nosocomial outbreak- it should be confirmed case status.')
+                    if self.current_case_status == 'Confirmed':
+                        pass
+                elif self.count != 0 and self.case2 == 3:
                     if self.time_difference > 3:
                         self.issues.append(f'for confirmed case status if lab-confirmed influenza is 3, should be within 72 hours of each other.')
-                elif int(row_df['Lab-confirmed influenza']) < 3:
-                    self.issues.append(f'if lab-confirmed influenza cases are less than 3 - it should be Not a Case.')
-            if len(self.affected_population) > 1:
-                for i in range(len(self.affected_population)):
-                    if self.count > 3:
+                    elif self.time_difference <= 3:
                         if self.current_case_status != 'Confirmed':
-                            self.issues.append(f'if lab-confirmed influenza cases are more than 3 - it should be confirmed case status.')
-                        if self.current_case_status == 'Confirmed':
-                            pass
-                    elif self.count == 3:
-                        if self.time_difference > 3:
-                            self.issues.append(f'for confirmed case status if lab-confirmed influenza is 3, should be within 72 hours of each other.')
-                        elif self.time_difference <= 3:
-                            if self.current_case_status != 'Confirmed':
-                                self.issues.append(f'if lab-confirmed influenza cases are 3 within 72 hours of each other - it should be confirmed case status.')
-                    elif self.count < 3:
-                        if self.current_case_status != 'Not a Case':
-                            self.issues.append(f'if lab-confirmed influenza cases are less than 3 - it should be Not a Case.')
-                        if self.current_case_status == 'Not a Case':
-                            pass
+                            self.issues.append(f'if lab-confirmed influenza and population with ili cases are 3 or more within 72 hours of each other - it should be confirmed case status.')
+                elif self.count == 0 or self.case2 < 3:
+                    if self.current_case_status != 'Not a Case':
+                        self.issues.append(f'incorrect case classification for acute care / nosocomial outbreak - it should be Not a Case.')
+                    elif self.current_case_status == 'Not a Case':
+                        pass
                         
         elif self.outbreak_reporting_facility == 'College / University / Boarding School':
             if len(self.affected_population) == 1:
@@ -450,8 +328,8 @@ class ILIOutbreak(NBSdriver):
                         if self.current_case_status == 'Not a Case':
                             pass
         elif self.outbreak_reporting_facility == 'Event (wedding, etc.)':
-            ili_assign_email = True
-            ili_assign_email_id.append(self.inv_id)
+            self.ili_assign_email = True
+            self.ili_assign_email_id.append(inv_id)
             self.issues.append(f'Event outbreaks require manual review .')
             
         elif self.outbreak_reporting_facility == 'Health Care Workers':
@@ -459,8 +337,8 @@ class ILIOutbreak(NBSdriver):
                 self.issues.append(f'Health Care Worker outbreaks should be classified as Not a Case.')
                 
         elif self.outbreak_reporting_facility == 'Institutional (workplace, jail, shelter, etc)':
-            ili_assign_email = True
-            ili_assign_email_id.append(self.inv_id)
+            self.ili_assign_email = True
+            self.ili_assign_email_id.append(inv_id)
             self.issues.append(f'Institutional outbreaks require manual review .')
             
         elif self.outbreak_reporting_facility == 'Outpatient Healthcare Facility':
@@ -482,44 +360,65 @@ class ILIOutbreak(NBSdriver):
                     self.issues.append(f'if lab-confirmed influenza cases are less than 1 - it should be Not a Case.')
             
         elif self.outbreak_reporting_facility == 'Long Term Care Facility':
-            if len(self.affected_population)>1:
-                ili_assign_email = True
-                ili_assign_email_id.append(self.inv_id)
-                self.issues.append(f'Long Term Care Facility outbreaks with multiple affected populations require manual review .')
+            if len(self.affected_population) > 1:
+                self.ili_assign_email = True
+                self.ili_assign_email_id.append(inv_id)
+                self.issues.append('Long Term Care Facility outbreaks with multiple affected populations require manual review .')
             elif len(self.affected_population) == 1:
-                if int(row_df['Lab-confirmed influenza']) >=2:
-                    if self.current_case_status == 'Confirmed':
+                row_df = self.affected_population.iloc[0]
+                if self.current_case_status == 'Confirmed':
+                    if int(row_df['Lab-confirmed influenza']) > 2:
+                            pass
+                    elif int(row_df['Lab-confirmed influenza']) < 2:
+                        self.issues.append('At least 2 lab-confirmed influenza cases are required for confirmed status.')
+                    elif int(row_df['Lab-confirmed influenza']) == 2:
+                        if self.time_difference > 3:
+                            if self.current_case_status == 'Confirmed':
+                                self.issues.append('Does not meet  72 hour criteria.')
+                            elif self.current_case_status != 'Not a Case':
+                                self.issues.append('Does not meet  72 hour criteria.')
+                        elif self.time_difference <= 3:
+                            if self.current_case_status != 'Confirmed':
+                                self.issues.append('lab-confirmed influenza cases are 2 within 72 hours of each other - it should be confirmed case status.')
+                        elif self.time_difference <= 3:
+                            if self.current_case_status == 'Confirmed':
+                                pass
+                if self.current_case_status == 'Probable':
+                    if not int(row_df['Population with ILI (no lab)']):    
+                        self.issues.append('Probable status requires at least 2 ILI (no lab) cases.')
+                    elif int(row_df['Population with ILI (no lab)']) >= 2 and not int(row_df['Lab-confirmed influenza']):
                         pass
-                elif int(row_df['Lab-confirmed influenza']) < 2:
-                    self.issues.append(f'At least 2 lab-confirmed influenza cases are required for confirmed status.')
-                if  int(row_df['Lab-confirmed influenza'][i])  == 1  and not int(row_df['Population with ILI (no lab)'][i]):
-                    self.issues.append(f'At least 2 lab-confirmed influenza cases are required for confirmed status cannot determine if its resident or staff.')
-                    ili_assign_email = True
-                    ili_assign_email_id.append(self.inv_id)
-                elif not int(row_df['Lab-confirmed influenza'][i]) and int(row_df['Population with ILI (no lab)'][i]) == 1:
-                    self.issues.append(f'At least 2 lab-confirmed influenza cases are required for confirmed status cannot determine if its resident or staff.')
-                    ili_assign_email = True
-                    ili_assign_email_id.append(self.inv_id)
-                elif int(row_df['Lab-confirmed influenza'][i]) == 2:
-                    if self.time_difference > 3:
-                        if self.current_case_status == 'Confirmed':
-                            self.issues.append(f'for confirmed case status if lab-confirmed influenza is 2, should be within 72 hours of each other.')
-                        if self.current_case_status != 'Not a Case':
-                            self.issues.append(f'if lab-confirmed influenza cases are 2 within 72 hours of each other - it should be not a case.')
-                    elif self.time_difference <= 3:
-                        if self.current_case_status != 'Confirmed':
-                            self.issues.append(f'if lab-confirmed influenza cases are 2 within 72 hours of each other - it should be confirmed case status.')
-                    elif self.time_difference <= 3:
-                        if self.current_case_status == 'Confirmed':
-                            pass'''
-                
-    def SendEmailToIliAssign(self, ili_assign_email_id):
-        if ili_assign_email_id:
-            body = ""
-            body = f"At least 2 lab-confirmed influenza cases are required for confirmed status cannot determine if its resident or staff.\nThe following ILI Outbreak investigations {ili_assign_email_id} need to be reviewed and possibly reclassified to Probable:\n"
+                    elif int(row_df['Population with ILI (no lab)']) >= 2 and int(row_df['Lab-confirmed influenza']) == 1:
+                        self.issues.append('incorrect case classification.')
+                    elif int(row_df['Population with ILI (no lab)']) < 2:
+                        self.issues.append('Probable status requires at least 2 ILI (no lab) cases.')
+                    elif int(row_df['Population with ILI (no lab)']) == 2 and int(row_df['Lab-confirmed influenza']) < 2:
+                        if self.time_difference > 3:
+                            if self.current_case_status == 'Probable':
+                                self.issues.append('Does not meet  72 hour criteria.')
+                            if self.current_case_status != 'Not a Case':
+                                self.issues.append('Does not meet  72 hour criteria.')
+                        elif self.time_difference <= 3:
+                            if self.current_case_status != 'Probable':
+                                self.issues.append('ILI (no lab) cases are 2 within 72 hours of each other - it should be probable case status.')
+                        elif self.time_difference <= 3:
+                            if self.current_case_status == 'Probable':
+                                pass
+                    elif int(row_df['Population with ILI (no lab)']) > 2 and int(row_df['Lab-confirmed influenza']) < 2:
+                        pass
+                elif int(row_df['Population with ILI (no lab)']) > 2 and int(row_df['Lab-confirmed influenza']) < 2:
+                    if self.current_case_status != 'Not a Case':
+                        self.issues.append('If at least 2 lab-confirmed influenza cases exist, status should be Not a case.')
+                        
+    def SendEmailToIliAssign(self):
+        """ Send email containing NBS IDs that required manual review."""
+        #self.ili_outbreak_investigator = ['vaishnavi.appidi@maine.gov', 'Anna.Krueger@maine.gov']
+        if self.ili_assign_email_id:
+            body = f"Need manual review for the below ILIOutbreak investigations,Investigation ids {self.ili_assign_email_id} "
+            print(f"body", body)
             if body:
                 self.send_smtp_email("disease.reporting@maine.gov", 'ERROR REPORT: NBSbot(ILI Outbreak ELR Review) AKA ILIbot', body, 'ILI outbreak cases Manual Review email')
-    
+                print('sent email to ili assign', self.ili_assign_email_id)
 
     def SendManualReviewEmail(self):
         """ Send email containing NBS IDs that required manual review."""
@@ -537,14 +436,13 @@ class ILIOutbreak(NBSdriver):
             self.send_smtp_email(self.covid_commander, subject, body, email_name)
             self.not_a_case_log = []
             self.lab_data_issues_log = []
-    
 
     def SendILIOutbreakEmail(self, body,inv_id):
         message = EmailMessage()
         message.set_content(body)
-        message['Subject'] = f'ILI Outbreak Bot {self.inv_id}'
+        message['Subject'] = f'ILI Outbreak Bot {inv_id}'
         message['From'] = self.nbsbot_email
-        message['To'] = ', '.join(["disease.reporting@maine.gov"])   #change email to disease.reporting
+        message['To'] = ', '.join(["disease.reporting@maine.gov"])   
         smtpObj = smtplib.SMTP(self.smtp_server)
         smtpObj.send_message(message)
-        print('sent email', self.inv_id)
+        print('sent email', inv_id)
