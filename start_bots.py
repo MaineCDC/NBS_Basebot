@@ -4,13 +4,14 @@ import time
 # import the three bots into this file
 from anaplasma_files.anaplasma_bot import start_anaplasma
 from audrey_files.audrey_bot import start_audrey
-from athena_files.athena_bot import start_athena
-from strep_files.strep_bot import start_strep
+from athena_files.athena_bot_prod import start_athena
+from strep_files.strep_bot_prod import start_strep
 from CovidECR_files.CovidEcr_bot import start_CovidEcr
 from HepBnotificationreview_files.HepBnotificationreview_bot import start_HepBnotificationreview
 from Gonorrhea_files.Gonorrhea_bot import start_Gonorrhea
 from ILIOutbreak_files.ILIOutbreak_bot import start_ILIOutbreak
-# run the get credentials function
+from bot_queue import BotQueue
+
 bots = {
     1: start_athena,
     2: start_audrey,
@@ -36,7 +37,6 @@ def selection():
 
 def run_bots():
     # targets = []
-    threads = []
     print("**select bots**")
     print("1. athena")
     print("2. audrey")
@@ -49,33 +49,31 @@ def run_bots():
     selection()
     try:
         for  target in targets:
-            print(f"selected: {target.__name__.replace("start_", "") }")
+            print(f"selected: {target.__name__.replace('start_', '') }")
         
-        codes = []
         username = input('Enter your SOM username ("first_name.last_name"):')
         passcode = input('Enter your RSA passcode:')
-        codes.append(passcode)
-        for _ in range(len(targets) - 1):
-            passcode = input('Enter your RSA passcode for the next bot:')    
-            codes.append(passcode)
-        for i in range(len(targets)):
-            # use the credentials and pass it as a param into each both
-            # make sure the bots are triggered each using a thread
-            thread = Thread(target=targets[i], args=(username, codes[i]))
-            threads.append(thread)
-            thread.start()
-
-
-            time.sleep(30)
-            # log the errors into a file
-            # [01/08/2025]
-            # BOTname - error information
-        for thread in threads:
-            thread.join()
+        
+        # Create a BotQueue instance with the selected bots
+        bot_queue = BotQueue(targets)
+        
+        # Run bots continuously in a cycle
+        # After all selected bots run once, sleep and then reset to first bot
+        while True:
+            for i in range(len(targets)):
+                bot_func = bot_queue.get_current_bot()
+                print(f"\nStarting {bot_func.__name__.replace('start_', '')}...")
+                bot_func(username, passcode, driver_instance=None)
+                print(f"{bot_func.__name__.replace('start_', '')} completed.\n")
+                bot_queue.get_next_bot()
+            
+            # After all bots have run once, reset to the first bot
+            print("All bots completed. Resetting to first bot...")
+            bot_queue.reset_to_first()
 
     except Exception as e:
         with open("error_log.txt", "a") as log:
-            log.write(f"{datetime.now().date().strftime('%m_%d_%Y')} - {str(e)}")
+            log.write(f"{datetime.now().date().strftime('%m_%d_%Y')} - {str(e)}\n")
 
 
 if __name__ == '__main__':

@@ -20,9 +20,19 @@ reason = []
 
 is_in_production = os.getenv('ENVIRONMENT', 'production') != 'development'
 @error_handle
-def start_strep(driver):
+def start_strep(username, passcode, driver_instance=None):
     from .strep_prod import Strep
-    NBS = Strep(production=True, driver=driver)  # production=True & Test = is_in_production
+    
+    if driver_instance:
+        nbs_driver = driver_instance
+    else:
+        from selenium import webdriver
+        from selenium.webdriver.chrome.service import Service
+        chrome_driver_path = "C:/Users/vaishnavi.appidi/OneDrive - State of Maine/Desktop/chromedriver-win32/chromedriver.exe"
+        service = Service(chrome_driver_path)
+        nbs_driver = webdriver.Chrome(service=service)
+    
+    NBS = Strep(production=True, driver=nbs_driver)  # production=True & Test = is_in_production
     error_list = []
     error = False
     n = 1
@@ -58,7 +68,7 @@ def start_strep(driver):
                     attempt_counter = 0
                     print("No Group A strep cases in notification queue.")
                     NBS.SendManualReviewEmail()
-                    #NBS.Sleep()
+                    NBS.Sleep()
                     break
                 #NBS.Sleep()
                 #continue
@@ -124,7 +134,7 @@ def start_strep(driver):
                     attempt_counter = 0
                     print("No Group A strep cases in notification queue.")
                     NBS.SendManualReviewEmail()
-                    #NBS.Sleep()
+                    NBS.Sleep()
                     break
         except Exception as e:
             # raise Exception(e)

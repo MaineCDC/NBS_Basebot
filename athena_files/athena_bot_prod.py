@@ -6,22 +6,26 @@ from decorator import error_handle
 import os
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-#driver= webdriver.Chrome()
-chrome_driver_path ="C:/Users/vaishnavi.appidi/OneDrive - State of Maine/Desktop/chromedriver-win32/chromedriver.exe"  # Replace with your custom path
+
+chrome_driver_path ="C:/Users/vaishnavi.appidi/OneDrive - State of Maine/Desktop/chromedriver-win32/chromedriver.exe"
 service = Service(chrome_driver_path)
 driver = webdriver.Chrome(service=service)
 
 def generator():
     while True:
         yield
+
 is_in_production = os.getenv('ENVIRONMENT', 'production') != 'development'
 @error_handle
-def start_athena(username, passcode):
+def start_athena(username, passcode, driver_instance=None):
     from .athena_prod import Athena
-    from strep_files.strep_bot_prod import start_strep
 
-    NBS = Athena(driver=driver, production=is_in_production) # uncomment to run merge code
-    #NBS = Athena(production=is_in_production)
+    if driver_instance:
+        nbs_driver = driver_instance
+    else:
+        nbs_driver = driver
+
+    NBS = Athena(driver=nbs_driver, production=is_in_production)
     NBS.set_credentials(username, passcode)
     NBS.log_in()
     NBS.GoToApprovalQueue()
@@ -29,7 +33,6 @@ def start_athena(username, passcode):
     attempt_counter = 0
 
     for _ in tqdm(generator()):
-        # try:
         NBS.SortApprovalQueueAthena()
 
         if NBS.queue_loaded:
@@ -38,10 +41,8 @@ def start_athena(username, passcode):
         elif NBS.queue_loaded == False:
             NBS.queue_loaded = None
             NBS.SendManualReviewEmail()
-            start_strep(NBS.driver)
-            # add new bots here
             NBS.Sleep()
-            continue
+            break
 
         NBS.CheckFirstCase()
         NBS.initial_name = NBS.patient_name
@@ -82,9 +83,8 @@ def start_athena(username, passcode):
             else:
                 attempt_counter = 0
                 print("No COVID-19 cases in notification queue.")
-                #NBS.SendManualReviewEmail() ### uncomment while putting into production
-                start_strep(NBS.driver)
                 NBS.Sleep()
+                break
         # except:
         #     tb = traceback.format_exc()
         #     print(tb)
