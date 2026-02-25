@@ -876,17 +876,17 @@ class Gonorrhea(NBSdriver):
             if self.earliest_specimen_date and self.collection_date and (self.collection_date - self.earliest_specimen_date).days > 30:
                 if self.name_match and self.labs["Text Result"].lower().str.contains("positive"):
                    for i in range(len(self.laboratory_testing)): 
-                       row_df = self.laboratory_testing.iloc[[i]]
-                       if row_df["What test type(s) were used for testing?"].str.contains("NAAT | Culture").any():
-                           if row_df["Test Result"].lower().str.contains("positive").any():
-                               if self.current_case_status == 'Confirmed':
-                                   if row_df["What specimen source was tested?"].str.contains("Blood|CSF|Skin|Synovial Fluid").any():
-                                       if verified dgi 
+                        row_df = self.laboratory_testing.iloc[[i]]
+                        if row_df["What test type(s) were used for testing?"].str.contains("NAAT | Culture").any():
+                            if row_df["Test Result"].lower().str.contains("positive").any():
+                                if self.current_case_status == 'Confirmed':
+                                    if row_df["What specimen source was tested?"].str.contains("Blood|CSF|Skin|Synovial Fluid").any():
+                                    #if verified_dgi :
                                         pass
-                                    else:
-                                        self.issues.append("Other specimen type, requires manual review.")
-                        else:
-                            row_df["What test type(s) were used for testing?"].str.contains("Microscopy | Culture").any()
+                                    #else:
+                                        #self.issues.append("Other specimen type, requires manual review.")
+                        #else:
+                            #row_df["What test type(s) were used for testing?"].str.contains("Microscopy | Culture").any()
 ######################### Symptom Check Methods ################################
     def CheckDateSpecimen(self):
         """ Check if date specimen is present and matches earliest date from

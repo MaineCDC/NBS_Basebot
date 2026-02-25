@@ -141,7 +141,6 @@ def start_CovidEcr(username, passcode):
         reviewed_ids.append(doc_id) 
         #identify the element that has the document ID to be reviewed and navigate to that Lab Report
         
-        
         try:
             anc = NBS.find_element(By.XPATH,f"//td[contains(text(),'{doc_id}')]/../td/a")
         except NoSuchElementException:
@@ -191,14 +190,6 @@ def start_CovidEcr(username, passcode):
                 print("No COVID results found. Continuing to next lab.")
                 time.sleep(3)
                 continue
-            
-            #html = NBS.page_source
-            #soup = BeautifulSoup(html, "html.parser")
-            #for tag in soup.find_all("tr"):
-                #if "SARS" in tag.text or "COVID" in tag.text or "nCoV"in tag.text or "qPCR (Rutgers)" in tag.text or "Severe Acute Respiratory Syndrome" in tag.text:
-                    #print(tag.text)
-                    #if "Detected" in tag.text or "Positive" in tag.text or "Reactive" in tag.text or " Present " in tag.text:
-                        #print("True")
                         
         #Go to patient file
         WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="srtLink"]/div/a[1]')))
@@ -263,11 +254,6 @@ def start_CovidEcr(username, passcode):
             NBS.click_submit()
         else:
             #create investigation
-            '''WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="srtLink"]/div/a[1]')))
-            NBS.find_element(By.XPATH, '//*[@id="srtLink"]/div/a[1]').click()
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="tabs0head1"]')))
-            NBS.find_element(By.XPATH, '//*[@id="tabs0head1"]').click()
-            NBS.go_to_lab(doc_id)'''
             NBS.create_investigation()
             NBS.read_address()
             NBS.set_state('M')

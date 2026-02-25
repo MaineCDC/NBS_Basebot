@@ -33,16 +33,10 @@ reason = []
 
 is_in_production = os.getenv('ENVIRONMENT', 'production') != 'development'
 
-
 @error_handle
 def start_Gonorrhea(username, passcode):
-    
     from .Gonorrhea import Gonorrhea
-    
-
     load_dotenv()
-    
-    
     NBS = Gonorrhea(production=is_in_production)
     if is_in_production:
         print("Production Environment")

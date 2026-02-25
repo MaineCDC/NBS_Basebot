@@ -88,10 +88,6 @@ class COVIDECR(NBSdriver):
         connectionString = f"DRIVER={{{ self.nbs_db_driver }}}; SERVER={self.nbs_db_server}; DATABASE={self.nbs_odse_name}; UID={self.nbs_db_username}; PWD={self.nbs_db_pwd}; TrustServerCertificate=yes"
         print(f"cstring: {connectionString}")
         Connection = pyodbc.connect(connectionString)
-        # "Driver={" + self.nbs_db_driver + "};"
-        #                       f"Server={self.nbs_db_server};"
-        #                       f"Database={self.nbs_odse_name};"
-        #                       "Trusted_Connection=yes;"
         # Execute query and close connection
         print (f'Connected to {self.nbs_odse_name}. Executing query...')
         query = f"SELECT PERSON_PARENT_UID, UPPER(FIRST_NM) AS FIRST_NM, UPPER(LAST_NM) AS LAST_NM, BIRTH_DT FROM {self.nbs_patient_list_view} WHERE (FIRST_NM IS NOT NULL) AND (LAST_NM IS NOT NULL) AND (BIRTH_DT IS NOT NULL) AND (RECORD_STATUS_CD = 'ACTIVE')"
