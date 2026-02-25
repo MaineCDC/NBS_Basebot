@@ -91,7 +91,15 @@ class Anaplasma(NBSdriver):
         #     continue
         self.CheckDetectionMethod() #new code                           #new code reject if not detectionmethod
         self.CheckConfirmationMethod() #removed Ana
-        
+    
+    def CheckInvestigatorAna(self):
+        """ Check if an investigator was assigned to the case. """
+        investigator = self.ReadText('//*[@id="INV180"]')
+        self.investigator_name = investigator
+        if not investigator:
+            self.issues.append('Investigator is blank.')
+            print(f"investigator: {investigator}")    
+    
     def CheckInvestigatorAssignDateAna(self):
             """ If an investigator was assigned then there should be an investigator
             assigned date. """
@@ -103,6 +111,7 @@ class Anaplasma(NBSdriver):
                     if self.assigned_date < self.investigation_start_date:
                         self.issues.append('Investigator assigned date is before investigation start date.')
 
+    
     
     ################# Anaplasma Specific Check Methods ###############################
     def CheckTickBite(self):
@@ -149,6 +158,13 @@ class Anaplasma(NBSdriver):
             if not physician_visit_date:
                 self.issues.append("Case rejected: Physician visit date is missing despite seeing physician")
                 print(f"physician_visit_date: {physician_visit_date}")
+    
+    ##############TickBorne Method############
+    def GoToTickBorne(self):
+        Tickborne_path = '//*[@id="tabs0head1"]'
+        WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, Tickborne_path)))
+        self.find_element(By.XPATH, Tickborne_path).click()
+
                 
                 
     def CheckSerology(self):

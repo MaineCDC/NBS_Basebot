@@ -400,9 +400,9 @@ class Strep(NBSdriver):
                 if not underlying_condition_yes_explain and underlying_condition_gas_stss in ['None', 'Unknown']:
                     self.issues.append('Did Underlying condition is yes  and underlying condition GAS/STSS is none or unknown but underlying condition explain is blank.')
                 if underlying_condition_gas_stss in ['None', 'Unknown']:
-                    self.issues.append(f'did underlying condition is {did_underlying_condition} but underlying condition is {underlying_condition_gas_stss}." .')
+                    self.issues.append(f'did underlying condition is {did_underlying_condition} but underlying condition gas/stss is {underlying_condition_gas_stss}." .')
                 if not underlying_condition_gas_stss :
-                    self.issues.append('Did Underlying condition exist is yes but underlying condition  is blank.')
+                    self.issues.append('Did Underlying condition exist is yes but underlying condition gas/stss is blank.')
             elif did_underlying_condition.lower() == 'no':
                 if underlying_condition_yes_explain and underlying_condition_yes_explain.lower() not in ['none', 'unknown']:
                     self.issues.append('Underlying conditions selection error.')
@@ -413,7 +413,7 @@ class Strep(NBSdriver):
                 
             elif did_underlying_condition.lower() == 'unknown':
                 if not underlying_condition_gas_stss:
-                    self.issues.append(f'Did Underlying condition is {did_underlying_condition} but underlying condition is blank.')
+                    self.issues.append(f'Did Underlying condition is {did_underlying_condition} but underlying condition gas/stss is blank.')
                 if underlying_condition_yes_explain and underlying_condition_yes_explain.lower() not in ['none', 'unknown']:
                     self.issues.append('Underlying conditions selection error.')
                 if underlying_condition_gas_stss.lower() not in ['none', 'unknown']:

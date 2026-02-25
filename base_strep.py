@@ -394,15 +394,6 @@ class NBSdriver():
             # Clear all filters
             WebDriverWait(self.driver,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, clear_filter_path)))
             self.driver.find_element(By.XPATH, clear_filter_path).click()
-            # The logic for this is somewhat weird but here is my understanding of what happens.
-            # If we have anything in the queue that isn't covid-19 the bot will run until it hits that case and then stall out.
-            # To prevent this we can select covid-19 cases from the condition menu, but if there are no covid-19 cases we still
-            # have to pick something from the dropdown menu or cancel out. We will cancel out of the dropdown menu if there are
-            # no covid-19 cases which will give us only non-covid-19 cases. The check for covid-19 later on will prevent us
-            # from reviewing the next case in the queue and it will hit the wait until we have more covid-19 cases. I think this
-            # will allow for conditions besides covid-19 in the queue and allow us to process all covid-19 cases without
-            # stalling the bot permanently once it runs into a non-covid-19 case.
-            # Open Condition dropdown menu
             time.sleep(3)
             WebDriverWait(self.driver,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, description_path)))
             self.driver.find_element(By.XPATH, description_path).click()

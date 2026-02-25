@@ -424,7 +424,6 @@ class NBSdriver(webdriver.Chrome):
                 
             time.sleep(1)
 
-            #sort chronologically, oldest first
             WebDriverWait(self.driver,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, paths['submit_date_path'])))
             self.driver.find_element(By.XPATH, paths['submit_date_path']).click()
             WebDriverWait(self.driver,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, paths['submit_date_path'])))

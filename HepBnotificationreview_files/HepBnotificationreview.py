@@ -25,6 +25,7 @@ class HepBNotificationReview(NBSdriver):
         # self.GetObInvNames()
         # self.not_a_case_log = []
         # self.lab_data_issues_log = []
+        
 
     def StandardChecks(self):
         """ A method to conduct checks that must be done on all cases regardless of investigator. """
@@ -189,8 +190,185 @@ class HepBNotificationReview(NBSdriver):
                 break
             except Exception as e:
                 print(f"{e} has occured for supplemental_info_tab_path, retry_number: {i}")
-
+    
     def ReadAssociatedLabs(self):
+        """ Read table of associated labs. """
+        from collections import defaultdict
+        from datetime import datetime
+        import pandas as pd
+        from selenium.webdriver.common.by import By
+        # Helper: positivity detection
+        def is_positive(text):
+            t = text.lower()
+            return any(word in t for word in [
+                'positive', 'detected', 'reactive','pos','react'
+            ])
+
+        self.labs = self.ReadTableToDF('//*[@id="viewSupplementalInformation1"]/tbody')
+        self.name_match = False
+        lab_reports = self.find_elements(By.XPATH, '//*[@id="eventLabReport"]/tbody/tr')
+
+        # Structure:
+        # { test_key: { date_collected: (date_received, result_text) } }
+        self.dna_dates = defaultdict(dict)
+
+        test_map = {
+            "hepatitis b virus, dna": [
+                'hepatitis b virus dna',
+                'hepatitis b virus, dna',
+                'hepatitis b virus (hbv)'
+            ],
+            "hepatitis b virus surface antigen": [
+                'hepatitis b virus surface antigen (hbsag)',
+                'hepatitis b virus surface antigen',
+                'hepatitis b virus surface ag',
+                'hbsag',
+                'hep b surface ag',
+                'hbsag confirmation'
+            ],
+            "igm anti-hbc": [
+                'igm anti-hbc',
+                'hep b core ab, igm',
+                'hepatitis b virus core antibody, igm',
+                'hepatitis b virus core ab.igm'
+            ],
+            "hepatitis b virus core ab": [
+                'hepatitis b virus core ab',
+                'hepatitis b virus core antibody',
+                'total anti-hbc'
+            ],
+            "hepatitis b virus e antigen": [
+                'hbeag',
+                'hepatitis b virus e antigen',
+                'hepatitis b virus little e antigen',
+                'hepatitis b virus little e ag'
+            ],
+            "hepatitis b virus surface antibody": [
+                'hepatitis b virus surface antibody',
+                'hepatitis b virus surface ab',
+                'hbv surface ab',
+                'hbsab'
+            ],
+            "anti-hbe": [
+                'anti-hbe',
+                'hepatitis b virus e antibody'
+            ]
+        }
+
+        # MAIN PARSING LOOP
+        for row in lab_reports:
+            cells = row.find_elements(By.TAG_NAME, 'td')
+
+            try:
+                date_received = datetime.strptime(
+                    cells[0].text.strip().split()[0], "%m/%d/%Y"
+                ).date()
+
+                date_collected = datetime.strptime(
+                    cells[2].text.strip(), "%m/%d/%Y"
+                ).date()
+            except Exception:
+                continue
+
+            result_cell = cells[3]
+            divs = result_cell.find_elements(By.TAG_NAME, 'div')
+            results = [d.text.strip() for d in divs] if divs else [result_cell.text.strip()]
+
+            for result in results:
+                result_lower = result.lower()
+
+                for key, keywords in test_map.items():
+                    if any(keyword in result_lower for keyword in keywords):
+
+                        existing = self.dna_dates[key].get(date_collected)
+
+                        #  POSITIVE PRIORITY LOGIC
+                        if not existing:
+                            self.dna_dates[key][date_collected] = (date_received, result)
+
+                        else:
+                            existing_received, existing_result = existing
+
+                            new_pos = is_positive(result)
+                            old_pos = is_positive(existing_result)
+
+                            # Positive always wins
+                            if new_pos and not old_pos:
+                                self.dna_dates[key][date_collected] = (date_received, result)
+
+                            # If same polarity → keep latest received
+                            elif new_pos == old_pos and date_received > existing_received:
+                                self.dna_dates[key][date_collected] = (date_received, result)
+                        break
+        # INITIALIZE OUTPUT FIELDS
+        self.dna_date = None
+        self.hbsag_date = None
+        self.total_anti_hbc_date = None
+        self.igm_anti_hbc_date = None
+        self.hbeag_date = None
+        self.anti_hbs_date = None
+        self.hbeab_date = None
+
+        self.result_check_dna = None
+        self.result_check_antigen = None
+        self.result_check_core = None
+        self.result_check_igm = None
+        self.result_check_hbeag = None
+        self.result_check_anti_hbs = None
+        self.result_check_anti_hbe = None
+
+        # FINAL EXTRACTION
+        for key, collected_dict in self.dna_dates.items():
+            if not collected_dict:
+                continue
+
+            earliest_collected = min(collected_dict.keys())
+            date_received, result_text = collected_dict[earliest_collected]
+            clean_result = result_text.split("Reference Range")[0].strip()
+
+            if key == "hepatitis b virus, dna":
+                self.dna_date = earliest_collected
+                self.result_check_dna = clean_result
+
+            elif key == "hepatitis b virus e antigen":
+                self.hbeag_date = earliest_collected
+                self.result_check_hbeag = clean_result
+
+            elif key == "hepatitis b virus surface antigen":
+                self.hbsag_date = earliest_collected
+                self.result_check_antigen = clean_result
+
+            elif key == "igm anti-hbc":
+                self.igm_anti_hbc_date = earliest_collected
+                self.result_check_igm = clean_result
+
+            elif key == "hepatitis b virus core ab":
+                self.total_anti_hbc_date = earliest_collected
+                self.result_check_core = clean_result
+
+            elif key == "hepatitis b virus surface antibody":
+                self.anti_hbs_date = earliest_collected
+                self.result_check_anti_hbs = clean_result
+
+            elif key == "anti-hbe":
+                self.hbeab_date = earliest_collected
+                self.result_check_anti_hbe = clean_result
+
+        # =============================
+        # CHECK LAB TABLE
+        # =============================
+        for index in range(len(self.labs)):
+            row_df = self.labs.iloc[[index]]
+            if row_df['Test Results'].str.contains('hepatitis b', na=False, case=False).any():
+                self.labs = self.labs.loc[index]
+                self.name_match = True
+                break
+
+        if not self.name_match:
+            self.labs = pd.DataFrame()
+            self.issues.append('Test results does not have hepatitis b.')
+
+    '''def ReadAssociatedLabs(self):
         """ Read table of associated labs."""
         self.labs = self.ReadTableToDF('//*[@id="viewSupplementalInformation1"]/tbody')
         self.name_match = False
@@ -200,11 +378,11 @@ class HepBNotificationReview(NBSdriver):
         self.test_names = []
         self.text = ['hepatitis b virus dna', 'hepatitis b virus, dna', 'hepatitis b virus (hbv)','Hepatitis B virus (HBV)']
         self.text1 = ['hepatitis b virus surface antigen (hbsag)','hepatitis b virus surface antigen', 'hepatitis b virus surface ag', 'hbsag', 'hepatitis b surface ag','hepatitis b virus surface antigen, neutralization','hbsag confirmation','hep b surface ag','hepatitis b virus, antigen'] 
-        self.text3 = ['igm anti-hbc', 'hep b core ab, igm', 'hepatitis b virus igm antibody', 'hepatitis b virus core antibody, igm','hepatitis b virus core ab.igg+igm']
+        self.text3 = ['igm anti-hbc', 'hep b core ab, igm', 'hepatitis b virus igm antibody', 'hepatitis b virus core antibody, igm','hepatitis b virus core ab.igg+igm','HEPATITIS B VIRUS CORE AB.IGM','hepatitis b virus core ab.igm']
         self.text2 = ['hepatitis b virus core ab', 'hepatitis b virus core antibody', 'hepatitis b virus total antibody', 'hbv core ab, igg/igm diff', 'hep b core ab, tot', 'total anti-hbc', 'hepatitis b virus core antibodies, total']
         self.text4 = ['hbeag', 'hepatitis b virus e antigen', 'hep b e ag', 'hepatitis be virus antigen (hbeag)']
         self.text5 = ['hepatitis b virus surface antibody', 'hepatitis b virus (hbv), antibody', 'hepatitis b virus surface antibody (hbsab)','hepatitis b virus surface ab', 'hbv surface ab', 'hep b surface ab','hbv surface antibody','hbsab']
-        self.text6 = ['anti-hbe', 'anti-hbe antibody', 'hepatitis b virus e antibody', 'hep be ab']
+        self.text6 = ['anti-hbe', 'anti-hbe antibody', 'hepatitis b virus e antibody', 'hep be ab','hepatitis b virus little e ab.igg']
         for risk in lab_reports:
             cells = risk.find_elements(By.TAG_NAME, 'td')
             date_collected = datetime.strptime(cells[2].text.strip(), "%m/%d/%Y").date()
@@ -225,9 +403,9 @@ class HepBNotificationReview(NBSdriver):
                             
                     elif any(x in self.result.lower() for x in self.text1):
                         if self.dna_dates.get('hepatitis b virus surface antigen'):
-                            if 'positive' in self.result.lower():
-                                self.dna_dates['hepatitis b virus surface antigen'].append(date_collected)
-                                self.test_names.append(self.result)
+                            #if 'positive' in self.result.lower():
+                            self.dna_dates['hepatitis b virus surface antigen'].append(date_collected)
+                            self.test_names.append(self.result)
                         else:
                             self.dna_dates['hepatitis b virus surface antigen'] = [date_collected]
                             self.test_names.append(self.result)
@@ -342,17 +520,17 @@ class HepBNotificationReview(NBSdriver):
             if key == "hepatitis b virus, dna":
                 for x in self.test1_names:
                     for y in self.test_names:
-                        if x.lower() in self.text:
-                            if x in y:
-                                self.result_check_dna = y.split(':')[1].strip().lower()
-                                self.dna_date = min(value)
+                            if x.lower() in self.text:
+                                if x in y:
+                                    self.result_check_dna = y.split(':')[1].strip().lower() and y.split('Reference Range')[0].strip()
+                                    self.dna_date = min(value)
             elif key == "hepatitis b virus surface antigen":
                 if len(value) > 1:
                     for x in self.test1_names:
                         for y in self.test_names:
                             if x.lower() in self.text1:
                                 if x in y:
-                                    self.result_check_antigen = y.split(':')[1].strip().lower()
+                                    self.result_check_antigen =y.split(':')[1].strip().lower() and y.split('Reference Range')[0].strip()
                                     self.hbsag_date = min(value)
                 else:
                     for x in self.test1_names:
@@ -404,7 +582,7 @@ class HepBNotificationReview(NBSdriver):
                 break
         if not self.name_match:
             self.labs = pd.DataFrame()
-            self.issues.append('Test results does not have hepatitis b.')
+            self.issues.append('Test results does not have hepatitis b.')'''
 
     def GetReceivedDate(self):
         """Find earliest report date by reviewing associated labs"""
@@ -475,11 +653,7 @@ class HepBNotificationReview(NBSdriver):
                 self.issues.append('Patient died from illness is unknown but patient hospitalized is no.')
             elif self.hospitalization_indicator.lower() == 'yes' and self.discharge_date:
                 self.issues.append('Patient died from illness is unknown but patient hospitalized is yes and discharge date is not blank.')
-            #if self.illness_end_date:
-                #self.issues.append('Patient died from illness is unknown but illness end date is not blank.')
-        '''elif self.did_patient_die_from_illness.lower() == 'no':
-            if self.hospitalization_indicator.lower() == 'yes' and not self.discharge_date:
-                self.issues.append('Patient died from illness is no but patient hospitalized is yes and discharge date is blank.')'''
+            
 
     def liverenzymelevels(self):
         """ Check if ALT/SGPT result is provided and is a number."""
@@ -491,8 +665,109 @@ class HepBNotificationReview(NBSdriver):
             self.issues.append('ALT/SGPT result is provided but specimen date is not.')
         if self.total_bilirubin_result and not self.bili_specimen_date:
             self.issues.append('Total Bilirubin result is provided but specimen date is not.')
-        
-    def CheckDiagnosticTestResults(self):  
+    
+    def CheckDiagnosticTestResults(self):
+        import re
+        # Read Diagnostic Values
+        diagnostic_map = {
+            'hepatitis b virus, dna': {
+                'result': self.ReadText('//*[@id="LP38320_5"]'),
+                'date': self.ReadDate('//*[@id="LP38320_5_DT"]'),
+                'associated_date': self.dna_date,
+                'associated_result': self.result_check_dna,
+                'label': 'Hepatitis B DNA'
+            },
+            'hepatitis b virus surface antigen': {
+                'result': self.ReadText('//*[@id="LP38331_2"]'),
+                'date': self.ReadDate('//*[@id="LP38331_2_DT"]'),
+                'associated_date': self.hbsag_date,
+                'associated_result': self.result_check_antigen,
+                'label': 'Hepatitis B surface antigen'
+            },
+            'igm anti-hbc': {
+                'result': self.ReadText('//*[@id="LP38325_4"]'),
+                'date': self.ReadDate('//*[@id="LP38325_4_DT"]'),
+                'associated_date': self.igm_anti_hbc_date,
+                'associated_result': self.result_check_igm,
+                'label': 'IgM Hepatitis B core antibody'
+            },
+            'hepatitis b virus core ab': {
+                'result': self.ReadText('//*[@id="LP38323_9"]'),
+                'date': self.ReadDate('//*[@id="LP38323_9_DT"]'),
+                'associated_date': self.total_anti_hbc_date,
+                'associated_result': self.result_check_core,
+                'label': 'Total Hepatitis B core antibody'
+            },
+            'hepatitis b virus e antigen': {
+                'result': self.ReadText('//*[@id="LP38329_6"]'),
+                'date': self.ReadDate('//*[@id="LP38329_6_DT"]'),
+                'associated_date': self.hbeag_date,
+                'associated_result': self.result_check_hbeag,
+                'label': 'Hepatitis B e antigen'
+            },
+            'hepatitis b virus surface antibody': {
+                'result': self.ReadText('//*[@id="ME116006"]'),
+                'date': self.ReadDate('//*[@id="ME117002"]'),
+                'associated_date': self.anti_hbs_date,
+                'associated_result': self.result_check_anti_hbs,
+                'label': 'Hepatitis B surface antibody'
+            },
+            'anti-hbe': {
+                'result': self.ReadText('//*[@id="ME121005"]'),
+                'date': self.ReadDate('//*[@id="ME121002"]'),
+                'associated_date': self.hbeab_date,
+                'associated_result': self.result_check_anti_hbe,
+                'label': 'Hepatitis B e antibody'
+            }
+        }
+        self.positive_results = ['detected', 'reactive', 'positive', 'pos', 'Positive']
+        self.negative_results = ['not detected', 'negative', 'Negative', 'non-reactive', 'neg', 'non react']
+        # Copy of keys to track unmatched
+        dna_dates_new = diagnostic_map.copy()
+        # VALIDATION LOOP
+        for key in self.dna_dates.keys():
+            if key not in diagnostic_map:
+                continue
+            data = diagnostic_map[key]
+            label = data['label']
+            diag_result = data['result']
+            diag_date = data['date']
+            assoc_result = data['associated_result']
+            assoc_date = data['associated_date']
+            # Remove from unmatched tracker
+            dna_dates_new.pop(key, None)
+            # Missing Result Check
+            if not diag_result:
+                self.issues.append(f'{label} result is missing.')
+
+            # Missing Date Check
+            if not diag_date:
+                self.issues.append(f'{label} collection date is missing.')
+
+            if diag_result and not diag_date:
+                self.issues.append(f'{label} result is provided but specimen date is not.')
+
+            # Date Mismatch Check
+            if assoc_date and diag_date and diag_date != assoc_date:
+                self.issues.append(f'{label} specimen date does not match the collection date from associated lab reports.')
+
+            # Result Mismatch Check
+            '''if diag_result and assoc_result:
+                associated = (assoc_result or "").lower()
+                diagnostic = (diag_result or "").lower()
+
+                positive_match = (any(x in associated for x in self.positive_results) and any(x in diagnostic for x in self.positive_results))
+                negative_match = (any(x in associated for x in self.negative_results) and any(x in diagnostic for x in self.negative_results))
+                if not (positive_match or negative_match):
+                    self.issues.append(f'{label} result and associated lab result mismatch.')'''
+        # Check For Associated Labs Not In Diagnostic
+        for key, data in dna_dates_new.items():
+            if data['result']:
+                self.issues.append(f'{data["label"]} associated labs are not matching with diagnostic results.')
+            if data['date']:
+                self.issues.append(f'{data["label"]} associated labs are not matching with diagnostic specimen date.')
+    '''def CheckDiagnosticTestResults(self):  
+        import re
         self.hbsag_specimen_date = self.ReadDate('//*[@id="LP38331_2_DT"]')
         self.hbsag_result = self.ReadText('//*[@id="LP38331_2"]')
         self.total_hbc_result = self.ReadText('//*[@id="LP38323_9"]')
@@ -508,8 +783,9 @@ class HepBNotificationReview(NBSdriver):
         self.hbeab_result = self.ReadText('//*[@id="ME121005"]')
         self.hbeab_specimen_date = self.ReadDate('//*[@id="ME121002"]')
         self.positive_results = ['detected', 'reactive', 'positive', 'pos']
-        self.negative_results = ['not detected', 'negative', 'non-reactive','neg']
+        self.negative_results = ['not detected', 'negative', 'non-reactive','neg','non react']
         
+
         dna_dates_new = {
             'hepatitis b virus, dna': [self.hbdna_result, self.hbdna_specimen_date],
             'hepatitis b virus surface antigen': [self.hbsag_result, self.hbsag_specimen_date],
@@ -531,10 +807,7 @@ class HepBNotificationReview(NBSdriver):
                     self.issues.append('Hepatitis B DNA collection date is missing.')
                 if self.dna_date and self.hbdna_specimen_date and self.hbdna_specimen_date != self.dna_date:
                     self.issues.append('Hepatitis B DNA specimen date does not match the collection date from associated lab reports.')
-                result_dna = (any(x in self.result_check_dna.lower() for x in self.positive_results) and any(x in self.hbdna_result.lower() for x in self.positive_results)) or (any(x in self.result_check_dna.lower() for x in self.negative_results) and any(x in self.hbdna_result.lower() for x in self.negative_results))
-                if self.hbdna_result and not result_dna:
-                    self.issues.append(f'Hepatitis B DNA result and associated lab result- result mismatch.')
-            #elif item.lower() in self.data:
+                
             elif item.lower() in self.text1:
                 if item.lower() in dna_dates_new or [x for x in self.text1 if x == item.lower()]:
                     del dna_dates_new[item.lower()]
@@ -626,7 +899,7 @@ class HepBNotificationReview(NBSdriver):
             if value[0]:
                 self.issues.append(f'{key} associated labs are not matching with diagnostic results.')
             if value[1]:
-                self.issues.append(f'{key} associated labs are not matching with diagnostic specimen date.')
+                self.issues.append(f'{key} associated labs are not matching with diagnostic specimen date.')'''
                  
     def CheckPregnancy(self):
         """ Check if patient is pregnant. """
@@ -666,7 +939,7 @@ class HepBNotificationReview(NBSdriver):
             self.issues.append('Detection method is blank.')
         if not confirmation_method:
             self.issues.append('Confirmation method is blank.')
-        elif self.current_case_status == 'Confirmed' and confirmation_method !='Laboratory confirmed':
+        elif self.current_case_status == 'Confirmed' and (not confirmation_method or 'laboratory confirmed' not in confirmation_method.lower()):
             self.issues.append('Confirmation method should be Laboratory confirmed if case status is confirmed.')
         elif (self.current_case_status == 'Probable'and (not confirmation_method or 'laboratory report' not in confirmation_method.lower())):
             self.issues.append('If probable, confirmation method should be Laboratory Report.')
@@ -849,17 +1122,6 @@ class HepBNotificationReview(NBSdriver):
             if not other_reason_for_testing:
                 self.issues.append('Other is selected for reason for testing but did not specify other reason for testing.')
         self.GoToHepatitisCore() 
-        '''if self.reason_for_testing.lower() == 'evaluation of elevated liver enzymes': 
-            if total_bilirubin_result and alt_sgpt_results:
-                try:
-                    alt_value = int(alt_sgpt_results) if alt_sgpt_results else 0
-                    bili_value = float(total_bilirubin_result) if total_bilirubin_result else 0.0
-                    if alt_value < 200 or bili_value < 3.0:
-                        self.issues.append('Reason for testing is evaluation of elevated liver enzymes but ALT < 200 or Bili < 3.0.')
-                except ValueError:
-                    self.issues.append('ALT/SGPT result is not a valid number.')
-            else:
-                self.issues.append('Reason for testing is evaluation of elevated liver enzymes but ALT/SGPT or Total Bilirubin result is not provided.')'''
 
     def CheckSymptoms(self):
         """ Check if symptoms are indicated. """
@@ -880,6 +1142,258 @@ class HepBNotificationReview(NBSdriver):
             self.issues.append('Patient was jaundiced but no jaundice onset date is listed.')
 
     def CaseClassificationHepB(self):
+        from dateutil.relativedelta import relativedelta
+        import re
+        inv_id = self.ReadText('//*[@id="bd"]/table[3]/tbody/tr[2]/td[1]/span[2]')
+        self.hepb_assign_email_id = []
+        self.hepb_email = False
+        diff = relativedelta(self.now, self.dob)
+        months_diff = diff.years * 12 + diff.months
+        # Safe lower helpers
+        def safe_lower(value):
+            return (value or "").lower()
+        def interpret_numeric_result(result_text: str) -> str:
+            """
+            Interpret numeric IU/mL or Log IU/mL values in test results.
+            Returns "positive", "negative", or None if no numeric pattern found.
+            """
+            if not result_text:
+                return None
+            text = result_text.lower()
+            # Check Log IU/mL pattern first
+            log_match = re.search(r'=?\s*(\d+(\.\d+)?)\s*log\s*iu/ml', text)
+            if log_match:
+                value = float(log_match.group(1))
+                if value < 1:
+                    return "negative"
+                else:
+                    return "positive"
+            # Check IU/mL pattern
+            iu_match = re.search(r'hepatitis\s*b\s*virus\s*(?:surface\s*ag|dna)[^0-9]*?(\d+(?:\.\d+)?)',text,re.I | re.S)
+            #iu_match1 = re.search(r'(\d+(?:\.\d+)?)\s*\[?iu\]?/ml', text)
+            if iu_match:
+                value = float((iu_match).group(1))
+                if value < 10:
+                    return "negative"
+                else:
+                    return "positive"
+            return None
+        def is_positive(value):
+            numeric_interpretation = interpret_numeric_result(value)
+            if numeric_interpretation == "positive":
+                return True
+            if numeric_interpretation == "negative":
+                return False
+            value = safe_lower(value)
+            return any(x in value for x in self.positive_results)
+        def is_negative(value):
+            numeric_interpretation = interpret_numeric_result(value)
+            if numeric_interpretation == "negative":
+                return True
+            if numeric_interpretation == "positive":
+                return False
+            value = safe_lower(value)
+            return any(x in value for x in self.negative_results)
+        # Read values
+        previous_investigation_acute = safe_lower(self.ReadText('//*[@id="ME10099141"]'))
+        previous_inv_acute_date = self.ReadDate('//*[@id="ME10099138"]')
+
+        previous_investigation_chronic = safe_lower(self.ReadText('//*[@id="ME10099142"]'))
+        previous_inv_chronic_date = self.ReadDate('//*[@id="ME10099140"]')
+
+        documented_neg_hbsag_test = safe_lower(self.ReadText('//*[@id="ME10078100"]'))
+        neg_hbsag_date = self.ReadDate('//*[@id="ME10083106"]')
+
+        self.symptoms_likely_diagnosis = safe_lower(self.ReadText('//*[@id="ME10083103"]'))
+        self.diagnosed_another_state = safe_lower(self.ReadText('//*[@id="ME10095108"]'))
+        current_status = safe_lower(self.current_case_status)
+        # Result flags (NEW SAFE WAY)
+        dna_pos = is_positive(self.result_check_dna)
+        dna_neg = is_negative(self.result_check_dna)
+
+        antigen_pos = is_positive(self.result_check_antigen)
+        antigen_neg = is_negative(self.result_check_antigen)
+
+        igm_pos = is_positive(self.result_check_igm)
+        igm_neg = is_negative(self.result_check_igm)
+
+        core_pos = is_positive(self.result_check_core)
+        core_neg = is_negative(self.result_check_core)
+
+        hbeag_pos = is_positive(self.result_check_hbeag)
+        hbeag_neg = is_negative(self.result_check_hbeag)
+
+        # NEW FIX: Validate Documented Negative HBsAg
+        previous_negative_exists = False
+        hbsag_history = self.dna_dates.get("hepatitis b virus surface antigen", {})
+        if self.hbsag_date:
+            for collected_date, (received_date, result_text) in hbsag_history.items():
+                # MUST be before current specimen date
+                if collected_date < self.hbsag_date:
+                    # Optional strict 12-month rule:
+                    # if (self.hbsag_date - collected_date).days <= 365:
+                    if is_negative(result_text):
+                        previous_negative_exists = True
+                        break
+        if antigen_neg :
+            self.hepb_email = True
+            self.hepb_assign_email_id.append(inv_id)
+            self.issues.append('Hepatitis B surface antigen numeric test result case should be reviewed manually email should be sent.')
+        else:
+        # Marked YES but no previous negative
+            if documented_neg_hbsag_test == "yes" and not previous_negative_exists:
+                self.issues.append("Documented negative HBsAg is incorrectly marked Yes — no previous negative HBsAg exists before current specimen date.")
+            # Marked NO but previous negative exists
+            elif documented_neg_hbsag_test == "no" and previous_negative_exists:
+                self.issues.append("Documented negative HBsAg is incorrectly marked No — prior negative HBsAg exists before current specimen date.")
+            # Another state override
+            if self.diagnosed_another_state == "yes":
+                if current_status != "not a case":
+                    self.issues.append("Incorrect case classification, should be not a case.")
+                else:
+                    self.issues = []
+                return
+            # Age > 24 months logic
+            if months_diff > 24:
+                if dna_pos or antigen_pos or hbeag_pos:
+                    # Previous Chronic
+                    if previous_investigation_chronic in ["confirmed", "probable"]:
+                        if current_status != "not a case":
+                            self.issues.append("Incorrect case classification, should be not a case.")
+                        else:
+                            self.issues = []
+                        return
+                    # Previous Acute
+                    elif previous_investigation_acute in ["confirmed", "probable"]:
+                        if previous_inv_acute_date:
+                            time_diff = (self.collection_date - previous_inv_acute_date).days
+                            if time_diff > 180:
+                                if not self.chronic_inv or current_status != "confirmed":
+                                    self.issues.append("incorrect case classification, should be chronic confirmed hepatitis b.")
+                            else:
+                                if current_status != "not a case":
+                                    self.issues.append("incorrect case classification, should be not a case.")
+                                else:
+                                    self.issues = []
+                        return
+                    # No previous investigation
+                    elif ( not previous_investigation_chronic or  previous_investigation_chronic == 'none') and ( not previous_investigation_acute or previous_investigation_acute == 'none'):
+                        if documented_neg_hbsag_test == "yes" and  previous_negative_exists == True:
+                            if not self.acute_inv or current_status != "confirmed":
+                                self.issues.append("incorrect case classification, should be acute confirmed." )
+                            return
+                        # Core decision tree (cleaned)
+                        elif dna_pos :
+                            if igm_pos:
+                                if not self.acute_inv or current_status != "confirmed":
+                                    self.issues.append( "incorrect case classification, should be acute confirmed.")
+                            elif igm_neg:
+                                if not self.chronic_inv or current_status != "confirmed":
+                                    self.issues.append("incorrect case classification, should be chronic confirmed.")
+                            elif not igm_pos and not igm_neg:  # igm unknown
+                                if self.was_patient_jaundiced.lower() == 'yes' or (self.alt_sgpt_result and int(self.alt_sgpt_result) >200) or (self.total_bilirubin_result and self.total_bilirubin_result.replace('.','',1).isdigit()and float(self.total_bilirubin_result)>3.0):
+                                    if not self.symptoms_likely_diagnosis or self.symptoms_likely_diagnosis.lower() == "yes":
+                                        if not self.chronic_inv or self.current_case_status.lower() != "confirmed":
+                                            self.issues.append('incorrect case classification, should be chronic confirmed.') 
+                                    else:
+                                        if not self.acute_inv or self.current_case_status.lower() != "confirmed":
+                                            self.issues.append('incorrect case classification, should be acute confirmed.')
+                                else:
+                                    if not self.chronic_inv or self.current_case_status.lower() != "confirmed":
+                                        self.issues.append('incorrect case classification, should be chronic confirmed.')
+                        elif (not dna_pos and not dna_neg )or dna_neg:
+                            if antigen_pos:
+                                if igm_pos:
+                                    if not self.acute_inv or current_status != "confirmed":
+                                        self.issues.append("incorrect case classification, should be acute confirmed.")
+                                elif igm_neg:
+                                    if core_pos:
+                                        if not self.chronic_inv or current_status != "confirmed":
+                                            self.issues.append("incorrect case classification, should be chronic confirmed.")
+                                    elif core_neg:
+                                        if current_status != "not a case":
+                                            self.issues.append("incorrect case classification, should be not a case." )
+                                        else:
+                                            self.issues = []
+                                    else:
+                                        if not self.chronic_inv or current_status != "probable":
+                                            self.issues.append("incorrect case classification, should be chronic probable.")
+                                elif not igm_neg and not igm_pos:
+                                    if self.was_patient_jaundiced.lower() == 'yes' or (self.alt_sgpt_result and int(self.alt_sgpt_result) >200) or (self.total_bilirubin_result and self.total_bilirubin_result.replace('.','',1).isdigit()and float(self.total_bilirubin_result)>3.0):
+                                        if not self.symptoms_likely_diagnosis or self.symptoms_likely_diagnosis.lower() == "yes":
+                                            if hbeag_pos:# hbeag positive
+                                                if self.chronic_inv == False and self.current_case_status.lower() != "confirmed":
+                                                    self.issues.append('incorrect case classification, should be chronic confirmed.')
+                                            else:
+                                                if core_pos:# core positive
+                                                    if self.chronic_inv == False and self.current_case_status.lower() != "confirmed":
+                                                        self.issues.append('incorrect case classification, should be chronic confirmed.')
+                                                elif core_neg or not core_neg:# core negative
+                                                    if self.chronic_inv == False or self.current_case_status.lower() != "probable":
+                                                        self.issues.append('incorrect case classification, should be chronic probable.')
+                                        else:
+                                            if self.acute_inv == False and self.current_case_status.lower() != "probable":
+                                                self.issues.append('incorrect case classification, should be acute probable.')
+                                    else:
+                                        if hbeag_pos:# hbeag positive
+                                            if self.chronic_inv == False or self.current_case_status.lower() != "confirmed":
+                                                self.issues.append('incorrect case classification, should be chronic confirmed.')
+                                        elif hbeag_neg or not hbeag_neg:# hbeag negative
+                                            if core_pos:# total antibody positive
+                                                    if self.chronic_inv == False and self.current_case_status.lower() != "confirmed":
+                                                        self.issues.append('incorrect case classification, should be chronic confirmed.')
+                                            elif core_neg or not core_neg:# total antibody negative
+                                                if self.chronic_inv == False or self.current_case_status.lower() != "probable":
+                                                    self.issues.append('incorrect case classification, should be chronic probable.')
+                            elif antigen_neg or (not antigen_pos and not antigen_neg):
+                                if hbeag_pos:
+                                    if igm_pos:
+                                        if self.acute_inv == False or self.current_case_status.lower() != "confirmed":
+                                            self.issues.append("incorrect case classification, should be acute confirmed.")
+                                    elif igm_neg or (not igm_pos and not igm_neg):
+                                        if core_pos:
+                                            if self.chronic_inv == False or self.current_case_status.lower() != "confirmed":
+                                                self.issues.append("incorrect case classification, should be chronic confirmed.")
+                                        elif core_neg or (not core_pos and not core_neg):
+                                            if self.chronic_inv == False or self.current_case_status.lower() != "probable":
+                                                self.issues.append("incorrect case classification, should be chronic probable.")
+                else:
+                    if igm_pos:
+                        if ( not previous_investigation_chronic or  previous_investigation_chronic == 'none') and ( not previous_investigation_acute or previous_investigation_acute == 'none'):
+                            if current_status != "not a case":
+                                self.issues.append("incorrect case classification, should be not a case.")
+                            else:
+                                self.issues = []
+                        elif previous_investigation_acute in ["confirmed", "probable"] or previous_investigation_chronic in ["confirmed", "probable"]:
+                            if self.was_patient_jaundiced.lower() == 'yes' or (self.alt_sgpt_result and int(self.alt_sgpt_result) >200) or (self.total_bilirubin_result and self.total_bilirubin_result.replace('.','',1).isdigit()and float(self.total_bilirubin_result)>3.0):
+                                if self.symptoms_likely_diagnosis or self.symptoms_likely_diagnosis.lower() == "yes":
+                                    if current_status != "not a case":
+                                        self.issues.append("incorrect case classification, should be not a case.")
+                                elif not self.symptoms_likely_diagnosis or self.symptoms_likely_diagnosis.lower() == "no":
+                                    if self.acute_inv == False or self.current_case_status.lower() != "probable":
+                                        self.issues.append("incorrect case classification, should be acute probable.")
+                    elif not igm_pos or igm_neg:
+                        if current_status != "not a case":
+                            self.issues.append("incorrect case classification, should be not a case.")        
+                        else:
+                            self.issues = []
+            # Age <= 24 months (Perinatal)
+            else:
+                if current_status != "not a case":
+                    self.issues.append( "incorrect case classification, should be not a case. Investigate as Perinatal Hepatitis B.")
+                else:
+                    self.issues = []
+                    
+    def SendEmailToAssign(self):
+    #self.ili_outbreak_investigator = ['vaishnavi.appidi@maine.gov', 'Anna.Krueger@maine.gov']
+        if self.hepb_assign_email_id:
+            body = f"Need manual review for the below HepB investigations,Investigation ids {self.hepb_assign_email_id} "
+            print(f"body", body)
+            if body:
+                self.send_smtp_email("disease.reporting@maine.gov", 'ERROR REPORT: NBSbot(HepB Notification Review) AKA HepBbot', body, 'HepB cases Manual Review email')
+                print('sent email to hepB assign', self.hepb_assign_email_id)
+                    
+    '''def CaseClassificationHepB(self):
         from dateutil.relativedelta import relativedelta
         """ Check if patient is pregnant. """
         diff = relativedelta(self.now, self.dob)
@@ -1045,7 +1559,7 @@ class HepBNotificationReview(NBSdriver):
                 self.issues.append('incorrect case classification, should be not a case. Investigate as Perinatal Hepatitis B.')
             elif self.current_case_status.lower() == "not a case":
                 self.issues = []
-                pass
+                pass'''
             
 #new code added from covidnotificationbot, it also inherits from here
     '''def SendManualReviewEmail(self):

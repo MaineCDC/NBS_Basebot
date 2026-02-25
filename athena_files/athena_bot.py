@@ -3,16 +3,18 @@ from tqdm import tqdm
 import time
 import traceback
 from decorator import error_handle
+import os
 
 def generator():
     while True:
         yield
-
+is_in_production = os.getenv('ENVIRONMENT', 'production') != 'development'
 @error_handle
 def start_athena(username, passcode):
     from .athena import Athena
+    from strep_files.strep_bot_prod import start_strep
 
-    NBS = Athena(production=True)
+    NBS = Athena(production=is_in_production)
     NBS.set_credentials(username, passcode)
     NBS.log_in()
     NBS.GoToApprovalQueue()
@@ -29,6 +31,7 @@ def start_athena(username, passcode):
         elif NBS.queue_loaded == False:
             NBS.queue_loaded = None
             NBS.SendManualReviewEmail()
+            start_strep(NBS.driver)
             NBS.Sleep()
             continue
 
@@ -72,6 +75,7 @@ def start_athena(username, passcode):
                 attempt_counter = 0
                 print("No COVID-19 cases in notification queue.")
                 NBS.SendManualReviewEmail()
+                start_strep()
                 NBS.Sleep()
         # except:
         #     tb = traceback.format_exc()

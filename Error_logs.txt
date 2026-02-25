@@ -1,0 +1,3078 @@
+12_19_2025 - 15:07:28.091298 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 48, in start_HepBnotificationreview
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 146, in log_in
+    self.get(self.site)
+    ~~~~~~~~^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 454, in get
+    self.execute(Command.GET, {"url": url})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 429, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.WebDriverException: Message: unknown error: net::ERR_NAME_NOT_RESOLVED
+  (Session info: chrome=134.0.6998.118)
+Stacktrace:
+	GetHandleVerifier [0x00007FF675184C25+3179557]
+	(No symbol) [0x00007FF674DE88A0]
+	(No symbol) [0x00007FF674C791CA]
+	(No symbol) [0x00007FF674C75B57]
+	(No symbol) [0x00007FF674C668E9]
+	(No symbol) [0x00007FF674C68658]
+	(No symbol) [0x00007FF674C66BF6]
+	(No symbol) [0x00007FF674C66676]
+	(No symbol) [0x00007FF674C6633A]
+	(No symbol) [0x00007FF674C63EC2]
+	(No symbol) [0x00007FF674C647AC]
+	(No symbol) [0x00007FF674C7D01A]
+	(No symbol) [0x00007FF674D211AE]
+	(No symbol) [0x00007FF674CF7C2A]
+	(No symbol) [0x00007FF674D202F3]
+	(No symbol) [0x00007FF674CF7A03]
+	(No symbol) [0x00007FF674CC06D0]
+	(No symbol) [0x00007FF674CC1983]
+	GetHandleVerifier [0x00007FF6751E67CD+3579853]
+	GetHandleVerifier [0x00007FF6751FD1D2+3672530]
+	GetHandleVerifier [0x00007FF6751F2153+3627347]
+	GetHandleVerifier [0x00007FF674F5092A+868650]
+	(No symbol) [0x00007FF674DF2FFF]
+	(No symbol) [0x00007FF674DEF4A4]
+	(No symbol) [0x00007FF674DEF646]
+	(No symbol) [0x00007FF674DDEAA9]
+	BaseThreadInitThunk [0x00007FFB25AB259D+29]
+	RtlUserThreadStart [0x00007FFB274EAF78+40]
+
+
+12_19_2025 - 15:10:24.521447 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 48, in start_HepBnotificationreview
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 156, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	GetHandleVerifier [0x00007FF675184C25+3179557]
+	(No symbol) [0x00007FF674DE88A0]
+	(No symbol) [0x00007FF674C791CA]
+	(No symbol) [0x00007FF674CCFA67]
+	(No symbol) [0x00007FF674CCFC9C]
+	(No symbol) [0x00007FF674D23627]
+	(No symbol) [0x00007FF674CF7C6F]
+	(No symbol) [0x00007FF674D202F3]
+	(No symbol) [0x00007FF674CF7A03]
+	(No symbol) [0x00007FF674CC06D0]
+	(No symbol) [0x00007FF674CC1983]
+	GetHandleVerifier [0x00007FF6751E67CD+3579853]
+	GetHandleVerifier [0x00007FF6751FD1D2+3672530]
+	GetHandleVerifier [0x00007FF6751F2153+3627347]
+	GetHandleVerifier [0x00007FF674F5092A+868650]
+	(No symbol) [0x00007FF674DF2FFF]
+	(No symbol) [0x00007FF674DEF4A4]
+	(No symbol) [0x00007FF674DEF646]
+	(No symbol) [0x00007FF674DDEAA9]
+	BaseThreadInitThunk [0x00007FFB25AB259D+29]
+	RtlUserThreadStart [0x00007FFB274EAF78+40]
+
+
+12_22_2025 - 10:25:11.164000 | audrey - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\audrey_files\audrey_bot.py", line 92, in start_audrey
+    NBS.get_patient_table()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\audrey_files\audrey.py", line 100, in get_patient_table
+    self.patient_list = pd.read_sql_query(query, Connection)
+                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\io\sql.py", line 526, in read_sql_query
+    return pandas_sql.read_query(
+           ~~~~~~~~~~~~~~~~~~~~~^
+        sql,
+        ^^^^
+    ...<6 lines>...
+        dtype_backend=dtype_backend,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\io\sql.py", line 2756, in read_query
+    frame = _wrap_result(
+        data,
+    ...<5 lines>...
+        dtype_backend=dtype_backend,
+    )
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\io\sql.py", line 204, in _wrap_result
+    frame = _convert_arrays_to_dataframe(data, columns, coerce_float, dtype_backend)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\io\sql.py", line 166, in _convert_arrays_to_dataframe
+    content = lib.to_object_array_tuples(data)
+  File "lib.pyx", line 3065, in pandas._libs.lib.to_object_array_tuples
+MemoryError
+
+12_22_2025 - 10:27:04.442801 | audrey - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\audrey_files\audrey_bot.py", line 92, in start_audrey
+    NBS.get_patient_table()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\audrey_files\audrey.py", line 100, in get_patient_table
+    self.patient_list = pd.read_sql_query(query, Connection)
+                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\io\sql.py", line 526, in read_sql_query
+    return pandas_sql.read_query(
+           ~~~~~~~~~~~~~~~~~~~~~^
+        sql,
+        ^^^^
+    ...<6 lines>...
+        dtype_backend=dtype_backend,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\io\sql.py", line 2753, in read_query
+    data = self._fetchall_as_list(cursor)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\io\sql.py", line 2768, in _fetchall_as_list
+    result = cur.fetchall()
+MemoryError
+
+12_29_2025 - 13:39:13.327700 | ILIOutbreak - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\ILIOutbreak_files\ILIOutbreak_bot.py", line 48, in start_ILIOutbreak
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 146, in log_in
+    self.get(self.site)
+    ~~~~~~~~^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 454, in get
+    self.execute(Command.GET, {"url": url})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 429, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.WebDriverException: Message: unknown error: net::ERR_NAME_NOT_RESOLVED
+  (Session info: chrome=134.0.6998.118)
+Stacktrace:
+	GetHandleVerifier [0x00007FF792FB4C25+3179557]
+	(No symbol) [0x00007FF792C188A0]
+	(No symbol) [0x00007FF792AA91CA]
+	(No symbol) [0x00007FF792AA5B57]
+	(No symbol) [0x00007FF792A968E9]
+	(No symbol) [0x00007FF792A98658]
+	(No symbol) [0x00007FF792A96BF6]
+	(No symbol) [0x00007FF792A96676]
+	(No symbol) [0x00007FF792A9633A]
+	(No symbol) [0x00007FF792A93EC2]
+	(No symbol) [0x00007FF792A947AC]
+	(No symbol) [0x00007FF792AAD01A]
+	(No symbol) [0x00007FF792B511AE]
+	(No symbol) [0x00007FF792B27C2A]
+	(No symbol) [0x00007FF792B502F3]
+	(No symbol) [0x00007FF792B27A03]
+	(No symbol) [0x00007FF792AF06D0]
+	(No symbol) [0x00007FF792AF1983]
+	GetHandleVerifier [0x00007FF7930167CD+3579853]
+	GetHandleVerifier [0x00007FF79302D1D2+3672530]
+	GetHandleVerifier [0x00007FF793022153+3627347]
+	GetHandleVerifier [0x00007FF792D8092A+868650]
+	(No symbol) [0x00007FF792C22FFF]
+	(No symbol) [0x00007FF792C1F4A4]
+	(No symbol) [0x00007FF792C1F646]
+	(No symbol) [0x00007FF792C0EAA9]
+	BaseThreadInitThunk [0x00007FFB25AB259D+29]
+	RtlUserThreadStart [0x00007FFB274EAF78+40]
+
+
+12_29_2025 - 13:42:11.591842 | ILIOutbreak - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\ILIOutbreak_files\ILIOutbreak_bot.py", line 48, in start_ILIOutbreak
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 156, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	GetHandleVerifier [0x00007FF792FB4C25+3179557]
+	(No symbol) [0x00007FF792C188A0]
+	(No symbol) [0x00007FF792AA91CA]
+	(No symbol) [0x00007FF792AFFA67]
+	(No symbol) [0x00007FF792AFFC9C]
+	(No symbol) [0x00007FF792B53627]
+	(No symbol) [0x00007FF792B27C6F]
+	(No symbol) [0x00007FF792B502F3]
+	(No symbol) [0x00007FF792B27A03]
+	(No symbol) [0x00007FF792AF06D0]
+	(No symbol) [0x00007FF792AF1983]
+	GetHandleVerifier [0x00007FF7930167CD+3579853]
+	GetHandleVerifier [0x00007FF79302D1D2+3672530]
+	GetHandleVerifier [0x00007FF793022153+3627347]
+	GetHandleVerifier [0x00007FF792D8092A+868650]
+	(No symbol) [0x00007FF792C22FFF]
+	(No symbol) [0x00007FF792C1F4A4]
+	(No symbol) [0x00007FF792C1F646]
+	(No symbol) [0x00007FF792C0EAA9]
+	BaseThreadInitThunk [0x00007FFB25AB259D+29]
+	RtlUserThreadStart [0x00007FFB274EAF78+40]
+
+
+12_29_2025 - 15:09:11.885045 | ILIOutbreak - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\ILIOutbreak_files\ILIOutbreak_bot.py", line 48, in start_ILIOutbreak
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 156, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	GetHandleVerifier [0x00007FF792FB4C25+3179557]
+	(No symbol) [0x00007FF792C188A0]
+	(No symbol) [0x00007FF792AA91CA]
+	(No symbol) [0x00007FF792AFFA67]
+	(No symbol) [0x00007FF792AFFC9C]
+	(No symbol) [0x00007FF792B53627]
+	(No symbol) [0x00007FF792B27C6F]
+	(No symbol) [0x00007FF792B502F3]
+	(No symbol) [0x00007FF792B27A03]
+	(No symbol) [0x00007FF792AF06D0]
+	(No symbol) [0x00007FF792AF1983]
+	GetHandleVerifier [0x00007FF7930167CD+3579853]
+	GetHandleVerifier [0x00007FF79302D1D2+3672530]
+	GetHandleVerifier [0x00007FF793022153+3627347]
+	GetHandleVerifier [0x00007FF792D8092A+868650]
+	(No symbol) [0x00007FF792C22FFF]
+	(No symbol) [0x00007FF792C1F4A4]
+	(No symbol) [0x00007FF792C1F646]
+	(No symbol) [0x00007FF792C0EAA9]
+	BaseThreadInitThunk [0x00007FFB25AB259D+29]
+	RtlUserThreadStart [0x00007FFB274EAF78+40]
+
+
+12_30_2025 - 09:30:53.630634 | strep - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\strep_files\strep_bot.py", line 51, in start_strep
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 156, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	GetHandleVerifier [0x00007FF65C384C25+3179557]
+	(No symbol) [0x00007FF65BFE88A0]
+	(No symbol) [0x00007FF65BE791CA]
+	(No symbol) [0x00007FF65BECFA67]
+	(No symbol) [0x00007FF65BECFC9C]
+	(No symbol) [0x00007FF65BF23627]
+	(No symbol) [0x00007FF65BEF7C6F]
+	(No symbol) [0x00007FF65BF202F3]
+	(No symbol) [0x00007FF65BEF7A03]
+	(No symbol) [0x00007FF65BEC06D0]
+	(No symbol) [0x00007FF65BEC1983]
+	GetHandleVerifier [0x00007FF65C3E67CD+3579853]
+	GetHandleVerifier [0x00007FF65C3FD1D2+3672530]
+	GetHandleVerifier [0x00007FF65C3F2153+3627347]
+	GetHandleVerifier [0x00007FF65C15092A+868650]
+	(No symbol) [0x00007FF65BFF2FFF]
+	(No symbol) [0x00007FF65BFEF4A4]
+	(No symbol) [0x00007FF65BFEF646]
+	(No symbol) [0x00007FF65BFDEAA9]
+	BaseThreadInitThunk [0x00007FFB25AB259D+29]
+	RtlUserThreadStart [0x00007FFB274EAF78+40]
+
+
+12_30_2025 - 10:18:46.376551 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 37, in start_HepBnotificationreview
+    from .HepBnotificationreview import HepBNotificationReview
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview.py", line 12, in <module>
+    driver=webdriver.Chrome()
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chrome\webdriver.py", line 45, in __init__
+    super().__init__(
+    ~~~~~~~~~~~~~~~~^
+        browser_name=DesiredCapabilities.CHROME["browserName"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        keep_alive=keep_alive,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chromium\webdriver.py", line 66, in __init__
+    super().__init__(command_executor=executor, options=options)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 250, in __init__
+    self.start_session(capabilities)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 342, in start_session
+    response = self.execute(Command.NEW_SESSION, caps)["value"]
+               ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 429, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.SessionNotCreatedException: Message: session not created
+from chrome not reachable
+Stacktrace:
+	GetHandleVerifier [0x00007FF65C384C25+3179557]
+	(No symbol) [0x00007FF65BFE88A0]
+	(No symbol) [0x00007FF65BE78FFC]
+	(No symbol) [0x00007FF65BE69DA1]
+	(No symbol) [0x00007FF65BEBC372]
+	(No symbol) [0x00007FF65BEB6700]
+	(No symbol) [0x00007FF65BEB1CCD]
+	(No symbol) [0x00007FF65BF05E8B]
+	(No symbol) [0x00007FF65BF05460]
+	(No symbol) [0x00007FF65BEF7A03]
+	(No symbol) [0x00007FF65BEC06D0]
+	(No symbol) [0x00007FF65BEC1983]
+	GetHandleVerifier [0x00007FF65C3E67CD+3579853]
+	GetHandleVerifier [0x00007FF65C3FD1D2+3672530]
+	GetHandleVerifier [0x00007FF65C3F2153+3627347]
+	GetHandleVerifier [0x00007FF65C15092A+868650]
+	(No symbol) [0x00007FF65BFF2FFF]
+	(No symbol) [0x00007FF65BFEF4A4]
+	(No symbol) [0x00007FF65BFEF646]
+	(No symbol) [0x00007FF65BFDEAA9]
+	BaseThreadInitThunk [0x00007FFB25AB259D+29]
+	RtlUserThreadStart [0x00007FFB274EAF78+40]
+
+
+12_30_2025 - 10:20:43.888360 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 48, in start_HepBnotificationreview
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 156, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	GetHandleVerifier [0x00007FF65C384C25+3179557]
+	(No symbol) [0x00007FF65BFE88A0]
+	(No symbol) [0x00007FF65BE791CA]
+	(No symbol) [0x00007FF65BECFA67]
+	(No symbol) [0x00007FF65BECFC9C]
+	(No symbol) [0x00007FF65BF23627]
+	(No symbol) [0x00007FF65BEF7C6F]
+	(No symbol) [0x00007FF65BF202F3]
+	(No symbol) [0x00007FF65BEF7A03]
+	(No symbol) [0x00007FF65BEC06D0]
+	(No symbol) [0x00007FF65BEC1983]
+	GetHandleVerifier [0x00007FF65C3E67CD+3579853]
+	GetHandleVerifier [0x00007FF65C3FD1D2+3672530]
+	GetHandleVerifier [0x00007FF65C3F2153+3627347]
+	GetHandleVerifier [0x00007FF65C15092A+868650]
+	(No symbol) [0x00007FF65BFF2FFF]
+	(No symbol) [0x00007FF65BFEF4A4]
+	(No symbol) [0x00007FF65BFEF646]
+	(No symbol) [0x00007FF65BFDEAA9]
+	BaseThreadInitThunk [0x00007FFB25AB259D+29]
+	RtlUserThreadStart [0x00007FFB274EAF78+40]
+
+
+12_31_2025 - 10:15:22.848913 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 48, in start_HepBnotificationreview
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 156, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	GetHandleVerifier [0x00007FF7AD174C25+3179557]
+	(No symbol) [0x00007FF7ACDD88A0]
+	(No symbol) [0x00007FF7ACC691CA]
+	(No symbol) [0x00007FF7ACCBFA67]
+	(No symbol) [0x00007FF7ACCBFC9C]
+	(No symbol) [0x00007FF7ACD13627]
+	(No symbol) [0x00007FF7ACCE7C6F]
+	(No symbol) [0x00007FF7ACD102F3]
+	(No symbol) [0x00007FF7ACCE7A03]
+	(No symbol) [0x00007FF7ACCB06D0]
+	(No symbol) [0x00007FF7ACCB1983]
+	GetHandleVerifier [0x00007FF7AD1D67CD+3579853]
+	GetHandleVerifier [0x00007FF7AD1ED1D2+3672530]
+	GetHandleVerifier [0x00007FF7AD1E2153+3627347]
+	GetHandleVerifier [0x00007FF7ACF4092A+868650]
+	(No symbol) [0x00007FF7ACDE2FFF]
+	(No symbol) [0x00007FF7ACDDF4A4]
+	(No symbol) [0x00007FF7ACDDF646]
+	(No symbol) [0x00007FF7ACDCEAA9]
+	BaseThreadInitThunk [0x00007FFDAE74259D+29]
+	RtlUserThreadStart [0x00007FFDAF06AF78+40]
+
+
+01_05_2026 - 12:50:27.464757 | strep - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\strep_files\strep_bot.py", line 51, in start_strep
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 156, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	GetHandleVerifier [0x00007FF762074C25+3179557]
+	(No symbol) [0x00007FF761CD88A0]
+	(No symbol) [0x00007FF761B691CA]
+	(No symbol) [0x00007FF761BBFA67]
+	(No symbol) [0x00007FF761BBFC9C]
+	(No symbol) [0x00007FF761C13627]
+	(No symbol) [0x00007FF761BE7C6F]
+	(No symbol) [0x00007FF761C102F3]
+	(No symbol) [0x00007FF761BE7A03]
+	(No symbol) [0x00007FF761BB06D0]
+	(No symbol) [0x00007FF761BB1983]
+	GetHandleVerifier [0x00007FF7620D67CD+3579853]
+	GetHandleVerifier [0x00007FF7620ED1D2+3672530]
+	GetHandleVerifier [0x00007FF7620E2153+3627347]
+	GetHandleVerifier [0x00007FF761E4092A+868650]
+	(No symbol) [0x00007FF761CE2FFF]
+	(No symbol) [0x00007FF761CDF4A4]
+	(No symbol) [0x00007FF761CDF646]
+	(No symbol) [0x00007FF761CCEAA9]
+	BaseThreadInitThunk [0x00007FFDAE74259D+29]
+	RtlUserThreadStart [0x00007FFDAF06AF78+40]
+
+
+01_06_2026 - 12:12:00.981214 | ILIOutbreak - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\ILIOutbreak_files\ILIOutbreak_bot.py", line 48, in start_ILIOutbreak
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 156, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	GetHandleVerifier [0x00007FF6E5284C25+3179557]
+	(No symbol) [0x00007FF6E4EE88A0]
+	(No symbol) [0x00007FF6E4D791CA]
+	(No symbol) [0x00007FF6E4DCFA67]
+	(No symbol) [0x00007FF6E4DCFC9C]
+	(No symbol) [0x00007FF6E4E23627]
+	(No symbol) [0x00007FF6E4DF7C6F]
+	(No symbol) [0x00007FF6E4E202F3]
+	(No symbol) [0x00007FF6E4DF7A03]
+	(No symbol) [0x00007FF6E4DC06D0]
+	(No symbol) [0x00007FF6E4DC1983]
+	GetHandleVerifier [0x00007FF6E52E67CD+3579853]
+	GetHandleVerifier [0x00007FF6E52FD1D2+3672530]
+	GetHandleVerifier [0x00007FF6E52F2153+3627347]
+	GetHandleVerifier [0x00007FF6E505092A+868650]
+	(No symbol) [0x00007FF6E4EF2FFF]
+	(No symbol) [0x00007FF6E4EEF4A4]
+	(No symbol) [0x00007FF6E4EEF646]
+	(No symbol) [0x00007FF6E4EDEAA9]
+	BaseThreadInitThunk [0x00007FFDAE74259D+29]
+	RtlUserThreadStart [0x00007FFDAF06AF78+40]
+
+
+01_07_2026 - 10:37:58.966722 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 48, in start_HepBnotificationreview
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 156, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	GetHandleVerifier [0x00007FF60DA94C25+3179557]
+	(No symbol) [0x00007FF60D6F88A0]
+	(No symbol) [0x00007FF60D5891CA]
+	(No symbol) [0x00007FF60D5DFA67]
+	(No symbol) [0x00007FF60D5DFC9C]
+	(No symbol) [0x00007FF60D633627]
+	(No symbol) [0x00007FF60D607C6F]
+	(No symbol) [0x00007FF60D6302F3]
+	(No symbol) [0x00007FF60D607A03]
+	(No symbol) [0x00007FF60D5D06D0]
+	(No symbol) [0x00007FF60D5D1983]
+	GetHandleVerifier [0x00007FF60DAF67CD+3579853]
+	GetHandleVerifier [0x00007FF60DB0D1D2+3672530]
+	GetHandleVerifier [0x00007FF60DB02153+3627347]
+	GetHandleVerifier [0x00007FF60D86092A+868650]
+	(No symbol) [0x00007FF60D702FFF]
+	(No symbol) [0x00007FF60D6FF4A4]
+	(No symbol) [0x00007FF60D6FF646]
+	(No symbol) [0x00007FF60D6EEAA9]
+	BaseThreadInitThunk [0x00007FFDAE74259D+29]
+	RtlUserThreadStart [0x00007FFDAF06AF78+40]
+
+
+01_07_2026 - 11:11:58.542107 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 48, in start_HepBnotificationreview
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 156, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	GetHandleVerifier [0x00007FF60DA94C25+3179557]
+	(No symbol) [0x00007FF60D6F88A0]
+	(No symbol) [0x00007FF60D5891CA]
+	(No symbol) [0x00007FF60D5DFA67]
+	(No symbol) [0x00007FF60D5DFC9C]
+	(No symbol) [0x00007FF60D633627]
+	(No symbol) [0x00007FF60D607C6F]
+	(No symbol) [0x00007FF60D6302F3]
+	(No symbol) [0x00007FF60D607A03]
+	(No symbol) [0x00007FF60D5D06D0]
+	(No symbol) [0x00007FF60D5D1983]
+	GetHandleVerifier [0x00007FF60DAF67CD+3579853]
+	GetHandleVerifier [0x00007FF60DB0D1D2+3672530]
+	GetHandleVerifier [0x00007FF60DB02153+3627347]
+	GetHandleVerifier [0x00007FF60D86092A+868650]
+	(No symbol) [0x00007FF60D702FFF]
+	(No symbol) [0x00007FF60D6FF4A4]
+	(No symbol) [0x00007FF60D6FF646]
+	(No symbol) [0x00007FF60D6EEAA9]
+	BaseThreadInitThunk [0x00007FFDAE74259D+29]
+	RtlUserThreadStart [0x00007FFDAF06AF78+40]
+
+
+01_08_2026 - 12:22:02.885047 | ILIOutbreak - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\ILIOutbreak_files\ILIOutbreak_bot.py", line 48, in start_ILIOutbreak
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 156, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	GetHandleVerifier [0x00007FF6C1644C25+3179557]
+	(No symbol) [0x00007FF6C12A88A0]
+	(No symbol) [0x00007FF6C11391CA]
+	(No symbol) [0x00007FF6C118FA67]
+	(No symbol) [0x00007FF6C118FC9C]
+	(No symbol) [0x00007FF6C11E3627]
+	(No symbol) [0x00007FF6C11B7C6F]
+	(No symbol) [0x00007FF6C11E02F3]
+	(No symbol) [0x00007FF6C11B7A03]
+	(No symbol) [0x00007FF6C11806D0]
+	(No symbol) [0x00007FF6C1181983]
+	GetHandleVerifier [0x00007FF6C16A67CD+3579853]
+	GetHandleVerifier [0x00007FF6C16BD1D2+3672530]
+	GetHandleVerifier [0x00007FF6C16B2153+3627347]
+	GetHandleVerifier [0x00007FF6C141092A+868650]
+	(No symbol) [0x00007FF6C12B2FFF]
+	(No symbol) [0x00007FF6C12AF4A4]
+	(No symbol) [0x00007FF6C12AF646]
+	(No symbol) [0x00007FF6C129EAA9]
+	BaseThreadInitThunk [0x00007FFDAE74259D+29]
+	RtlUserThreadStart [0x00007FFDAF06AF78+40]
+
+
+01_08_2026 - 12:23:16.344594 | ILIOutbreak - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\ILIOutbreak_files\ILIOutbreak_bot.py", line 48, in start_ILIOutbreak
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 156, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	GetHandleVerifier [0x00007FF6C1644C25+3179557]
+	(No symbol) [0x00007FF6C12A88A0]
+	(No symbol) [0x00007FF6C11391CA]
+	(No symbol) [0x00007FF6C118FA67]
+	(No symbol) [0x00007FF6C118FC9C]
+	(No symbol) [0x00007FF6C11E3627]
+	(No symbol) [0x00007FF6C11B7C6F]
+	(No symbol) [0x00007FF6C11E02F3]
+	(No symbol) [0x00007FF6C11B7A03]
+	(No symbol) [0x00007FF6C11806D0]
+	(No symbol) [0x00007FF6C1181983]
+	GetHandleVerifier [0x00007FF6C16A67CD+3579853]
+	GetHandleVerifier [0x00007FF6C16BD1D2+3672530]
+	GetHandleVerifier [0x00007FF6C16B2153+3627347]
+	GetHandleVerifier [0x00007FF6C141092A+868650]
+	(No symbol) [0x00007FF6C12B2FFF]
+	(No symbol) [0x00007FF6C12AF4A4]
+	(No symbol) [0x00007FF6C12AF646]
+	(No symbol) [0x00007FF6C129EAA9]
+	BaseThreadInitThunk [0x00007FFDAE74259D+29]
+	RtlUserThreadStart [0x00007FFDAF06AF78+40]
+
+
+01_14_2026 - 09:40:43.277492 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 48, in start_HepBnotificationreview
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 156, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	GetHandleVerifier [0x00007FF6C2264C25+3179557]
+	(No symbol) [0x00007FF6C1EC88A0]
+	(No symbol) [0x00007FF6C1D591CA]
+	(No symbol) [0x00007FF6C1DAFA67]
+	(No symbol) [0x00007FF6C1DAFC9C]
+	(No symbol) [0x00007FF6C1E03627]
+	(No symbol) [0x00007FF6C1DD7C6F]
+	(No symbol) [0x00007FF6C1E002F3]
+	(No symbol) [0x00007FF6C1DD7A03]
+	(No symbol) [0x00007FF6C1DA06D0]
+	(No symbol) [0x00007FF6C1DA1983]
+	GetHandleVerifier [0x00007FF6C22C67CD+3579853]
+	GetHandleVerifier [0x00007FF6C22DD1D2+3672530]
+	GetHandleVerifier [0x00007FF6C22D2153+3627347]
+	GetHandleVerifier [0x00007FF6C203092A+868650]
+	(No symbol) [0x00007FF6C1ED2FFF]
+	(No symbol) [0x00007FF6C1ECF4A4]
+	(No symbol) [0x00007FF6C1ECF646]
+	(No symbol) [0x00007FF6C1EBEAA9]
+	BaseThreadInitThunk [0x00007FFDAE74259D+29]
+	RtlUserThreadStart [0x00007FFDAF06AF78+40]
+
+
+01_15_2026 - 13:58:45.065020 | strep - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\strep_files\strep_bot.py", line 164, in start_strep
+    NBS.CreateExcelSheet()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 1214, in CreateExcelSheet
+    bot_act.to_excel(f"saved/iGAS/iGAS_bot_activity_{datetime.now().date().strftime('%m_%d_%Y %H:%M:%S')}.xlsx")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\util\_decorators.py", line 333, in wrapper
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\core\generic.py", line 2417, in to_excel
+    formatter.write(
+    ~~~~~~~~~~~~~~~^
+        excel_writer,
+        ^^^^^^^^^^^^^
+    ...<6 lines>...
+        engine_kwargs=engine_kwargs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\io\formats\excel.py", line 943, in write
+    writer = ExcelWriter(
+        writer,
+    ...<2 lines>...
+        engine_kwargs=engine_kwargs,
+    )
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\io\excel\_openpyxl.py", line 61, in __init__
+    super().__init__(
+    ~~~~~~~~~~~~~~~~^
+        path,
+        ^^^^^
+    ...<3 lines>...
+        engine_kwargs=engine_kwargs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\io\excel\_base.py", line 1246, in __init__
+    self._handles = get_handle(
+                    ~~~~~~~~~~^
+        path, mode, storage_options=storage_options, is_text=False
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\io\common.py", line 749, in get_handle
+    check_parent_directory(str(handle))
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\io\common.py", line 616, in check_parent_directory
+    raise OSError(rf"Cannot save file into a non-existent directory: '{parent}'")
+OSError: Cannot save file into a non-existent directory: 'saved\iGAS'
+
+01_20_2026 - 14:47:35.191488 | ILIOutbreak - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\ILIOutbreak_files\ILIOutbreak_bot.py", line 48, in start_ILIOutbreak
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 157, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	GetHandleVerifier [0x00007FF675014C25+3179557]
+	(No symbol) [0x00007FF674C788A0]
+	(No symbol) [0x00007FF674B091CA]
+	(No symbol) [0x00007FF674B5FA67]
+	(No symbol) [0x00007FF674B5FC9C]
+	(No symbol) [0x00007FF674BB3627]
+	(No symbol) [0x00007FF674B87C6F]
+	(No symbol) [0x00007FF674BB02F3]
+	(No symbol) [0x00007FF674B87A03]
+	(No symbol) [0x00007FF674B506D0]
+	(No symbol) [0x00007FF674B51983]
+	GetHandleVerifier [0x00007FF6750767CD+3579853]
+	GetHandleVerifier [0x00007FF67508D1D2+3672530]
+	GetHandleVerifier [0x00007FF675082153+3627347]
+	GetHandleVerifier [0x00007FF674DE092A+868650]
+	(No symbol) [0x00007FF674C82FFF]
+	(No symbol) [0x00007FF674C7F4A4]
+	(No symbol) [0x00007FF674C7F646]
+	(No symbol) [0x00007FF674C6EAA9]
+	BaseThreadInitThunk [0x00007FFDAE74259D+29]
+	RtlUserThreadStart [0x00007FFDAF06AF78+40]
+
+
+01_20_2026 - 16:22:40.027763 | strep - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\strep_files\strep_bot.py", line 165, in start_strep
+    NBS.CreateExcelSheet()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 1214, in CreateExcelSheet
+    bot_act.to_excel(f"saved/Strep/iGAS_bot_activity_{datetime.now().date().strftime('%m_%d_%Y %H:%M:%S')}.xlsx")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\util\_decorators.py", line 333, in wrapper
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\core\generic.py", line 2417, in to_excel
+    formatter.write(
+    ~~~~~~~~~~~~~~~^
+        excel_writer,
+        ^^^^^^^^^^^^^
+    ...<6 lines>...
+        engine_kwargs=engine_kwargs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\io\formats\excel.py", line 943, in write
+    writer = ExcelWriter(
+        writer,
+    ...<2 lines>...
+        engine_kwargs=engine_kwargs,
+    )
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\io\excel\_openpyxl.py", line 61, in __init__
+    super().__init__(
+    ~~~~~~~~~~~~~~~~^
+        path,
+        ^^^^^
+    ...<3 lines>...
+        engine_kwargs=engine_kwargs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\io\excel\_base.py", line 1246, in __init__
+    self._handles = get_handle(
+                    ~~~~~~~~~~^
+        path, mode, storage_options=storage_options, is_text=False
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\io\common.py", line 882, in get_handle
+    handle = open(handle, ioargs.mode)
+OSError: [Errno 22] Invalid argument: 'saved/Strep/iGAS_bot_activity_01_20_2026 00:00:00.xlsx'
+
+01_20_2026 - 16:30:54.634594 | strep - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\strep_files\strep_bot.py", line 165, in start_strep
+    NBS.CreateExcelSheet()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 1214, in CreateExcelSheet
+    bot_act.to_excel(f"saved/Strep/iGAS_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\util\_decorators.py", line 333, in wrapper
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\core\generic.py", line 2417, in to_excel
+    formatter.write(
+    ~~~~~~~~~~~~~~~^
+        excel_writer,
+        ^^^^^^^^^^^^^
+    ...<6 lines>...
+        engine_kwargs=engine_kwargs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\io\formats\excel.py", line 943, in write
+    writer = ExcelWriter(
+        writer,
+    ...<2 lines>...
+        engine_kwargs=engine_kwargs,
+    )
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\io\excel\_openpyxl.py", line 61, in __init__
+    super().__init__(
+    ~~~~~~~~~~~~~~~~^
+        path,
+        ^^^^^
+    ...<3 lines>...
+        engine_kwargs=engine_kwargs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\io\excel\_base.py", line 1246, in __init__
+    self._handles = get_handle(
+                    ~~~~~~~~~~^
+        path, mode, storage_options=storage_options, is_text=False
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\io\common.py", line 882, in get_handle
+    handle = open(handle, ioargs.mode)
+OSError: [Errno 22] Invalid argument: 'saved/Strep/iGAS_bot_activity_01_20_2026 00:00:00.xlsx'
+
+01_21_2026 - 10:48:26.658001 | ILIOutbreak - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\ILIOutbreak_files\ILIOutbreak_bot.py", line 153, in start_ILIOutbreak
+    NBS.CreateExcelSheet()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 1217, in CreateExcelSheet
+    bot_act.to_excel(f"saved/ILIOutbreak/ILIOutbreak_bot_activity_{datetime.now().date().strftime('%m_%d_%Y %H:%M:%S')}.xlsx")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\util\_decorators.py", line 333, in wrapper
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\core\generic.py", line 2417, in to_excel
+    formatter.write(
+    ~~~~~~~~~~~~~~~^
+        excel_writer,
+        ^^^^^^^^^^^^^
+    ...<6 lines>...
+        engine_kwargs=engine_kwargs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\io\formats\excel.py", line 943, in write
+    writer = ExcelWriter(
+        writer,
+    ...<2 lines>...
+        engine_kwargs=engine_kwargs,
+    )
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\io\excel\_openpyxl.py", line 61, in __init__
+    super().__init__(
+    ~~~~~~~~~~~~~~~~^
+        path,
+        ^^^^^
+    ...<3 lines>...
+        engine_kwargs=engine_kwargs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\io\excel\_base.py", line 1246, in __init__
+    self._handles = get_handle(
+                    ~~~~~~~~~~^
+        path, mode, storage_options=storage_options, is_text=False
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\io\common.py", line 882, in get_handle
+    handle = open(handle, ioargs.mode)
+OSError: [Errno 22] Invalid argument: 'saved/ILIOutbreak/ILIOutbreak_bot_activity_01_21_2026 00:00:00.xlsx'
+
+01_22_2026 - 12:03:02.204512 | audrey - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\audrey_files\audrey_bot.py", line 910, in start_audrey
+    if len(perinatal_inv)==1 and existing_investigations[existing_investigations["Case Status"].str.contains("Confirmed")]:
+                                 ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\core\generic.py", line 1577, in __nonzero__
+    raise ValueError(
+    ...<2 lines>...
+    )
+ValueError: The truth value of a DataFrame is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+
+01_22_2026 - 12:14:00.712029 | audrey - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\audrey_files\audrey_bot.py", line 910, in start_audrey
+    if len(perinatal_inv)==1 and existing_investigations[existing_investigations["Case Status"].str.contains("Confirmed")]:
+                                 ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\core\generic.py", line 1577, in __nonzero__
+    raise ValueError(
+    ...<2 lines>...
+    )
+ValueError: The truth value of a DataFrame is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+
+01_22_2026 - 12:26:05.497487 | audrey - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\audrey_files\audrey_bot.py", line 910, in start_audrey
+    if len(perinatal_inv)==1 and existing_investigations[existing_investigations["Case Status"].str.contains("Confirmed")]:
+                                 ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\core\generic.py", line 1577, in __nonzero__
+    raise ValueError(
+    ...<2 lines>...
+    )
+ValueError: The truth value of a DataFrame is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+
+01_22_2026 - 13:09:46.023254 | audrey - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\audrey_files\audrey_bot.py", line 309, in start_audrey
+    results = NBS.find_elements(By.XPATH,f"//label[contains(text(),'{test}')]")
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 936, in find_elements
+    return self.execute(Command.FIND_ELEMENTS, {"using": by, "value": value})["value"] or []
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 429, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.InvalidSessionIdException: Message: invalid session id
+Stacktrace:
+	GetHandleVerifier [0x00007FF7EBC24C25+3179557]
+	(No symbol) [0x00007FF7EB8888A0]
+	(No symbol) [0x00007FF7EB718FFC]
+	(No symbol) [0x00007FF7EB75F8DF]
+	(No symbol) [0x00007FF7EB797AF2]
+	(No symbol) [0x00007FF7EB79244E]
+	(No symbol) [0x00007FF7EB7914F9]
+	(No symbol) [0x00007FF7EB6E55E5]
+	GetHandleVerifier [0x00007FF7EBC867CD+3579853]
+	GetHandleVerifier [0x00007FF7EBC9D1D2+3672530]
+	GetHandleVerifier [0x00007FF7EBC92153+3627347]
+	GetHandleVerifier [0x00007FF7EB9F092A+868650]
+	(No symbol) [0x00007FF7EB892FFF]
+	(No symbol) [0x00007FF7EB6E41FF]
+	GetHandleVerifier [0x00007FF7EBD0FA28+4141608]
+	BaseThreadInitThunk [0x00007FFDAE74259D+29]
+	RtlUserThreadStart [0x00007FFDAF06AF78+40]
+
+
+01_22_2026 - 14:49:16.843795 | strep - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\strep_files\strep_bot.py", line 165, in start_strep
+    NBS.CreateExcelSheet()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 1208, in CreateExcelSheet
+    'Reason': self.reasons
+              ^^^^^^^^^^^^
+AttributeError: 'Strep' object has no attribute 'reasons'. Did you mean: 'reason'?
+
+01_23_2026 - 12:12:37.445318 | audrey - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\connectionpool.py", line 534, in _make_request
+    response = conn.getresponse()
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\connection.py", line 571, in getresponse
+    httplib_response = super().getresponse()
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\http\client.py", line 1430, in getresponse
+    response.begin()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\http\client.py", line 331, in begin
+    version, status, reason = self._read_status()
+                              ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\http\client.py", line 292, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 719, in readinto
+    return self._sock.recv_into(b)
+           ~~~~~~~~~~~~~~~~~~~~^^^
+TimeoutError: timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\audrey_files\audrey_bot.py", line 1937, in start_audrey
+    NBS.go_to_home()
+    ~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 360, in go_to_home
+    WebDriverWait(self, timeout).until(EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, partial_link)))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 137, in until
+    value = method(self._driver)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\expected_conditions.py", line 110, in _predicate
+    return driver.find_element(*locator)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 898, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 427, in execute
+    response = self.command_executor.execute(driver_command, params)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\remote_connection.py", line 404, in execute
+    return self._request(command_info[0], url, body=data)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\remote_connection.py", line 428, in _request
+    response = self._conn.request(method, url, body=body, headers=headers, timeout=self._client_config.timeout)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\_request_methods.py", line 143, in request
+    return self.request_encode_body(
+           ~~~~~~~~~~~~~~~~~~~~~~~~^
+        method, url, fields=fields, headers=headers, **urlopen_kw
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\_request_methods.py", line 278, in request_encode_body
+    return self.urlopen(method, url, **extra_kw)
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\poolmanager.py", line 457, in urlopen
+    response = conn.urlopen(method, u.request_uri, **kw)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\util\retry.py", line 490, in increment
+    raise reraise(type(error), error, _stacktrace)
+          ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\util\util.py", line 39, in reraise
+    raise value
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+        conn,
+    ...<10 lines>...
+        **response_kw,
+    )
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\connectionpool.py", line 536, in _make_request
+    self._raise_timeout(err=e, url=url, timeout_value=read_timeout)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\connectionpool.py", line 367, in _raise_timeout
+    raise ReadTimeoutError(
+        self, url, f"Read timed out. (read timeout={timeout_value})"
+    ) from err
+urllib3.exceptions.ReadTimeoutError: HTTPConnectionPool(host='localhost', port=63875): Read timed out. (read timeout=120)
+
+01_23_2026 - 16:56:19.798227 | strep - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\strep_files\strep_bot.py", line 165, in start_strep
+    NBS.CreateExcelSheet()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 1208, in CreateExcelSheet
+    'Reason': self.reasons
+              ^^^^^^^^^^^^
+AttributeError: 'Strep' object has no attribute 'reasons'. Did you mean: 'reason'?
+
+01_27_2026 - 15:33:43.314850 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 48, in start_HepBnotificationreview
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 157, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	GetHandleVerifier [0x00007FF678E14C25+3179557]
+	(No symbol) [0x00007FF678A788A0]
+	(No symbol) [0x00007FF6789091CA]
+	(No symbol) [0x00007FF67895FA67]
+	(No symbol) [0x00007FF67895FC9C]
+	(No symbol) [0x00007FF6789B3627]
+	(No symbol) [0x00007FF678987C6F]
+	(No symbol) [0x00007FF6789B02F3]
+	(No symbol) [0x00007FF678987A03]
+	(No symbol) [0x00007FF6789506D0]
+	(No symbol) [0x00007FF678951983]
+	GetHandleVerifier [0x00007FF678E767CD+3579853]
+	GetHandleVerifier [0x00007FF678E8D1D2+3672530]
+	GetHandleVerifier [0x00007FF678E82153+3627347]
+	GetHandleVerifier [0x00007FF678BE092A+868650]
+	(No symbol) [0x00007FF678A82FFF]
+	(No symbol) [0x00007FF678A7F4A4]
+	(No symbol) [0x00007FF678A7F646]
+	(No symbol) [0x00007FF678A6EAA9]
+	BaseThreadInitThunk [0x00007FF9C60B259D+29]
+	RtlUserThreadStart [0x00007FF9C79AAF78+40]
+
+
+01_27_2026 - 15:35:00.278373 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 48, in start_HepBnotificationreview
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 157, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	GetHandleVerifier [0x00007FF678E14C25+3179557]
+	(No symbol) [0x00007FF678A788A0]
+	(No symbol) [0x00007FF6789091CA]
+	(No symbol) [0x00007FF67895FA67]
+	(No symbol) [0x00007FF67895FC9C]
+	(No symbol) [0x00007FF6789B3627]
+	(No symbol) [0x00007FF678987C6F]
+	(No symbol) [0x00007FF6789B02F3]
+	(No symbol) [0x00007FF678987A03]
+	(No symbol) [0x00007FF6789506D0]
+	(No symbol) [0x00007FF678951983]
+	GetHandleVerifier [0x00007FF678E767CD+3579853]
+	GetHandleVerifier [0x00007FF678E8D1D2+3672530]
+	GetHandleVerifier [0x00007FF678E82153+3627347]
+	GetHandleVerifier [0x00007FF678BE092A+868650]
+	(No symbol) [0x00007FF678A82FFF]
+	(No symbol) [0x00007FF678A7F4A4]
+	(No symbol) [0x00007FF678A7F646]
+	(No symbol) [0x00007FF678A6EAA9]
+	BaseThreadInitThunk [0x00007FF9C60B259D+29]
+	RtlUserThreadStart [0x00007FF9C79AAF78+40]
+
+
+01_27_2026 - 15:36:25.687765 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 48, in start_HepBnotificationreview
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 157, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	GetHandleVerifier [0x00007FF678E14C25+3179557]
+	(No symbol) [0x00007FF678A788A0]
+	(No symbol) [0x00007FF6789091CA]
+	(No symbol) [0x00007FF67895FA67]
+	(No symbol) [0x00007FF67895FC9C]
+	(No symbol) [0x00007FF6789B3627]
+	(No symbol) [0x00007FF678987C6F]
+	(No symbol) [0x00007FF6789B02F3]
+	(No symbol) [0x00007FF678987A03]
+	(No symbol) [0x00007FF6789506D0]
+	(No symbol) [0x00007FF678951983]
+	GetHandleVerifier [0x00007FF678E767CD+3579853]
+	GetHandleVerifier [0x00007FF678E8D1D2+3672530]
+	GetHandleVerifier [0x00007FF678E82153+3627347]
+	GetHandleVerifier [0x00007FF678BE092A+868650]
+	(No symbol) [0x00007FF678A82FFF]
+	(No symbol) [0x00007FF678A7F4A4]
+	(No symbol) [0x00007FF678A7F646]
+	(No symbol) [0x00007FF678A6EAA9]
+	BaseThreadInitThunk [0x00007FF9C60B259D+29]
+	RtlUserThreadStart [0x00007FF9C79AAF78+40]
+
+
+01_27_2026 - 15:39:55.075992 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 48, in start_HepBnotificationreview
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 157, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	GetHandleVerifier [0x00007FF678E14C25+3179557]
+	(No symbol) [0x00007FF678A788A0]
+	(No symbol) [0x00007FF6789091CA]
+	(No symbol) [0x00007FF67895FA67]
+	(No symbol) [0x00007FF67895FC9C]
+	(No symbol) [0x00007FF6789B3627]
+	(No symbol) [0x00007FF678987C6F]
+	(No symbol) [0x00007FF6789B02F3]
+	(No symbol) [0x00007FF678987A03]
+	(No symbol) [0x00007FF6789506D0]
+	(No symbol) [0x00007FF678951983]
+	GetHandleVerifier [0x00007FF678E767CD+3579853]
+	GetHandleVerifier [0x00007FF678E8D1D2+3672530]
+	GetHandleVerifier [0x00007FF678E82153+3627347]
+	GetHandleVerifier [0x00007FF678BE092A+868650]
+	(No symbol) [0x00007FF678A82FFF]
+	(No symbol) [0x00007FF678A7F4A4]
+	(No symbol) [0x00007FF678A7F646]
+	(No symbol) [0x00007FF678A6EAA9]
+	BaseThreadInitThunk [0x00007FF9C60B259D+29]
+	RtlUserThreadStart [0x00007FF9C79AAF78+40]
+
+
+01_29_2026 - 14:12:06.147803 | strep - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\strep_files\strep_bot_prod.py", line 38, in start_strep
+    NBS.GoToApprovalQueue()
+    ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Strep' object has no attribute 'GoToApprovalQueue'
+
+01_29_2026 - 14:47:58.718529 | athena - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\athena_files\athena_bot.py", line 19, in start_athena
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 1314, in log_in
+    self.get(self.site)
+             ^^^^^^^^^
+AttributeError: 'Athena' object has no attribute 'site'
+
+01_29_2026 - 14:51:40.362342 | athena - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\athena_files\athena_bot.py", line 19, in start_athena
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 1314, in log_in
+    self.get(self.site)
+             ^^^^^^^^^
+AttributeError: 'Athena' object has no attribute 'site'
+
+01_29_2026 - 14:54:26.552022 | strep - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\strep_files\strep_bot_prod.py", line 38, in start_strep
+    NBS.GoToApprovalQueue()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\base_prod.py", line 322, in GoToApprovalQueue
+    WebDriverWait(self,self.wait_before_timeout).until(EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, partial_link)))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 137, in until
+    value = method(self._driver)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\expected_conditions.py", line 110, in _predicate
+    return driver.find_element(*locator)
+           ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Strep' object has no attribute 'find_element'
+
+01_29_2026 - 15:11:01.395349 | athena - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\athena_files\athena_bot.py", line 19, in start_athena
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 157, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	GetHandleVerifier [0x00007FF60B4A4C25+3179557]
+	(No symbol) [0x00007FF60B1088A0]
+	(No symbol) [0x00007FF60AF991CA]
+	(No symbol) [0x00007FF60AFEFA67]
+	(No symbol) [0x00007FF60AFEFC9C]
+	(No symbol) [0x00007FF60B043627]
+	(No symbol) [0x00007FF60B017C6F]
+	(No symbol) [0x00007FF60B0402F3]
+	(No symbol) [0x00007FF60B017A03]
+	(No symbol) [0x00007FF60AFE06D0]
+	(No symbol) [0x00007FF60AFE1983]
+	GetHandleVerifier [0x00007FF60B5067CD+3579853]
+	GetHandleVerifier [0x00007FF60B51D1D2+3672530]
+	GetHandleVerifier [0x00007FF60B512153+3627347]
+	GetHandleVerifier [0x00007FF60B27092A+868650]
+	(No symbol) [0x00007FF60B112FFF]
+	(No symbol) [0x00007FF60B10F4A4]
+	(No symbol) [0x00007FF60B10F646]
+	(No symbol) [0x00007FF60B0FEAA9]
+	BaseThreadInitThunk [0x00007FF9C60B259D+29]
+	RtlUserThreadStart [0x00007FF9C79AAF78+40]
+
+
+01_29_2026 - 15:31:27.862574 | athena - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\athena_files\athena_bot_prod.py", line 21, in start_athena
+    NBS = Athena(driver=driver, production=is_in_production)
+TypeError: Athena.__init__() got an unexpected keyword argument 'driver'
+
+01_29_2026 - 15:33:19.660575 | athena - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\athena_files\athena_bot_prod.py", line 21, in start_athena
+    NBS = Athena(driver=driver, production=is_in_production)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\athena_files\athena_prod.py", line 16, in __init__
+    super().__init__(driver, production)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+TypeError: NBSdriver.__init__() takes from 1 to 2 positional arguments but 3 were given
+
+02_02_2026 - 14:14:39.984712 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 48, in start_HepBnotificationreview
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 157, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	GetHandleVerifier [0x00007FF799164C25+3179557]
+	(No symbol) [0x00007FF798DC88A0]
+	(No symbol) [0x00007FF798C591CA]
+	(No symbol) [0x00007FF798CAFA67]
+	(No symbol) [0x00007FF798CAFC9C]
+	(No symbol) [0x00007FF798D03627]
+	(No symbol) [0x00007FF798CD7C6F]
+	(No symbol) [0x00007FF798D002F3]
+	(No symbol) [0x00007FF798CD7A03]
+	(No symbol) [0x00007FF798CA06D0]
+	(No symbol) [0x00007FF798CA1983]
+	GetHandleVerifier [0x00007FF7991C67CD+3579853]
+	GetHandleVerifier [0x00007FF7991DD1D2+3672530]
+	GetHandleVerifier [0x00007FF7991D2153+3627347]
+	GetHandleVerifier [0x00007FF798F3092A+868650]
+	(No symbol) [0x00007FF798DD2FFF]
+	(No symbol) [0x00007FF798DCF4A4]
+	(No symbol) [0x00007FF798DCF646]
+	(No symbol) [0x00007FF798DBEAA9]
+	BaseThreadInitThunk [0x00007FF9C60B259D+29]
+	RtlUserThreadStart [0x00007FF9C79AAF78+40]
+
+
+02_02_2026 - 14:23:35.018750 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 48, in start_HepBnotificationreview
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 157, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	GetHandleVerifier [0x00007FF799164C25+3179557]
+	(No symbol) [0x00007FF798DC88A0]
+	(No symbol) [0x00007FF798C591CA]
+	(No symbol) [0x00007FF798CAFA67]
+	(No symbol) [0x00007FF798CAFC9C]
+	(No symbol) [0x00007FF798D03627]
+	(No symbol) [0x00007FF798CD7C6F]
+	(No symbol) [0x00007FF798D002F3]
+	(No symbol) [0x00007FF798CD7A03]
+	(No symbol) [0x00007FF798CA06D0]
+	(No symbol) [0x00007FF798CA1983]
+	GetHandleVerifier [0x00007FF7991C67CD+3579853]
+	GetHandleVerifier [0x00007FF7991DD1D2+3672530]
+	GetHandleVerifier [0x00007FF7991D2153+3627347]
+	GetHandleVerifier [0x00007FF798F3092A+868650]
+	(No symbol) [0x00007FF798DD2FFF]
+	(No symbol) [0x00007FF798DCF4A4]
+	(No symbol) [0x00007FF798DCF646]
+	(No symbol) [0x00007FF798DBEAA9]
+	BaseThreadInitThunk [0x00007FF9C60B259D+29]
+	RtlUserThreadStart [0x00007FF9C79AAF78+40]
+
+
+02_04_2026 - 11:53:19.134945 | athena - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\athena_files\athena_bot_prod.py", line 50, in start_athena
+    NBS.StandardChecks()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\athena_files\athena_prod.py", line 61, in StandardChecks
+    self.CheckLostToFollowUp()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\athena_files\athena_prod.py", line 309, in CheckLostToFollowUp
+    elif (not self.ltf) & self.investigator:
+         ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+TypeError: unsupported operand type(s) for &: 'bool' and 'NoneType'
+
+02_04_2026 - 12:19:12.971937 | athena - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\athena_files\athena_bot_prod.py", line 50, in start_athena
+    NBS.StandardChecks()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\athena_files\athena_prod.py", line 72, in StandardChecks
+    self.CheckHospitalizationIndicator()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\athena_files\athena_prod.py", line 326, in CheckHospitalizationIndicator
+    if (self.ltf != 'Yes') & (self.investigator):
+       ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~
+TypeError: unsupported operand type(s) for &: 'bool' and 'NoneType'
+
+02_04_2026 - 12:50:15.460097 | athena - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\athena_files\athena_bot_prod.py", line 72, in start_athena
+    NBS.RejectNotification()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\base_athena.py", line 1182, in RejectNotification
+    self.switch_to.window(rejection_comment_window)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 133, in window
+    self._w3c_window(window_name)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 141, in _w3c_window
+    send_handle(window_name)
+    ~~~~~~~~~~~^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 137, in send_handle
+    self._driver.execute(Command.SWITCH_TO_WINDOW, {"handle": h})
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 429, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.InvalidArgumentException: Message: invalid argument: 'handle' must be a string
+  (Session info: chrome=134.0.6998.118)
+Stacktrace:
+	GetHandleVerifier [0x00007FF7A2AC4C25+3179557]
+	(No symbol) [0x00007FF7A27288A0]
+	(No symbol) [0x00007FF7A25B91CA]
+	(No symbol) [0x00007FF7A264AA50]
+	(No symbol) [0x00007FF7A2637BF0]
+	(No symbol) [0x00007FF7A26006D0]
+	(No symbol) [0x00007FF7A2601983]
+	GetHandleVerifier [0x00007FF7A2B267CD+3579853]
+	GetHandleVerifier [0x00007FF7A2B3D1D2+3672530]
+	GetHandleVerifier [0x00007FF7A2B32153+3627347]
+	GetHandleVerifier [0x00007FF7A289092A+868650]
+	(No symbol) [0x00007FF7A2732FFF]
+	(No symbol) [0x00007FF7A272F4A4]
+	(No symbol) [0x00007FF7A272F646]
+	(No symbol) [0x00007FF7A271EAA9]
+	BaseThreadInitThunk [0x00007FF9C60B259D+29]
+	RtlUserThreadStart [0x00007FF9C79AAF78+40]
+
+
+02_04_2026 - 13:27:27.633192 | athena - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\athena_files\athena_bot_prod.py", line 72, in start_athena
+    NBS.RejectNotification()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\base_athena.py", line 1183, in RejectNotification
+    self.switch_to.window(rejection_comment_window)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 133, in window
+    self._w3c_window(window_name)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 141, in _w3c_window
+    send_handle(window_name)
+    ~~~~~~~~~~~^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 137, in send_handle
+    self._driver.execute(Command.SWITCH_TO_WINDOW, {"handle": h})
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 429, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchWindowException: Message: no such window
+  (Session info: chrome=134.0.6998.118)
+Stacktrace:
+	GetHandleVerifier [0x00007FF7A2AC4C25+3179557]
+	(No symbol) [0x00007FF7A27288A0]
+	(No symbol) [0x00007FF7A25B8FFC]
+	(No symbol) [0x00007FF7A264A881]
+	(No symbol) [0x00007FF7A2637BF0]
+	(No symbol) [0x00007FF7A26006D0]
+	(No symbol) [0x00007FF7A2601983]
+	GetHandleVerifier [0x00007FF7A2B267CD+3579853]
+	GetHandleVerifier [0x00007FF7A2B3D1D2+3672530]
+	GetHandleVerifier [0x00007FF7A2B32153+3627347]
+	GetHandleVerifier [0x00007FF7A289092A+868650]
+	(No symbol) [0x00007FF7A2732FFF]
+	(No symbol) [0x00007FF7A272F4A4]
+	(No symbol) [0x00007FF7A272F646]
+	(No symbol) [0x00007FF7A271EAA9]
+	BaseThreadInitThunk [0x00007FF9C60B259D+29]
+	RtlUserThreadStart [0x00007FF9C79AAF78+40]
+
+
+02_04_2026 - 13:30:47.578859 | athena - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\athena_files\athena_bot_prod.py", line 72, in start_athena
+    NBS.RejectNotification()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\base_athena.py", line 1183, in RejectNotification
+    self.driver.switch_to.window(rejection_comment_window)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 133, in window
+    self._w3c_window(window_name)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 141, in _w3c_window
+    send_handle(window_name)
+    ~~~~~~~~~~~^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 137, in send_handle
+    self._driver.execute(Command.SWITCH_TO_WINDOW, {"handle": h})
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 429, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchWindowException: Message: no such window
+  (Session info: chrome=134.0.6998.118)
+Stacktrace:
+	GetHandleVerifier [0x00007FF7A2AC4C25+3179557]
+	(No symbol) [0x00007FF7A27288A0]
+	(No symbol) [0x00007FF7A25B8FFC]
+	(No symbol) [0x00007FF7A264A881]
+	(No symbol) [0x00007FF7A2637BF0]
+	(No symbol) [0x00007FF7A26006D0]
+	(No symbol) [0x00007FF7A2601983]
+	GetHandleVerifier [0x00007FF7A2B267CD+3579853]
+	GetHandleVerifier [0x00007FF7A2B3D1D2+3672530]
+	GetHandleVerifier [0x00007FF7A2B32153+3627347]
+	GetHandleVerifier [0x00007FF7A289092A+868650]
+	(No symbol) [0x00007FF7A2732FFF]
+	(No symbol) [0x00007FF7A272F4A4]
+	(No symbol) [0x00007FF7A272F646]
+	(No symbol) [0x00007FF7A271EAA9]
+	BaseThreadInitThunk [0x00007FF9C60B259D+29]
+	RtlUserThreadStart [0x00007FF9C79AAF78+40]
+
+
+02_04_2026 - 13:32:40.672445 | athena - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\athena_files\athena_bot_prod.py", line 72, in start_athena
+    NBS.RejectNotification()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\base_athena.py", line 1186, in RejectNotification
+    self.driver.find_element(By.XPATH,'//*[@id="rejectComments"]').send_keys(' '.join(self.issues))
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 898, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 429, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"xpath","selector":"//*[@id="rejectComments"]"}
+  (Session info: chrome=134.0.6998.118); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+	GetHandleVerifier [0x00007FF7A2AC4C25+3179557]
+	(No symbol) [0x00007FF7A27288A0]
+	(No symbol) [0x00007FF7A25B91CA]
+	(No symbol) [0x00007FF7A260FA67]
+	(No symbol) [0x00007FF7A260FC9C]
+	(No symbol) [0x00007FF7A2663627]
+	(No symbol) [0x00007FF7A2637C6F]
+	(No symbol) [0x00007FF7A26602F3]
+	(No symbol) [0x00007FF7A2637A03]
+	(No symbol) [0x00007FF7A26006D0]
+	(No symbol) [0x00007FF7A2601983]
+	GetHandleVerifier [0x00007FF7A2B267CD+3579853]
+	GetHandleVerifier [0x00007FF7A2B3D1D2+3672530]
+	GetHandleVerifier [0x00007FF7A2B32153+3627347]
+	GetHandleVerifier [0x00007FF7A289092A+868650]
+	(No symbol) [0x00007FF7A2732FFF]
+	(No symbol) [0x00007FF7A272F4A4]
+	(No symbol) [0x00007FF7A272F646]
+	(No symbol) [0x00007FF7A271EAA9]
+	BaseThreadInitThunk [0x00007FF9C60B259D+29]
+	RtlUserThreadStart [0x00007FF9C79AAF78+40]
+
+
+02_04_2026 - 15:39:49.962222 | strep - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+TypeError: start_strep() missing 1 required positional argument: 'driver'
+
+02_04_2026 - 15:45:08.763725 | strep - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+TypeError: start_strep() missing 1 required positional argument: 'driver'
+
+02_04_2026 - 16:45:16.399448 | athena - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\base_athena.py", line 504, in SortApprovalQueue
+    self.driver.find_element(By.XPATH, submit_date_path).click()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webelement.py", line 119, in click
+    self._execute(Command.CLICK_ELEMENT)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webelement.py", line 572, in _execute
+    return self._parent.execute(command, params)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 429, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.ElementClickInterceptedException: Message: element click intercepted: Element <a href="/nbs/LoadReviewNotifications1.do?d-446288-p=1&amp;existing=true&amp;d-446288-s=getAddTime&amp;method=loadQueue&amp;ContextAction=NNDApproval&amp;initLoad=true&amp;d-446288-o=2&amp;d-446288-n=1">...</a> is not clickable at point (111, 164). Other element would receive the click: <div id="blockparent" style="display: block;"></div>
+  (Session info: chrome=134.0.6998.118)
+Stacktrace:
+	GetHandleVerifier [0x00007FF78E854C25+3179557]
+	(No symbol) [0x00007FF78E4B88A0]
+	(No symbol) [0x00007FF78E3491CA]
+	(No symbol) [0x00007FF78E3A7929]
+	(No symbol) [0x00007FF78E3A52E2]
+	(No symbol) [0x00007FF78E3A2381]
+	(No symbol) [0x00007FF78E3A1281]
+	(No symbol) [0x00007FF78E392A24]
+	(No symbol) [0x00007FF78E3C7C2A]
+	(No symbol) [0x00007FF78E3922D6]
+	(No symbol) [0x00007FF78E3C7E40]
+	(No symbol) [0x00007FF78E3F02F3]
+	(No symbol) [0x00007FF78E3C7A03]
+	(No symbol) [0x00007FF78E3906D0]
+	(No symbol) [0x00007FF78E391983]
+	GetHandleVerifier [0x00007FF78E8B67CD+3579853]
+	GetHandleVerifier [0x00007FF78E8CD1D2+3672530]
+	GetHandleVerifier [0x00007FF78E8C2153+3627347]
+	GetHandleVerifier [0x00007FF78E62092A+868650]
+	(No symbol) [0x00007FF78E4C2FFF]
+	(No symbol) [0x00007FF78E4BF4A4]
+	(No symbol) [0x00007FF78E4BF646]
+	(No symbol) [0x00007FF78E4AEAA9]
+	BaseThreadInitThunk [0x00007FF9C60B259D+29]
+	RtlUserThreadStart [0x00007FF9C79AAF78+40]
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\athena_files\athena_bot_prod.py", line 30, in start_athena
+    NBS.SortApprovalQueue()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\base_athena.py", line 519, in SortApprovalQueue
+    self.HandleBadQueueReturn()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\base_athena.py", line 529, in HandleBadQueueReturn
+    self.go_to_home()
+    ~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\base_athena.py", line 361, in go_to_home
+    self.driver.find_element(By.PARTIAL_LINK_TEXT, partial_link).click()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webelement.py", line 119, in click
+    self._execute(Command.CLICK_ELEMENT)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webelement.py", line 572, in _execute
+    return self._parent.execute(command, params)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 429, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.ElementClickInterceptedException: Message: element click intercepted: Element <a href="/nbs/...Page.do?method=loadHomePage">Home</a> is not clickable at point (29, 18). Other element would receive the click: <div id="blockparent" style="display: block;"></div>
+  (Session info: chrome=134.0.6998.118)
+Stacktrace:
+	GetHandleVerifier [0x00007FF78E854C25+3179557]
+	(No symbol) [0x00007FF78E4B88A0]
+	(No symbol) [0x00007FF78E3491CA]
+	(No symbol) [0x00007FF78E3A7929]
+	(No symbol) [0x00007FF78E3A52E2]
+	(No symbol) [0x00007FF78E3A2381]
+	(No symbol) [0x00007FF78E3A1281]
+	(No symbol) [0x00007FF78E392A24]
+	(No symbol) [0x00007FF78E3C7C2A]
+	(No symbol) [0x00007FF78E3922D6]
+	(No symbol) [0x00007FF78E3C7E40]
+	(No symbol) [0x00007FF78E3F02F3]
+	(No symbol) [0x00007FF78E3C7A03]
+	(No symbol) [0x00007FF78E3906D0]
+	(No symbol) [0x00007FF78E391983]
+	GetHandleVerifier [0x00007FF78E8B67CD+3579853]
+	GetHandleVerifier [0x00007FF78E8CD1D2+3672530]
+	GetHandleVerifier [0x00007FF78E8C2153+3627347]
+	GetHandleVerifier [0x00007FF78E62092A+868650]
+	(No symbol) [0x00007FF78E4C2FFF]
+	(No symbol) [0x00007FF78E4BF4A4]
+	(No symbol) [0x00007FF78E4BF646]
+	(No symbol) [0x00007FF78E4AEAA9]
+	BaseThreadInitThunk [0x00007FF9C60B259D+29]
+	RtlUserThreadStart [0x00007FF9C79AAF78+40]
+
+
+02_04_2026 - 16:47:59.914277 | athena - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\base_athena.py", line 504, in SortApprovalQueue
+    self.driver.find_element(By.XPATH, submit_date_path).click()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webelement.py", line 119, in click
+    self._execute(Command.CLICK_ELEMENT)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webelement.py", line 572, in _execute
+    return self._parent.execute(command, params)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 429, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.ElementClickInterceptedException: Message: element click intercepted: Element <a href="/nbs/LoadReviewNotifications1.do?d-446288-p=1&amp;existing=true&amp;d-446288-s=getAddTime&amp;method=loadQueue&amp;ContextAction=NNDApproval&amp;initLoad=true&amp;d-446288-o=2&amp;d-446288-n=1">...</a> is not clickable at point (111, 164). Other element would receive the click: <div id="blockparent" style="display: block;"></div>
+  (Session info: chrome=134.0.6998.118)
+Stacktrace:
+	GetHandleVerifier [0x00007FF78E854C25+3179557]
+	(No symbol) [0x00007FF78E4B88A0]
+	(No symbol) [0x00007FF78E3491CA]
+	(No symbol) [0x00007FF78E3A7929]
+	(No symbol) [0x00007FF78E3A52E2]
+	(No symbol) [0x00007FF78E3A2381]
+	(No symbol) [0x00007FF78E3A1281]
+	(No symbol) [0x00007FF78E392A24]
+	(No symbol) [0x00007FF78E3C7C2A]
+	(No symbol) [0x00007FF78E3922D6]
+	(No symbol) [0x00007FF78E3C7E40]
+	(No symbol) [0x00007FF78E3F02F3]
+	(No symbol) [0x00007FF78E3C7A03]
+	(No symbol) [0x00007FF78E3906D0]
+	(No symbol) [0x00007FF78E391983]
+	GetHandleVerifier [0x00007FF78E8B67CD+3579853]
+	GetHandleVerifier [0x00007FF78E8CD1D2+3672530]
+	GetHandleVerifier [0x00007FF78E8C2153+3627347]
+	GetHandleVerifier [0x00007FF78E62092A+868650]
+	(No symbol) [0x00007FF78E4C2FFF]
+	(No symbol) [0x00007FF78E4BF4A4]
+	(No symbol) [0x00007FF78E4BF646]
+	(No symbol) [0x00007FF78E4AEAA9]
+	BaseThreadInitThunk [0x00007FF9C60B259D+29]
+	RtlUserThreadStart [0x00007FF9C79AAF78+40]
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\athena_files\athena_bot_prod.py", line 30, in start_athena
+    NBS.SortApprovalQueue()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\base_athena.py", line 519, in SortApprovalQueue
+    self.HandleBadQueueReturn()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\base_athena.py", line 529, in HandleBadQueueReturn
+    self.go_to_home()
+    ~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\base_athena.py", line 361, in go_to_home
+    self.driver.find_element(By.PARTIAL_LINK_TEXT, partial_link).click()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webelement.py", line 119, in click
+    self._execute(Command.CLICK_ELEMENT)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webelement.py", line 572, in _execute
+    return self._parent.execute(command, params)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 429, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.ElementClickInterceptedException: Message: element click intercepted: Element <a href="/nbs/...Page.do?method=loadHomePage">Home</a> is not clickable at point (29, 18). Other element would receive the click: <div id="blockparent" style="display: block;"></div>
+  (Session info: chrome=134.0.6998.118)
+Stacktrace:
+	GetHandleVerifier [0x00007FF78E854C25+3179557]
+	(No symbol) [0x00007FF78E4B88A0]
+	(No symbol) [0x00007FF78E3491CA]
+	(No symbol) [0x00007FF78E3A7929]
+	(No symbol) [0x00007FF78E3A52E2]
+	(No symbol) [0x00007FF78E3A2381]
+	(No symbol) [0x00007FF78E3A1281]
+	(No symbol) [0x00007FF78E392A24]
+	(No symbol) [0x00007FF78E3C7C2A]
+	(No symbol) [0x00007FF78E3922D6]
+	(No symbol) [0x00007FF78E3C7E40]
+	(No symbol) [0x00007FF78E3F02F3]
+	(No symbol) [0x00007FF78E3C7A03]
+	(No symbol) [0x00007FF78E3906D0]
+	(No symbol) [0x00007FF78E391983]
+	GetHandleVerifier [0x00007FF78E8B67CD+3579853]
+	GetHandleVerifier [0x00007FF78E8CD1D2+3672530]
+	GetHandleVerifier [0x00007FF78E8C2153+3627347]
+	GetHandleVerifier [0x00007FF78E62092A+868650]
+	(No symbol) [0x00007FF78E4C2FFF]
+	(No symbol) [0x00007FF78E4BF4A4]
+	(No symbol) [0x00007FF78E4BF646]
+	(No symbol) [0x00007FF78E4AEAA9]
+	BaseThreadInitThunk [0x00007FF9C60B259D+29]
+	RtlUserThreadStart [0x00007FF9C79AAF78+40]
+
+
+02_05_2026 - 17:20:08.311804 | ILIOutbreak - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\ILIOutbreak_files\ILIOutbreak_bot.py", line 152, in start_ILIOutbreak
+    NBS.SendEmailToIliAssign()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+TypeError: ILIOutbreak.SendEmailToIliAssign() missing 1 required positional argument: 'ili_assign_email_id'
+
+02_05_2026 - 17:36:50.531506 | ILIOutbreak - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\ILIOutbreak_files\ILIOutbreak_bot.py", line 152, in start_ILIOutbreak
+    NBS.SendEmailToIliAssign()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+TypeError: ILIOutbreak.SendEmailToIliAssign() missing 1 required positional argument: 'ili_assign_email_id'
+
+02_05_2026 - 17:46:36.284764 | ILIOutbreak - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\ILIOutbreak_files\ILIOutbreak_bot.py", line 48, in start_ILIOutbreak
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 157, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	GetHandleVerifier [0x00007FF6673B4C25+3179557]
+	(No symbol) [0x00007FF6670188A0]
+	(No symbol) [0x00007FF666EA91CA]
+	(No symbol) [0x00007FF666EFFA67]
+	(No symbol) [0x00007FF666EFFC9C]
+	(No symbol) [0x00007FF666F53627]
+	(No symbol) [0x00007FF666F27C6F]
+	(No symbol) [0x00007FF666F502F3]
+	(No symbol) [0x00007FF666F27A03]
+	(No symbol) [0x00007FF666EF06D0]
+	(No symbol) [0x00007FF666EF1983]
+	GetHandleVerifier [0x00007FF6674167CD+3579853]
+	GetHandleVerifier [0x00007FF66742D1D2+3672530]
+	GetHandleVerifier [0x00007FF667422153+3627347]
+	GetHandleVerifier [0x00007FF66718092A+868650]
+	(No symbol) [0x00007FF667022FFF]
+	(No symbol) [0x00007FF66701F4A4]
+	(No symbol) [0x00007FF66701F646]
+	(No symbol) [0x00007FF66700EAA9]
+	BaseThreadInitThunk [0x00007FF9C60B259D+29]
+	RtlUserThreadStart [0x00007FF9C79AAF78+40]
+
+
+02_05_2026 - 17:51:27.190578 | ILIOutbreak - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\ILIOutbreak_files\ILIOutbreak_bot.py", line 152, in start_ILIOutbreak
+    NBS.SendEmailToIliAssign()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\ILIOutbreak_files\ILIOutbreak.py", line 420, in SendEmailToIliAssign
+    self.send_smtp_email(self.ili_outbreak_investigator, 'ERROR REPORT: NBSbot(ILI Outbreak ELR Review) AKA ILIbot', body, 'ILI outbreak cases Manual Review email')
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 1057, in send_smtp_email
+    message['To'] = ', '.join([receiver])
+                    ~~~~~~~~~^^^^^^^^^^^^
+TypeError: sequence item 0: expected str instance, list found
+
+02_06_2026 - 11:05:20.566218 | audrey - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\audrey_files\audrey_bot.py", line 85, in start_audrey
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 147, in log_in
+    self.get(self.site)
+    ~~~~~~~~^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 454, in get
+    self.execute(Command.GET, {"url": url})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 429, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.WebDriverException: Message: unknown error: net::ERR_NAME_NOT_RESOLVED
+  (Session info: chrome=134.0.6998.118)
+Stacktrace:
+	GetHandleVerifier [0x00007FF756F04C25+3179557]
+	(No symbol) [0x00007FF756B688A0]
+	(No symbol) [0x00007FF7569F91CA]
+	(No symbol) [0x00007FF7569F5B57]
+	(No symbol) [0x00007FF7569E68E9]
+	(No symbol) [0x00007FF7569E8658]
+	(No symbol) [0x00007FF7569E6BF6]
+	(No symbol) [0x00007FF7569E6676]
+	(No symbol) [0x00007FF7569E633A]
+	(No symbol) [0x00007FF7569E3EC2]
+	(No symbol) [0x00007FF7569E47AC]
+	(No symbol) [0x00007FF7569FD01A]
+	(No symbol) [0x00007FF756AA11AE]
+	(No symbol) [0x00007FF756A77C2A]
+	(No symbol) [0x00007FF756AA02F3]
+	(No symbol) [0x00007FF756A77A03]
+	(No symbol) [0x00007FF756A406D0]
+	(No symbol) [0x00007FF756A41983]
+	GetHandleVerifier [0x00007FF756F667CD+3579853]
+	GetHandleVerifier [0x00007FF756F7D1D2+3672530]
+	GetHandleVerifier [0x00007FF756F72153+3627347]
+	GetHandleVerifier [0x00007FF756CD092A+868650]
+	(No symbol) [0x00007FF756B72FFF]
+	(No symbol) [0x00007FF756B6F4A4]
+	(No symbol) [0x00007FF756B6F646]
+	(No symbol) [0x00007FF756B5EAA9]
+	BaseThreadInitThunk [0x00007FF9C60B259D+29]
+	RtlUserThreadStart [0x00007FF9C79AAF78+40]
+
+
+02_06_2026 - 11:57:27.177437 | audrey - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\audrey_files\audrey_bot.py", line 126, in start_audrey
+    WebDriverWait(NBS, timeout).until(EC.element_to_be_clickable((By.XPATH, clear_filter_path)))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 137, in until
+    value = method(self._driver)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\expected_conditions.py", line 631, in _predicate
+    target = driver.find_element(*target)  # grab element at locator
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 898, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 429, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.InvalidSessionIdException: Message: invalid session id
+Stacktrace:
+	GetHandleVerifier [0x00007FF756F04C25+3179557]
+	(No symbol) [0x00007FF756B688A0]
+	(No symbol) [0x00007FF7569F8FFC]
+	(No symbol) [0x00007FF756A3F8DF]
+	(No symbol) [0x00007FF756A77AF2]
+	(No symbol) [0x00007FF756A7244E]
+	(No symbol) [0x00007FF756A714F9]
+	(No symbol) [0x00007FF7569C55E5]
+	GetHandleVerifier [0x00007FF756F667CD+3579853]
+	GetHandleVerifier [0x00007FF756F7D1D2+3672530]
+	GetHandleVerifier [0x00007FF756F72153+3627347]
+	GetHandleVerifier [0x00007FF756CD092A+868650]
+	(No symbol) [0x00007FF756B72FFF]
+	(No symbol) [0x00007FF7569C41FF]
+	GetHandleVerifier [0x00007FF756FEFA28+4141608]
+	BaseThreadInitThunk [0x00007FF9C60B259D+29]
+	RtlUserThreadStart [0x00007FF9C79AAF78+40]
+
+
+02_09_2026 - 10:44:16.408555 | ILIOutbreak - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\ILIOutbreak_files\ILIOutbreak_bot.py", line 152, in start_ILIOutbreak
+    NBS.SendEmailToIliAssign()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\ILIOutbreak_files\ILIOutbreak.py", line 417, in SendEmailToIliAssign
+    body += f"Need manual review for the below ILIOutbreak investigations \nThe following ILI Outbreak investigations {self.ili_assign_email_id} need to be reviewed :\n"
+    ^^^^
+UnboundLocalError: cannot access local variable 'body' where it is not associated with a value
+
+02_09_2026 - 10:52:31.652798 | ILIOutbreak - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\ILIOutbreak_files\ILIOutbreak_bot.py", line 48, in start_ILIOutbreak
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 157, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	GetHandleVerifier [0x00007FF74D3B4C25+3179557]
+	(No symbol) [0x00007FF74D0188A0]
+	(No symbol) [0x00007FF74CEA91CA]
+	(No symbol) [0x00007FF74CEFFA67]
+	(No symbol) [0x00007FF74CEFFC9C]
+	(No symbol) [0x00007FF74CF53627]
+	(No symbol) [0x00007FF74CF27C6F]
+	(No symbol) [0x00007FF74CF502F3]
+	(No symbol) [0x00007FF74CF27A03]
+	(No symbol) [0x00007FF74CEF06D0]
+	(No symbol) [0x00007FF74CEF1983]
+	GetHandleVerifier [0x00007FF74D4167CD+3579853]
+	GetHandleVerifier [0x00007FF74D42D1D2+3672530]
+	GetHandleVerifier [0x00007FF74D422153+3627347]
+	GetHandleVerifier [0x00007FF74D18092A+868650]
+	(No symbol) [0x00007FF74D022FFF]
+	(No symbol) [0x00007FF74D01F4A4]
+	(No symbol) [0x00007FF74D01F646]
+	(No symbol) [0x00007FF74D00EAA9]
+	BaseThreadInitThunk [0x00007FF9C60B259D+29]
+	RtlUserThreadStart [0x00007FF9C79AAF78+40]
+
+
+02_09_2026 - 11:56:42.253920 | ILIOutbreak - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\ILIOutbreak_files\ILIOutbreak_bot.py", line 48, in start_ILIOutbreak
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 157, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	GetHandleVerifier [0x00007FF74D3B4C25+3179557]
+	(No symbol) [0x00007FF74D0188A0]
+	(No symbol) [0x00007FF74CEA91CA]
+	(No symbol) [0x00007FF74CEFFA67]
+	(No symbol) [0x00007FF74CEFFC9C]
+	(No symbol) [0x00007FF74CF53627]
+	(No symbol) [0x00007FF74CF27C6F]
+	(No symbol) [0x00007FF74CF502F3]
+	(No symbol) [0x00007FF74CF27A03]
+	(No symbol) [0x00007FF74CEF06D0]
+	(No symbol) [0x00007FF74CEF1983]
+	GetHandleVerifier [0x00007FF74D4167CD+3579853]
+	GetHandleVerifier [0x00007FF74D42D1D2+3672530]
+	GetHandleVerifier [0x00007FF74D422153+3627347]
+	GetHandleVerifier [0x00007FF74D18092A+868650]
+	(No symbol) [0x00007FF74D022FFF]
+	(No symbol) [0x00007FF74D01F4A4]
+	(No symbol) [0x00007FF74D01F646]
+	(No symbol) [0x00007FF74D00EAA9]
+	BaseThreadInitThunk [0x00007FF9C60B259D+29]
+	RtlUserThreadStart [0x00007FF9C79AAF78+40]
+
+
+02_09_2026 - 14:40:53.677432 | audrey - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\audrey_files\audrey_bot.py", line 85, in start_audrey
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 147, in log_in
+    self.get(self.site)
+    ~~~~~~~~^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 454, in get
+    self.execute(Command.GET, {"url": url})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 429, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.WebDriverException: Message: unknown error: net::ERR_NAME_NOT_RESOLVED
+  (Session info: chrome=134.0.6998.118)
+Stacktrace:
+	GetHandleVerifier [0x00007FF6C2874C25+3179557]
+	(No symbol) [0x00007FF6C24D88A0]
+	(No symbol) [0x00007FF6C23691CA]
+	(No symbol) [0x00007FF6C2365B57]
+	(No symbol) [0x00007FF6C23568E9]
+	(No symbol) [0x00007FF6C2358658]
+	(No symbol) [0x00007FF6C2356BF6]
+	(No symbol) [0x00007FF6C2356676]
+	(No symbol) [0x00007FF6C235633A]
+	(No symbol) [0x00007FF6C2353EC2]
+	(No symbol) [0x00007FF6C23547AC]
+	(No symbol) [0x00007FF6C236D01A]
+	(No symbol) [0x00007FF6C24111AE]
+	(No symbol) [0x00007FF6C23E7C2A]
+	(No symbol) [0x00007FF6C24102F3]
+	(No symbol) [0x00007FF6C23E7A03]
+	(No symbol) [0x00007FF6C23B06D0]
+	(No symbol) [0x00007FF6C23B1983]
+	GetHandleVerifier [0x00007FF6C28D67CD+3579853]
+	GetHandleVerifier [0x00007FF6C28ED1D2+3672530]
+	GetHandleVerifier [0x00007FF6C28E2153+3627347]
+	GetHandleVerifier [0x00007FF6C264092A+868650]
+	(No symbol) [0x00007FF6C24E2FFF]
+	(No symbol) [0x00007FF6C24DF4A4]
+	(No symbol) [0x00007FF6C24DF646]
+	(No symbol) [0x00007FF6C24CEAA9]
+	BaseThreadInitThunk [0x00007FFE7C8B259D+29]
+	RtlUserThreadStart [0x00007FFE7DB4AF78+40]
+
+
+02_11_2026 - 10:43:20.145263 | audrey - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\audrey_files\audrey_bot.py", line 85, in start_audrey
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 147, in log_in
+    self.get(self.site)
+    ~~~~~~~~^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 454, in get
+    self.execute(Command.GET, {"url": url})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 429, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.WebDriverException: Message: unknown error: net::ERR_NAME_NOT_RESOLVED
+  (Session info: chrome=134.0.6998.118)
+Stacktrace:
+	GetHandleVerifier [0x00007FF6A1634C25+3179557]
+	(No symbol) [0x00007FF6A12988A0]
+	(No symbol) [0x00007FF6A11291CA]
+	(No symbol) [0x00007FF6A1125B57]
+	(No symbol) [0x00007FF6A11168E9]
+	(No symbol) [0x00007FF6A1118658]
+	(No symbol) [0x00007FF6A1116BF6]
+	(No symbol) [0x00007FF6A1116676]
+	(No symbol) [0x00007FF6A111633A]
+	(No symbol) [0x00007FF6A1113EC2]
+	(No symbol) [0x00007FF6A11147AC]
+	(No symbol) [0x00007FF6A112D01A]
+	(No symbol) [0x00007FF6A11D11AE]
+	(No symbol) [0x00007FF6A11A7C2A]
+	(No symbol) [0x00007FF6A11D02F3]
+	(No symbol) [0x00007FF6A11A7A03]
+	(No symbol) [0x00007FF6A11706D0]
+	(No symbol) [0x00007FF6A1171983]
+	GetHandleVerifier [0x00007FF6A16967CD+3579853]
+	GetHandleVerifier [0x00007FF6A16AD1D2+3672530]
+	GetHandleVerifier [0x00007FF6A16A2153+3627347]
+	GetHandleVerifier [0x00007FF6A140092A+868650]
+	(No symbol) [0x00007FF6A12A2FFF]
+	(No symbol) [0x00007FF6A129F4A4]
+	(No symbol) [0x00007FF6A129F646]
+	(No symbol) [0x00007FF6A128EAA9]
+	BaseThreadInitThunk [0x00007FFE7C8B259D+29]
+	RtlUserThreadStart [0x00007FFE7DB4AF78+40]
+
+
+02_11_2026 - 14:43:01.885292 | ILIOutbreak - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\ILIOutbreak_files\ILIOutbreak_bot.py", line 48, in start_ILIOutbreak
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 157, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	GetHandleVerifier [0x00007FF6A1634C25+3179557]
+	(No symbol) [0x00007FF6A12988A0]
+	(No symbol) [0x00007FF6A11291CA]
+	(No symbol) [0x00007FF6A117FA67]
+	(No symbol) [0x00007FF6A117FC9C]
+	(No symbol) [0x00007FF6A11D3627]
+	(No symbol) [0x00007FF6A11A7C6F]
+	(No symbol) [0x00007FF6A11D02F3]
+	(No symbol) [0x00007FF6A11A7A03]
+	(No symbol) [0x00007FF6A11706D0]
+	(No symbol) [0x00007FF6A1171983]
+	GetHandleVerifier [0x00007FF6A16967CD+3579853]
+	GetHandleVerifier [0x00007FF6A16AD1D2+3672530]
+	GetHandleVerifier [0x00007FF6A16A2153+3627347]
+	GetHandleVerifier [0x00007FF6A140092A+868650]
+	(No symbol) [0x00007FF6A12A2FFF]
+	(No symbol) [0x00007FF6A129F4A4]
+	(No symbol) [0x00007FF6A129F646]
+	(No symbol) [0x00007FF6A128EAA9]
+	BaseThreadInitThunk [0x00007FFE7C8B259D+29]
+	RtlUserThreadStart [0x00007FFE7DB4AF78+40]
+
+
+02_11_2026 - 15:12:19.546450 | ILIOutbreak - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\ILIOutbreak_files\ILIOutbreak_bot.py", line 153, in start_ILIOutbreak
+    NBS.CreateExcelSheet()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 1205, in CreateExcelSheet
+    bot_act = pd.DataFrame(
+        {'Inv ID': self.reviewed_ids,
+        'Action': self.what_do,
+        'Reason': self.reason
+        })
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\core\frame.py", line 778, in __init__
+    mgr = dict_to_mgr(data, index, columns, dtype=dtype, copy=copy, typ=manager)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\core\internals\construction.py", line 503, in dict_to_mgr
+    return arrays_to_mgr(arrays, columns, index, dtype=dtype, typ=typ, consolidate=copy)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\core\internals\construction.py", line 114, in arrays_to_mgr
+    index = _extract_index(arrays)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\core\internals\construction.py", line 677, in _extract_index
+    raise ValueError("All arrays must be of the same length")
+ValueError: All arrays must be of the same length
+
+02_11_2026 - 15:54:59.185049 | ILIOutbreak - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\ILIOutbreak_files\ILIOutbreak_bot.py", line 155, in start_ILIOutbreak
+    bot_act = pd.DataFrame(
+        {'Inv ID': NBS.reviewed_ids,
+        'Action': what_do,
+        'Reason': reason
+        })
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\core\frame.py", line 778, in __init__
+    mgr = dict_to_mgr(data, index, columns, dtype=dtype, copy=copy, typ=manager)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\core\internals\construction.py", line 503, in dict_to_mgr
+    return arrays_to_mgr(arrays, columns, index, dtype=dtype, typ=typ, consolidate=copy)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\core\internals\construction.py", line 114, in arrays_to_mgr
+    index = _extract_index(arrays)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\core\internals\construction.py", line 677, in _extract_index
+    raise ValueError("All arrays must be of the same length")
+ValueError: All arrays must be of the same length
+
+02_12_2026 - 12:17:37.375468 | audrey - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\audrey_files\audrey_bot.py", line 324, in start_audrey
+    WebDriverWait(NBS, timeout).until(EC.visibility_of_element_located((By.XPATH, click_ok_path)))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\audrey_files\audrey_bot.py", line 335, in start_audrey
+    WebDriverWait(NBS, timeout).until(EC.visibility_of_element_located((By.XPATH, click_cancel_path)))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+
+
+02_12_2026 - 12:50:01.852547 | audrey - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\geopy\geocoders\base.py", line 368, in _call_geocoder
+    result = self.adapter.get_json(url, timeout=timeout, headers=req_headers)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\geopy\adapters.py", line 472, in get_json
+    resp = self._request(url, timeout=timeout, headers=headers)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\geopy\adapters.py", line 500, in _request
+    raise AdapterHTTPError(
+    ...<4 lines>...
+    )
+geopy.adapters.AdapterHTTPError: Non-successful status code 509
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\audrey_files\audrey_bot.py", line 1393, in start_audrey
+    NBS.county = NBS.county_lookup(NBS.city, 'Maine')
+                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 1094, in county_lookup
+    location = geolocator.geocode(city + ', ' + state)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\geopy\geocoders\nominatim.py", line 297, in geocode
+    return self._call_geocoder(url, callback, timeout=timeout)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\geopy\geocoders\base.py", line 388, in _call_geocoder
+    res = self._adapter_error_handler(error)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\geopy\geocoders\base.py", line 411, in _adapter_error_handler
+    raise exc_cls(str(error)) from error
+geopy.exc.GeocoderServiceError: Non-successful status code 509
+
+02_12_2026 - 14:28:39.254402 | audrey - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+        conn,
+    ...<10 lines>...
+        **response_kw,
+    )
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\connectionpool.py", line 534, in _make_request
+    response = conn.getresponse()
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\connection.py", line 571, in getresponse
+    httplib_response = super().getresponse()
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\http\client.py", line 1430, in getresponse
+    response.begin()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\http\client.py", line 331, in begin
+    version, status, reason = self._read_status()
+                              ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\http\client.py", line 292, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 719, in readinto
+    return self._sock.recv_into(b)
+           ~~~~~~~~~~~~~~~~~~~~^^^
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\audrey_files\audrey_bot.py", line 1636, in start_audrey
+    NBS.GoToCaseInfo()
+    ~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 566, in GoToCaseInfo
+    self.find_element(By.XPATH, case_info_tab_path ).click()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webelement.py", line 119, in click
+    self._execute(Command.CLICK_ELEMENT)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webelement.py", line 572, in _execute
+    return self._parent.execute(command, params)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 427, in execute
+    response = self.command_executor.execute(driver_command, params)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\remote_connection.py", line 404, in execute
+    return self._request(command_info[0], url, body=data)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\remote_connection.py", line 428, in _request
+    response = self._conn.request(method, url, body=body, headers=headers, timeout=self._client_config.timeout)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\_request_methods.py", line 143, in request
+    return self.request_encode_body(
+           ~~~~~~~~~~~~~~~~~~~~~~~~^
+        method, url, fields=fields, headers=headers, **urlopen_kw
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\_request_methods.py", line 278, in request_encode_body
+    return self.urlopen(method, url, **extra_kw)
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\poolmanager.py", line 457, in urlopen
+    response = conn.urlopen(method, u.request_uri, **kw)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\util\retry.py", line 490, in increment
+    raise reraise(type(error), error, _stacktrace)
+          ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\util\util.py", line 38, in reraise
+    raise value.with_traceback(tb)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+        conn,
+    ...<10 lines>...
+        **response_kw,
+    )
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\connectionpool.py", line 534, in _make_request
+    response = conn.getresponse()
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\connection.py", line 571, in getresponse
+    httplib_response = super().getresponse()
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\http\client.py", line 1430, in getresponse
+    response.begin()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\http\client.py", line 331, in begin
+    version, status, reason = self._read_status()
+                              ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\http\client.py", line 292, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 719, in readinto
+    return self._sock.recv_into(b)
+           ~~~~~~~~~~~~~~~~~~~~^^^
+urllib3.exceptions.ProtocolError: ('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))
+
+02_12_2026 - 14:35:50.404680 | audrey - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\connectionpool.py", line 534, in _make_request
+    response = conn.getresponse()
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\connection.py", line 571, in getresponse
+    httplib_response = super().getresponse()
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\http\client.py", line 1430, in getresponse
+    response.begin()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\http\client.py", line 331, in begin
+    version, status, reason = self._read_status()
+                              ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\http\client.py", line 292, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 719, in readinto
+    return self._sock.recv_into(b)
+           ~~~~~~~~~~~~~~~~~~~~^^^
+TimeoutError: timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\audrey_files\audrey_bot.py", line 569, in start_audrey
+    NBS.go_to_home()
+    ~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 361, in go_to_home
+    self.find_element(By.PARTIAL_LINK_TEXT, partial_link).click()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webelement.py", line 119, in click
+    self._execute(Command.CLICK_ELEMENT)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webelement.py", line 572, in _execute
+    return self._parent.execute(command, params)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 427, in execute
+    response = self.command_executor.execute(driver_command, params)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\remote_connection.py", line 404, in execute
+    return self._request(command_info[0], url, body=data)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\remote_connection.py", line 428, in _request
+    response = self._conn.request(method, url, body=body, headers=headers, timeout=self._client_config.timeout)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\_request_methods.py", line 143, in request
+    return self.request_encode_body(
+           ~~~~~~~~~~~~~~~~~~~~~~~~^
+        method, url, fields=fields, headers=headers, **urlopen_kw
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\_request_methods.py", line 278, in request_encode_body
+    return self.urlopen(method, url, **extra_kw)
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\poolmanager.py", line 457, in urlopen
+    response = conn.urlopen(method, u.request_uri, **kw)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\util\retry.py", line 490, in increment
+    raise reraise(type(error), error, _stacktrace)
+          ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\util\util.py", line 39, in reraise
+    raise value
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+        conn,
+    ...<10 lines>...
+        **response_kw,
+    )
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\connectionpool.py", line 536, in _make_request
+    self._raise_timeout(err=e, url=url, timeout_value=read_timeout)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\urllib3\connectionpool.py", line 367, in _raise_timeout
+    raise ReadTimeoutError(
+        self, url, f"Read timed out. (read timeout={timeout_value})"
+    ) from err
+urllib3.exceptions.ReadTimeoutError: HTTPConnectionPool(host='localhost', port=55354): Read timed out. (read timeout=120)
+
+02_12_2026 - 15:04:32.189321 | audrey - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\geopy\geocoders\base.py", line 368, in _call_geocoder
+    result = self.adapter.get_json(url, timeout=timeout, headers=req_headers)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\geopy\adapters.py", line 472, in get_json
+    resp = self._request(url, timeout=timeout, headers=headers)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\geopy\adapters.py", line 500, in _request
+    raise AdapterHTTPError(
+    ...<4 lines>...
+    )
+geopy.adapters.AdapterHTTPError: Non-successful status code 509
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\audrey_files\audrey_bot.py", line 1393, in start_audrey
+    NBS.county = NBS.county_lookup(NBS.city, 'Maine')
+                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 1094, in county_lookup
+    location = geolocator.geocode(city + ', ' + state)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\geopy\geocoders\nominatim.py", line 297, in geocode
+    return self._call_geocoder(url, callback, timeout=timeout)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\geopy\geocoders\base.py", line 388, in _call_geocoder
+    res = self._adapter_error_handler(error)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\geopy\geocoders\base.py", line 411, in _adapter_error_handler
+    raise exc_cls(str(error)) from error
+geopy.exc.GeocoderServiceError: Non-successful status code 509
+
+02_12_2026 - 15:10:29.665985 | audrey - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\geopy\geocoders\base.py", line 368, in _call_geocoder
+    result = self.adapter.get_json(url, timeout=timeout, headers=req_headers)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\geopy\adapters.py", line 472, in get_json
+    resp = self._request(url, timeout=timeout, headers=headers)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\geopy\adapters.py", line 500, in _request
+    raise AdapterHTTPError(
+    ...<4 lines>...
+    )
+geopy.adapters.AdapterHTTPError: Non-successful status code 509
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\audrey_files\audrey_bot.py", line 1393, in start_audrey
+    NBS.county = NBS.county_lookup(NBS.city, 'Maine')
+                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 1094, in county_lookup
+    location = geolocator.geocode(city + ', ' + state)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\geopy\geocoders\nominatim.py", line 297, in geocode
+    return self._call_geocoder(url, callback, timeout=timeout)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\geopy\geocoders\base.py", line 388, in _call_geocoder
+    res = self._adapter_error_handler(error)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\geopy\geocoders\base.py", line 411, in _adapter_error_handler
+    raise exc_cls(str(error)) from error
+geopy.exc.GeocoderServiceError: Non-successful status code 509
+
+02_12_2026 - 15:31:43.816210 | audrey - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\audrey_files\audrey_bot.py", line 88, in start_audrey
+    NBS.get_patient_table()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\audrey_files\audrey.py", line 100, in get_patient_table
+    self.patient_list = pd.read_sql_query(query, Connection)
+                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\io\sql.py", line 526, in read_sql_query
+    return pandas_sql.read_query(
+           ~~~~~~~~~~~~~~~~~~~~~^
+        sql,
+        ^^^^
+    ...<6 lines>...
+        dtype_backend=dtype_backend,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\io\sql.py", line 2756, in read_query
+    frame = _wrap_result(
+        data,
+    ...<5 lines>...
+        dtype_backend=dtype_backend,
+    )
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\io\sql.py", line 204, in _wrap_result
+    frame = _convert_arrays_to_dataframe(data, columns, coerce_float, dtype_backend)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\io\sql.py", line 167, in _convert_arrays_to_dataframe
+    arrays = convert_object_array(
+        list(content.T),
+    ...<2 lines>...
+        dtype_backend=dtype_backend,
+    )
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\core\internals\construction.py", line 1070, in convert_object_array
+    arrays = [convert(arr) for arr in content]
+              ~~~~~~~^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\pandas\core\internals\construction.py", line 1030, in convert
+    arr = lib.maybe_convert_objects(
+        arr,
+        try_float=coerce_float,
+        convert_to_nullable_dtype=dtype_backend != "numpy",
+    )
+  File "lib.pyx", line 2541, in pandas._libs.lib.maybe_convert_objects
+numpy._core._exceptions._ArrayMemoryError: Unable to allocate 92.3 MiB for an array with shape (12096993,) and data type uint64
+
+02_12_2026 - 16:20:13.313084 | audrey - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\audrey_files\audrey_bot.py", line 85, in start_audrey
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 157, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	GetHandleVerifier [0x00007FF600624C25+3179557]
+	(No symbol) [0x00007FF6002888A0]
+	(No symbol) [0x00007FF6001191CA]
+	(No symbol) [0x00007FF60016FA67]
+	(No symbol) [0x00007FF60016FC9C]
+	(No symbol) [0x00007FF6001C3627]
+	(No symbol) [0x00007FF600197C6F]
+	(No symbol) [0x00007FF6001C02F3]
+	(No symbol) [0x00007FF600197A03]
+	(No symbol) [0x00007FF6001606D0]
+	(No symbol) [0x00007FF600161983]
+	GetHandleVerifier [0x00007FF6006867CD+3579853]
+	GetHandleVerifier [0x00007FF60069D1D2+3672530]
+	GetHandleVerifier [0x00007FF600692153+3627347]
+	GetHandleVerifier [0x00007FF6003F092A+868650]
+	(No symbol) [0x00007FF600292FFF]
+	(No symbol) [0x00007FF60028F4A4]
+	(No symbol) [0x00007FF60028F646]
+	(No symbol) [0x00007FF60027EAA9]
+	BaseThreadInitThunk [0x00007FFB0604259D+29]
+	RtlUserThreadStart [0x00007FFB0716AF78+40]
+
+
+02_12_2026 - 16:32:28.100080 | audrey - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\geopy\geocoders\base.py", line 368, in _call_geocoder
+    result = self.adapter.get_json(url, timeout=timeout, headers=req_headers)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\geopy\adapters.py", line 472, in get_json
+    resp = self._request(url, timeout=timeout, headers=headers)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\geopy\adapters.py", line 500, in _request
+    raise AdapterHTTPError(
+    ...<4 lines>...
+    )
+geopy.adapters.AdapterHTTPError: Non-successful status code 509
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\audrey_files\audrey_bot.py", line 1393, in start_audrey
+    NBS.county = NBS.county_lookup(NBS.city, 'Maine')
+                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 1094, in county_lookup
+    location = geolocator.geocode(city + ', ' + state)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\geopy\geocoders\nominatim.py", line 297, in geocode
+    return self._call_geocoder(url, callback, timeout=timeout)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\geopy\geocoders\base.py", line 388, in _call_geocoder
+    res = self._adapter_error_handler(error)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\geopy\geocoders\base.py", line 411, in _adapter_error_handler
+    raise exc_cls(str(error)) from error
+geopy.exc.GeocoderServiceError: Non-successful status code 509
+
+02_12_2026 - 16:53:55.295482 | audrey - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\geopy\geocoders\base.py", line 368, in _call_geocoder
+    result = self.adapter.get_json(url, timeout=timeout, headers=req_headers)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\geopy\adapters.py", line 472, in get_json
+    resp = self._request(url, timeout=timeout, headers=headers)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\geopy\adapters.py", line 500, in _request
+    raise AdapterHTTPError(
+    ...<4 lines>...
+    )
+geopy.adapters.AdapterHTTPError: Non-successful status code 509
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\audrey_files\audrey_bot.py", line 1393, in start_audrey
+    NBS.county = NBS.county_lookup(NBS.city, 'Maine')
+                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 1094, in county_lookup
+    geolocator = Nominatim(user_agent = 'nbsbot')
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\geopy\geocoders\nominatim.py", line 297, in geocode
+    return self._call_geocoder(url, callback, timeout=timeout)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\geopy\geocoders\base.py", line 388, in _call_geocoder
+    res = self._adapter_error_handler(error)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\geopy\geocoders\base.py", line 411, in _adapter_error_handler
+    raise exc_cls(str(error)) from error
+geopy.exc.GeocoderServiceError: Non-successful status code 509
+
+02_13_2026 - 11:16:15.724639 | audrey - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\audrey_files\audrey_bot.py", line 85, in start_audrey
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 158, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	GetHandleVerifier [0x00007FF653E74C25+3179557]
+	(No symbol) [0x00007FF653AD88A0]
+	(No symbol) [0x00007FF6539691CA]
+	(No symbol) [0x00007FF6539BFA67]
+	(No symbol) [0x00007FF6539BFC9C]
+	(No symbol) [0x00007FF653A13627]
+	(No symbol) [0x00007FF6539E7C6F]
+	(No symbol) [0x00007FF653A102F3]
+	(No symbol) [0x00007FF6539E7A03]
+	(No symbol) [0x00007FF6539B06D0]
+	(No symbol) [0x00007FF6539B1983]
+	GetHandleVerifier [0x00007FF653ED67CD+3579853]
+	GetHandleVerifier [0x00007FF653EED1D2+3672530]
+	GetHandleVerifier [0x00007FF653EE2153+3627347]
+	GetHandleVerifier [0x00007FF653C4092A+868650]
+	(No symbol) [0x00007FF653AE2FFF]
+	(No symbol) [0x00007FF653ADF4A4]
+	(No symbol) [0x00007FF653ADF646]
+	(No symbol) [0x00007FF653ACEAA9]
+	BaseThreadInitThunk [0x00007FFB0604259D+29]
+	RtlUserThreadStart [0x00007FFB0716AF78+40]
+
+
+02_17_2026 - 11:37:25.418856 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 37, in start_HepBnotificationreview
+    from .HepBnotificationreview import HepBNotificationReview
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview.py", line 1, in <module>
+    from Base import NBSdriver
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 15, in <module>
+    driver = webdriver.Chrome(service=service)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chrome\webdriver.py", line 45, in __init__
+    super().__init__(
+    ~~~~~~~~~~~~~~~~^
+        browser_name=DesiredCapabilities.CHROME["browserName"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        keep_alive=keep_alive,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chromium\webdriver.py", line 66, in __init__
+    super().__init__(command_executor=executor, options=options)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 250, in __init__
+    self.start_session(capabilities)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 342, in start_session
+    response = self.execute(Command.NEW_SESSION, caps)["value"]
+               ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 429, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.SessionNotCreatedException: Message: session not created
+from unknown error: cannot find Chrome binary
+Stacktrace:
+	GetHandleVerifier [0x008C0B03+25139]
+	(No symbol) [0x008513B4]
+	(No symbol) [0x007304E3]
+	(No symbol) [0x007611E6]
+	(No symbol) [0x0075EC99]
+	(No symbol) [0x007A90C2]
+	(No symbol) [0x007A87DA]
+	(No symbol) [0x0079CDC6]
+	(No symbol) [0x0076BDE9]
+	(No symbol) [0x0076D124]
+	GetHandleVerifier [0x00BC4343+3185267]
+	GetHandleVerifier [0x00BE28EA+3309594]
+	GetHandleVerifier [0x00BDCF12+3286594]
+	GetHandleVerifier [0x00957AA0+643536]
+	(No symbol) [0x0085A1CD]
+	(No symbol) [0x00857078]
+	(No symbol) [0x00857217]
+	(No symbol) [0x00849DC0]
+	BaseThreadInitThunk [0x75377BA9+25]
+	RtlInitializeExceptionChain [0x770AC3AB+107]
+	RtlClearBits [0x770AC32F+191]
+
+
+02_17_2026 - 11:39:10.015654 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\driver_finder.py", line 75, in _binary_paths
+    raise ValueError(f'The browser path is not a valid file: {output["browser_path"]}')
+ValueError: The browser path is not a valid file: 
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 37, in start_HepBnotificationreview
+    from .HepBnotificationreview import HepBNotificationReview
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview.py", line 1, in <module>
+    from Base import NBSdriver
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 18, in <module>
+    driver = webdriver.Chrome()
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chrome\webdriver.py", line 45, in __init__
+    super().__init__(
+    ~~~~~~~~~~~~~~~~^
+        browser_name=DesiredCapabilities.CHROME["browserName"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        keep_alive=keep_alive,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chromium\webdriver.py", line 50, in __init__
+    if finder.get_browser_path():
+       ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\driver_finder.py", line 47, in get_browser_path
+    return self._binary_paths()["browser_path"]
+           ~~~~~~~~~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\driver_finder.py", line 78, in _binary_paths
+    raise NoSuchDriverException(msg) from err
+selenium.common.exceptions.NoSuchDriverException: Message: Unable to obtain driver for chrome; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors/driver_location
+
+
+02_17_2026 - 14:28:33.322398 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 48, in start_HepBnotificationreview
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 158, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff789014455
+	0x7ff7890144b0
+	0x7ff788dad49d
+	0x7ff788e082fe
+	0x7ff788e0860c
+	0x7ff788e58b67
+	0x7ff788e55728
+	0x7ff788df8e38
+	0x7ff788df9d23
+	0x7ff7892e3b60
+	0x7ff7892de3e8
+	0x7ff7892fe75a
+	0x7ff789030805
+	0x7ff7890397ac
+	0x7ff78901d7b4
+	0x7ff78901d966
+	0x7ff789003477
+	0x7ffb0604259d
+	0x7ffb0716af78
+
+
+02_18_2026 - 11:08:55.265355 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 48, in start_HepBnotificationreview
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 158, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff6b2404455
+	0x7ff6b24044b0
+	0x7ff6b219d49d
+	0x7ff6b21f82fe
+	0x7ff6b21f860c
+	0x7ff6b2248b67
+	0x7ff6b2245728
+	0x7ff6b21e8e38
+	0x7ff6b21e9d23
+	0x7ff6b26d3b60
+	0x7ff6b26ce3e8
+	0x7ff6b26ee75a
+	0x7ff6b2420805
+	0x7ff6b24297ac
+	0x7ff6b240d7b4
+	0x7ff6b240d966
+	0x7ff6b23f3477
+	0x7ffb0604259d
+	0x7ffb0716af78
+
+
+02_18_2026 - 14:36:29.612984 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 48, in start_HepBnotificationreview
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 158, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff778764455
+	0x7ff7787644b0
+	0x7ff7784fd49d
+	0x7ff7785582fe
+	0x7ff77855860c
+	0x7ff7785a8b67
+	0x7ff7785a5728
+	0x7ff778548e38
+	0x7ff778549d23
+	0x7ff778a33b60
+	0x7ff778a2e3e8
+	0x7ff778a4e75a
+	0x7ff778780805
+	0x7ff7787897ac
+	0x7ff77876d7b4
+	0x7ff77876d966
+	0x7ff778753477
+	0x7ffb0604259d
+	0x7ffb0716af78
+
+
+02_18_2026 - 14:43:50.760952 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 48, in start_HepBnotificationreview
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 158, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff778764455
+	0x7ff7787644b0
+	0x7ff7784fd49d
+	0x7ff7785582fe
+	0x7ff77855860c
+	0x7ff7785a8b67
+	0x7ff7785a5728
+	0x7ff778548e38
+	0x7ff778549d23
+	0x7ff778a33b60
+	0x7ff778a2e3e8
+	0x7ff778a4e75a
+	0x7ff778780805
+	0x7ff7787897ac
+	0x7ff77876d7b4
+	0x7ff77876d966
+	0x7ff778753477
+	0x7ffb0604259d
+	0x7ffb0716af78
+
+
+02_24_2026 - 12:49:29.459611 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 48, in start_HepBnotificationreview
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 158, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff64f9eaa55
+	0x7ff64f748630
+	0x7ff64f4dd75d
+	0x7ff64f53862e
+	0x7ff64f53893c
+	0x7ff64f588d87
+	0x7ff64f58591c
+	0x7ff64f529098
+	0x7ff64f529f83
+	0x7ff64fa17810
+	0x7ff64fa11afd
+	0x7ff64fa32c1a
+	0x7ff64f763345
+	0x7ff64f76b81c
+	0x7ff64f751924
+	0x7ff64f751ad6
+	0x7ff64f737e47
+	0x7ffcd0e4259d
+	0x7ffcd1e6afb8
+
+
+02_24_2026 - 17:13:31.395246 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 48, in start_HepBnotificationreview
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 158, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff6802aaa55
+	0x7ff680008630
+	0x7ff67fd9d75d
+	0x7ff67fdf862e
+	0x7ff67fdf893c
+	0x7ff67fe48d87
+	0x7ff67fe4591c
+	0x7ff67fde9098
+	0x7ff67fde9f83
+	0x7ff6802d7810
+	0x7ff6802d1afd
+	0x7ff6802f2c1a
+	0x7ff680023345
+	0x7ff68002b81c
+	0x7ff680011924
+	0x7ff680011ad6
+	0x7ff67fff7e47
+	0x7ffcd0e4259d
+	0x7ffcd1e6afb8
+
+
+02_24_2026 - 17:43:31.475297 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 48, in start_HepBnotificationreview
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 158, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff6802aaa55
+	0x7ff680008630
+	0x7ff67fd9d75d
+	0x7ff67fdf862e
+	0x7ff67fdf893c
+	0x7ff67fe48d87
+	0x7ff67fe4591c
+	0x7ff67fde9098
+	0x7ff67fde9f83
+	0x7ff6802d7810
+	0x7ff6802d1afd
+	0x7ff6802f2c1a
+	0x7ff680023345
+	0x7ff68002b81c
+	0x7ff680011924
+	0x7ff680011ad6
+	0x7ff67fff7e47
+	0x7ffcd0e4259d
+	0x7ffcd1e6afb8
+
+
+02_24_2026 - 18:31:05.755938 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 48, in start_HepBnotificationreview
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\Base.py", line 158, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\chrometest\NBS_Basebot-main\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 146, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff6802aaa55
+	0x7ff680008630
+	0x7ff67fd9d75d
+	0x7ff67fdf862e
+	0x7ff67fdf893c
+	0x7ff67fe48d87
+	0x7ff67fe4591c
+	0x7ff67fde9098
+	0x7ff67fde9f83
+	0x7ff6802d7810
+	0x7ff6802d1afd
+	0x7ff6802f2c1a
+	0x7ff680023345
+	0x7ff68002b81c
+	0x7ff680011924
+	0x7ff680011ad6
+	0x7ff67fff7e47
+	0x7ffcd0e4259d
+	0x7ffcd1e6afb8
+
+

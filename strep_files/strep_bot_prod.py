@@ -27,8 +27,6 @@ def start_strep(driver):
     error = False
     n = 1
     attempt_counter = 0
-    '''with open("patients_to_skip.txt", "r") as patient_reader:
-        patients_to_skip.append(patient_reader.readlines())'''
 
     loop = tqdm(generator())
     for _ in loop:
@@ -43,7 +41,6 @@ def start_strep(driver):
                 "tests":["STREPTOCOCCUS PYOGENES","Group A Streptococcus, invasive"],
                 "submit_date_path":'/html/body/div[2]/form/div/table[2]/tbody/tr/td/table/thead/tr/th[3]/a'
             }
-            
             #NBS.SortQueue(paths)
             NBS.SortApprovalQueueStrep()
             if NBS.queue_loaded:

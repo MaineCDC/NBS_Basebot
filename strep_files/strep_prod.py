@@ -602,8 +602,6 @@ class Strep(NBSdriver):
             self.send_smtp_email(self.covid_commander, subject, body, email_name)
             self.not_a_case_log = []
             self.lab_data_issues_log = []
-    
-
     def SendStrepEmail(self, body, inv_id):
         message = EmailMessage()
         message.set_content(body)

@@ -7,7 +7,7 @@ from datetime import datetime, date
 from selenium.webdriver.chrome.service import Service
 from bs4 import BeautifulSoup
 from selenium import webdriver
-driver=webdriver.Chrome()
+
 
 class Athena(NBSdriver):
     """ A class to review COVID-19 cases in the notification queue.
@@ -27,6 +27,7 @@ class Athena(NBSdriver):
     def StandardChecks(self):
         """ A method to conduct checks that must be done on all cases regardless of investigator. """
         self.Reset()
+        self.initial_name = self.patient_name
         # Check Patient Tab
         self.CheckFirstName()
         self.CheckLastName()
@@ -319,7 +320,7 @@ class Athena(NBSdriver):
             self.issues.append('Closed date cannot be before investigation start date.')
 
 #################### Hospital Check Methods ###################################
-    '''def CheckHospitalizationIndicator(self):
+    def CheckHospitalizationIndicator(self):
         """ Read hospitalization status. If an investigation was conducted it must be Yes or No """
         self.hospitalization_indicator = self.ReadText('//*[@id="INV128"]')
         if (self.ltf != 'Yes') & (self.investigator):
@@ -367,38 +368,7 @@ class Athena(NBSdriver):
         if not death_date:
             self.issues.append('Date of death is blank.')
         elif death_date > self.now:
-            self.issues.append('Date of death date cannot be in the future')'''
-
-################### Investigation Details Check Methods ########################
-    '''def CheckJurisdiction(self):
-        """ Jurisdiction and county must match. """
-        jurisdiction = self.CheckForValue('//*[@id="INV107"]','Jurisdiction is blank.')
-        if jurisdiction not in self.county:
-            self.issues.append('County and jurisdiction mismatch.')
-
-    def CheckProgramArea(self):
-        """ Program area must be Airborne. """
-        program_area = self.CheckForValue('//*[@id="INV108"]','Program Area is blank.')
-        if program_area != 'Airborne and Direct Contact Diseases':
-            self.issues.append('Program Area is not "Airborne and Direct Contact Diseases".')
-
-    def CheckInvestigationStartDate(self):
-        """ Verify investigation start date is on or after report date. """
-        self.investigation_start_date = self.ReadDate('//*[@id="INV147"]')
-        if not self.investigation_start_date:
-            self.issues.append('Investigation start date is blank.')
-        elif self.investigation_start_date < self.report_date:
-            self.issues.append('Investigation start date must be on or after report date.')
-        elif self.investigation_start_date > self.now:
-            self.issues.append('Investigation start date cannot be in the future.')'''
-
-    # def CheckInvestigationStatus(self):
-    #     """ Only accept closed investigations for review. """
-    #     inv_status = self.ReadText('//*[@id="INV109"]')
-    #     if not inv_status:
-    #         self.issues.append('Investigation status is blank.')
-    #     elif inv_status == 'Open':
-    #         self.issues.append('Investigation status is open.')
+            self.issues.append('Date of death date cannot be in the future')
 
     def CheckSharedIndicator(self):
         """ Ensure shared indicator is yes. """
@@ -406,11 +376,7 @@ class Athena(NBSdriver):
         if shared_indicator != 'Yes':
             self.issues.append('Shared indicator not selected.')
 
-    def CheckStateCaseID(self):
-        """ State Case ID must be provided. """
-        case_id = self.ReadText('//*[@id="INV173"]')
-        if not case_id:
-            self.issues.append('State Case ID is blank.')
+    
 
 
 ########################### Parse and process labs ############################
@@ -453,7 +419,10 @@ class Athena(NBSdriver):
         if self.labs['Date Received'][0] == 'Nothing found to display.':
             self.report_date = datetime(1900, 1, 1).date()
         else:
-            self.labs['Date Received'] = pd.to_datetime(self.labs['Date Received'], format = '%m/%d/%Y%I:%M %p').dt.date
+            try:
+                self.labs['Date Received'] = pd.to_datetime(self.labs['Date Received'],format = '%m/%d/%Y %I:%M %p').dt.date
+            except Exception as e:
+                self.labs['Date Received'] = pd.to_datetime(self.labs['Date Received'], errors='coerce').dt.date  #format = '%m/%d/%Y%I:%M %p',
             self.report_date = self.labs['Date Received'].min()
 
     def GetCollectionDate(self):
@@ -586,7 +555,43 @@ class Athena(NBSdriver):
             non_white_races = ['Black or African American', 'Asian', 'American Indian or Alaska Native', 'Native Hawaiian or Other Pacific Islander']
             if any(non_white_race in self.race for non_white_race in non_white_races):
                 self.issues.append('Race is non-white, case should be assigned for investigation.')
+    
+    def CheckProgramArea(self):
+        """ Program area must be Airborne. """
+        program_area = self.CheckForValue('//*[@id="INV108"]','Program Area is blank.')
+        if program_area != 'Airborne and Direct Contact Diseases':
+            self.issues.append('Program Area is not "Airborne and Direct Contact Diseases".')
 
+    ################### Investigation Details Check Methods ########################
+    '''def CheckJurisdiction(self):
+        """ Jurisdiction and county must match. """
+        jurisdiction = self.CheckForValue('//*[@id="INV107"]','Jurisdiction is blank.')
+        if jurisdiction not in self.county:
+            self.issues.append('County and jurisdiction mismatch.')
+
+    def CheckProgramArea(self):
+        """ Program area must be Airborne. """
+        program_area = self.CheckForValue('//*[@id="INV108"]','Program Area is blank.')
+        if program_area != 'Airborne and Direct Contact Diseases':
+            self.issues.append('Program Area is not "Airborne and Direct Contact Diseases".')
+
+    def CheckInvestigationStartDate(self):
+        """ Verify investigation start date is on or after report date. """
+        self.investigation_start_date = self.ReadDate('//*[@id="INV147"]')
+        if not self.investigation_start_date:
+            self.issues.append('Investigation start date is blank.')
+        elif self.investigation_start_date < self.report_date:
+            self.issues.append('Investigation start date must be on or after report date.')
+        elif self.investigation_start_date > self.now:
+            self.issues.append('Investigation start date cannot be in the future.')'''
+
+    def CheckInvestigationStatus(self):
+    #     """ Only accept closed investigations for review. """
+        inv_status = self.ReadText('//*[@id="INV109"]')
+        if not inv_status:
+            self.issues.append('Investigation status is blank.')
+        elif inv_status == 'Open':
+            self.issues.append('Investigation status is open.')
     ###################### Other Personal Details Check Methods ####################
     '''def CheckDOB(self):
         """ Must provide DOB. """
@@ -605,38 +610,20 @@ class Athena(NBSdriver):
 #################### Reporting Address Check Methods ###########################
     '''def CheckStAddr(self):
         """ Must provide street address. """
-        street_address = self.CheckForValue( '//*[@id="DEM159"]', 'Street address is blank.')'''
+        street_address = self.CheckForValue( '//*[@id="DEM159"]', 'Street address is blank.')
 
-    # def CheckCity(self):
-    #     """ Must provide city. """
-    #     city = self.CheckForValue( '//*[@id="DEM161"]', 'City is blank.')
+    def CheckCity(self):
+        """ Must provide city. """
+        city = self.CheckForValue( '//*[@id="DEM161"]', 'City is blank.')
 
-    # def CheckState(self):
-    #     """ Must provide state and if it is not Maine case should be not a case. """
-    #     state = self.CheckForValue( '//*[@id="DEM162"]', 'State is blank.')
-    #     if state != 'Maine':
-    #         self.issues.append('State is not Maine.')
-    #         print(f"state: {state}")
+    def CheckState(self):
+         """ Must provide state and if it is not Maine case should be not a case. """
+         state = self.CheckForValue( '//*[@id="DEM162"]', 'State is blank.')
+         if state != 'Maine':
+             self.issues.append('State is not Maine.')
+             print(f"state: {state}")'''
 
-    ####################### Investigator Check Methods ############################
-    '''def CheckInvestigator(self):
-        """ Check if an investigator was assigned to the case. """
-        investigator = self.ReadText('//*[@id="INV180"]')
-        self.investigator_name = investigator
-        if investigator:
-            self.investigator = True
-        else:
-            self.investigator = False
-
-    def CheckInvestigatorAssignDate(self):
-        """ If an investigator was assinged then there should be an investigator
-        assigned date. """
-        if self.investigator:
-            assigned_date = self.ReadText('//*[@id="INV110"]')
-            if not assigned_date:
-                self.issues.append('Missing investigator assigned date.')
-                print(f"investigator_assigned_date: {assigned_date}")'''
-
+   
     def ExposureChecks(self):
         """ A method to conduct all checks required to review the exposure section. """
         self.CheckExposureSection()
@@ -857,7 +844,26 @@ class Athena(NBSdriver):
             if (not Illness_Duration_Units):
                 self.issues.append("If ilness duration has a number then illness duration units must be specified.")
 
+ #new code added from covidnotificationbot, it also inherits from here
+    def SendManualReviewEmail(self):
+        """ Send email containing NBS IDs that required manual review."""
+        if (len(self.not_a_case_log) > 0) | (len(self.lab_data_issues_log) > 0):
+            subject = 'Cases Requiring Manual Review'
+            email_name = 'manual review email'
+            body = "COVID Commander,\nThe case(s) listed below have been moved to the rejected notification queue and require manual review.\n\nNot a case:"
+            for id in self.not_a_case_log:
+                body = body + f'\n{id}'
+            body = body + '\n\nAssociated lab issues:'
+            for id in self.lab_data_issues_log:
+                body = body + f'\n{id}'
+            body = body + '\n\n-Nbsbot'
+            #self.send_smtp_email(recipient, cc, subject, body)
+            self.send_smtp_email(self.covid_commander, subject, body, email_name)
+            self.not_a_case_log = []
+            self.lab_data_issues_log = []
+    
     ####################### Investigator Check Methods ############################
+    #####in base.py####
     '''def CheckInvestigator(self):
         """ Check if an investigator was assigned to the case. """
         investigator = self.ReadText('//*[@id="INV180"]')
@@ -909,19 +915,4 @@ class Athena(NBSdriver):
             self.switch_to.window(main_window_handle)
             self.num_rejected += 1'''
 
-    # def SendManualReviewEmail(self):
-    #     """ Send email containing NBS IDs that required manual review."""
-    #     if (len(self.not_a_case_log) > 0) | (len(self.lab_data_issues_log) > 0):
-    #         subject = 'Cases Requiring Manual Review'
-    #         email_name = 'manual review email'
-    #         body = "COVID Commander,\nThe case(s) listed below have been moved to the rejected notification queue and require manual review.\n\nNot a case:"
-    #         for id in self.not_a_case_log:
-    #             body = body + f'\n{id}'
-    #         body = body + '\n\nAssociated lab issues:'
-    #         for id in self.lab_data_issues_log:
-    #             body = body + f'\n{id}'
-    #         body = body + '\n\n-Nbsbot'
-    #         #self.send_smtp_email(recipient, cc, subject, body)
-    #         self.send_smtp_email(self.covid_commander, subject, body, email_name)
-    #         self.not_a_case_log = []
-    #         self.lab_data_issues_log = []
+    

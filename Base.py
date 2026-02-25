@@ -10,12 +10,12 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 
 # initialize chromedriver
-chrome_driver_path ="C:/Users/vaishnavi.appidi/OneDrive - State of Maine/Desktop/chromedriver-win32/chromedriver.exe"  # Replace with your custom path
+'''chrome_driver_path ="C:/Users/vaishnavi.appidi/OneDrive - State of Maine/Desktop/chromedriver-win32/chromedriver.exe"  # Replace with your custom path
 service = Service(chrome_driver_path)
-driver = webdriver.Chrome(service=service)
+driver = webdriver.Chrome(service=service)'''
 
 #service = Service(driver)
-#driver = webdriver.Chrome() 
+driver = webdriver.Chrome() 
 
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.keys import Keys
@@ -44,6 +44,7 @@ import smtplib
 from email.message import EmailMessage
 from selenium.webdriver.common.by import By
 from geopy.geocoders import Nominatim
+from geopy.extra.rate_limiter import RateLimiter
 from usps import USPSApi, Address
 import json
 from io import StringIO
@@ -78,6 +79,7 @@ class NBSdriver(webdriver.Chrome):
         self.reason = []
         self.HepB_notification_bot = False
         self.iGAS_notification_bot = False
+        self.ILIOutbreak_notification_bot = False
         self.num_attempts = 3
         self.queue_loaded = None
         self.wait_before_timeout = 30
@@ -1090,8 +1092,16 @@ class NBSdriver(webdriver.Chrome):
     def county_lookup(self, city, state):
         """ Use the Nominatim geocode service via the geopy API to look up the county of a given town/city and state."""
         geolocator = Nominatim(user_agent = 'nbsbot')
-        location = geolocator.geocode(city + ', ' + state)
+        #location = geolocator.geocode(city + ', ' + state)
+        geocode = RateLimiter(geolocator.geocode, min_delay_seconds=1)
+        location = geocode(f"{city}, {state}")
         if location:
+            location_parts = location.address.split(', ')
+            county = [x for x in location_parts if 'County' in x]
+            if len(county) == 1:
+                return county[0].replace('County', '')
+        return ''
+        '''if location:
             location = location[0].split(', ')
             county = [x for x in location if 'County' in x]
             if len(county) == 1:
@@ -1100,7 +1110,7 @@ class NBSdriver(webdriver.Chrome):
                 county = ''
         else:
             county = ''
-        return county
+        return county'''
 
     def zip_code_lookup(self, street, city, state):
         """ Given a street address, city, and state use the USPS API via the usps
@@ -1191,6 +1201,8 @@ class NBSdriver(webdriver.Chrome):
             bot_name = "Hepatitis B Case Closing Bot"
         elif self.iGAS_notification_bot == True:
             bot_name = "iGAS Case Closing Bot"
+        elif self.ILIOutbreak_notification_bot == True:
+            bot_name = "ILI Outbreak Case Closing Bot"
         completion_message = (
     f"{bot_name} has finished running on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}. ")
     #f"Total labs reviewed: {len(self.reviewed_ids)} , self.reviewed_ids = {self.reviewed_ids}.")
@@ -1205,10 +1217,13 @@ class NBSdriver(webdriver.Chrome):
             'Reason': self.reason
             })
         if self.HepB_notification_bot == True:
-            bot_act.to_excel(f"saved/HepB/HepB_bot_activity_{datetime.now().date().strftime('%m_%d_%Y %H:%M:%S')}.xlsx")
+            bot_act.to_excel(f"saved/HepB/HepB_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx")
             print("excel sheet created")
         if self.iGAS_notification_bot == True:
-            bot_act.to_excel(f"saved/iGAS/iGAS_bot_activity_{datetime.now().date().strftime('%m_%d_%Y %H:%M:%S')}.xlsx")
+            bot_act.to_excel(f"saved/Strep/iGAS_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx")
+            print("excel sheet created")
+        if self.ILIOutbreak_notification_bot == True:
+            bot_act.to_excel(f"saved/ILIOutbreak/ILIOutbreak_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx")
             print("excel sheet created")
     
 

@@ -375,10 +375,7 @@ class Athena(NBSdriver):
         shared_indicator = self.ReadText('//*[@id="NBS_UI_19"]/tbody/tr[5]/td[2]')
         if shared_indicator != 'Yes':
             self.issues.append('Shared indicator not selected.')
-
     
-
-
 ########################### Parse and process labs ############################
     def ReadAssociatedLabs(self):
         """ Read table of associated labs."""

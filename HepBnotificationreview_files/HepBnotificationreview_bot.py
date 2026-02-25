@@ -56,7 +56,7 @@ def start_HepBnotificationreview(username, passcode):
     '''with open("patients_to_skip.txt", "r") as patient_reader:
         patients_to_skip.append(patient_reader.readlines())'''
 
-    limit = 3
+    limit = 10
     loop = tqdm(generator())
     for _ in loop:
         #check if the bot has gone through the set limit of reviews
@@ -161,14 +161,14 @@ def start_HepBnotificationreview(username, passcode):
     NBS.SendBotRunEmail()
     #NBS.CreateExcelSheet()
     
-    print("ending, printing, saving")
+    '''print("ending, printing, saving")
     bot_act = pd.DataFrame(
         {'Inv ID': NBS.reviewed_ids,
         'Action': NBS.what_do,
         'Reason': NBS.reason
         })
     bot_act.to_excel(f"saved/HepB/HepB_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx")
-    print("excel sheet created")
+    print("excel sheet created")'''
     
 if __name__ == '__main__':
     start_HepBnotificationreview()

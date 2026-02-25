@@ -4,7 +4,7 @@ import time
 # import the three bots into this file
 from anaplasma_files.anaplasma_bot import start_anaplasma
 from audrey_files.audrey_bot import start_audrey
-from athena_files.athena_bot import start_athena
+from athena_files.athena_bot_prod import start_athena
 from strep_files.strep_bot import start_strep
 from CovidECR_files.CovidEcr_bot import start_CovidEcr
 from HepBnotificationreview_files.HepBnotificationreview_bot import start_HepBnotificationreview

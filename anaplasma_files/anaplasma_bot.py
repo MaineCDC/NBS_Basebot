@@ -75,7 +75,6 @@ def start_anaplasma(username, passcode):
             }
             
             NBS.SortQueue(paths)
-
             if NBS.queue_loaded:
                 NBS.queue_loaded = None
                 continue

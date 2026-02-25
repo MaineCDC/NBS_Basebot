@@ -7,9 +7,9 @@ import os
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 #driver= webdriver.Chrome()
-chrome_driver_path ="C:/Users/vaishnavi.appidi/OneDrive - State of Maine/Desktop/chromedriver-win32/chromedriver.exe"  # Replace with your custom path
+'''chrome_driver_path ="C:/Users/vaishnavi.appidi/OneDrive - State of Maine/Desktop/chromedriver-win32/chromedriver.exe"  # Replace with your custom path
 service = Service(chrome_driver_path)
-driver = webdriver.Chrome(service=service)
+driver = webdriver.Chrome(service=service)'''
 
 def generator():
     while True:
@@ -20,8 +20,8 @@ def start_athena(username, passcode):
     from .athena_prod import Athena
     from strep_files.strep_bot_prod import start_strep
 
-    NBS = Athena(driver=driver, production=is_in_production) # uncomment to run merge code
-    #NBS = Athena(production=is_in_production)
+    #NBS = Athena(driver=driver, production=is_in_production) # uncomment to run merge code
+    NBS = Athena(production=True) # comment out to run merge code
     NBS.set_credentials(username, passcode)
     NBS.log_in()
     NBS.GoToApprovalQueue()

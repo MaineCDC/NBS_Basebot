@@ -42,22 +42,15 @@ def start_strep(username, passcode):
     load_dotenv()
     
     NBS = Strep(production=True)  # production=True & Test = is_in_production
-    if is_in_production:
-        print("Production Environment")
-    else:
-        print("Development Environment")
         
     NBS.set_credentials(username, passcode)
     NBS.log_in()
     NBS.GoToApprovalQueue()
-    #NBS.reviewed_ids = []
-    patients_to_skip = []
+
     error_list = []
     error = False
     n = 1
     attempt_counter = 0
-    '''with open("patients_to_skip.txt", "r") as patient_reader:
-        patients_to_skip.append(patient_reader.readlines())'''
 
     limit = 3
     loop = tqdm(generator())
@@ -161,16 +154,16 @@ def start_strep(username, passcode):
             
     NBS.iGAS_notification_bot = True
     NBS.SendBotRunEmail()
-    #NBS.CreateExcelSheet()
+    NBS.CreateExcelSheet()
     
-    print("ending, printing, saving")
+    '''print("ending, printing, saving")
     bot_act = pd.DataFrame(
         {'Inv ID': reviewed_ids,
         'Action': what_do,
         'Reason': reason
         })
     bot_act.to_excel(f"saved/Strep/Strep_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx")
-    print("Excel sheet created")
+    print("Excel sheet created")'''
 
     '''completion_message = (
     f"Group A Strep case closing bot has finished running on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}. "
@@ -203,5 +196,5 @@ def start_strep(username, passcode):
         raise Exception(error_list)'''
     #NBS.send_smtp_email("disease.reporting@maine.gov", 'Notification Review Report: NBSbot(Anaplasma Notification Review) AKA Group A Strep', body, 'Group A Strep Notification Review email')
 
-if __name__ == '__main__':
-    start_strep()
+    if __name__ == '__main__':
+        start_strep()
