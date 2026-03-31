@@ -13,7 +13,7 @@ class Athena(NBSdriver):
     It inherits from NBSdriver."""
 
     def __init__(self, driver, production=False):
-        super().__init__(driver, production)
+        super().__init__(driver, production= False)
         self.driver = driver
         self.num_approved = 0
         self.num_rejected = 0

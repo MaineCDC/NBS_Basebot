@@ -52,7 +52,7 @@ def start_strep(username, passcode):
     n = 1
     attempt_counter = 0
 
-    limit = 3
+    limit = 2
     loop = tqdm(generator())
     for _ in loop:
         #check if the bot haa gone through the set limit of reviews
@@ -87,20 +87,15 @@ def start_strep(username, passcode):
                     NBS.queue_loaded = None
                     continue
                 inv_id = NBS.find_element(By.XPATH,'//*[@id="bd"]/table[3]/tbody/tr[2]/td[1]/span[2]').text 
-                '''if any(inv_id in skipped_patients for skipped_patients in patients_to_skip):
-                    print(f"present, {inv_id}")
-                    NBS.ReturnApprovalQueue()
-                    n = n + 1
-                    continue'''
                 
                 NBS.StandardChecks()
+
                 if not NBS.issues:
                     reviewed_ids.append(inv_id)
                     what_do.append("Approved Notification")
                     reason.append('No issues found.')
                     print("Approved Notification")
                     NBS.ApproveNotification()
-                    #NBS.SendStrepEmail("Hey, please don't change anything at all and just click CN", inv_id)
                 NBS.ReturnApprovalQueue()
                 if NBS.queue_loaded:
                     NBS.queue_loaded = None
@@ -113,9 +108,6 @@ def start_strep(username, passcode):
                     NBS.CheckFirstCase()
 
                     NBS.final_name = NBS.patient_name
-                    '''if NBS.country != 'UNITED STATES':
-                        print("Skipping patient. No action carried out")
-                        patients_to_skip.append(inv_id)'''
                     if NBS.final_name == NBS.initial_name:
                         reviewed_ids.append(inv_id)
                         what_do.append("Reject Notification")
@@ -154,16 +146,16 @@ def start_strep(username, passcode):
             
     NBS.iGAS_notification_bot = True
     NBS.SendBotRunEmail()
-    NBS.CreateExcelSheet()
+    #NBS.CreateExcelSheet()
     
-    '''print("ending, printing, saving")
+    print("ending, printing, saving")
     bot_act = pd.DataFrame(
         {'Inv ID': reviewed_ids,
         'Action': what_do,
         'Reason': reason
         })
     bot_act.to_excel(f"saved/Strep/Strep_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx")
-    print("Excel sheet created")'''
+    print("Excel sheet created")
 
     '''completion_message = (
     f"Group A Strep case closing bot has finished running on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}. "

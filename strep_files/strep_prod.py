@@ -9,7 +9,7 @@ from datetime import datetime, date
 from bs4 import BeautifulSoup
 import sys
 #sys.stdout = open('logfile.txt', 'w')
-class Logger:
+'''class Logger:
     def __init__(self, filename):
             self.terminal = sys.stdout
             self.log = open(filename, 'a')
@@ -19,7 +19,7 @@ class Logger:
     def flush(self):
         self.terminal.flush()
         self.log.flush()
-sys.stdout = Logger("logfile.txt")
+sys.stdout = Logger("logfile.txt")'''
 
 class Strep(NBSdriver):
     """ A class to review COVID-19 cases in the notification queue.

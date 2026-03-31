@@ -180,21 +180,12 @@ class Strep(NBSdriver):
         self.name_match = False
         lab_reports = self.find_elements(By.XPATH, '//*[@id="eventLabReport"]/tbody/tr')
         #tests = ['STREPTOCOCCUS GROUP A|Streptococcus pyogenes|streptococcus pyogenes|Strep pyogenes (Grp A)|MICROORGANISM IDENTIFIED: BETA-HEMOLYTIC STREPTOCOCCUS, GROUP A|Streptococci, beta hemolytic group A|Beta-hemolytic streptococcus|S pyogenes hsp60 Bld Pos Ql Probe| s pyogenes hsp60 bld pos ql probe|microorganism identified: streptococcus pyogenes']
-        tests = [
-    'STREPTOCOCCUS GROUP A',
-    'Streptococcus pyogenes',
-    'streptococcus pyogenes',
-    'Strep pyogenes (Grp A)',
+        tests = ['STREPTOCOCCUS GROUP A','Streptococcus - Result',
+    'Streptococcus pyogenes','streptococcus pyogenes','Strep pyogenes (Grp A)',
     'MICROORGANISM IDENTIFIED: BETA-HEMOLYTIC STREPTOCOCCUS, GROUP A',
-    'microorganism identified: beta-hemolytic streptococcus, group a',
-    'MICROORGANISM IDENTIFIED: Strep pyogenes (Grp A)',
-    'BETA-HEMOLYTIC STREPTOCOCCUS, GROUP A',
-    'Streptococci, beta hemolytic group A',
-    'Beta-hemolytic streptococcus',
-    'S pyogenes hsp60 Bld Pos Ql Probe',
-    's pyogenes hsp60 bld pos ql probe',
-    'microorganism identified: streptococcus pyogenes'
-]
+    'microorganism identified: beta-hemolytic streptococcus, group a','MICROORGANISM IDENTIFIED: Strep pyogenes (Grp A)',
+    'BETA-HEMOLYTIC STREPTOCOCCUS, GROUP A','Streptococci, beta hemolytic group A','Beta-hemolytic streptococcus',
+    'S pyogenes hsp60 Bld Pos Ql Probe','s pyogenes hsp60 bld pos ql probe','microorganism identified: streptococcus pyogenes']
         self.dna_dates = []
         for risk in lab_reports:
             cells = risk.find_elements(By.TAG_NAME, 'td')
@@ -304,7 +295,7 @@ class Strep(NBSdriver):
             else:
                 if diagnosis_date > self.now:
                     self.issues.append('Diagnosis date cannot be in the future.')
-                if diagnosis_date < self.onset_illness_date:
+                if self.onset_illness_date and (diagnosis_date < self.onset_illness_date):
                     self.issues.append('Diagnosis date cannot be before onset illness date.')
                 
     def CheckSymptomDates(self):
@@ -459,7 +450,7 @@ class Strep(NBSdriver):
                 self.issues.append('invasive procedure cannot be empty.')
             elif self.invasive_procedure == 'Yes':
                 if not self.Date_invasive_procedure or not self.Type_invasive_procedure or not facilityname_procedure or not discharge_prior_procedure:
-                    self.issues.append('invasive procedure is yes, below fields are missing.')  
+                    self.issues.append('invasive procedure is yes, below fields/field are/is missing.')  
             if Type_of_healthcare and Type_of_healthcare.lower() in ["inpatient", "outpatient","same day surgery"]:
                 if  not self.healthcare_admissiondate :
                     self.issues.append(f'type of Healthcare exposure is {Type_of_healthcare}, admission date is missing .')
@@ -592,7 +583,7 @@ class Strep(NBSdriver):
         if (len(self.not_a_case_log) > 0) | (len(self.lab_data_issues_log) > 0):
             subject = 'Cases Requiring Manual Review'
             email_name = 'manual review email'
-            body = "COVID Commander,\nThe case(s) listed below have been moved to the rejected notification queue and require manual review.\n\nNot a case:"
+            body = "group a strep,\nThe case(s) listed below have been moved to the rejected notification queue and require manual review.\n\nNot a case:"
             for id in self.not_a_case_log:
                 body = body + f'\n{id}'
             body = body + '\n\nAssociated lab issues:'
@@ -610,7 +601,7 @@ class Strep(NBSdriver):
         message.set_content(body)
         message['Subject'] = f'Strep Bot {inv_id}'
         message['From'] = self.nbsbot_email
-        message['To'] = ', '.join(["disease.reporting@maine.gov"])   #change email to disease.reporting
+        message['To'] = ', '.join(["disease.reporting@maine.gov"])   
         smtpObj = smtplib.SMTP(self.smtp_server)
         smtpObj.send_message(message)
         print('sent email', inv_id)

@@ -75,9 +75,9 @@ def start_strep(driver):
                 
                 NBS.StandardChecks()
                 if not NBS.issues:
-                    reviewed_ids.append(inv_id)
+                    '''reviewed_ids.append(inv_id)
                     what_do.append("Approved Notification")
-                    reason.append('No issues found.')
+                    reason.append('No issues found.')'''
                     print("Approved Notification")
                     NBS.ApproveNotification()
                     #NBS.SendStrepEmail("Hey, please don't change anything at all and just click CN", inv_id)
@@ -127,8 +127,6 @@ def start_strep(driver):
             # raise Exception(e)
             error_list.append(str(e))
             error = True
-
-
 
 if __name__ == '__main__':
     start_strep()

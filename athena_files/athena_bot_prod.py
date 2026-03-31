@@ -7,9 +7,9 @@ import os
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 #driver= webdriver.Chrome()
-'''chrome_driver_path ="C:/Users/vaishnavi.appidi/OneDrive - State of Maine/Desktop/chromedriver-win32/chromedriver.exe"  # Replace with your custom path
+chrome_driver_path ="C:/Users/vaishnavi.appidi/chrome_driver/chromedriver-win64/chromedriver.exe"  # Replace with your custom path
 service = Service(chrome_driver_path)
-driver = webdriver.Chrome(service=service)'''
+driver = webdriver.Chrome(service=service)
 
 def generator():
     while True:
@@ -20,8 +20,8 @@ def start_athena(username, passcode):
     from .athena_prod import Athena
     from strep_files.strep_bot_prod import start_strep
 
-    #NBS = Athena(driver=driver, production=is_in_production) # uncomment to run merge code
-    NBS = Athena(production=True) # comment out to run merge code
+    NBS = Athena(driver=driver, production=is_in_production) # new code line for merge adding driver
+    #NBS = Athena(production=True) # comment out to run merge code
     NBS.set_credentials(username, passcode)
     NBS.log_in()
     NBS.GoToApprovalQueue()
@@ -38,10 +38,17 @@ def start_athena(username, passcode):
         elif NBS.queue_loaded == False:
             NBS.queue_loaded = None
             NBS.SendManualReviewEmail()
-            start_strep(NBS.driver)
+            if attempt_counter < NBS.num_attempts:
+                    attempt_counter += 1
+            else:
+                attempt_counter = 0
+                print("No covid 19  cases in notification queue.")
+                NBS.SendManualReviewEmail()
+                start_strep(NBS.driver)
             # add new bots here
-            NBS.Sleep()
-            continue
+                NBS.Sleep()
+                start_athena(driver)
+                continue
 
         NBS.CheckFirstCase()
         NBS.initial_name = NBS.patient_name
@@ -65,7 +72,8 @@ def start_athena(username, passcode):
                 NBS.queue_loaded = None
                 continue
             if len(NBS.issues) > 0:
-                NBS.SortApprovalQueue()
+                #NBS.SortApprovalQueue()
+                NBS.SortApprovalQueueAthena()
                 if NBS.queue_loaded:
                     NBS.queue_loaded = None
                     continue
@@ -82,9 +90,10 @@ def start_athena(username, passcode):
             else:
                 attempt_counter = 0
                 print("No COVID-19 cases in notification queue.")
-                #NBS.SendManualReviewEmail() ### uncomment while putting into production
+                NBS.SendManualReviewEmail() 
                 start_strep(NBS.driver)
                 NBS.Sleep()
+                
         # except:
         #     tb = traceback.format_exc()
         #     print(tb)
