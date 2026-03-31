@@ -1,0 +1,24 @@
+waking bots...
+**select bots**
+1. athena
+2. audrey
+3. anaplasma
+4. strep
+5. CovidEcr
+6. HepBnotificationreview
+7. Gonorrhea
+8. ILIOutbreak
+Enter selections as space-separated numbers..: selected: athena
+Enter your SOM username ("first_name.last_name"):Enter your RSA passcode:putting bots to sleep...
+waking bots...
+**select bots**
+1. athena
+2. audrey
+3. anaplasma
+4. strep
+5. CovidEcr
+6. HepBnotificationreview
+7. Gonorrhea
+8. ILIOutbreak
+Enter selections as space-separated numbers..: selected: athena
+Enter your SOM username ("first_name.last_name"):Enter your RSA passcode:putting bots to sleep...

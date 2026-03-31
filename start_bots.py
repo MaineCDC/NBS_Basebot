@@ -6,9 +6,9 @@ from anaplasma_files.anaplasma_bot import start_anaplasma
 from audrey_files.audrey_bot import start_audrey
 from athena_files.athena_bot import start_athena
 from strep_files.strep_bot import start_strep
-from CovidECR_files.CovidEcr_bot import start_CovidEcr
+#from CovidECR_files.CovidEcr_bot import start_CovidEcr
 from HepBnotificationreview_files.HepBnotificationreview_bot import start_HepBnotificationreview
-from Gonorrhea_files.Gonorrhea_bot import start_Gonorrhea
+#from Gonorrhea_files.Gonorrhea_bot import start_Gonorrhea
 from ILIOutbreak_files.ILIOutbreak_bot import start_ILIOutbreak
 # run the get credentials function
 bots = {
@@ -16,9 +16,9 @@ bots = {
     2: start_audrey,
     3: start_anaplasma,
     4: start_strep,
-    5: start_CovidEcr,
+    #5: start_CovidEcr,
     6: start_HepBnotificationreview,
-    7: start_Gonorrhea,
+    #7: start_Gonorrhea,
     8: start_ILIOutbreak
     }
 targets = []

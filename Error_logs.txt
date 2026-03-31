@@ -1,0 +1,74 @@
+03_31_2026 - 12:10:44.621494 | athena - Traceback (most recent call last):
+  File "c:\Users\nbsauto.dhhs\Athena-iGAS\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\driver_finder.py", line 64, in _binary_paths
+    raise ValueError(f"The path is not a valid file: {path}")
+ValueError: The path is not a valid file: C:/Users/vaishnavi.appidi/OneDrive - State of Maine/Desktop/chromedriver-win32/chromedriver.exe
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\nbsauto.dhhs\Athena-iGAS\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\nbsauto.dhhs\Athena-iGAS\NBS_Basebot\athena_files\athena_bot.py", line 13, in start_athena
+    from .athena import Athena
+  File "c:\Users\nbsauto.dhhs\Athena-iGAS\NBS_Basebot\athena_files\athena.py", line 1, in <module>
+    from Base import NBSdriver
+  File "c:\Users\nbsauto.dhhs\Athena-iGAS\NBS_Basebot\Base.py", line 15, in <module>
+    driver = webdriver.Chrome(service=service)
+  File "c:\Users\nbsauto.dhhs\Athena-iGAS\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chrome\webdriver.py", line 45, in __init__
+    super().__init__(
+    ~~~~~~~~~~~~~~~~^
+        browser_name=DesiredCapabilities.CHROME["browserName"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        keep_alive=keep_alive,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\Users\nbsauto.dhhs\Athena-iGAS\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chromium\webdriver.py", line 50, in __init__
+    if finder.get_browser_path():
+       ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\Users\nbsauto.dhhs\Athena-iGAS\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\driver_finder.py", line 47, in get_browser_path
+    return self._binary_paths()["browser_path"]
+           ~~~~~~~~~~~~~~~~~~^^
+  File "c:\Users\nbsauto.dhhs\Athena-iGAS\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\driver_finder.py", line 78, in _binary_paths
+    raise NoSuchDriverException(msg) from err
+selenium.common.exceptions.NoSuchDriverException: Message: Unable to obtain driver for chrome; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors/driver_location
+
+
+03_31_2026 - 12:14:14.614266 | athena - Traceback (most recent call last):
+  File "c:\Users\nbsauto.dhhs\Athena-iGAS\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\driver_finder.py", line 64, in _binary_paths
+    raise ValueError(f"The path is not a valid file: {path}")
+ValueError: The path is not a valid file: C:/Users/vaishnavi.appidi/OneDrive - State of Maine/Desktop/chromedriver-win32/chromedriver.exe
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\nbsauto.dhhs\Athena-iGAS\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\nbsauto.dhhs\Athena-iGAS\NBS_Basebot\athena_files\athena_bot.py", line 13, in start_athena
+    from .athena import Athena
+  File "c:\Users\nbsauto.dhhs\Athena-iGAS\NBS_Basebot\athena_files\athena.py", line 1, in <module>
+    from Base import NBSdriver
+  File "c:\Users\nbsauto.dhhs\Athena-iGAS\NBS_Basebot\Base.py", line 15, in <module>
+    driver = webdriver.Chrome(service=service)
+  File "c:\Users\nbsauto.dhhs\Athena-iGAS\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chrome\webdriver.py", line 45, in __init__
+    super().__init__(
+    ~~~~~~~~~~~~~~~~^
+        browser_name=DesiredCapabilities.CHROME["browserName"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        keep_alive=keep_alive,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\Users\nbsauto.dhhs\Athena-iGAS\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chromium\webdriver.py", line 50, in __init__
+    if finder.get_browser_path():
+       ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\Users\nbsauto.dhhs\Athena-iGAS\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\driver_finder.py", line 47, in get_browser_path
+    return self._binary_paths()["browser_path"]
+           ~~~~~~~~~~~~~~~~~~^^
+  File "c:\Users\nbsauto.dhhs\Athena-iGAS\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\driver_finder.py", line 78, in _binary_paths
+    raise NoSuchDriverException(msg) from err
+selenium.common.exceptions.NoSuchDriverException: Message: Unable to obtain driver for chrome; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors/driver_location
+
+

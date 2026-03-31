@@ -27,9 +27,7 @@ def start_strep(driver):
     error = False
     n = 1
     attempt_counter = 0
-    '''with open("patients_to_skip.txt", "r") as patient_reader:
-        patients_to_skip.append(patient_reader.readlines())'''
-
+    
     loop = tqdm(generator())
     for _ in loop:
         try:
@@ -78,9 +76,9 @@ def start_strep(driver):
                 
                 NBS.StandardChecks()
                 if not NBS.issues:
-                    reviewed_ids.append(inv_id)
+                    '''reviewed_ids.append(inv_id)
                     what_do.append("Approved Notification")
-                    reason.append('No issues found.')
+                    reason.append('No issues found.')'''
                     print("Approved Notification")
                     NBS.ApproveNotification()
                     #NBS.SendStrepEmail("Hey, please don't change anything at all and just click CN", inv_id)
@@ -130,8 +128,6 @@ def start_strep(driver):
             # raise Exception(e)
             error_list.append(str(e))
             error = True
-
-
 
 if __name__ == '__main__':
     start_strep()

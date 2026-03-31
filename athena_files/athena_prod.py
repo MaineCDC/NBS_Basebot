@@ -12,7 +12,7 @@ class Athena(NBSdriver):
     """ A class to review COVID-19 cases in the notification queue.
     It inherits from NBSdriver."""
 
-    def __init__(self, driver, production=False):
+    def __init__(self, driver, production=True):
         super().__init__(driver, production)
         self.driver = driver
         self.num_approved = 0
