@@ -38,10 +38,6 @@ def start_Gonorrhea(username, passcode):
     from .Gonorrhea import Gonorrhea
     load_dotenv()
     NBS = Gonorrhea(production=is_in_production)
-    if is_in_production:
-        print("Production Environment")
-    else:
-        print("Development Environment")
         
     NBS.set_credentials(username, passcode)
     NBS.log_in()
@@ -55,7 +51,7 @@ def start_Gonorrhea(username, passcode):
     '''with open("patients_to_skip.txt", "r") as patient_reader:
         patients_to_skip.append(patient_reader.readlines())'''
 
-    limit = 41
+    limit = 1
     loop = tqdm(generator())
     for _ in loop:
         #check if the bot haa gone through the set limit of reviews

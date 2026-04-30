@@ -1,0 +1,1127 @@
+if (typeof dwr == 'undefined' || dwr.engine == undefined) throw new Error('You must include DWR engine before including this file');
+
+(function() {
+if (dwr.engine._getObject("JBaseForm") == undefined) {
+var p;
+
+p = {};
+
+
+
+
+
+p.getField = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getField', arguments);
+};
+
+
+
+
+p.getGenericType = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getGenericType', arguments);
+};
+
+
+
+
+
+p.reset = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'reset', arguments);
+};
+
+
+
+
+
+p.setMode = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setMode', arguments);
+};
+
+
+
+
+p.getMode = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getMode', arguments);
+};
+
+
+
+
+p.getReportingFacilityUid = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getReportingFacilityUid', arguments);
+};
+
+
+
+
+p.getNextId = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getNextId', arguments);
+};
+
+
+
+
+
+p.getDwrCountiesForState = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getDwrCountiesForState', arguments);
+};
+
+
+
+
+p.getDwrDefaultStateCounties = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getDwrDefaultStateCounties', arguments);
+};
+
+
+
+
+
+p.setSubSecStructureMap = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setSubSecStructureMap', arguments);
+};
+
+
+
+
+
+p.setAnswersBatchEntry = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setAnswersBatchEntry', arguments);
+};
+
+
+
+
+
+p.setBatchEntryMap2 = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setBatchEntryMap2', arguments);
+};
+
+
+
+
+
+p.getDwrImportedCountiesForState = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getDwrImportedCountiesForState', arguments);
+};
+
+
+
+
+p.getUpdatedRepeatingCommentsMap = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getUpdatedRepeatingCommentsMap', arguments);
+};
+
+
+
+
+p.getDwrStateSiteCounties = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getDwrStateSiteCounties', arguments);
+};
+
+
+
+
+
+p.getDwrImportedCountiesForState2 = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getDwrImportedCountiesForState2', arguments);
+};
+
+
+
+
+p.getDwrImportedCounties = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getDwrImportedCounties', arguments);
+};
+
+
+
+
+p.getDwrImportedCounties2 = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getDwrImportedCounties2', arguments);
+};
+
+
+
+
+
+p.getOnLoadCityList = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getOnLoadCityList', arguments);
+};
+
+
+
+
+
+p.clearDWROrganization = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'clearDWROrganization', arguments);
+};
+
+
+
+
+
+
+p.getDwrOrganizationDetails = function(p0, p1, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getDwrOrganizationDetails', arguments);
+};
+
+
+
+
+
+
+p.getDwrInvestigatorDetailsByUid = function(p0, p1, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getDwrInvestigatorDetailsByUid', arguments);
+};
+
+
+
+
+
+
+p.getDwrPopulateOrganizationByUid = function(p0, p1, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getDwrPopulateOrganizationByUid', arguments);
+};
+
+
+
+
+
+p.clearRepeatingblk = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'clearRepeatingblk', arguments);
+};
+
+
+
+
+
+p.setUpdatedRepeatingCommentsMap = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setUpdatedRepeatingCommentsMap', arguments);
+};
+
+
+
+
+p.getJurisdictionListNoExport = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getJurisdictionListNoExport', arguments);
+};
+
+
+
+
+
+
+p.getDwrPlaceDetails = function(p0, p1, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getDwrPlaceDetails', arguments);
+};
+
+
+
+
+
+p.setQuestionMetadataMap = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setQuestionMetadataMap', arguments);
+};
+
+
+
+
+
+p.setDwrImportedCounties2 = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setDwrImportedCounties2', arguments);
+};
+
+
+
+
+p.getExportFacilityList = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getExportFacilityList', arguments);
+};
+
+
+
+
+
+p.getDwrPlaceDetailsByName = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getDwrPlaceDetailsByName', arguments);
+};
+
+
+
+
+p.getBusinessObjectType = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getBusinessObjectType', arguments);
+};
+
+
+
+
+
+p.setErrorFieldList = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setErrorFieldList', arguments);
+};
+
+
+
+
+
+p.setSubSecStructureMap2 = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setSubSecStructureMap2', arguments);
+};
+
+
+
+
+p.getQuestionMetadataMap = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getQuestionMetadataMap', arguments);
+};
+
+
+
+
+
+p.setDwrStateSiteCounties = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setDwrStateSiteCounties', arguments);
+};
+
+
+
+
+
+p.clearDWRInvestigator = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'clearDWRInvestigator', arguments);
+};
+
+
+
+
+
+
+p.getDwrInvestigatorDetails = function(p0, p1, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getDwrInvestigatorDetails', arguments);
+};
+
+
+
+
+
+
+p.getDwrOrganizationDetailsByUid = function(p0, p1, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getDwrOrganizationDetailsByUid', arguments);
+};
+
+
+
+
+
+
+p.getDwrPopulateInvestigatorByUid = function(p0, p1, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getDwrPopulateInvestigatorByUid', arguments);
+};
+
+
+
+
+
+p.setBusinessObjectType = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setBusinessObjectType', arguments);
+};
+
+
+
+
+p.getErrorFieldList = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getErrorFieldList', arguments);
+};
+
+
+
+
+
+p.setDwrImportedCounties = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setDwrImportedCounties', arguments);
+};
+
+
+
+
+
+p.getCodedValueNoBlnk = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getCodedValueNoBlnk', arguments);
+};
+
+
+
+
+p.getBatchEntryMap2 = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getBatchEntryMap2', arguments);
+};
+
+
+
+
+p.getSubSecStructureMap = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getSubSecStructureMap', arguments);
+};
+
+
+
+
+p.getSubSecStructureMap2 = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getSubSecStructureMap2', arguments);
+};
+
+
+
+
+
+
+
+
+p.showHideOrganismByID = function(p0, p1, p2, p3, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'showHideOrganismByID', arguments);
+};
+
+
+
+
+
+p.setDwrOrganizationUid = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setDwrOrganizationUid', arguments);
+};
+
+
+
+
+
+p.setActionModeParent = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setActionModeParent', arguments);
+};
+
+
+
+
+
+p.deleteSubFormFromSession = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'deleteSubFormFromSession', arguments);
+};
+
+
+
+
+p.getActionModeParent = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getActionModeParent', arguments);
+};
+
+
+
+
+
+p.getDwrPatientDetails = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getDwrPatientDetails', arguments);
+};
+
+
+
+
+
+p.isTbConditionCode = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'isTbConditionCode', arguments);
+};
+
+
+
+
+
+p.getNamedInterviews = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getNamedInterviews', arguments);
+};
+
+
+
+
+
+p.getTheNamedInterview = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getTheNamedInterview', arguments);
+};
+
+
+
+
+
+
+
+p.showHideOrganismByTestCode = function(p0, p1, p2, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'showHideOrganismByTestCode', arguments);
+};
+
+
+
+
+
+p.getDwrPlaceDetailsByUid = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getDwrPlaceDetailsByUid', arguments);
+};
+
+
+
+
+p.getCodedResultData = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getCodedResultData', arguments);
+};
+
+
+
+
+p.clearDwrPatientDetails = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'clearDwrPatientDetails', arguments);
+};
+
+
+
+
+
+
+p.getDwrPopulateCodeResultByUid = function(p0, p1, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getDwrPopulateCodeResultByUid', arguments);
+};
+
+
+
+
+
+
+p.isStateCaseNumberUnique = function(p0, p1, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'isStateCaseNumberUnique', arguments);
+};
+
+
+
+
+
+
+
+
+p.getDwrContactPatientDetailsByUid = function(p0, p1, p2, p3, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getDwrContactPatientDetailsByUid', arguments);
+};
+
+
+
+
+p.getDwrOrganizationUid = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getDwrOrganizationUid', arguments);
+};
+
+
+
+
+
+p.isSyphilisCondition = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'isSyphilisCondition', arguments);
+};
+
+
+
+
+
+
+p.getDwrPopulateResultedTestByUid = function(p0, p1, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getDwrPopulateResultedTestByUid', arguments);
+};
+
+
+
+
+
+p.getSecurity = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getSecurity', arguments);
+};
+
+
+
+
+p.getActionMode = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getActionMode', arguments);
+};
+
+
+
+
+
+p.setDwrCounties = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setDwrCounties', arguments);
+};
+
+
+
+
+
+p.setAttributeMap = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setAttributeMap', arguments);
+};
+
+
+
+
+p.getDwrCounties = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getDwrCounties', arguments);
+};
+
+
+
+
+
+p.setBatchEntryMap = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setBatchEntryMap', arguments);
+};
+
+
+
+
+p.getSelection = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getSelection', arguments);
+};
+
+
+
+
+
+p.setPageTitle = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setPageTitle', arguments);
+};
+
+
+
+
+
+p.setLdfMap = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setLdfMap', arguments);
+};
+
+
+
+
+p.getPageTitle = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getPageTitle', arguments);
+};
+
+
+
+
+
+p.setSecurityMap = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setSecurityMap', arguments);
+};
+
+
+
+
+
+p.getLdf = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getLdf', arguments);
+};
+
+
+
+
+p.getFormFieldMap = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getFormFieldMap', arguments);
+};
+
+
+
+
+
+p.setAnswer = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setAnswer', arguments);
+};
+
+
+
+
+
+p.setErrorTabs = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setErrorTabs', arguments);
+};
+
+
+
+
+
+p.setSelection = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setSelection', arguments);
+};
+
+
+
+
+p.getLdfCollection = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getLdfCollection', arguments);
+};
+
+
+
+
+
+p.setLdfCollection = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setLdfCollection', arguments);
+};
+
+
+
+
+p.getErrorList = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getErrorList', arguments);
+};
+
+
+
+
+p.getSecurityMap = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getSecurityMap', arguments);
+};
+
+
+
+
+p.getLdfMap = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getLdfMap', arguments);
+};
+
+
+
+
+
+p.deleteAnswer = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'deleteAnswer', arguments);
+};
+
+
+
+
+
+p.setGenericType = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setGenericType', arguments);
+};
+
+
+
+
+
+p.updateAnswer = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'updateAnswer', arguments);
+};
+
+
+
+
+
+p.getAllAnswer2 = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getAllAnswer2', arguments);
+};
+
+
+
+
+p.getBatchEntryMap = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getBatchEntryMap', arguments);
+};
+
+
+
+
+p.getErrorTabs = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getErrorTabs', arguments);
+};
+
+
+
+
+
+p.setErrorList = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setErrorList', arguments);
+};
+
+
+
+
+
+p.getAllAnswer = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getAllAnswer', arguments);
+};
+
+
+
+
+
+p.setAttributeMap2 = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setAttributeMap2', arguments);
+};
+
+
+
+
+
+p.getRaceList = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getRaceList', arguments);
+};
+
+
+
+
+
+p.clearDWRContact = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'clearDWRContact', arguments);
+};
+
+
+
+
+
+p.setNoDataArray = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setNoDataArray', arguments);
+};
+
+
+
+
+p.getNoDataArray = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getNoDataArray', arguments);
+};
+
+
+
+
+
+p.setSecurityMap2 = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setSecurityMap2', arguments);
+};
+
+
+
+
+
+p.getDwrCityList = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getDwrCityList', arguments);
+};
+
+
+
+
+p.getOrganismData = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getOrganismData', arguments);
+};
+
+
+
+
+p.getAttributeMap2 = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getAttributeMap2', arguments);
+};
+
+
+
+
+p.getPageFormCd = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getPageFormCd', arguments);
+};
+
+
+
+
+p.getBirthCountry = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getBirthCountry', arguments);
+};
+
+
+
+
+p.getSecurityMap2 = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getSecurityMap2', arguments);
+};
+
+
+
+
+
+
+
+
+
+p.showHideOrganism = function(p0, p1, p2, p3, p4, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'showHideOrganism', arguments);
+};
+
+
+
+
+
+p.setPageFormCd = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setPageFormCd', arguments);
+};
+
+
+
+
+
+p.getCodedValue = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getCodedValue', arguments);
+};
+
+
+
+
+p.getCountryList = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getCountryList', arguments);
+};
+
+
+
+
+p.getStateList = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getStateList', arguments);
+};
+
+
+
+
+p.getLanguageCodes = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getLanguageCodes', arguments);
+};
+
+
+
+
+
+p.getDropDownValues = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getDropDownValues', arguments);
+};
+
+
+
+
+p.getJurisdictionList = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getJurisdictionList', arguments);
+};
+
+
+
+
+p.getDisableSubmitBeforePageLoadsFlag = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getDisableSubmitBeforePageLoadsFlag', arguments);
+};
+
+
+
+
+p.getAttributeMap = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getAttributeMap', arguments);
+};
+
+
+
+
+
+
+p.toJson = function(p0, p1, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'toJson', arguments);
+};
+
+
+
+
+
+
+p.getCodeShortDescTxt = function(p0, p1, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getCodeShortDescTxt', arguments);
+};
+
+
+
+
+p.getIsoCountryList = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getIsoCountryList', arguments);
+};
+
+
+
+
+p.getExportJurisdictionList = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getExportJurisdictionList', arguments);
+};
+
+
+
+
+p.getPrimaryOccupationCodes = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getPrimaryOccupationCodes', arguments);
+};
+
+
+
+
+
+p.getfilteredStatesByCountry = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getfilteredStatesByCountry', arguments);
+};
+
+
+
+
+p.getProgramAreaList = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getProgramAreaList', arguments);
+};
+
+
+
+
+p.getTabId = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getTabId', arguments);
+};
+
+
+
+
+
+p.setTabId = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setTabId', arguments);
+};
+
+
+
+
+
+p.setCityList = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setCityList', arguments);
+};
+
+
+
+
+p.getCityList = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getCityList', arguments);
+};
+
+
+
+
+
+p.setActionMode = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setActionMode', arguments);
+};
+
+
+
+
+
+p.setFormFieldMap = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setFormFieldMap', arguments);
+};
+
+
+
+
+
+p.validate = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'validate', arguments);
+};
+
+
+
+
+p.getResultValueMap = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getResultValueMap', arguments);
+};
+
+
+
+
+
+p.setValidatorResults = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setValidatorResults', arguments);
+};
+
+
+
+
+p.getValidatorResults = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getValidatorResults', arguments);
+};
+
+
+
+
+p.getPage = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getPage', arguments);
+};
+
+
+
+
+
+p.getValidationKey = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getValidationKey', arguments);
+};
+
+
+
+
+
+p.setPage = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setPage', arguments);
+};
+
+
+
+
+
+
+p.reset = function(p0, p1, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'reset', arguments);
+};
+
+
+
+
+
+
+p.validate = function(p0, p1, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'validate', arguments);
+};
+
+
+
+
+
+p.setMultipartRequestHandler = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setMultipartRequestHandler', arguments);
+};
+
+
+
+
+p.getServletWrapper = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getServletWrapper', arguments);
+};
+
+
+
+
+p.getMultipartRequestHandler = function(callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'getMultipartRequestHandler', arguments);
+};
+
+
+
+
+
+p.setServlet = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JBaseForm', 'setServlet', arguments);
+};
+
+dwr.engine._setObject("JBaseForm", p);
+}
+})();
+

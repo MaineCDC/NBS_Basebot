@@ -3076,3 +3076,2444 @@ Symbols not available. Dumping unresolved backtrace:
 	0x7ffcd1e6afb8
 
 
+03_03_2026 - 11:57:12.192397 | athena - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+TypeError: start_athena() missing 1 required positional argument: 'passcode'
+
+03_03_2026 - 13:46:21.528054 | audrey - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\audrey_files\audrey_bot.py", line 75, in start_audrey
+    from .audrey import Audrey
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\audrey_files\audrey.py", line 15, in <module>
+    import dask.dataframe as dd
+ModuleNotFoundError: No module named 'dask'
+
+03_03_2026 - 13:48:13.525604 | audrey - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\audrey_files\audrey_bot.py", line 75, in start_audrey
+    from .audrey import Audrey
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\audrey_files\audrey.py", line 15, in <module>
+    import dask.dataframe as dd
+ModuleNotFoundError: No module named 'dask'
+
+03_03_2026 - 13:50:16.920820 | audrey - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 88, in frame
+    frame_reference = self._driver.find_element(By.ID, frame_reference)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 770, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"[id="contentFrame"]"}
+  (Session info: chrome=145.0.7632.117); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff7b7f4aa55
+	0x7ff7b7ca8630
+	0x7ff7b7a3d75d
+	0x7ff7b7a9862e
+	0x7ff7b7a9893c
+	0x7ff7b7ae8d87
+	0x7ff7b7ae591c
+	0x7ff7b7a89098
+	0x7ff7b7a89f83
+	0x7ff7b7f77810
+	0x7ff7b7f71afd
+	0x7ff7b7f92c1a
+	0x7ff7b7cc3345
+	0x7ff7b7ccb81c
+	0x7ff7b7cb1924
+	0x7ff7b7cb1ad6
+	0x7ff7b7c97e47
+	0x7ffcd0e4259d
+	0x7ffcd1e6afb8
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 91, in frame
+    frame_reference = self._driver.find_element(By.NAME, frame_reference)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 770, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"[name="contentFrame"]"}
+  (Session info: chrome=145.0.7632.117); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff7b7f4aa55
+	0x7ff7b7ca8630
+	0x7ff7b7a3d75d
+	0x7ff7b7a9862e
+	0x7ff7b7a9893c
+	0x7ff7b7ae8d87
+	0x7ff7b7ae591c
+	0x7ff7b7a89098
+	0x7ff7b7a89f83
+	0x7ff7b7f77810
+	0x7ff7b7f71afd
+	0x7ff7b7f92c1a
+	0x7ff7b7cc3345
+	0x7ff7b7ccb81c
+	0x7ff7b7cb1924
+	0x7ff7b7cb1ad6
+	0x7ff7b7c97e47
+	0x7ffcd0e4259d
+	0x7ffcd1e6afb8
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\audrey_files\audrey_bot.py", line 85, in start_audrey
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\Base.py", line 150, in log_in
+    self.switch_to.frame("contentFrame")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 93, in frame
+    raise NoSuchFrameException(frame_reference) from exc
+selenium.common.exceptions.NoSuchFrameException: Message: contentFrame
+
+
+03_03_2026 - 14:41:34.184079 | audrey - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\audrey_files\audrey_bot.py", line 441, in start_audrey
+    pat_dob_date = re.findall(r'\b\d{2}/\d{2}/\d{4}\b',pat_dob_text)[0]
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+03_03_2026 - 14:43:12.668320 | audrey - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 88, in frame
+    frame_reference = self._driver.find_element(By.ID, frame_reference)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 770, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"[id="contentFrame"]"}
+  (Session info: chrome=145.0.7632.117); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff7b7f4aa55
+	0x7ff7b7ca8630
+	0x7ff7b7a3d75d
+	0x7ff7b7a9862e
+	0x7ff7b7a9893c
+	0x7ff7b7ae8d87
+	0x7ff7b7ae591c
+	0x7ff7b7a89098
+	0x7ff7b7a89f83
+	0x7ff7b7f77810
+	0x7ff7b7f71afd
+	0x7ff7b7f92c1a
+	0x7ff7b7cc3345
+	0x7ff7b7ccb81c
+	0x7ff7b7cb1924
+	0x7ff7b7cb1ad6
+	0x7ff7b7c97e47
+	0x7ffcd0e4259d
+	0x7ffcd1e6afb8
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 91, in frame
+    frame_reference = self._driver.find_element(By.NAME, frame_reference)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 770, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"[name="contentFrame"]"}
+  (Session info: chrome=145.0.7632.117); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff7b7f4aa55
+	0x7ff7b7ca8630
+	0x7ff7b7a3d75d
+	0x7ff7b7a9862e
+	0x7ff7b7a9893c
+	0x7ff7b7ae8d87
+	0x7ff7b7ae591c
+	0x7ff7b7a89098
+	0x7ff7b7a89f83
+	0x7ff7b7f77810
+	0x7ff7b7f71afd
+	0x7ff7b7f92c1a
+	0x7ff7b7cc3345
+	0x7ff7b7ccb81c
+	0x7ff7b7cb1924
+	0x7ff7b7cb1ad6
+	0x7ff7b7c97e47
+	0x7ffcd0e4259d
+	0x7ffcd1e6afb8
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\audrey_files\audrey_bot.py", line 85, in start_audrey
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\Base.py", line 150, in log_in
+    self.switch_to.frame("contentFrame")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 93, in frame
+    raise NoSuchFrameException(frame_reference) from exc
+selenium.common.exceptions.NoSuchFrameException: Message: contentFrame
+
+
+03_03_2026 - 14:51:12.444622 | strep - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 88, in frame
+    frame_reference = self._driver.find_element(By.ID, frame_reference)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 770, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"[id="contentFrame"]"}
+  (Session info: chrome=145.0.7632.117); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff7b7f4aa55
+	0x7ff7b7ca8630
+	0x7ff7b7a3d75d
+	0x7ff7b7a9862e
+	0x7ff7b7a9893c
+	0x7ff7b7ae8d87
+	0x7ff7b7ae591c
+	0x7ff7b7a89098
+	0x7ff7b7a89f83
+	0x7ff7b7f77810
+	0x7ff7b7f71afd
+	0x7ff7b7f92c1a
+	0x7ff7b7cc3345
+	0x7ff7b7ccb81c
+	0x7ff7b7cb1924
+	0x7ff7b7cb1ad6
+	0x7ff7b7c97e47
+	0x7ffcd0e4259d
+	0x7ffcd1e6afb8
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 91, in frame
+    frame_reference = self._driver.find_element(By.NAME, frame_reference)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 770, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"[name="contentFrame"]"}
+  (Session info: chrome=145.0.7632.117); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff7b7f4aa55
+	0x7ff7b7ca8630
+	0x7ff7b7a3d75d
+	0x7ff7b7a9862e
+	0x7ff7b7a9893c
+	0x7ff7b7ae8d87
+	0x7ff7b7ae591c
+	0x7ff7b7a89098
+	0x7ff7b7a89f83
+	0x7ff7b7f77810
+	0x7ff7b7f71afd
+	0x7ff7b7f92c1a
+	0x7ff7b7cc3345
+	0x7ff7b7ccb81c
+	0x7ff7b7cb1924
+	0x7ff7b7cb1ad6
+	0x7ff7b7c97e47
+	0x7ffcd0e4259d
+	0x7ffcd1e6afb8
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\strep_files\strep_bot.py", line 47, in start_strep
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\Base.py", line 150, in log_in
+    self.switch_to.frame("contentFrame")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 93, in frame
+    raise NoSuchFrameException(frame_reference) from exc
+selenium.common.exceptions.NoSuchFrameException: Message: contentFrame
+
+
+03_03_2026 - 14:51:33.245979 | audrey - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\audrey_files\audrey_bot.py", line 441, in start_audrey
+    pat_dob_date = re.findall(r'\b\d{2}/\d{2}/\d{4}\b',pat_dob_text)[0]
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+03_03_2026 - 15:27:47.614024 | audrey - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\audrey_files\audrey_bot.py", line 441, in start_audrey
+    pat_dob_date = re.findall(r'\b\d{2}/\d{2}/\d{4}\b',pat_dob_text)[0]
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+03_03_2026 - 15:28:45.723020 | strep - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 88, in frame
+    frame_reference = self._driver.find_element(By.ID, frame_reference)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 770, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"[id="contentFrame"]"}
+  (Session info: chrome=145.0.7632.117); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff7b7f4aa55
+	0x7ff7b7ca8630
+	0x7ff7b7a3d75d
+	0x7ff7b7a9862e
+	0x7ff7b7a9893c
+	0x7ff7b7ae8d87
+	0x7ff7b7ae591c
+	0x7ff7b7a89098
+	0x7ff7b7a89f83
+	0x7ff7b7f77810
+	0x7ff7b7f71afd
+	0x7ff7b7f92c1a
+	0x7ff7b7cc3345
+	0x7ff7b7ccb81c
+	0x7ff7b7cb1924
+	0x7ff7b7cb1ad6
+	0x7ff7b7c97e47
+	0x7ffcd0e4259d
+	0x7ffcd1e6afb8
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 91, in frame
+    frame_reference = self._driver.find_element(By.NAME, frame_reference)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 770, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"[name="contentFrame"]"}
+  (Session info: chrome=145.0.7632.117); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff7b7f4aa55
+	0x7ff7b7ca8630
+	0x7ff7b7a3d75d
+	0x7ff7b7a9862e
+	0x7ff7b7a9893c
+	0x7ff7b7ae8d87
+	0x7ff7b7ae591c
+	0x7ff7b7a89098
+	0x7ff7b7a89f83
+	0x7ff7b7f77810
+	0x7ff7b7f71afd
+	0x7ff7b7f92c1a
+	0x7ff7b7cc3345
+	0x7ff7b7ccb81c
+	0x7ff7b7cb1924
+	0x7ff7b7cb1ad6
+	0x7ff7b7c97e47
+	0x7ffcd0e4259d
+	0x7ffcd1e6afb8
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\strep_files\strep_bot.py", line 47, in start_strep
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\Base.py", line 150, in log_in
+    self.switch_to.frame("contentFrame")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 93, in frame
+    raise NoSuchFrameException(frame_reference) from exc
+selenium.common.exceptions.NoSuchFrameException: Message: contentFrame
+
+
+03_03_2026 - 15:31:29.437209 | strep - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 88, in frame
+    frame_reference = self._driver.find_element(By.ID, frame_reference)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 770, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"[id="contentFrame"]"}
+  (Session info: chrome=145.0.7632.117); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff7b7f4aa55
+	0x7ff7b7ca8630
+	0x7ff7b7a3d75d
+	0x7ff7b7a9862e
+	0x7ff7b7a9893c
+	0x7ff7b7ae8d87
+	0x7ff7b7ae591c
+	0x7ff7b7a89098
+	0x7ff7b7a89f83
+	0x7ff7b7f77810
+	0x7ff7b7f71afd
+	0x7ff7b7f92c1a
+	0x7ff7b7cc3345
+	0x7ff7b7ccb81c
+	0x7ff7b7cb1924
+	0x7ff7b7cb1ad6
+	0x7ff7b7c97e47
+	0x7ffcd0e4259d
+	0x7ffcd1e6afb8
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 91, in frame
+    frame_reference = self._driver.find_element(By.NAME, frame_reference)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 770, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"[name="contentFrame"]"}
+  (Session info: chrome=145.0.7632.117); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff7b7f4aa55
+	0x7ff7b7ca8630
+	0x7ff7b7a3d75d
+	0x7ff7b7a9862e
+	0x7ff7b7a9893c
+	0x7ff7b7ae8d87
+	0x7ff7b7ae591c
+	0x7ff7b7a89098
+	0x7ff7b7a89f83
+	0x7ff7b7f77810
+	0x7ff7b7f71afd
+	0x7ff7b7f92c1a
+	0x7ff7b7cc3345
+	0x7ff7b7ccb81c
+	0x7ff7b7cb1924
+	0x7ff7b7cb1ad6
+	0x7ff7b7c97e47
+	0x7ffcd0e4259d
+	0x7ffcd1e6afb8
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\strep_files\strep_bot.py", line 47, in start_strep
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\Base.py", line 150, in log_in
+    self.switch_to.frame("contentFrame")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 93, in frame
+    raise NoSuchFrameException(frame_reference) from exc
+selenium.common.exceptions.NoSuchFrameException: Message: contentFrame
+
+
+03_03_2026 - 15:37:48.484057 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 88, in frame
+    frame_reference = self._driver.find_element(By.ID, frame_reference)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 770, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"[id="contentFrame"]"}
+  (Session info: chrome=145.0.7632.117); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff7b7f4aa55
+	0x7ff7b7ca8630
+	0x7ff7b7a3d75d
+	0x7ff7b7a9862e
+	0x7ff7b7a9893c
+	0x7ff7b7ae8d87
+	0x7ff7b7ae591c
+	0x7ff7b7a89098
+	0x7ff7b7a89f83
+	0x7ff7b7f77810
+	0x7ff7b7f71afd
+	0x7ff7b7f92c1a
+	0x7ff7b7cc3345
+	0x7ff7b7ccb81c
+	0x7ff7b7cb1924
+	0x7ff7b7cb1ad6
+	0x7ff7b7c97e47
+	0x7ffcd0e4259d
+	0x7ffcd1e6afb8
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 91, in frame
+    frame_reference = self._driver.find_element(By.NAME, frame_reference)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 770, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"[name="contentFrame"]"}
+  (Session info: chrome=145.0.7632.117); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff7b7f4aa55
+	0x7ff7b7ca8630
+	0x7ff7b7a3d75d
+	0x7ff7b7a9862e
+	0x7ff7b7a9893c
+	0x7ff7b7ae8d87
+	0x7ff7b7ae591c
+	0x7ff7b7a89098
+	0x7ff7b7a89f83
+	0x7ff7b7f77810
+	0x7ff7b7f71afd
+	0x7ff7b7f92c1a
+	0x7ff7b7cc3345
+	0x7ff7b7ccb81c
+	0x7ff7b7cb1924
+	0x7ff7b7cb1ad6
+	0x7ff7b7c97e47
+	0x7ffcd0e4259d
+	0x7ffcd1e6afb8
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 48, in start_HepBnotificationreview
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\Base.py", line 150, in log_in
+    self.switch_to.frame("contentFrame")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 93, in frame
+    raise NoSuchFrameException(frame_reference) from exc
+selenium.common.exceptions.NoSuchFrameException: Message: contentFrame
+
+
+03_05_2026 - 11:30:45.197358 | audrey - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\audrey_files\audrey_bot.py", line 1763, in start_audrey
+    date_str = date_value.strftime('%m/%d/%Y')
+  File "nattype.pyx", line 54, in pandas._libs.tslibs.nattype._make_error_func.f
+ValueError: NaTType does not support strftime
+
+03_05_2026 - 11:42:38.309593 | audrey - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 88, in frame
+    frame_reference = self._driver.find_element(By.ID, frame_reference)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 770, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"[id="contentFrame"]"}
+  (Session info: chrome=145.0.7632.117); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff6fbfdaa55
+	0x7ff6fbd38630
+	0x7ff6fbacd75d
+	0x7ff6fbb2862e
+	0x7ff6fbb2893c
+	0x7ff6fbb78d87
+	0x7ff6fbb7591c
+	0x7ff6fbb19098
+	0x7ff6fbb19f83
+	0x7ff6fc007810
+	0x7ff6fc001afd
+	0x7ff6fc022c1a
+	0x7ff6fbd53345
+	0x7ff6fbd5b81c
+	0x7ff6fbd41924
+	0x7ff6fbd41ad6
+	0x7ff6fbd27e47
+	0x7ffcd0e4259d
+	0x7ffcd1e6afb8
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 91, in frame
+    frame_reference = self._driver.find_element(By.NAME, frame_reference)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 770, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"[name="contentFrame"]"}
+  (Session info: chrome=145.0.7632.117); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff6fbfdaa55
+	0x7ff6fbd38630
+	0x7ff6fbacd75d
+	0x7ff6fbb2862e
+	0x7ff6fbb2893c
+	0x7ff6fbb78d87
+	0x7ff6fbb7591c
+	0x7ff6fbb19098
+	0x7ff6fbb19f83
+	0x7ff6fc007810
+	0x7ff6fc001afd
+	0x7ff6fc022c1a
+	0x7ff6fbd53345
+	0x7ff6fbd5b81c
+	0x7ff6fbd41924
+	0x7ff6fbd41ad6
+	0x7ff6fbd27e47
+	0x7ffcd0e4259d
+	0x7ffcd1e6afb8
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\audrey_files\audrey_bot.py", line 85, in start_audrey
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\Base.py", line 150, in log_in
+    self.switch_to.frame("contentFrame")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 93, in frame
+    raise NoSuchFrameException(frame_reference) from exc
+selenium.common.exceptions.NoSuchFrameException: Message: contentFrame
+
+
+03_05_2026 - 12:05:11.675518 | audrey - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\audrey_files\audrey_bot.py", line 1763, in start_audrey
+    date_str = date_value.strftime('%m/%d/%Y')
+  File "nattype.pyx", line 54, in pandas._libs.tslibs.nattype._make_error_func.f
+ValueError: NaTType does not support strftime
+
+03_05_2026 - 12:08:15.281212 | audrey - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 88, in frame
+    frame_reference = self._driver.find_element(By.ID, frame_reference)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 770, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"[id="contentFrame"]"}
+  (Session info: chrome=145.0.7632.117); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff6fbfdaa55
+	0x7ff6fbd38630
+	0x7ff6fbacd75d
+	0x7ff6fbb2862e
+	0x7ff6fbb2893c
+	0x7ff6fbb78d87
+	0x7ff6fbb7591c
+	0x7ff6fbb19098
+	0x7ff6fbb19f83
+	0x7ff6fc007810
+	0x7ff6fc001afd
+	0x7ff6fc022c1a
+	0x7ff6fbd53345
+	0x7ff6fbd5b81c
+	0x7ff6fbd41924
+	0x7ff6fbd41ad6
+	0x7ff6fbd27e47
+	0x7ffcd0e4259d
+	0x7ffcd1e6afb8
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 91, in frame
+    frame_reference = self._driver.find_element(By.NAME, frame_reference)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 770, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"[name="contentFrame"]"}
+  (Session info: chrome=145.0.7632.117); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff6fbfdaa55
+	0x7ff6fbd38630
+	0x7ff6fbacd75d
+	0x7ff6fbb2862e
+	0x7ff6fbb2893c
+	0x7ff6fbb78d87
+	0x7ff6fbb7591c
+	0x7ff6fbb19098
+	0x7ff6fbb19f83
+	0x7ff6fc007810
+	0x7ff6fc001afd
+	0x7ff6fc022c1a
+	0x7ff6fbd53345
+	0x7ff6fbd5b81c
+	0x7ff6fbd41924
+	0x7ff6fbd41ad6
+	0x7ff6fbd27e47
+	0x7ffcd0e4259d
+	0x7ffcd1e6afb8
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\audrey_files\audrey_bot.py", line 85, in start_audrey
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\Base.py", line 150, in log_in
+    self.switch_to.frame("contentFrame")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 93, in frame
+    raise NoSuchFrameException(frame_reference) from exc
+selenium.common.exceptions.NoSuchFrameException: Message: contentFrame
+
+
+03_05_2026 - 12:27:26.567041 | audrey - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\audrey_files\audrey_bot.py", line 1763, in start_audrey
+    date_str = date_value.strftime('%m/%d/%Y')
+  File "nattype.pyx", line 54, in pandas._libs.tslibs.nattype._make_error_func.f
+ValueError: NaTType does not support strftime
+
+03_06_2026 - 12:03:23.453554 | audrey - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\audrey_files\audrey_bot.py", line 304, in start_audrey
+    results = NBS.find_elements(By.XPATH,f"//label[contains(text(),'{test}')]")
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 792, in find_elements
+    return self.execute(Command.FIND_ELEMENTS, {"using": by, "value": value})["value"] or []
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.InvalidSessionIdException: Message: invalid session id
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff759d0aa55
+	0x7ff759a68630
+	0x7ff7597fd546
+	0x7ff759848113
+	0x7ff7598818e2
+	0x7ff75987bb11
+	0x7ff75987adc3
+	0x7ff7597c6505
+	0x7ff759d37810
+	0x7ff759d31afd
+	0x7ff759d52c1a
+	0x7ff759a83345
+	0x7ff759a8b81c
+	0x7ff7597c536a
+	0x7ff759e92b08
+	0x7ffcd0e4259d
+	0x7ffcd1e6afb8
+
+
+03_11_2026 - 15:32:40.158948 | strep - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\strep_files\strep_bot.py", line 47, in start_strep
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\Base.py", line 158, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 105, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff6278baa55
+	0x7ff627618630
+	0x7ff6273ad75d
+	0x7ff62740862e
+	0x7ff62740893c
+	0x7ff627458d87
+	0x7ff62745591c
+	0x7ff6273f9098
+	0x7ff6273f9f83
+	0x7ff6278e7810
+	0x7ff6278e1afd
+	0x7ff627902c1a
+	0x7ff627633345
+	0x7ff62763b81c
+	0x7ff627621924
+	0x7ff627621ad6
+	0x7ff627607e47
+	0x7ffcd0e4259d
+	0x7ffcd1e6afb8
+
+
+03_11_2026 - 16:17:42.497479 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 48, in start_HepBnotificationreview
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\Base.py", line 158, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 105, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff70976aa55
+	0x7ff7094c8630
+	0x7ff70925d75d
+	0x7ff7092b862e
+	0x7ff7092b893c
+	0x7ff709308d87
+	0x7ff70930591c
+	0x7ff7092a9098
+	0x7ff7092a9f83
+	0x7ff709797810
+	0x7ff709791afd
+	0x7ff7097b2c1a
+	0x7ff7094e3345
+	0x7ff7094eb81c
+	0x7ff7094d1924
+	0x7ff7094d1ad6
+	0x7ff7094b7e47
+	0x7ffcd0e4259d
+	0x7ffcd1e6afb8
+
+
+03_18_2026 - 15:32:14.243978 | strep - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\service.py", line 214, in _start_process
+    self.process = subprocess.Popen(
+                   ~~~~~~~~~~~~~~~~^
+        cmd,
+        ^^^^
+    ...<7 lines>...
+        **self.popen_kw,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 1038, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 1550, in _execute_child
+    hp, ht, pid, tid = _winapi.CreateProcess(executable, args,
+                       ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+                             # no special security
+                             ^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+                             cwd,
+                             ^^^^
+                             startupinfo)
+                             ^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\.vscode\extensions\ms-python.debugpy-2025.18.0-win32-x64\bundled\libs\debugpy\_vendored\pydevd\_pydev_bundle\pydev_monkey.py", line 911, in new_CreateProcess
+    return getattr(_subprocess, original_name)(app_name, cmd_line, *args)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\strep_files\strep_bot.py", line 40, in start_strep
+    from .strep import Strep
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\strep_files\strep.py", line 12, in <module>
+    driver=webdriver.Chrome()
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chrome\webdriver.py", line 45, in __init__
+    super().__init__(
+    ~~~~~~~~~~~~~~~~^
+        browser_name=DesiredCapabilities.CHROME["browserName"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        keep_alive=keep_alive,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chromium\webdriver.py", line 55, in __init__
+    self.service.start()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\service.py", line 104, in start
+    self._start_process(self._path)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\service.py", line 238, in _start_process
+    raise WebDriverException(
+        f"'{os.path.basename(self._path)}' executable may have wrong permissions."
+    ) from err
+selenium.common.exceptions.WebDriverException: Message: 'chromedriver.exe' executable may have wrong permissions.
+
+
+03_19_2026 - 14:47:03.985808 | strep - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\service.py", line 214, in _start_process
+    self.process = subprocess.Popen(
+                   ~~~~~~~~~~~~~~~~^
+        cmd,
+        ^^^^
+    ...<7 lines>...
+        **self.popen_kw,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 1038, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 1550, in _execute_child
+    hp, ht, pid, tid = _winapi.CreateProcess(executable, args,
+                       ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+                             # no special security
+                             ^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+                             cwd,
+                             ^^^^
+                             startupinfo)
+                             ^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\.vscode\extensions\ms-python.debugpy-2025.18.0-win32-x64\bundled\libs\debugpy\_vendored\pydevd\_pydev_bundle\pydev_monkey.py", line 911, in new_CreateProcess
+    return getattr(_subprocess, original_name)(app_name, cmd_line, *args)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\strep_files\strep_bot.py", line 40, in start_strep
+    from .strep import Strep
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\strep_files\strep.py", line 12, in <module>
+    driver=webdriver.Chrome()
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chrome\webdriver.py", line 45, in __init__
+    super().__init__(
+    ~~~~~~~~~~~~~~~~^
+        browser_name=DesiredCapabilities.CHROME["browserName"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        keep_alive=keep_alive,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chromium\webdriver.py", line 55, in __init__
+    self.service.start()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\service.py", line 104, in start
+    self._start_process(self._path)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\service.py", line 238, in _start_process
+    raise WebDriverException(
+        f"'{os.path.basename(self._path)}' executable may have wrong permissions."
+    ) from err
+selenium.common.exceptions.WebDriverException: Message: 'chromedriver.exe' executable may have wrong permissions.
+
+
+03_19_2026 - 14:48:07.062799 | strep - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\service.py", line 214, in _start_process
+    self.process = subprocess.Popen(
+                   ~~~~~~~~~~~~~~~~^
+        cmd,
+        ^^^^
+    ...<7 lines>...
+        **self.popen_kw,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 1038, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 1550, in _execute_child
+    hp, ht, pid, tid = _winapi.CreateProcess(executable, args,
+                       ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+                             # no special security
+                             ^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+                             cwd,
+                             ^^^^
+                             startupinfo)
+                             ^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\.vscode\extensions\ms-python.debugpy-2025.18.0-win32-x64\bundled\libs\debugpy\_vendored\pydevd\_pydev_bundle\pydev_monkey.py", line 911, in new_CreateProcess
+    return getattr(_subprocess, original_name)(app_name, cmd_line, *args)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\strep_files\strep_bot.py", line 40, in start_strep
+    from .strep import Strep
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\strep_files\strep.py", line 12, in <module>
+    driver=webdriver.Chrome()
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chrome\webdriver.py", line 45, in __init__
+    super().__init__(
+    ~~~~~~~~~~~~~~~~^
+        browser_name=DesiredCapabilities.CHROME["browserName"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        keep_alive=keep_alive,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chromium\webdriver.py", line 55, in __init__
+    self.service.start()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\service.py", line 104, in start
+    self._start_process(self._path)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\service.py", line 238, in _start_process
+    raise WebDriverException(
+        f"'{os.path.basename(self._path)}' executable may have wrong permissions."
+    ) from err
+selenium.common.exceptions.WebDriverException: Message: 'chromedriver.exe' executable may have wrong permissions.
+
+
+03_23_2026 - 15:27:10.969123 | audrey - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\audrey_files\audrey_bot.py", line 85, in start_audrey
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\Base.py", line 158, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 105, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	chromedriver!GetHandleVerifier [0x7ff6f6813045+14585]
+	chromedriver!GetHandleVerifier [0x7ff6f68130b0+145f0]
+	chromedriver!(No symbol) [0x7ff6f657db7d]
+	chromedriver!(No symbol) [0x7ff6f65d73ae]
+	chromedriver!(No symbol) [0x7ff6f65d76bc]
+	chromedriver!(No symbol) [0x7ff6f6627a57]
+	chromedriver!(No symbol) [0x7ff6f66245af]
+	chromedriver!(No symbol) [0x7ff6f65c9a18]
+	chromedriver!(No symbol) [0x7ff6f65ca8f3]
+	chromedriver!GetHandleVerifier [0x7ff6f6b1ac5d+31c19d]
+	chromedriver!GetHandleVerifier [0x7ff6f6b1536d+3168ad]
+	chromedriver!GetHandleVerifier [0x7ff6f6b37d8a+3392ca]
+	chromedriver!GetHandleVerifier [0x7ff6f682f445+30985]
+	chromedriver!GetHandleVerifier [0x7ff6f68384dc+39a1c]
+	chromedriver!GetHandleVerifier [0x7ff6f681c634+1db74]
+	chromedriver!GetHandleVerifier [0x7ff6f681c7e6+1dd26]
+	chromedriver!GetHandleVerifier [0x7ff6f6801387+28c7]
+	KERNEL32!BaseThreadInitThunk [0x7ffee1a2259d+1d]
+	ntdll!RtlUserThreadStart [0x7ffee2ecafb8+28]
+
+
+03_23_2026 - 16:32:42.053531 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\service.py", line 214, in _start_process
+    self.process = subprocess.Popen(
+                   ~~~~~~~~~~~~~~~~^
+        cmd,
+        ^^^^
+    ...<7 lines>...
+        **self.popen_kw,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 1038, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 1550, in _execute_child
+    hp, ht, pid, tid = _winapi.CreateProcess(executable, args,
+                       ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+                             # no special security
+                             ^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+                             cwd,
+                             ^^^^
+                             startupinfo)
+                             ^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\.vscode\extensions\ms-python.debugpy-2025.18.0-win32-x64\bundled\libs\debugpy\_vendored\pydevd\_pydev_bundle\pydev_monkey.py", line 911, in new_CreateProcess
+    return getattr(_subprocess, original_name)(app_name, cmd_line, *args)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 37, in start_HepBnotificationreview
+    from .HepBnotificationreview import HepBNotificationReview
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview.py", line 12, in <module>
+    driver=webdriver.Chrome()
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chrome\webdriver.py", line 45, in __init__
+    super().__init__(
+    ~~~~~~~~~~~~~~~~^
+        browser_name=DesiredCapabilities.CHROME["browserName"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        keep_alive=keep_alive,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chromium\webdriver.py", line 55, in __init__
+    self.service.start()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\service.py", line 104, in start
+    self._start_process(self._path)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\service.py", line 238, in _start_process
+    raise WebDriverException(
+        f"'{os.path.basename(self._path)}' executable may have wrong permissions."
+    ) from err
+selenium.common.exceptions.WebDriverException: Message: 'chromedriver.exe' executable may have wrong permissions.
+
+
+03_23_2026 - 16:35:36.539059 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\service.py", line 214, in _start_process
+    self.process = subprocess.Popen(
+                   ~~~~~~~~~~~~~~~~^
+        cmd,
+        ^^^^
+    ...<7 lines>...
+        **self.popen_kw,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 1038, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 1550, in _execute_child
+    hp, ht, pid, tid = _winapi.CreateProcess(executable, args,
+                       ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+                             # no special security
+                             ^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+                             cwd,
+                             ^^^^
+                             startupinfo)
+                             ^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\.vscode\extensions\ms-python.debugpy-2025.18.0-win32-x64\bundled\libs\debugpy\_vendored\pydevd\_pydev_bundle\pydev_monkey.py", line 911, in new_CreateProcess
+    return getattr(_subprocess, original_name)(app_name, cmd_line, *args)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 37, in start_HepBnotificationreview
+    from .HepBnotificationreview import HepBNotificationReview
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview.py", line 12, in <module>
+    driver=webdriver.Chrome()
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chrome\webdriver.py", line 45, in __init__
+    super().__init__(
+    ~~~~~~~~~~~~~~~~^
+        browser_name=DesiredCapabilities.CHROME["browserName"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        keep_alive=keep_alive,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chromium\webdriver.py", line 55, in __init__
+    self.service.start()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\service.py", line 104, in start
+    self._start_process(self._path)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\service.py", line 238, in _start_process
+    raise WebDriverException(
+        f"'{os.path.basename(self._path)}' executable may have wrong permissions."
+    ) from err
+selenium.common.exceptions.WebDriverException: Message: 'chromedriver.exe' executable may have wrong permissions.
+
+
+03_24_2026 - 15:38:57.092599 | strep - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\strep_files\strep_bot.py", line 47, in start_strep
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\Base.py", line 158, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 105, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	chromedriver!GetHandleVerifier [0x7ff789bd29c5+2ed785]
+	chromedriver!GetHandleVerifier [0x7ff7898fa0d0+14e90]
+	chromedriver!(No symbol) [0x7ff78965db2d]
+	chromedriver!(No symbol) [0x7ff7896b6b9e]
+	chromedriver!(No symbol) [0x7ff7896b6eac]
+	chromedriver!(No symbol) [0x7ff789706fe7]
+	chromedriver!(No symbol) [0x7ff789703b9b]
+	chromedriver!(No symbol) [0x7ff7896a9298]
+	chromedriver!(No symbol) [0x7ff7896aa183]
+	chromedriver!GetHandleVerifier [0x7ff789bfde0d+318bcd]
+	chromedriver!GetHandleVerifier [0x7ff789bf8588+313348]
+	chromedriver!GetHandleVerifier [0x7ff789c19d7a+334b3a]
+	chromedriver!GetHandleVerifier [0x7ff789916785+31545]
+	chromedriver!GetHandleVerifier [0x7ff78991facc+3a88c]
+	chromedriver!GetHandleVerifier [0x7ff789903634+1e3f4]
+	chromedriver!GetHandleVerifier [0x7ff7899037e6+1e5a6]
+	chromedriver!GetHandleVerifier [0x7ff7898e7e37+2bf7]
+	KERNEL32!BaseThreadInitThunk [0x7ffee1a2259d+1d]
+	ntdll!RtlUserThreadStart [0x7ffee2ecafb8+28]
+
+
+04_09_2026 - 17:44:51.582417 | ILIOutbreak - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\ILIOutbreak_files\ILIOutbreak_bot.py", line 37, in start_ILIOutbreak
+    from .ILIOutbreak import ILIOutbreak
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\ILIOutbreak_files\ILIOutbreak.py", line 2, in <module>
+    from Base_IH import NBSdriver
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\Base_IH.py", line 15, in <module>
+    driver = webdriver.Chrome(service=service)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chrome\webdriver.py", line 45, in __init__
+    super().__init__(
+    ~~~~~~~~~~~~~~~~^
+        browser_name=DesiredCapabilities.CHROME["browserName"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        keep_alive=keep_alive,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chromium\webdriver.py", line 66, in __init__
+    super().__init__(command_executor=executor, options=options)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 241, in __init__
+    self.start_session(capabilities)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 329, in start_session
+    response = self.execute(Command.NEW_SESSION, caps)["value"]
+               ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.SessionNotCreatedException: Message: session not created: This version of ChromeDriver only supports Chrome version 145
+Current browser version is 147.0.7727.55 with binary path C:\Program Files\Google\Chrome\Application\chrome.exe
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff6ab5d4455
+	0x7ff6ab5d44b0
+	0x7ff6ab36d49d
+	0x7ff6ab3b57dd
+	0x7ff6ab3b4535
+	0x7ff6ab3aea6a
+	0x7ff6ab3a9379
+	0x7ff6ab3ffa41
+	0x7ff6ab3ff2a6
+	0x7ff6ab3b8e38
+	0x7ff6ab3b9d23
+	0x7ff6ab8a3b60
+	0x7ff6ab89e3e8
+	0x7ff6ab8be75a
+	0x7ff6ab5f0805
+	0x7ff6ab5f97ac
+	0x7ff6ab5dd7b4
+	0x7ff6ab5dd966
+	0x7ff6ab5c3477
+	0x7ff86cdf259d
+	0x7ff86e26afb8
+
+
+04_13_2026 - 14:47:19.328973 | ILIOutbreak - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\ILIOutbreak_files\ILIOutbreak_bot.py", line 37, in start_ILIOutbreak
+    from .ILIOutbreak import ILIOutbreak
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\ILIOutbreak_files\ILIOutbreak.py", line 2, in <module>
+    from Base_IH import NBSdriver
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\Base_IH.py", line 15, in <module>
+    driver = webdriver.Chrome(service=service)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chrome\webdriver.py", line 45, in __init__
+    super().__init__(
+    ~~~~~~~~~~~~~~~~^
+        browser_name=DesiredCapabilities.CHROME["browserName"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        keep_alive=keep_alive,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chromium\webdriver.py", line 66, in __init__
+    super().__init__(command_executor=executor, options=options)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 241, in __init__
+    self.start_session(capabilities)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 329, in start_session
+    response = self.execute(Command.NEW_SESSION, caps)["value"]
+               ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.SessionNotCreatedException: Message: session not created: This version of ChromeDriver only supports Chrome version 145
+Current browser version is 147.0.7727.55 with binary path C:\Program Files\Google\Chrome\Application\chrome.exe
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff7733d4455
+	0x7ff7733d44b0
+	0x7ff77316d49d
+	0x7ff7731b57dd
+	0x7ff7731b4535
+	0x7ff7731aea6a
+	0x7ff7731a9379
+	0x7ff7731ffa41
+	0x7ff7731ff2a6
+	0x7ff7731b8e38
+	0x7ff7731b9d23
+	0x7ff7736a3b60
+	0x7ff77369e3e8
+	0x7ff7736be75a
+	0x7ff7733f0805
+	0x7ff7733f97ac
+	0x7ff7733dd7b4
+	0x7ff7733dd966
+	0x7ff7733c3477
+	0x7ff86cdf259d
+	0x7ff86e26afb8
+
+
+04_13_2026 - 15:04:20.597224 | ILIOutbreak - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\ILIOutbreak_files\ILIOutbreak_bot.py", line 37, in start_ILIOutbreak
+    from .ILIOutbreak import ILIOutbreak
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\ILIOutbreak_files\ILIOutbreak.py", line 2, in <module>
+    from Base_IH import NBSdriver
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\Base_IH.py", line 15, in <module>
+    driver = webdriver.Chrome(service=service)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chrome\webdriver.py", line 45, in __init__
+    super().__init__(
+    ~~~~~~~~~~~~~~~~^
+        browser_name=DesiredCapabilities.CHROME["browserName"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        keep_alive=keep_alive,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chromium\webdriver.py", line 66, in __init__
+    super().__init__(command_executor=executor, options=options)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 241, in __init__
+    self.start_session(capabilities)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 329, in start_session
+    response = self.execute(Command.NEW_SESSION, caps)["value"]
+               ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.SessionNotCreatedException: Message: session not created: This version of ChromeDriver only supports Chrome version 145
+Current browser version is 147.0.7727.56 with binary path C:\Program Files\Google\Chrome\Application\chrome.exe
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff781764455
+	0x7ff7817644b0
+	0x7ff7814fd49d
+	0x7ff7815457dd
+	0x7ff781544535
+	0x7ff78153ea6a
+	0x7ff781539379
+	0x7ff78158fa41
+	0x7ff78158f2a6
+	0x7ff781548e38
+	0x7ff781549d23
+	0x7ff781a33b60
+	0x7ff781a2e3e8
+	0x7ff781a4e75a
+	0x7ff781780805
+	0x7ff7817897ac
+	0x7ff78176d7b4
+	0x7ff78176d966
+	0x7ff781753477
+	0x7ff86cdf259d
+	0x7ff86e26afb8
+
+
+04_13_2026 - 15:09:44.543441 | ILIOutbreak - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 88, in frame
+    frame_reference = self._driver.find_element(By.ID, frame_reference)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 770, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"[id="contentFrame"]"}
+  (Session info: chrome=147.0.7727.56); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+	chromedriver!GetHandleVerifier [0x7ff6747b0295+146d5]
+	chromedriver!GetHandleVerifier [0x7ff6747b0300+14740]
+	chromedriver!(No symbol) [0x7ff67451d7cd]
+	chromedriver!(No symbol) [0x7ff674576c4e]
+	chromedriver!(No symbol) [0x7ff674576f5c]
+	chromedriver!(No symbol) [0x7ff6745c7cc7]
+	chromedriver!(No symbol) [0x7ff6745c4818]
+	chromedriver!(No symbol) [0x7ff674569018]
+	chromedriver!(No symbol) [0x7ff674569f03]
+	chromedriver!GetHandleVerifier [0x7ff674ac5949+329d89]
+	chromedriver!GetHandleVerifier [0x7ff674abfe96+3242d6]
+	chromedriver!GetHandleVerifier [0x7ff674ae3102+347542]
+	chromedriver!GetHandleVerifier [0x7ff6747cd425+31865]
+	chromedriver!GetHandleVerifier [0x7ff6747d605c+3a49c]
+	chromedriver!GetHandleVerifier [0x7ff6747b9684+1dac4]
+	chromedriver!GetHandleVerifier [0x7ff6747b9836+1dc76]
+	chromedriver!GetHandleVerifier [0x7ff67479e347+2787]
+	KERNEL32!BaseThreadInitThunk [0x7ff86cdf259d+1d]
+	ntdll!RtlUserThreadStart [0x7ff86e26afb8+28]
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 91, in frame
+    frame_reference = self._driver.find_element(By.NAME, frame_reference)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 770, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"[name="contentFrame"]"}
+  (Session info: chrome=147.0.7727.56); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+	chromedriver!GetHandleVerifier [0x7ff6747b0295+146d5]
+	chromedriver!GetHandleVerifier [0x7ff6747b0300+14740]
+	chromedriver!(No symbol) [0x7ff67451d7cd]
+	chromedriver!(No symbol) [0x7ff674576c4e]
+	chromedriver!(No symbol) [0x7ff674576f5c]
+	chromedriver!(No symbol) [0x7ff6745c7cc7]
+	chromedriver!(No symbol) [0x7ff6745c4818]
+	chromedriver!(No symbol) [0x7ff674569018]
+	chromedriver!(No symbol) [0x7ff674569f03]
+	chromedriver!GetHandleVerifier [0x7ff674ac5949+329d89]
+	chromedriver!GetHandleVerifier [0x7ff674abfe96+3242d6]
+	chromedriver!GetHandleVerifier [0x7ff674ae3102+347542]
+	chromedriver!GetHandleVerifier [0x7ff6747cd425+31865]
+	chromedriver!GetHandleVerifier [0x7ff6747d605c+3a49c]
+	chromedriver!GetHandleVerifier [0x7ff6747b9684+1dac4]
+	chromedriver!GetHandleVerifier [0x7ff6747b9836+1dc76]
+	chromedriver!GetHandleVerifier [0x7ff67479e347+2787]
+	KERNEL32!BaseThreadInitThunk [0x7ff86cdf259d+1d]
+	ntdll!RtlUserThreadStart [0x7ff86e26afb8+28]
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\ILIOutbreak_files\ILIOutbreak_bot.py", line 39, in start_ILIOutbreak
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\Base_IH.py", line 149, in log_in
+    self.switch_to.frame("contentFrame")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 93, in frame
+    raise NoSuchFrameException(frame_reference) from exc
+selenium.common.exceptions.NoSuchFrameException: Message: contentFrame
+
+
+04_13_2026 - 15:16:07.538643 | ILIOutbreak - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 88, in frame
+    frame_reference = self._driver.find_element(By.ID, frame_reference)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 770, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"[id="contentFrame"]"}
+  (Session info: chrome=147.0.7727.56); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+	chromedriver!GetHandleVerifier [0x7ff6747b0295+146d5]
+	chromedriver!GetHandleVerifier [0x7ff6747b0300+14740]
+	chromedriver!(No symbol) [0x7ff67451d7cd]
+	chromedriver!(No symbol) [0x7ff674576c4e]
+	chromedriver!(No symbol) [0x7ff674576f5c]
+	chromedriver!(No symbol) [0x7ff6745c7cc7]
+	chromedriver!(No symbol) [0x7ff6745c4818]
+	chromedriver!(No symbol) [0x7ff674569018]
+	chromedriver!(No symbol) [0x7ff674569f03]
+	chromedriver!GetHandleVerifier [0x7ff674ac5949+329d89]
+	chromedriver!GetHandleVerifier [0x7ff674abfe96+3242d6]
+	chromedriver!GetHandleVerifier [0x7ff674ae3102+347542]
+	chromedriver!GetHandleVerifier [0x7ff6747cd425+31865]
+	chromedriver!GetHandleVerifier [0x7ff6747d605c+3a49c]
+	chromedriver!GetHandleVerifier [0x7ff6747b9684+1dac4]
+	chromedriver!GetHandleVerifier [0x7ff6747b9836+1dc76]
+	chromedriver!GetHandleVerifier [0x7ff67479e347+2787]
+	KERNEL32!BaseThreadInitThunk [0x7ff86cdf259d+1d]
+	ntdll!RtlUserThreadStart [0x7ff86e26afb8+28]
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 91, in frame
+    frame_reference = self._driver.find_element(By.NAME, frame_reference)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 770, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"[name="contentFrame"]"}
+  (Session info: chrome=147.0.7727.56); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+	chromedriver!GetHandleVerifier [0x7ff6747b0295+146d5]
+	chromedriver!GetHandleVerifier [0x7ff6747b0300+14740]
+	chromedriver!(No symbol) [0x7ff67451d7cd]
+	chromedriver!(No symbol) [0x7ff674576c4e]
+	chromedriver!(No symbol) [0x7ff674576f5c]
+	chromedriver!(No symbol) [0x7ff6745c7cc7]
+	chromedriver!(No symbol) [0x7ff6745c4818]
+	chromedriver!(No symbol) [0x7ff674569018]
+	chromedriver!(No symbol) [0x7ff674569f03]
+	chromedriver!GetHandleVerifier [0x7ff674ac5949+329d89]
+	chromedriver!GetHandleVerifier [0x7ff674abfe96+3242d6]
+	chromedriver!GetHandleVerifier [0x7ff674ae3102+347542]
+	chromedriver!GetHandleVerifier [0x7ff6747cd425+31865]
+	chromedriver!GetHandleVerifier [0x7ff6747d605c+3a49c]
+	chromedriver!GetHandleVerifier [0x7ff6747b9684+1dac4]
+	chromedriver!GetHandleVerifier [0x7ff6747b9836+1dc76]
+	chromedriver!GetHandleVerifier [0x7ff67479e347+2787]
+	KERNEL32!BaseThreadInitThunk [0x7ff86cdf259d+1d]
+	ntdll!RtlUserThreadStart [0x7ff86e26afb8+28]
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\ILIOutbreak_files\ILIOutbreak_bot.py", line 39, in start_ILIOutbreak
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\Base_IH.py", line 150, in log_in
+    self.switch_to.frame("contentFrame")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 93, in frame
+    raise NoSuchFrameException(frame_reference) from exc
+selenium.common.exceptions.NoSuchFrameException: Message: contentFrame
+
+
+04_13_2026 - 15:43:50.394822 | ILIOutbreak - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 88, in frame
+    frame_reference = self._driver.find_element(By.ID, frame_reference)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 770, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"[id="contentFrame"]"}
+  (Session info: chrome=147.0.7727.56); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+	chromedriver!GetHandleVerifier [0x7ff6747b0295+146d5]
+	chromedriver!GetHandleVerifier [0x7ff6747b0300+14740]
+	chromedriver!(No symbol) [0x7ff67451d7cd]
+	chromedriver!(No symbol) [0x7ff674576c4e]
+	chromedriver!(No symbol) [0x7ff674576f5c]
+	chromedriver!(No symbol) [0x7ff6745c7cc7]
+	chromedriver!(No symbol) [0x7ff6745c4818]
+	chromedriver!(No symbol) [0x7ff674569018]
+	chromedriver!(No symbol) [0x7ff674569f03]
+	chromedriver!GetHandleVerifier [0x7ff674ac5949+329d89]
+	chromedriver!GetHandleVerifier [0x7ff674abfe96+3242d6]
+	chromedriver!GetHandleVerifier [0x7ff674ae3102+347542]
+	chromedriver!GetHandleVerifier [0x7ff6747cd425+31865]
+	chromedriver!GetHandleVerifier [0x7ff6747d605c+3a49c]
+	chromedriver!GetHandleVerifier [0x7ff6747b9684+1dac4]
+	chromedriver!GetHandleVerifier [0x7ff6747b9836+1dc76]
+	chromedriver!GetHandleVerifier [0x7ff67479e347+2787]
+	KERNEL32!BaseThreadInitThunk [0x7ff86cdf259d+1d]
+	ntdll!RtlUserThreadStart [0x7ff86e26afb8+28]
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 91, in frame
+    frame_reference = self._driver.find_element(By.NAME, frame_reference)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 770, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"[name="contentFrame"]"}
+  (Session info: chrome=147.0.7727.56); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+	chromedriver!GetHandleVerifier [0x7ff6747b0295+146d5]
+	chromedriver!GetHandleVerifier [0x7ff6747b0300+14740]
+	chromedriver!(No symbol) [0x7ff67451d7cd]
+	chromedriver!(No symbol) [0x7ff674576c4e]
+	chromedriver!(No symbol) [0x7ff674576f5c]
+	chromedriver!(No symbol) [0x7ff6745c7cc7]
+	chromedriver!(No symbol) [0x7ff6745c4818]
+	chromedriver!(No symbol) [0x7ff674569018]
+	chromedriver!(No symbol) [0x7ff674569f03]
+	chromedriver!GetHandleVerifier [0x7ff674ac5949+329d89]
+	chromedriver!GetHandleVerifier [0x7ff674abfe96+3242d6]
+	chromedriver!GetHandleVerifier [0x7ff674ae3102+347542]
+	chromedriver!GetHandleVerifier [0x7ff6747cd425+31865]
+	chromedriver!GetHandleVerifier [0x7ff6747d605c+3a49c]
+	chromedriver!GetHandleVerifier [0x7ff6747b9684+1dac4]
+	chromedriver!GetHandleVerifier [0x7ff6747b9836+1dc76]
+	chromedriver!GetHandleVerifier [0x7ff67479e347+2787]
+	KERNEL32!BaseThreadInitThunk [0x7ff86cdf259d+1d]
+	ntdll!RtlUserThreadStart [0x7ff86e26afb8+28]
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\ILIOutbreak_files\ILIOutbreak_bot.py", line 39, in start_ILIOutbreak
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\Base_IH.py", line 152, in log_in
+    self.switch_to.frame("contentFrame")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\switch_to.py", line 93, in frame
+    raise NoSuchFrameException(frame_reference) from exc
+selenium.common.exceptions.NoSuchFrameException: Message: contentFrame
+
+
+04_13_2026 - 15:47:19.196243 | ILIOutbreak - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\ILIOutbreak_files\ILIOutbreak_bot.py", line 39, in start_ILIOutbreak
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\Base_IH.py", line 155, in log_in
+    WebDriverWait(self,timeout).until(EC.element_to_be_clickable((By.XPATH, home)))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 96, in until
+    value = method(self._driver)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\expected_conditions.py", line 363, in _predicate
+    target = driver.find_element(*target)  # grab element at locator
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 770, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.InvalidArgumentException: Message: invalid argument: 'value' must be a string
+  (Session info: chrome=147.0.7727.56)
+Stacktrace:
+	chromedriver!GetHandleVerifier [0x7ff6747b0295+146d5]
+	chromedriver!GetHandleVerifier [0x7ff6747b0300+14740]
+	chromedriver!(No symbol) [0x7ff67451d7cd]
+	chromedriver!(No symbol) [0x7ff674576a41]
+	chromedriver!(No symbol) [0x7ff674576f5c]
+	chromedriver!(No symbol) [0x7ff6745c7cc7]
+	chromedriver!(No symbol) [0x7ff6745c4818]
+	chromedriver!(No symbol) [0x7ff674569018]
+	chromedriver!(No symbol) [0x7ff674569f03]
+	chromedriver!GetHandleVerifier [0x7ff674ac5949+329d89]
+	chromedriver!GetHandleVerifier [0x7ff674abfe96+3242d6]
+	chromedriver!GetHandleVerifier [0x7ff674ae3102+347542]
+	chromedriver!GetHandleVerifier [0x7ff6747cd425+31865]
+	chromedriver!GetHandleVerifier [0x7ff6747d605c+3a49c]
+	chromedriver!GetHandleVerifier [0x7ff6747b9684+1dac4]
+	chromedriver!GetHandleVerifier [0x7ff6747b9836+1dc76]
+	chromedriver!GetHandleVerifier [0x7ff67479e347+2787]
+	KERNEL32!BaseThreadInitThunk [0x7ff86cdf259d+1d]
+	ntdll!RtlUserThreadStart [0x7ff86e26afb8+28]
+
+
+04_13_2026 - 17:38:15.111273 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 37, in start_HepBnotificationreview
+    from .HepBnotificationreview import HepBNotificationReview
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview.py", line 2, in <module>
+    from Base import NBSdriver
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\Base.py", line 15, in <module>
+    driver = webdriver.Chrome(service=service)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chrome\webdriver.py", line 45, in __init__
+    super().__init__(
+    ~~~~~~~~~~~~~~~~^
+        browser_name=DesiredCapabilities.CHROME["browserName"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        keep_alive=keep_alive,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chromium\webdriver.py", line 66, in __init__
+    super().__init__(command_executor=executor, options=options)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 241, in __init__
+    self.start_session(capabilities)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 329, in start_session
+    response = self.execute(Command.NEW_SESSION, caps)["value"]
+               ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.SessionNotCreatedException: Message: session not created: This version of ChromeDriver only supports Chrome version 145
+Current browser version is 147.0.7727.56 with binary path C:\Program Files\Google\Chrome\Application\chrome.exe
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff781764455
+	0x7ff7817644b0
+	0x7ff7814fd49d
+	0x7ff7815457dd
+	0x7ff781544535
+	0x7ff78153ea6a
+	0x7ff781539379
+	0x7ff78158fa41
+	0x7ff78158f2a6
+	0x7ff781548e38
+	0x7ff781549d23
+	0x7ff781a33b60
+	0x7ff781a2e3e8
+	0x7ff781a4e75a
+	0x7ff781780805
+	0x7ff7817897ac
+	0x7ff78176d7b4
+	0x7ff78176d966
+	0x7ff781753477
+	0x7ff86cdf259d
+	0x7ff86e26afb8
+
+
+04_24_2026 - 10:34:42.683938 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\service.py", line 214, in _start_process
+    self.process = subprocess.Popen(
+                   ~~~~~~~~~~~~~~~~^
+        cmd,
+        ^^^^
+    ...<7 lines>...
+        **self.popen_kw,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 1038, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 1550, in _execute_child
+    hp, ht, pid, tid = _winapi.CreateProcess(executable, args,
+                       ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+                             # no special security
+                             ^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+                             cwd,
+                             ^^^^
+                             startupinfo)
+                             ^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\.vscode\extensions\ms-python.debugpy-2025.18.0-win32-x64\bundled\libs\debugpy\_vendored\pydevd\_pydev_bundle\pydev_monkey.py", line 911, in new_CreateProcess
+    return getattr(_subprocess, original_name)(app_name, cmd_line, *args)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 37, in start_HepBnotificationreview
+    from .HepBnotificationreview import HepBNotificationReview
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview.py", line 13, in <module>
+    driver=webdriver.Chrome()
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chrome\webdriver.py", line 45, in __init__
+    super().__init__(
+    ~~~~~~~~~~~~~~~~^
+        browser_name=DesiredCapabilities.CHROME["browserName"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        keep_alive=keep_alive,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chromium\webdriver.py", line 55, in __init__
+    self.service.start()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\service.py", line 104, in start
+    self._start_process(self._path)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\service.py", line 238, in _start_process
+    raise WebDriverException(
+        f"'{os.path.basename(self._path)}' executable may have wrong permissions."
+    ) from err
+selenium.common.exceptions.WebDriverException: Message: 'chromedriver.exe' executable may have wrong permissions.
+
+
+04_24_2026 - 10:56:18.482835 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 37, in start_HepBnotificationreview
+    from .HepBnotificationreview import HepBNotificationReview
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview.py", line 2, in <module>
+    from Base import NBSdriver
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\Base.py", line 16, in <module>
+    driver = webdriver.Chrome(service=service)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chrome\webdriver.py", line 45, in __init__
+    super().__init__(
+    ~~~~~~~~~~~~~~~~^
+        browser_name=DesiredCapabilities.CHROME["browserName"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        keep_alive=keep_alive,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chromium\webdriver.py", line 66, in __init__
+    super().__init__(command_executor=executor, options=options)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 241, in __init__
+    self.start_session(capabilities)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 329, in start_session
+    response = self.execute(Command.NEW_SESSION, caps)["value"]
+               ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.SessionNotCreatedException: Message: session not created: This version of ChromeDriver only supports Chrome version 148
+Current browser version is 147.0.7727.102 with binary path C:\Program Files\Google\Chrome\Application\chrome.exe
+Stacktrace:
+	chromedriver!GetHandleVerifier [0x7ff64e1beba5+15715]
+	chromedriver!GetHandleVerifier [0x7ff64e1bec10+15780]
+	chromedriver!(No symbol) [0x7ff64defd95d]
+	chromedriver!(No symbol) [0x7ff64df46acd]
+	chromedriver!(No symbol) [0x7ff64df45825]
+	chromedriver!(No symbol) [0x7ff64df40228]
+	chromedriver!(No symbol) [0x7ff64df3a641]
+	chromedriver!(No symbol) [0x7ff64df8e591]
+	chromedriver!(No symbol) [0x7ff64df8ddf6]
+	chromedriver!(No symbol) [0x7ff64df4a128]
+	chromedriver!(No symbol) [0x7ff64df4b013]
+	chromedriver!GetHandleVerifier [0x7ff64e4b47a9+30b319]
+	chromedriver!GetHandleVerifier [0x7ff64e4aeedf+305a4f]
+	chromedriver!GetHandleVerifier [0x7ff64e4d0f82+327af2]
+	chromedriver!GetHandleVerifier [0x7ff64e1ddda5+34915]
+	chromedriver!GetHandleVerifier [0x7ff64e1e729c+3de0c]
+	chromedriver!GetHandleVerifier [0x7ff64e1c8274+1ede4]
+	chromedriver!GetHandleVerifier [0x7ff64e1c8404+1ef74]
+	chromedriver!GetHandleVerifier [0x7ff64e1ac2d7+2e47]
+	KERNEL32!BaseThreadInitThunk [0x7fff8c28259d+1d]
+	ntdll!RtlUserThreadStart [0x7fff8c92afb8+28]
+
+
+04_24_2026 - 15:45:22.479293 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 37, in start_HepBnotificationreview
+    from .HepBnotificationreview import HepBNotificationReview
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview.py", line 2, in <module>
+    from Base import NBSdriver
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\Base.py", line 16, in <module>
+    driver = webdriver.Chrome(service=service)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chrome\webdriver.py", line 45, in __init__
+    super().__init__(
+    ~~~~~~~~~~~~~~~~^
+        browser_name=DesiredCapabilities.CHROME["browserName"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        keep_alive=keep_alive,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chromium\webdriver.py", line 66, in __init__
+    super().__init__(command_executor=executor, options=options)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 241, in __init__
+    self.start_session(capabilities)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 329, in start_session
+    response = self.execute(Command.NEW_SESSION, caps)["value"]
+               ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.SessionNotCreatedException: Message: session not created: This version of ChromeDriver only supports Chrome version 148
+Current browser version is 147.0.7727.117 with binary path C:\Program Files\Google\Chrome\Application\chrome.exe
+Stacktrace:
+	chromedriver!GetHandleVerifier [0x7ff61ab0eba5+15715]
+	chromedriver!GetHandleVerifier [0x7ff61ab0ec10+15780]
+	chromedriver!(No symbol) [0x7ff61a84d95d]
+	chromedriver!(No symbol) [0x7ff61a896acd]
+	chromedriver!(No symbol) [0x7ff61a895825]
+	chromedriver!(No symbol) [0x7ff61a890228]
+	chromedriver!(No symbol) [0x7ff61a88a641]
+	chromedriver!(No symbol) [0x7ff61a8de591]
+	chromedriver!(No symbol) [0x7ff61a8dddf6]
+	chromedriver!(No symbol) [0x7ff61a89a128]
+	chromedriver!(No symbol) [0x7ff61a89b013]
+	chromedriver!GetHandleVerifier [0x7ff61ae047a9+30b319]
+	chromedriver!GetHandleVerifier [0x7ff61adfeedf+305a4f]
+	chromedriver!GetHandleVerifier [0x7ff61ae20f82+327af2]
+	chromedriver!GetHandleVerifier [0x7ff61ab2dda5+34915]
+	chromedriver!GetHandleVerifier [0x7ff61ab3729c+3de0c]
+	chromedriver!GetHandleVerifier [0x7ff61ab18274+1ede4]
+	chromedriver!GetHandleVerifier [0x7ff61ab18404+1ef74]
+	chromedriver!GetHandleVerifier [0x7ff61aafc2d7+2e47]
+	KERNEL32!BaseThreadInitThunk [0x7fff8c28259d+1d]
+	ntdll!RtlUserThreadStart [0x7fff8c92afb8+28]
+
+
+04_24_2026 - 16:09:05.929565 | audrey - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\service.py", line 214, in _start_process
+    self.process = subprocess.Popen(
+                   ~~~~~~~~~~~~~~~~^
+        cmd,
+        ^^^^
+    ...<7 lines>...
+        **self.popen_kw,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 1038, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 1550, in _execute_child
+    hp, ht, pid, tid = _winapi.CreateProcess(executable, args,
+                       ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+                             # no special security
+                             ^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+                             cwd,
+                             ^^^^
+                             startupinfo)
+                             ^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\.vscode\extensions\ms-python.debugpy-2025.18.0-win32-x64\bundled\libs\debugpy\_vendored\pydevd\_pydev_bundle\pydev_monkey.py", line 911, in new_CreateProcess
+    return getattr(_subprocess, original_name)(app_name, cmd_line, *args)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\audrey_files\audrey_bot.py", line 77, in start_audrey
+    NBS = Audrey(production=True)   # true for production, is_in_production for development
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\audrey_files\audrey.py", line 22, in __init__
+    super().__init__(production)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\Base.py", line 69, in __init__
+    super(NBSdriver, self).__init__(options = self.options)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chrome\webdriver.py", line 45, in __init__
+    super().__init__(
+    ~~~~~~~~~~~~~~~~^
+        browser_name=DesiredCapabilities.CHROME["browserName"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        keep_alive=keep_alive,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chromium\webdriver.py", line 55, in __init__
+    self.service.start()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\service.py", line 104, in start
+    self._start_process(self._path)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\service.py", line 238, in _start_process
+    raise WebDriverException(
+        f"'{os.path.basename(self._path)}' executable may have wrong permissions."
+    ) from err
+selenium.common.exceptions.WebDriverException: Message: 'chromedriver.exe' executable may have wrong permissions.
+
+
+04_24_2026 - 16:13:13.507138 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\service.py", line 214, in _start_process
+    self.process = subprocess.Popen(
+                   ~~~~~~~~~~~~~~~~^
+        cmd,
+        ^^^^
+    ...<7 lines>...
+        **self.popen_kw,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 1038, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 1550, in _execute_child
+    hp, ht, pid, tid = _winapi.CreateProcess(executable, args,
+                       ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+                             # no special security
+                             ^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+                             cwd,
+                             ^^^^
+                             startupinfo)
+                             ^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\.vscode\extensions\ms-python.debugpy-2025.18.0-win32-x64\bundled\libs\debugpy\_vendored\pydevd\_pydev_bundle\pydev_monkey.py", line 911, in new_CreateProcess
+    return getattr(_subprocess, original_name)(app_name, cmd_line, *args)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 37, in start_HepBnotificationreview
+    from .HepBnotificationreview import HepBNotificationReview
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview.py", line 13, in <module>
+    driver=webdriver.Chrome()
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chrome\webdriver.py", line 45, in __init__
+    super().__init__(
+    ~~~~~~~~~~~~~~~~^
+        browser_name=DesiredCapabilities.CHROME["browserName"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        keep_alive=keep_alive,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chromium\webdriver.py", line 55, in __init__
+    self.service.start()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\service.py", line 104, in start
+    self._start_process(self._path)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\service.py", line 238, in _start_process
+    raise WebDriverException(
+        f"'{os.path.basename(self._path)}' executable may have wrong permissions."
+    ) from err
+selenium.common.exceptions.WebDriverException: Message: 'chromedriver.exe' executable may have wrong permissions.
+
+
+04_24_2026 - 16:20:51.704242 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\service.py", line 214, in _start_process
+    self.process = subprocess.Popen(
+                   ~~~~~~~~~~~~~~~~^
+        cmd,
+        ^^^^
+    ...<7 lines>...
+        **self.popen_kw,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 1038, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 1550, in _execute_child
+    hp, ht, pid, tid = _winapi.CreateProcess(executable, args,
+                       ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+                             # no special security
+                             ^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+                             cwd,
+                             ^^^^
+                             startupinfo)
+                             ^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\.vscode\extensions\ms-python.debugpy-2025.18.0-win32-x64\bundled\libs\debugpy\_vendored\pydevd\_pydev_bundle\pydev_monkey.py", line 911, in new_CreateProcess
+    return getattr(_subprocess, original_name)(app_name, cmd_line, *args)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 37, in start_HepBnotificationreview
+    from .HepBnotificationreview import HepBNotificationReview
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview.py", line 2, in <module>
+    from Base import NBSdriver
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\Base.py", line 5, in <module>
+    driver = webdriver.Chrome()
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chrome\webdriver.py", line 45, in __init__
+    super().__init__(
+    ~~~~~~~~~~~~~~~~^
+        browser_name=DesiredCapabilities.CHROME["browserName"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        keep_alive=keep_alive,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\chromium\webdriver.py", line 55, in __init__
+    self.service.start()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\service.py", line 104, in start
+    self._start_process(self._path)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\common\service.py", line 238, in _start_process
+    raise WebDriverException(
+        f"'{os.path.basename(self._path)}' executable may have wrong permissions."
+    ) from err
+selenium.common.exceptions.WebDriverException: Message: 'chromedriver.exe' executable may have wrong permissions.
+
+
+04_27_2026 - 15:23:40.272214 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 44, in start_HepBnotificationreview
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\Base.py", line 147, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 105, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	chromedriver!GetHandleVerifier [0x7ff77a55a8e5+14e45]
+	chromedriver!GetHandleVerifier [0x7ff77a55a950+14eb0]
+	chromedriver!(No symbol) [0x7ff77a2cd6ed]
+	chromedriver!(No symbol) [0x7ff77a326cfe]
+	chromedriver!(No symbol) [0x7ff77a32700c]
+	chromedriver!(No symbol) [0x7ff77a377cb7]
+	chromedriver!(No symbol) [0x7ff77a37483b]
+	chromedriver!(No symbol) [0x7ff77a3190e8]
+	chromedriver!(No symbol) [0x7ff77a319fc3]
+	chromedriver!GetHandleVerifier [0x7ff77a870149+32a6a9]
+	chromedriver!GetHandleVerifier [0x7ff77a86a715+324c75]
+	chromedriver!GetHandleVerifier [0x7ff77a88c012+346572]
+	chromedriver!GetHandleVerifier [0x7ff77a577cb5+32215]
+	chromedriver!GetHandleVerifier [0x7ff77a58087c+3addc]
+	chromedriver!GetHandleVerifier [0x7ff77a5640e4+1e644]
+	chromedriver!GetHandleVerifier [0x7ff77a564296+1e7f6]
+	chromedriver!GetHandleVerifier [0x7ff77a548737+2c97]
+	KERNEL32!BaseThreadInitThunk [0x7ff8965d259d+1d]
+	ntdll!RtlUserThreadStart [0x7ff89690afb8+28]
+
+
+04_27_2026 - 16:19:45.856989 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 44, in start_HepBnotificationreview
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\Base.py", line 147, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 105, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	chromedriver!GetHandleVerifier [0x7ff77a55a8e5+14e45]
+	chromedriver!GetHandleVerifier [0x7ff77a55a950+14eb0]
+	chromedriver!(No symbol) [0x7ff77a2cd6ed]
+	chromedriver!(No symbol) [0x7ff77a326cfe]
+	chromedriver!(No symbol) [0x7ff77a32700c]
+	chromedriver!(No symbol) [0x7ff77a377cb7]
+	chromedriver!(No symbol) [0x7ff77a37483b]
+	chromedriver!(No symbol) [0x7ff77a3190e8]
+	chromedriver!(No symbol) [0x7ff77a319fc3]
+	chromedriver!GetHandleVerifier [0x7ff77a870149+32a6a9]
+	chromedriver!GetHandleVerifier [0x7ff77a86a715+324c75]
+	chromedriver!GetHandleVerifier [0x7ff77a88c012+346572]
+	chromedriver!GetHandleVerifier [0x7ff77a577cb5+32215]
+	chromedriver!GetHandleVerifier [0x7ff77a58087c+3addc]
+	chromedriver!GetHandleVerifier [0x7ff77a5640e4+1e644]
+	chromedriver!GetHandleVerifier [0x7ff77a564296+1e7f6]
+	chromedriver!GetHandleVerifier [0x7ff77a548737+2c97]
+	KERNEL32!BaseThreadInitThunk [0x7ff8965d259d+1d]
+	ntdll!RtlUserThreadStart [0x7ff89690afb8+28]
+
+
+04_27_2026 - 16:46:43.164403 | HepBnotificationreview - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\HepBnotificationreview_files\HepBnotificationreview_bot.py", line 44, in start_HepBnotificationreview
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\Base.py", line 147, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 105, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	chromedriver!GetHandleVerifier [0x7ff77a55a8e5+14e45]
+	chromedriver!GetHandleVerifier [0x7ff77a55a950+14eb0]
+	chromedriver!(No symbol) [0x7ff77a2cd6ed]
+	chromedriver!(No symbol) [0x7ff77a326cfe]
+	chromedriver!(No symbol) [0x7ff77a32700c]
+	chromedriver!(No symbol) [0x7ff77a377cb7]
+	chromedriver!(No symbol) [0x7ff77a37483b]
+	chromedriver!(No symbol) [0x7ff77a3190e8]
+	chromedriver!(No symbol) [0x7ff77a319fc3]
+	chromedriver!GetHandleVerifier [0x7ff77a870149+32a6a9]
+	chromedriver!GetHandleVerifier [0x7ff77a86a715+324c75]
+	chromedriver!GetHandleVerifier [0x7ff77a88c012+346572]
+	chromedriver!GetHandleVerifier [0x7ff77a577cb5+32215]
+	chromedriver!GetHandleVerifier [0x7ff77a58087c+3addc]
+	chromedriver!GetHandleVerifier [0x7ff77a5640e4+1e644]
+	chromedriver!GetHandleVerifier [0x7ff77a564296+1e7f6]
+	chromedriver!GetHandleVerifier [0x7ff77a548737+2c97]
+	KERNEL32!BaseThreadInitThunk [0x7ff8965d259d+1d]
+	ntdll!RtlUserThreadStart [0x7ff89690afb8+28]
+
+
+04_28_2026 - 13:41:20.253949 | audrey - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\audrey_files\audrey_bot.py", line 80, in start_audrey
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\Base.py", line 147, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 105, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	chromedriver!GetHandleVerifier [0x7ff7ec2aa8e5+14e45]
+	chromedriver!GetHandleVerifier [0x7ff7ec2aa950+14eb0]
+	chromedriver!(No symbol) [0x7ff7ec01d6ed]
+	chromedriver!(No symbol) [0x7ff7ec076cfe]
+	chromedriver!(No symbol) [0x7ff7ec07700c]
+	chromedriver!(No symbol) [0x7ff7ec0c7cb7]
+	chromedriver!(No symbol) [0x7ff7ec0c483b]
+	chromedriver!(No symbol) [0x7ff7ec0690e8]
+	chromedriver!(No symbol) [0x7ff7ec069fc3]
+	chromedriver!GetHandleVerifier [0x7ff7ec5c0149+32a6a9]
+	chromedriver!GetHandleVerifier [0x7ff7ec5ba715+324c75]
+	chromedriver!GetHandleVerifier [0x7ff7ec5dc012+346572]
+	chromedriver!GetHandleVerifier [0x7ff7ec2c7cb5+32215]
+	chromedriver!GetHandleVerifier [0x7ff7ec2d087c+3addc]
+	chromedriver!GetHandleVerifier [0x7ff7ec2b40e4+1e644]
+	chromedriver!GetHandleVerifier [0x7ff7ec2b4296+1e7f6]
+	chromedriver!GetHandleVerifier [0x7ff7ec298737+2c97]
+	KERNEL32!BaseThreadInitThunk [0x7ff8965d259d+1d]
+	ntdll!RtlUserThreadStart [0x7ff89690afb8+28]
+
+
+04_28_2026 - 16:02:14.958205 | audrey - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\audrey_files\audrey_bot.py", line 1774, in start_audrey
+    NBS.find_element(By.XPATH, '//*[@id="INV826"]').send_keys(re.findall(r'\b\d{2}/\d{2}/\d{4}\b',lab_report_table["Date Received"].iloc[0])[0])
+                                                              ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\re\__init__.py", line 278, in findall
+    return _compile(pattern, flags).findall(string)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+TypeError: expected string or bytes-like object, got 'Timestamp'
+
+04_28_2026 - 16:05:37.859021 | audrey - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\audrey_files\audrey_bot.py", line 80, in start_audrey
+    NBS.log_in()
+    ~~~~~~~~~~^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\Base.py", line 147, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\venv\Lib\site-packages\selenium\webdriver\support\wait.py", line 105, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	chromedriver!GetHandleVerifier [0x7ff7ec2aa8e5+14e45]
+	chromedriver!GetHandleVerifier [0x7ff7ec2aa950+14eb0]
+	chromedriver!(No symbol) [0x7ff7ec01d6ed]
+	chromedriver!(No symbol) [0x7ff7ec076cfe]
+	chromedriver!(No symbol) [0x7ff7ec07700c]
+	chromedriver!(No symbol) [0x7ff7ec0c7cb7]
+	chromedriver!(No symbol) [0x7ff7ec0c483b]
+	chromedriver!(No symbol) [0x7ff7ec0690e8]
+	chromedriver!(No symbol) [0x7ff7ec069fc3]
+	chromedriver!GetHandleVerifier [0x7ff7ec5c0149+32a6a9]
+	chromedriver!GetHandleVerifier [0x7ff7ec5ba715+324c75]
+	chromedriver!GetHandleVerifier [0x7ff7ec5dc012+346572]
+	chromedriver!GetHandleVerifier [0x7ff7ec2c7cb5+32215]
+	chromedriver!GetHandleVerifier [0x7ff7ec2d087c+3addc]
+	chromedriver!GetHandleVerifier [0x7ff7ec2b40e4+1e644]
+	chromedriver!GetHandleVerifier [0x7ff7ec2b4296+1e7f6]
+	chromedriver!GetHandleVerifier [0x7ff7ec298737+2c97]
+	KERNEL32!BaseThreadInitThunk [0x7ff8965d259d+1d]
+	ntdll!RtlUserThreadStart [0x7ff89690afb8+28]
+
+
+04_28_2026 - 16:33:53.262009 | audrey - Traceback (most recent call last):
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+  File "c:\Users\vaishnavi.appidi\Bot_repo\NBS_Basebot\audrey_files\audrey_bot.py", line 1774, in start_audrey
+    NBS.find_element(By.XPATH, '//*[@id="INV826"]').send_keys(re.findall(r'\b\d{2}/\d{2}/\d{4}\b',lab_report_table["Date Received"].iloc[0])[0])
+                                                              ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vaishnavi.appidi\AppData\Local\Programs\Python\Python313\Lib\re\__init__.py", line 278, in findall
+    return _compile(pattern, flags).findall(string)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+TypeError: expected string or bytes-like object, got 'Timestamp'
+

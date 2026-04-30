@@ -12,7 +12,7 @@ from epiweeks import Week
 from selenium.common.exceptions import ElementNotInteractableException,StaleElementReferenceException
 from selenium.common.exceptions import NoSuchElementException,TimeoutException
 from time import sleep
-import dask.dataframe as dd
+#import dask.dataframe as dd
 
 class Audrey(NBSdriver):
     """ A class inherits all basic NBS functionality from NBSdriver and adds

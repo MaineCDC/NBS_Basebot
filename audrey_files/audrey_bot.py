@@ -24,7 +24,7 @@ import time
 import traceback
 from selenium.webdriver.common.alert import Alert
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
+from selenium.webdriver.common.by import By              
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.ui import Select
@@ -75,11 +75,6 @@ def start_audrey(username, passcode):
     from .audrey import Audrey
     
     NBS = Audrey(production=True)   # true for production, is_in_production for development
-    
-    if is_in_production:
-        print("Development Environment")
-    else:
-        print("Production Environment")
 
     NBS.set_credentials(username, passcode)
     NBS.log_in()
@@ -110,7 +105,6 @@ def start_audrey(username, passcode):
             except Exception as e:
                 print(f"Error occurred while clicking on {partial_link}: {e}")
                 continue
-        
         #Sort review queue so that only hepatitis cases are listed
         clear_filter_path = '//*[@id="removeFilters"]/table/tbody/tr/td[2]/a'
         description_path = '(//*[@id="queueIcon"])[5]|/html/body/div[2]/form/div/table[2]/tbody/tr/td/table/thead/tr/th[6]/img'
@@ -118,7 +112,6 @@ def start_audrey(username, passcode):
         click_ok_path = '/html/body/div[2]/form/div/table[2]/tbody/tr/td/table/thead/tr/th[6]/div/label[1]/input[1]'
         click_cancel_path = '/html/body/div[2]/form/div/table[2]/tbody/tr/td/table/thead/tr/th[6]/div/label[1]/input[2]'
         submit_date_path = '//*[@id="parent"]/thead/tr/th[3]/a'
-
         #clear all filters
         for i in range(3):
             try:
@@ -131,7 +124,7 @@ def start_audrey(username, passcode):
                 print(f"StaleElementReferenceException for clear_filter_path, trying again... retry_number: {i}")
             except TimeoutException:
                 print(f"TimeoutException for clear_filter_path, trying again... retry_number: {i}")
-        
+                       
         document_type_path = '/html/body/div[2]/form/div/table[2]/tbody/tr/td/table/thead/tr/th[2]/img'
         clear_document_checkbox = '//*[@id="parent"]/thead/tr/th[2]/div/label[2]/input'
         click_ok_doc_type ='//*[@id="b1"]'
@@ -183,7 +176,7 @@ def start_audrey(username, passcode):
                 print(f"TimeoutException for clear_document_checkbox, trying again... retry_number: {i}")
             except Exception as e:
                 print(f"{e} has occured for clear_document_checkbox, retry_number: {i}")
-        
+       
         document_type = 'L'
         for i in range(3):
             try:
@@ -1753,7 +1746,7 @@ def start_audrey(username, passcode):
                             genotype = resulted_test_table["Text Result"].str.extract(r'(\d+[A-Za-z])').loc[0,0]
                     if genotype is not None:
                         NBS.find_element(By.XPATH, '//*[@id="ME121011"]').send_keys(genotype)
-            if alt_lab is not None:
+            '''if alt_lab is not None:
                 WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="1742_6"]')))
                 NBS.find_element(By.XPATH, '//*[@id="1742_6"]').send_keys(re.findall(r'\b\d+\b',alt_lab["Test Results"].iloc[0])[0])
                 WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV826"]')))
@@ -1770,8 +1763,8 @@ def start_audrey(username, passcode):
                     upper_limit_text = ref_range[0]
                 upper_limit = upper_limit_text.rsplit('-',1)[-1]
                 WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV827"]')))
-                NBS.find_element(By.XPATH, '//*[@id="INV827"]').send_keys(upper_limit)
-            '''if alt_lab is not None:
+                NBS.find_element(By.XPATH, '//*[@id="INV827"]').send_keys(upper_limit)'''
+            if alt_lab is not None:
                 WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="1742_6"]')))
                 text_elem = NBS.find_element(By.XPATH, '//*[@id="1742_6"]')
                 WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV826"]')))
@@ -1787,7 +1780,7 @@ def start_audrey(username, passcode):
                         upper_limit_text = ref_range[0]
                     upper_limit = upper_limit_text.rsplit('-',1)[-1]
                     WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV827"]')))
-                    NBS.find_element(By.XPATH, '//*[@id="INV827"]').send_keys(upper_limit)'''
+                    NBS.find_element(By.XPATH, '//*[@id="INV827"]').send_keys(upper_limit)
             #click on submit
             for i in range(3):
                 try:

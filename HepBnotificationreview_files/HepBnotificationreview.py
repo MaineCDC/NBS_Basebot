@@ -1,3 +1,4 @@
+import re
 from Base import NBSdriver
 import pandas as pd
 import smtplib, ssl
@@ -30,6 +31,7 @@ class HepBNotificationReview(NBSdriver):
     def StandardChecks(self):
         """ A method to conduct checks that must be done on all cases regardless of investigator. """
         self.Reset()
+        self.case_auto_approved = False
         self.initial_name = self.patient_name
         # Check Patient Tab
         self.CheckFirstName()
@@ -48,6 +50,9 @@ class HepBNotificationReview(NBSdriver):
         self.GoToSupplementalTab() ### change Xpath whille pushing to production
         # Read Associated labs
         self.ReadAssociatedLabs()
+        # Skip remaining checks if case is auto-approved (Not a Case with no labs)
+        if self.case_auto_approved:
+            return
         self.GetCollectionDate()
         self.GetReceivedDate()
         # # Check Case Info Tab
@@ -192,70 +197,118 @@ class HepBNotificationReview(NBSdriver):
                 print(f"{e} has occured for supplemental_info_tab_path, retry_number: {i}")
     
     def ReadAssociatedLabs(self):
-        """ Read table of associated labs. """
+        """ Read and normalize associated lab results (robust for all formats). """
+
         from collections import defaultdict
         from datetime import datetime
         import pandas as pd
+        import re
         from selenium.webdriver.common.by import By
-        # Helper: positivity detection
+
+        def is_negative(text):
+            t = text.lower()
+            return any(word in t for word in [
+                'negative', 'not detected', 'non-reactive', 'nonreactive','Trace'
+            ])
+
         def is_positive(text):
             t = text.lower()
             return any(word in t for word in [
-                'positive', 'detected', 'reactive','pos','react'
+                'positive', 'detected', 'reactive'
             ])
+
+        def contains_keyword(text, keywords):
+            return any(re.search(rf'\b{re.escape(k)}\b', text) for k in keywords)
+
+        def split_results(raw_text):
+            """Split lab text into individual test blocks, grouping test names with their results."""
+            raw_text = raw_text.replace('\r', '\n')
+            lines = raw_text.split('\n')
+            
+            # Test keywords that start a new test block
+            test_keywords = [
+                'hepatitis', 'hbv', 'hbsag', 'anti-hbc', 'hbeag', 'hbsab', 'anti-hbe'
+            ]
+            
+            final_parts = []
+            current_block = []
+            
+            for line in lines:
+                line_stripped = line.strip()
+                
+                if not line_stripped:
+                    # Skip empty lines
+                    continue
+                
+                line_lower = line_stripped.lower()
+                
+                # Check if this line starts a new test (begins with a test keyword)
+                is_new_test = any(line_lower.startswith(kw) for kw in test_keywords)
+                
+                if is_new_test and current_block:
+                    # Save the previous block before starting a new one
+                    final_parts.append('\n'.join(current_block))
+                    current_block = [line_stripped]
+                else:
+                    # Add line to current block
+                    current_block.append(line_stripped)
+            
+            # Don't forget the last block
+            if current_block:
+                final_parts.append('\n'.join(current_block))
+            
+            return final_parts
 
         self.labs = self.ReadTableToDF('//*[@id="viewSupplementalInformation1"]/tbody')
         self.name_match = False
         lab_reports = self.find_elements(By.XPATH, '//*[@id="eventLabReport"]/tbody/tr')
-
-        # Structure:
+        self.current_case_status = self.ReadText('//*[@id="INV163"]')
+        if len(lab_reports) == 1 and lab_reports[0].text.strip() == 'Nothing found to display.':
+            if self.current_case_status == 'Not a Case':
+                self.issues = []
+                self.case_auto_approved = True
+                return
+            else:
+                self.issues.append('No associated lab reports found.')
         # { test_key: { date_collected: (date_received, result_text) } }
         self.dna_dates = defaultdict(dict)
 
         test_map = {
-            "hepatitis b virus, dna": [
-                'hepatitis b virus dna',
-                'hepatitis b virus, dna',
-                'hepatitis b virus (hbv)'
-            ],
-            "hepatitis b virus surface antigen": [
-                'hepatitis b virus surface antigen (hbsag)',
-                'hepatitis b virus surface antigen',
-                'hepatitis b virus surface ag',
-                'hbsag',
-                'hep b surface ag',
-                'hbsag confirmation'
-            ],
-            "igm anti-hbc": [
-                'igm anti-hbc',
-                'hep b core ab, igm',
-                'hepatitis b virus core antibody, igm',
-                'hepatitis b virus core ab.igm'
-            ],
-            "hepatitis b virus core ab": [
-                'hepatitis b virus core ab',
-                'hepatitis b virus core antibody',
-                'total anti-hbc'
-            ],
-            "hepatitis b virus e antigen": [
-                'hbeag',
-                'hepatitis b virus e antigen',
-                'hepatitis b virus little e antigen',
-                'hepatitis b virus little e ag'
-            ],
-            "hepatitis b virus surface antibody": [
-                'hepatitis b virus surface antibody',
-                'hepatitis b virus surface ab',
-                'hbv surface ab',
-                'hbsab'
-            ],
-            "anti-hbe": [
-                'anti-hbe',
-                'hepatitis b virus e antibody'
-            ]
-        }
+    "hepatitis b virus, dna": [
+        'hepatitis b virus dna',
+        'hepatitis b virus, dna',
+        'hbv dna'
+    ],
+    "hepatitis b virus surface antigen": [
+        'hbsag',
+        'surface antigen',
+        'surface ag'   
+    ],
+    "igm anti-hbc": [
+        'igm anti-hbc',
+        'core ab, igm',
+        'core antibody igm','core ab.igm'
+    ],
+    "hepatitis b virus core ab": [
+        'hepatitis b virus core ab',              
+        'core antibody',
+        'core antibodies',
+        'anti-hbc',
+        'total anti-hbc'
+    ],
+    "hepatitis b virus e antigen": [
+        'hbeag',
+        'e antigen'
+    ],
+    "hepatitis b virus surface antibody": [
+        'surface antibody',
+        'surface ab',
+        'hbsab'
+    ],
+    "anti-hbe": [
+        'anti-hbe',
+        'e antibody']}
 
-        # MAIN PARSING LOOP
         for row in lab_reports:
             cells = row.find_elements(By.TAG_NAME, 'td')
 
@@ -270,19 +323,20 @@ class HepBNotificationReview(NBSdriver):
             except Exception:
                 continue
 
-            result_cell = cells[3]
-            divs = result_cell.find_elements(By.TAG_NAME, 'div')
-            results = [d.text.strip() for d in divs] if divs else [result_cell.text.strip()]
+            raw_text = cells[3].text.strip()
+            results = split_results(raw_text)
 
             for result in results:
                 result_lower = result.lower()
 
-                for key, keywords in test_map.items():
-                    if any(keyword in result_lower for keyword in keywords):
+                matched_any = False
 
+                for key, keywords in test_map.items():
+                    if contains_keyword(result_lower, keywords):
+
+                        matched_any = True
                         existing = self.dna_dates[key].get(date_collected)
 
-                        #  POSITIVE PRIORITY LOGIC
                         if not existing:
                             self.dna_dates[key][date_collected] = (date_received, result)
 
@@ -292,15 +346,18 @@ class HepBNotificationReview(NBSdriver):
                             new_pos = is_positive(result)
                             old_pos = is_positive(existing_result)
 
-                            # Positive always wins
+                            # Positive wins
                             if new_pos and not old_pos:
                                 self.dna_dates[key][date_collected] = (date_received, result)
 
-                            # If same polarity → keep latest received
+                            # Same → latest received
                             elif new_pos == old_pos and date_received > existing_received:
                                 self.dna_dates[key][date_collected] = (date_received, result)
-                        break
-        # INITIALIZE OUTPUT FIELDS
+
+                # If no Hep B keyword matched → ignore
+                if not matched_any:
+                    continue
+
         self.dna_date = None
         self.hbsag_date = None
         self.total_anti_hbc_date = None
@@ -317,46 +374,135 @@ class HepBNotificationReview(NBSdriver):
         self.result_check_anti_hbs = None
         self.result_check_anti_hbe = None
 
-        # FINAL EXTRACTION
+        def extract_result_value(raw_text):
+            """Extract just the result value from full test block
+            
+            Handles formats like:
+            - "Hepatitis B virus, DNA: 250 IU/mL"
+            - "Hepatitis B virus DNA:\n250 IU/mL"
+            - "Hepatitis B surface antigen: Positive"
+            """
+            if not raw_text:
+                return None
+            
+            result_text = str(raw_text).strip()
+            
+            # Step 1: Remove reference range and everything after it
+            clean = re.split(r'(?:reference|ref|normal|expected)\s*range', result_text, flags=re.IGNORECASE)[0].strip()
+            
+            # Step 2: If there's a colon, get what comes after it
+            if ':' in clean:
+                # Split on first colon and take the part after it
+                parts = clean.split(':', 1)
+                if len(parts) == 2:
+                    result_value = parts[1].strip()
+                    # Handle multi-line: join all non-empty lines
+                    if result_value:
+                        lines = [l.strip() for l in result_value.split('\n') if l.strip()]
+                        result_value = ' '.join(lines) if lines else None
+                        if result_value:
+                            return result_value
+            
+            # Step 3: If no colon, return the whole cleaned text
+            if clean:
+                lines = [l.strip() for l in clean.split('\n') if l.strip()]
+                result_value = ' '.join(lines) if lines else None
+                return result_value
+            
+            return None
+
+        def select_best_result(collected_dict):
+            """Select the best result across multiple collection dates.
+            
+            Priority:
+            1. Positive results (any positive wins)
+            2. If no positive, use earliest date with any result
+            3. If all dates fail extraction, use earliest
+            
+            Returns: (selected_date, extracted_result_value, full_raw_text)
+            """
+            if not collected_dict:
+                return None, None, None
+            
+            best_date = None
+            best_extracted_value = None
+            best_raw_text = None
+            positive_found = False
+            earliest_date = min(collected_dict.keys())
+            
+            # First pass: look for positive results
+            for collected_date in sorted(collected_dict.keys()):
+                date_received, raw_text = collected_dict[collected_date]
+                extracted_value = extract_result_value(raw_text)
+                
+                # Check if this result is positive
+                if extracted_value and is_positive(extracted_value):
+                    best_date = collected_date
+                    best_extracted_value = extracted_value
+                    best_raw_text = raw_text
+                    positive_found = True
+                    break  # Found positive, use this one
+            
+            # Second pass: if no positive found, use earliest date
+            if not positive_found:
+                best_date = earliest_date
+                date_received, raw_text = collected_dict[earliest_date]
+                best_extracted_value = extract_result_value(raw_text)
+                best_raw_text = raw_text
+            
+            return best_date, best_extracted_value, best_raw_text
+
         for key, collected_dict in self.dna_dates.items():
             if not collected_dict:
                 continue
 
-            earliest_collected = min(collected_dict.keys())
-            date_received, result_text = collected_dict[earliest_collected]
-            clean_result = result_text.split("Reference Range")[0].strip()
+            # Select the best result (preferring positive results)
+            selected_date, result_value, raw_text = select_best_result(collected_dict)
+            
+            # Extract result value if not already done
+            if result_value is None and raw_text:
+                result_value = extract_result_value(raw_text)
+            
+            # Debug output
+            print(f"DEBUG [{key}]:")
+            print(f"  Available dates: {sorted(collected_dict.keys())}")
+            print(f"  Selected date: {selected_date}")
+            print(f"  Raw stored text: '{raw_text}'")
+            print(f"  Extracted value: '{result_value}'")
+            
+            # Fallback: use the full raw_text if extraction failed
+            if not result_value and raw_text:
+                print(f"  WARNING: Extraction returned None, using full text as fallback")
+                result_value = raw_text
 
             if key == "hepatitis b virus, dna":
-                self.dna_date = earliest_collected
-                self.result_check_dna = clean_result
-
-            elif key == "hepatitis b virus e antigen":
-                self.hbeag_date = earliest_collected
-                self.result_check_hbeag = clean_result
+                self.dna_date = selected_date
+                self.result_check_dna = result_value
 
             elif key == "hepatitis b virus surface antigen":
-                self.hbsag_date = earliest_collected
-                self.result_check_antigen = clean_result
+                self.hbsag_date = selected_date
+                self.result_check_antigen = result_value
 
             elif key == "igm anti-hbc":
-                self.igm_anti_hbc_date = earliest_collected
-                self.result_check_igm = clean_result
+                self.igm_anti_hbc_date = selected_date
+                self.result_check_igm = result_value
 
             elif key == "hepatitis b virus core ab":
-                self.total_anti_hbc_date = earliest_collected
-                self.result_check_core = clean_result
+                self.total_anti_hbc_date = selected_date
+                self.result_check_core = result_value
+
+            elif key == "hepatitis b virus e antigen":
+                self.hbeag_date = selected_date
+                self.result_check_hbeag = result_value
 
             elif key == "hepatitis b virus surface antibody":
-                self.anti_hbs_date = earliest_collected
-                self.result_check_anti_hbs = clean_result
+                self.anti_hbs_date = selected_date
+                self.result_check_anti_hbs = result_value
 
             elif key == "anti-hbe":
-                self.hbeab_date = earliest_collected
-                self.result_check_anti_hbe = clean_result
+                self.hbeab_date = selected_date
+                self.result_check_anti_hbe = result_value
 
-        # =============================
-        # CHECK LAB TABLE
-        # =============================
         for index in range(len(self.labs)):
             row_df = self.labs.iloc[[index]]
             if row_df['Test Results'].str.contains('hepatitis b', na=False, case=False).any():
@@ -367,222 +513,8 @@ class HepBNotificationReview(NBSdriver):
         if not self.name_match:
             self.labs = pd.DataFrame()
             self.issues.append('Test results does not have hepatitis b.')
-
-    '''def ReadAssociatedLabs(self):
-        """ Read table of associated labs."""
-        self.labs = self.ReadTableToDF('//*[@id="viewSupplementalInformation1"]/tbody')
-        self.name_match = False
-        lab_reports = self.find_elements(By.XPATH, '//*[@id="eventLabReport"]/tbody/tr')
-        self.dna_date, self.hbsag_date, self.total_anti_hbc_date, self.igm_anti_hbc_date, self.hbeag_date, self.anti_hbs_date, self.anti_hbe_date = (None,) * 7
-        self.dna_dates = {}
-        self.test_names = []
-        self.text = ['hepatitis b virus dna', 'hepatitis b virus, dna', 'hepatitis b virus (hbv)','Hepatitis B virus (HBV)']
-        self.text1 = ['hepatitis b virus surface antigen (hbsag)','hepatitis b virus surface antigen', 'hepatitis b virus surface ag', 'hbsag', 'hepatitis b surface ag','hepatitis b virus surface antigen, neutralization','hbsag confirmation','hep b surface ag','hepatitis b virus, antigen'] 
-        self.text3 = ['igm anti-hbc', 'hep b core ab, igm', 'hepatitis b virus igm antibody', 'hepatitis b virus core antibody, igm','hepatitis b virus core ab.igg+igm','HEPATITIS B VIRUS CORE AB.IGM','hepatitis b virus core ab.igm']
-        self.text2 = ['hepatitis b virus core ab', 'hepatitis b virus core antibody', 'hepatitis b virus total antibody', 'hbv core ab, igg/igm diff', 'hep b core ab, tot', 'total anti-hbc', 'hepatitis b virus core antibodies, total']
-        self.text4 = ['hbeag', 'hepatitis b virus e antigen', 'hep b e ag', 'hepatitis be virus antigen (hbeag)']
-        self.text5 = ['hepatitis b virus surface antibody', 'hepatitis b virus (hbv), antibody', 'hepatitis b virus surface antibody (hbsab)','hepatitis b virus surface ab', 'hbv surface ab', 'hep b surface ab','hbv surface antibody','hbsab']
-        self.text6 = ['anti-hbe', 'anti-hbe antibody', 'hepatitis b virus e antibody', 'hep be ab','hepatitis b virus little e ab.igg']
-        for risk in lab_reports:
-            cells = risk.find_elements(By.TAG_NAME, 'td')
-            date_collected = datetime.strptime(cells[2].text.strip(), "%m/%d/%Y").date()
-            if cells[3].find_elements(By.TAG_NAME, 'div'):
-                div_tags = cells[3].find_elements(By.TAG_NAME, 'div')
-                for tag in div_tags:
-                    self.result = tag.text.strip()
-                    data_exists = [x for x in self.text if x in self.result.lower()]
-                    if data_exists:
-                        if self.dna_dates.get('hepatitis b virus, dna'):
-                            #if 'positive' in self.result.lower():
-                            self.dna_dates['hepatitis b virus, dna'].append(date_collected)
-                            self.test_names.append(self.result)
-                        else:
-                            #if 'positive' in self.result.lower():
-                            self.dna_dates['hepatitis b virus, dna'] = [date_collected]
-                            self.test_names.append(self.result)
-                            
-                    elif any(x in self.result.lower() for x in self.text1):
-                        if self.dna_dates.get('hepatitis b virus surface antigen'):
-                            #if 'positive' in self.result.lower():
-                            self.dna_dates['hepatitis b virus surface antigen'].append(date_collected)
-                            self.test_names.append(self.result)
-                        else:
-                            self.dna_dates['hepatitis b virus surface antigen'] = [date_collected]
-                            self.test_names.append(self.result)
-                
-                    elif any(x in self.result.lower() for x in self.text3):
-                        if self.dna_dates.get('igm anti-hbc'):
-                            self.dna_dates['igm anti-hbc'].append(date_collected)
-                            self.test_names.append(self.result)
-                        else:
-                            self.dna_dates['igm anti-hbc'] = [date_collected]
-                            self.test_names.append(self.result)
-                            
-                    elif any(x in self.result.lower() for x in self.text2):
-                        if self.dna_dates.get('hepatitis b virus core ab'):
-                            self.dna_dates['hepatitis b virus core ab'].append(date_collected)
-                            self.test_names.append(self.result)
-                        else:
-                            self.dna_dates['hepatitis b virus core ab'] = [date_collected]
-                            self.test_names.append(self.result)
-                            
-                    elif any(x in self.result.lower() for x in self.text4):
-                        if self.dna_dates.get('hepatitis b virus e antigen'):
-                            self.dna_dates['hepatitis b virus e antigen'].append(date_collected)
-                            self.test_names.append(self.result)
-                        else:
-                            self.dna_dates['hepatitis b virus e antigen'] = [date_collected]
-                            self.test_names.append(self.result)
-                            
-                    elif any(x in self.result.lower() for x in self.text5):
-                        if self.dna_dates.get('hepatitis b virus surface antibody'):
-                            self.dna_dates['hepatitis b virus surface antibody'].append(date_collected)
-                            self.test_names.append(self.result)
-                        else:
-                            self.dna_dates['hepatitis b virus surface antibody'] = [date_collected]
-                            self.test_names.append(self.result)
-                            
-                    elif any(x in self.result.lower() for x in self.text6):
-                        if self.dna_dates.get('anti-hbe'):
-                            self.dna_dates['anti-hbe'].append(date_collected)
-                            self.test_names.append(self.result)
-                        else:
-                            self.dna_dates['anti-hbe'] = [date_collected]
-                            self.test_names.append(self.result)
-            else:
-                self.result = cells[3].text.strip()
-                if any(x in self.result.lower() for x in self.text):
-                    if self.dna_dates.get('hepatitis b virus, dna'):
-                        self.dna_dates['hepatitis b virus, dna'].append(date_collected)
-                        self.test_names.append(self.result)
-                    else:
-                        self.dna_dates['hepatitis b virus, dna'] = [date_collected]
-                        self.test_names.append(self.result)
-                        
-                elif any(x in self.result.lower() for x in self.text1):
-                    if self.dna_dates.get('hepatitis b virus surface antigen'):
-                        if 'positive' in self.result.lower():
-                            self.dna_dates['hepatitis b virus surface antigen'].append(date_collected)
-                            self.test_names.append(self.result)
-                    else:
-                        if 'positive' in self.result.lower():
-                            self.dna_dates['hepatitis b virus surface antigen'] = [date_collected]
-                            self.test_names.append(self.result)
-                
-                elif any(x in self.result.lower() for x in self.text3):
-                    if self.dna_dates.get('igm anti-hbc'):
-                        self.dna_dates['igm anti-hbc'].append(date_collected)
-                        self.test_names.append(self.result)
-                    else:
-                        self.dna_dates['igm anti-hbc'] = [date_collected]
-                        self.test_names.append(self.result)        
-                
-                elif any(x in self.result.lower() for x in self.text2):
-                    if self.dna_dates.get('hepatitis b virus core ab'):
-                        self.dna_dates['hepatitis b virus core ab'].append(date_collected)
-                        self.test_names.append(self.result)
-                    else:
-                        self.dna_dates['hepatitis b virus core ab'] = [date_collected]
-                        self.test_names.append(self.result)
-                        
-                elif any(x in self.result.lower() for x in self.text4):
-                    if self.dna_dates.get('hepatitis b virus e antigen'):
-                        self.dna_dates['hepatitis b virus e antigen'].append(date_collected)
-                        self.test_names.append(self.result)
-                    else:
-                        self.dna_dates['hepatitis b virus e antigen'] = [date_collected]
-                        self.test_names.append(self.result)
-                        
-                elif any(x in self.result.lower() for x in self.text5):
-                    if self.dna_dates.get('hepatitis b virus surface antibody'):
-                        self.dna_dates['hepatitis b virus surface antibody'].append(date_collected)
-                        self.test_names.append(self.result)
-                    else:
-                        self.dna_dates['hepatitis b virus surface antibody'] = [date_collected]
-                        self.test_names.append(self.result)
-                        
-                elif any(x in self.result.lower() for x in self.text6):
-                    if self.dna_dates.get('anti-hbe'):
-                        self.dna_dates['anti-hbe'].append(date_collected)
-                        self.test_names.append(self.result)
-                    else:
-                        self.dna_dates['anti-hbe'] = [date_collected]
-                        self.test_names.append(self.result)
-        self.test1_names =  [x.split(':')[0].strip() for x in self.test_names]   
-        self.result_check_dna = []
-        self.result_check_antigen = []
-        self.result_check_core = []
-        self.result_check_igm = []
-        self.result_check_anti_hbs = []
-        self.result_check_hbeag = []
-        self.result_check_anti_hbe = []
-        for key, value in self.dna_dates.items():
-            if key == "hepatitis b virus, dna":
-                for x in self.test1_names:
-                    for y in self.test_names:
-                            if x.lower() in self.text:
-                                if x in y:
-                                    self.result_check_dna = y.split(':')[1].strip().lower() and y.split('Reference Range')[0].strip()
-                                    self.dna_date = min(value)
-            elif key == "hepatitis b virus surface antigen":
-                if len(value) > 1:
-                    for x in self.test1_names:
-                        for y in self.test_names:
-                            if x.lower() in self.text1:
-                                if x in y:
-                                    self.result_check_antigen =y.split(':')[1].strip().lower() and y.split('Reference Range')[0].strip()
-                                    self.hbsag_date = min(value)
-                else:
-                    for x in self.test1_names:
-                        for y in self.test_names:
-                            if x.lower() in self.text1:
-                                if x in y:
-                                    self.result_check_antigen = y.split(':')[1].strip().lower()
-                                    self.hbsag_date = min(value)
-            elif key == "hepatitis b virus core ab":
-                self.total_anti_hbc_date = min(value)
-                for x in self.test1_names:
-                    for y in self.test_names:
-                        if x.lower() in self.text2:
-                            if x in y:
-                                self.result_check_core = y.split(':')[1].strip().lower()
-            elif key == "igm anti-hbc":
-                self.igm_anti_hbc_date = min(value)
-                for x in self.test1_names:
-                    for y in self.test_names:
-                        if x.lower() in self.text3:
-                            if x in y:
-                                self.result_check_igm = y.split(':')[1].strip().lower()
-            elif key == "hepatitis b virus e antigen":
-                self.hbeag_date = min(value)
-                for x in self.test1_names:
-                    for y in self.test_names:
-                        if x.lower() in self.text4:
-                            if x in y:
-                                self.result_check_hbeag = y.split(':')[1].strip().lower()
-            elif key == "hepatitis b virus surface antibody":
-                self.anti_hbs_date = min(value)
-                for x in self.test1_names:
-                    for y in self.test_names:
-                        if x.lower() in self.text5:
-                            if x in y:
-                                self.result_check_anti_hbs = y.split(':')[1].strip().lower()
-            elif key == "hepatitis b virus e antibody":
-                self.hbeab_date = min(value)
-                for x in self.test1_names:
-                    for y in self.test_names:
-                        if x.lower() in self.text6:
-                            if x in y:
-                                self.result_check_anti_hbe = y.split(':')[1].strip().lower()
-        for index in range(len(self.labs)):
-            row_df = self.labs.iloc[[index]]
-            if row_df['Test Results'].str.contains('hepatitis b', na=False, case=False).any():
-                self.labs = self.labs.loc[index]
-                self.name_match = True
-                break
-        if not self.name_match:
-            self.labs = pd.DataFrame()
-            self.issues.append('Test results does not have hepatitis b.')'''
+        
+    
 
     def GetReceivedDate(self):
         """Find earliest report date by reviewing associated labs"""
@@ -721,7 +653,7 @@ class HepBNotificationReview(NBSdriver):
             }
         }
         self.positive_results = ['detected', 'reactive', 'positive', 'pos', 'Positive']
-        self.negative_results = ['not detected', 'negative', 'Negative', 'non-reactive', 'neg', 'non react']
+        self.negative_results = ['not detected', 'negative', 'Negative', 'non-reactive', 'neg', 'non react', 'Trace']
         # Copy of keys to track unmatched
         dna_dates_new = diagnostic_map.copy()
         # VALIDATION LOOP
@@ -939,10 +871,10 @@ class HepBNotificationReview(NBSdriver):
             self.issues.append('Detection method is blank.')
         if not confirmation_method:
             self.issues.append('Confirmation method is blank.')
-        elif self.current_case_status == 'Confirmed' and (not confirmation_method or 'laboratory confirmed' not in confirmation_method.lower()):
+        '''elif self.current_case_status == 'Confirmed' and (not confirmation_method or 'laboratory confirmed' not in confirmation_method.lower()):
             self.issues.append('Confirmation method should be Laboratory confirmed if case status is confirmed.')
         elif (self.current_case_status == 'Probable'and (not confirmation_method or 'laboratory report' not in confirmation_method.lower())):
-            self.issues.append('If probable, confirmation method should be Laboratory Report.')
+            self.issues.append('If probable, confirmation method should be Laboratory Report.')'''
         if not confirmation_date:
             self.issues.append('Confirmation date is blank.')
         elif confirmation_date < self.received_date:
@@ -1104,7 +1036,7 @@ class HepBNotificationReview(NBSdriver):
                         row_data_new.extend([risk.text for risk in cells if risk.text])
                 if period_prior_to_onset: 
                     row_data_new.append(period_prior_to_onset)
-                if self.male_sex_partners or self.female_sex_partners or (int(self.male_sex_partners)>0 or int(self.female_sex_partners)>0):
+                if (self.male_sex_partners and int(self.male_sex_partners) > 0) or (self.female_sex_partners and int(self.female_sex_partners) > 0):
                     row_data_new.append('Yes')
                 if 'Yes' in set(row_data_new) or 'Unknown' in set(row_data_new):
                     self.issues.append('Reason for testing is screening of asymptomatic patient without risk factors but risk factors are listed.')
@@ -1152,48 +1084,48 @@ class HepBNotificationReview(NBSdriver):
         # Safe lower helpers
         def safe_lower(value):
             return (value or "").lower()
-        def interpret_numeric_result(result_text: str) -> str:
+        def interpret_numeric_result(text: str):
             """
-            Interpret numeric IU/mL or Log IU/mL values in test results.
-            Returns "positive", "negative", or None if no numeric pattern found.
+            Returns 'positive', 'negative', or None
+            Must have context indicating it's a lab value (units, equals sign, colon, etc.)
             """
-            if not result_text:
+            if not text:
                 return None
-            text = result_text.lower()
-            # Check Log IU/mL pattern first
-            log_match = re.search(r'=?\s*(\d+(\.\d+)?)\s*log\s*iu/ml', text)
+            t = text.lower()
+            
+            # Log IU/mL pattern - must explicitly have "log"
+            log_match = re.search(r'(?:=|:|<|>|≤|≥)?\s*(\d+(?:\.\d+)?)\s*log\s*iu/ml', t)
             if log_match:
                 value = float(log_match.group(1))
-                if value < 1:
-                    return "negative"
-                else:
-                    return "positive"
-            # Check IU/mL pattern
-            iu_match = re.search(r'hepatitis\s*b\s*virus\s*(?:surface\s*ag|dna)[^0-9]*?(\d+(?:\.\d+)?)',text,re.I | re.S)
-            #iu_match1 = re.search(r'(\d+(?:\.\d+)?)\s*\[?iu\]?/ml', text)
+                return "negative" if value < 1 else "positive"
+
+            # IU/mL pattern - must have explicit units or be in result context (after = or :)
+            # Match: "= 100 IU/mL" or "100 IU/mL" or ": 250 IU"
+            iu_match = re.search(r'(?:=|:|<|>|≤|≥)?\s*(\d+(?:\.\d+)?)\s*(?:iu/ml|iu|copies/ml|cut[- ]?off)', t, re.I)
             if iu_match:
-                value = float((iu_match).group(1))
-                if value < 10:
-                    return "negative"
-                else:
-                    return "positive"
+                # Only consider this a valid numeric result if it has recognizable units
+                if re.search(r'iu|copies', t, re.I):
+                    value = float(iu_match.group(1))
+                    return "negative" if value < 10 else "positive"
+            
             return None
-        def is_positive(value):
-            numeric_interpretation = interpret_numeric_result(value)
-            if numeric_interpretation == "positive":
-                return True
-            if numeric_interpretation == "negative":
-                return False
+        def get_result(value):
+            """
+            FINAL unified function → ALWAYS use this
+            Returns: 'positive', 'negative', or None
+            """
             value = safe_lower(value)
-            return any(x in value for x in self.positive_results)
-        def is_negative(value):
-            numeric_interpretation = interpret_numeric_result(value)
-            if numeric_interpretation == "negative":
-                return True
-            if numeric_interpretation == "positive":
-                return False
-            value = safe_lower(value)
-            return any(x in value for x in self.negative_results)
+            # Step 1: numeric interpretation FIRST
+            numeric = interpret_numeric_result(value)
+            if numeric:
+                return numeric
+            # Step 2: text interpretation (STRICT)
+            if re.search(r'\b(positive|reactive|detected)\b', value):
+                return "positive"
+            if re.search(r'\b(negative|non[- ]?reactive|not detected|no significant change)\b', value):
+                return "negative"
+            return None
+       
         # Read values
         previous_investigation_acute = safe_lower(self.ReadText('//*[@id="ME10099141"]'))
         previous_inv_acute_date = self.ReadDate('//*[@id="ME10099138"]')
@@ -1208,7 +1140,27 @@ class HepBNotificationReview(NBSdriver):
         self.diagnosed_another_state = safe_lower(self.ReadText('//*[@id="ME10095108"]'))
         current_status = safe_lower(self.current_case_status)
         # Result flags (NEW SAFE WAY)
-        dna_pos = is_positive(self.result_check_dna)
+        dna_result = get_result(self.result_check_dna)
+        dna_pos = dna_result == "positive"
+        dna_neg = dna_result == "negative"
+
+        antigen_result = get_result(self.result_check_antigen)
+        antigen_pos = antigen_result == "positive"
+        antigen_neg = antigen_result == "negative"
+
+        igm_result = get_result(self.result_check_igm)
+        igm_pos = igm_result == "positive"
+        igm_neg = igm_result == "negative"
+
+        core_result = get_result(self.result_check_core)
+        core_pos = core_result == "positive"
+        core_neg = core_result == "negative"
+
+        hbeag_result = get_result(self.result_check_hbeag)
+        hbeag_pos = hbeag_result == "positive"
+        hbeag_neg = hbeag_result == "negative"
+# 3/30/2026
+        '''dna_pos = is_positive(self.result_check_dna)
         dna_neg = is_negative(self.result_check_dna)
 
         antigen_pos = is_positive(self.result_check_antigen)
@@ -1221,7 +1173,7 @@ class HepBNotificationReview(NBSdriver):
         core_neg = is_negative(self.result_check_core)
 
         hbeag_pos = is_positive(self.result_check_hbeag)
-        hbeag_neg = is_negative(self.result_check_hbeag)
+        hbeag_neg = is_negative(self.result_check_hbeag)'''
 
         # NEW FIX: Validate Documented Negative HBsAg
         previous_negative_exists = False
@@ -1232,7 +1184,8 @@ class HepBNotificationReview(NBSdriver):
                 if collected_date < self.hbsag_date:
                     # Optional strict 12-month rule:
                     # if (self.hbsag_date - collected_date).days <= 365:
-                    if is_negative(result_text):
+                    #if is_negative(result_text): ---todays changes 3/30/2026
+                    if get_result(result_text) == "negative":
                         previous_negative_exists = True
                         break
         if antigen_neg :

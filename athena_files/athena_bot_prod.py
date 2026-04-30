@@ -7,9 +7,9 @@ import os
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 #driver= webdriver.Chrome()
-chrome_driver_path ="C:/Users/vaishnavi.appidi/chrome_driver/chromedriver-win64/chromedriver.exe"  # Replace with your custom path
+'''chrome_driver_path ="C:/Users/vaishnavi.appidi/chrome_driver/chromedriver-win64/chromedriver.exe"  # Replace with your custom path
 service = Service(chrome_driver_path)
-driver = webdriver.Chrome(service=service)
+driver = webdriver.Chrome(service=service)'''
 
 def generator():
     while True:

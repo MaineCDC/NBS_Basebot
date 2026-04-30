@@ -17,7 +17,6 @@ import pandas as pd
 from datetime import datetime
 import smtplib, ssl
 from email.message import EmailMessage
-
 from dotenv import load_dotenv
 import os
 from decorator import error_handle
@@ -32,17 +31,11 @@ reason = []
 
 is_in_production = os.getenv('ENVIRONMENT', 'production') != 'development'
 @error_handle
-def start_ILIOutbreak(username, passcode):
+def start_ILIOutbreak():
     
     load_dotenv()
     from .ILIOutbreak import ILIOutbreak
-    NBS = ILIOutbreak(production=is_in_production)  # production=True & Test = is_in_production
-    if is_in_production:
-        print("Production Environment")
-    else:
-        print("Development Environment")
-        
-    NBS.set_credentials(username, passcode)
+    NBS = ILIOutbreak(production=False)  # production=True & Test = is_in_production
     NBS.log_in()
     NBS.GoToApprovalQueue()
 
@@ -51,7 +44,7 @@ def start_ILIOutbreak(username, passcode):
     error = False
     n = 1
     attempt_counter = 0
-    limit = 8
+    limit = 6
     loop = tqdm(generator())
     for _ in loop:
         #check if the bot haa gone through the set limit of reviews
@@ -109,14 +102,14 @@ def start_ILIOutbreak(username, passcode):
                     what_do.append("Reject Notification")
                     reason.append(' '.join(NBS.issues))
                     NBS.RejectNotification()
-                    body = ''
+                    '''body = ''
                     if  all(case in NBS.issues  for case in ['City is blank.', 'County is blank.', 'Zip code is blank.']):
                         body = 'Hey, please only update City, Zip Code and County, then Click CN'
                     elif NBS.CorrectCaseStatus:
                         body = f'Hey, please only update the case status to {NBS.CorrectCaseStatus}, then click CN for this case.'
                     if body:
                         print('mail', body)
-                        NBS.SendILIOutbreakEmail(NBS,body,inv_id)
+                        NBS.SendILIOutbreakEmail(NBS,body,inv_id)'''
                         # NBS.ReturnApprovalQueue()
                     #elif NBS.final_name != NBS.initial_name:
                         #print(f"here : {NBS.final_name} {NBS.initial_name}")

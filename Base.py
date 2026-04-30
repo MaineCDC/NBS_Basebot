@@ -1,23 +1,12 @@
-# new code added to install chromedriver automatically with chromedriver manager
-'''from selenium import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-Chromedriverpath=(ChromeDriverManager(driver_version="134.0.6998.90").install())
-print(f"chromedriverpath: {Chromedriverpath}")'''
-
+# Let Selenium auto-manage ChromeDriver version without manual service
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
 
-# initialize chromedriver
-'''chrome_driver_path ="C:/Users/vaishnavi.appidi/OneDrive - State of Maine/Desktop/chromedriver-win32/chromedriver.exe"  # Replace with your custom path
-service = Service(chrome_driver_path)
-driver = webdriver.Chrome(service=service)'''
+# Create Chrome driver - Selenium 4.10+ auto-handles driver management
+driver = webdriver.Chrome()
 
 #service = Service(driver)
-driver = webdriver.Chrome() 
+#driver = webdriver.Chrome() 
 
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -157,7 +146,9 @@ class NBSdriver(webdriver.Chrome):
         print(self.page_source) #for some reason removing this makes nbsbot unable to log in to nbs
         WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
         self.find_element(By.XPATH,'//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a').click()
-
+    
+        
+        
 ################### Name Details check methods####################
     def CheckFirstName(self):
         """ Must provide first name. """
@@ -289,13 +280,28 @@ class NBSdriver(webdriver.Chrome):
             self.issues.append('Ethnicity is blank.')
     
     def CheckRace(self):
-        """ Must provide race and selection must make sense. """
-        self.race = self.CheckForValue('//*[@id="patientRacesViewContainer"]','Race is blank.')
-        # Race should only be unknown if no other options are selected.
-        ambiguous_answers = ['Unknown', 'Other', 'Refused to answer', 'Not Asked']
-        for answer in ambiguous_answers:
-            if (answer in self.race) and (self.race != answer) and (self.race == 'Native Hawaiian or Other Pacific Islander'):
-                self.issues.append('"'+ answer + '"' + ' selected in addition to other options for race.')
+        self.race = self.CheckForValue('//*[@id="patientRacesViewContainer"]', 'Race is blank.')
+        # Normalize race values
+        def get_race_list(race_input):
+            if not race_input:
+                return []
+            # If already list
+            if isinstance(race_input, list):
+                return [r.strip().lower() for r in race_input if r]
+            # If string (comma-separated)
+            return [r.strip().lower() for r in race_input.split(",") if r.strip()]
+        race_values = get_race_list(self.race)
+        known_races = ['white','black or african american','asian','american indian or alaska native','native hawaiian or other pacific islander']
+        ambiguous_answers = ['other','refused to answer','not asked','unknown']
+        if 'other' in race_values:
+            if any(r in race_values for r in known_races):
+                self.issues.append('"Other" should not be selected along with known race options.')
+      
+        for ambiguous in ['refused to answer', 'not asked', 'unknown']:
+            if ambiguous in race_values:
+                if len(race_values) > 1:
+                    self.issues.append(f'"{ambiguous.title()}" should not be selected along with other race options.')
+        return
 
     def CheckRaceAna(self):
         """ Must provide race and selection must make sense. """

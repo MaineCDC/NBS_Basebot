@@ -1,5 +1,5 @@
 import re
-from Base import NBSdriver
+from Base_IH import NBSdriver
 import pandas as pd
 import smtplib, ssl
 from email.message import EmailMessage
@@ -132,6 +132,8 @@ class ILIOutbreak(NBSdriver):
             self.issues.append('Date first case became ill is blank.')
         if not self.date_last_case_became_ill:
             self.issues.append('Date last case became ill is blank.')
+        if self.date_first_case_became_ill and self.date_last_case_became_ill and self.date_last_case_became_ill < self.date_first_case_became_ill:
+            self.issues.append('Date last case became ill cannot be before date first case became ill.')
     
     def GeneralComments(self):       
         """ Check general comments."""
@@ -144,9 +146,6 @@ class ILIOutbreak(NBSdriver):
     def AffectedPopulation(self):
         """ Check affected population."""
         self.affected_population = self.ReadTableToDF('//*[@id="ME8107"]//table') #  //*[@id="ME8107"]/tbody/tr[1]/td/table/tbody/tr/td[2], //*[@id="ME8107"]/tbody/tr[1]/td/table
-        #self.lab_confirmed_values = []
-        # initialize once (outside the loop)
-        # Initialize once
         self.attack_rate_group_percent_list = []
         self.affected_population_type_list = []
         if self.affected_population.empty:
@@ -369,13 +368,17 @@ class ILIOutbreak(NBSdriver):
                 if self.current_case_status == 'Confirmed':
                     if int(row_df['Lab-confirmed influenza']) > 2:
                             pass
-                    elif int(row_df['Lab-confirmed influenza']) < 2:
-                        self.issues.append('At least 2 lab-confirmed influenza cases are required for confirmed status.')
-                    elif int(row_df['Lab-confirmed influenza']) == 2:
+                    elif int(row_df['Lab-confirmed influenza']) == 0:
+                        self.issues.append('At least 1 lab-confirmed influenza cases are required for confirmed status.')
+                    elif int(row_df['Lab-confirmed influenza']) == 1 and int(row_df['Population with ILI (no lab)']) >= 0:
+                        self.issues.append('At least 2 total cases of ILI (lab-confirmed and no lab) are required for confirmed status if only 1 lab-confirmed influenza case.')
+                    #elif int(row_df['Lab-confirmed influenza']) < 2:
+                        #self.issues.append('At least 2 lab-confirmed influenza cases are required for confirmed status.')
+                    elif int(row_df['Lab-confirmed influenza']) == 2 or (int(row_df['Lab-confirmed influenza']) == 1 and int(row_df['Population with ILI (no lab)']) ==1):
                         if self.time_difference > 3:
-                            if self.current_case_status == 'Confirmed':
-                                self.issues.append('Does not meet  72 hour criteria.')
-                            elif self.current_case_status != 'Not a Case':
+                            #if self.current_case_status == 'Confirmed':
+                                #self.issues.append('Does not meet  72 hour criteria.')
+                            if self.current_case_status != 'Not a Case':
                                 self.issues.append('Does not meet  72 hour criteria.')
                         elif self.time_difference <= 3:
                             if self.current_case_status != 'Confirmed':
@@ -392,10 +395,10 @@ class ILIOutbreak(NBSdriver):
                         self.issues.append('incorrect case classification.')
                     elif int(row_df['Population with ILI (no lab)']) < 2:
                         self.issues.append('Probable status requires at least 2 ILI (no lab) cases.')
-                    elif int(row_df['Population with ILI (no lab)']) == 2 and int(row_df['Lab-confirmed influenza']) < 2:
+                    elif int(row_df['Population with ILI (no lab)']) == 2 and int(row_df['Lab-confirmed influenza']) ==0 or  not int(row_df['Lab-confirmed influenza']):
                         if self.time_difference > 3:
-                            if self.current_case_status == 'Probable':
-                                self.issues.append('Does not meet  72 hour criteria.')
+                            #if self.current_case_status == 'Probable':
+                                #self.issues.append('Does not meet  72 hour criteria.')
                             if self.current_case_status != 'Not a Case':
                                 self.issues.append('Does not meet  72 hour criteria.')
                         elif self.time_difference <= 3:
@@ -404,15 +407,14 @@ class ILIOutbreak(NBSdriver):
                         elif self.time_difference <= 3:
                             if self.current_case_status == 'Probable':
                                 pass
-                    elif int(row_df['Population with ILI (no lab)']) > 2 and int(row_df['Lab-confirmed influenza']) < 2:
-                        pass
-                elif int(row_df['Population with ILI (no lab)']) > 2 and int(row_df['Lab-confirmed influenza']) < 2:
+                    #elif int(row_df['Population with ILI (no lab)']) > 2 and int(row_df['Lab-confirmed influenza']) < 2:
+                       # pass
+                '''elif int(row_df['Population with ILI (no lab)']) < 2 and int(row_df['Lab-confirmed influenza']) < 2:
                     if self.current_case_status != 'Not a Case':
-                        self.issues.append('If at least 2 lab-confirmed influenza cases exist, status should be Not a case.')
+                        self.issues.append(' does not meet case status criteria.')'''
                         
     def SendEmailToIliAssign(self):
         """ Send email containing NBS IDs that required manual review."""
-        #self.ili_outbreak_investigator = ['vaishnavi.appidi@maine.gov', 'Anna.Krueger@maine.gov']
         if self.ili_assign_email_id:
             body = f"Need manual review for the below ILIOutbreak investigations,Investigation ids {self.ili_assign_email_id} "
             print(f"body", body)
@@ -425,7 +427,7 @@ class ILIOutbreak(NBSdriver):
         if (len(self.not_a_case_log) > 0) | (len(self.lab_data_issues_log) > 0):
             subject = 'Cases Requiring Manual Review'
             email_name = 'manual review email'
-            body = "COVID Commander,\nThe case(s) listed below have been moved to the rejected notification queue and require manual review.\n\nNot a case:"
+            body = "ILIoutbreak,\nThe case(s) listed below have been moved to the rejected notification queue and require manual review.\n\nNot a case:"
             for id in self.not_a_case_log:
                 body = body + f'\n{id}'
             body = body + '\n\nAssociated lab issues:'

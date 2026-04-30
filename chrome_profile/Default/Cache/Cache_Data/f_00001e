@@ -1,0 +1,1157 @@
+if (typeof dwr == 'undefined' || dwr.engine == undefined) throw new Error('You must include DWR engine before including this file');
+
+(function() {
+if (dwr.engine._getObject("JFChart") == undefined) {
+var p;
+
+p = {};
+
+
+
+
+p.getHtml = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getHtml', arguments);
+};
+
+
+
+
+
+p.setHtml = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setHtml', arguments);
+};
+
+
+
+
+
+p.getLineListings = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getLineListings', arguments);
+};
+
+
+
+
+p.getAvailableChartList = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getAvailableChartList', arguments);
+};
+
+
+
+
+
+p.getField = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getField', arguments);
+};
+
+
+
+
+p.getGenericType = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getGenericType', arguments);
+};
+
+
+
+
+
+p.reset = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'reset', arguments);
+};
+
+
+
+
+
+p.setMode = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setMode', arguments);
+};
+
+
+
+
+p.getMode = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getMode', arguments);
+};
+
+
+
+
+p.getReportingFacilityUid = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getReportingFacilityUid', arguments);
+};
+
+
+
+
+p.getNextId = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getNextId', arguments);
+};
+
+
+
+
+
+p.getDwrCountiesForState = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getDwrCountiesForState', arguments);
+};
+
+
+
+
+p.getDwrDefaultStateCounties = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getDwrDefaultStateCounties', arguments);
+};
+
+
+
+
+
+p.setSubSecStructureMap = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setSubSecStructureMap', arguments);
+};
+
+
+
+
+
+p.setAnswersBatchEntry = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setAnswersBatchEntry', arguments);
+};
+
+
+
+
+
+p.setBatchEntryMap2 = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setBatchEntryMap2', arguments);
+};
+
+
+
+
+
+p.getDwrImportedCountiesForState = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getDwrImportedCountiesForState', arguments);
+};
+
+
+
+
+p.getUpdatedRepeatingCommentsMap = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getUpdatedRepeatingCommentsMap', arguments);
+};
+
+
+
+
+p.getDwrStateSiteCounties = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getDwrStateSiteCounties', arguments);
+};
+
+
+
+
+
+p.getDwrImportedCountiesForState2 = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getDwrImportedCountiesForState2', arguments);
+};
+
+
+
+
+p.getDwrImportedCounties = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getDwrImportedCounties', arguments);
+};
+
+
+
+
+p.getDwrImportedCounties2 = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getDwrImportedCounties2', arguments);
+};
+
+
+
+
+
+p.getOnLoadCityList = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getOnLoadCityList', arguments);
+};
+
+
+
+
+
+p.clearDWROrganization = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'clearDWROrganization', arguments);
+};
+
+
+
+
+
+
+p.getDwrOrganizationDetails = function(p0, p1, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getDwrOrganizationDetails', arguments);
+};
+
+
+
+
+
+
+p.getDwrInvestigatorDetailsByUid = function(p0, p1, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getDwrInvestigatorDetailsByUid', arguments);
+};
+
+
+
+
+
+
+p.getDwrPopulateOrganizationByUid = function(p0, p1, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getDwrPopulateOrganizationByUid', arguments);
+};
+
+
+
+
+
+p.clearRepeatingblk = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'clearRepeatingblk', arguments);
+};
+
+
+
+
+
+p.setUpdatedRepeatingCommentsMap = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setUpdatedRepeatingCommentsMap', arguments);
+};
+
+
+
+
+p.getJurisdictionListNoExport = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getJurisdictionListNoExport', arguments);
+};
+
+
+
+
+
+
+p.getDwrPlaceDetails = function(p0, p1, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getDwrPlaceDetails', arguments);
+};
+
+
+
+
+
+p.setQuestionMetadataMap = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setQuestionMetadataMap', arguments);
+};
+
+
+
+
+
+p.setDwrImportedCounties2 = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setDwrImportedCounties2', arguments);
+};
+
+
+
+
+p.getExportFacilityList = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getExportFacilityList', arguments);
+};
+
+
+
+
+
+p.getDwrPlaceDetailsByName = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getDwrPlaceDetailsByName', arguments);
+};
+
+
+
+
+p.getBusinessObjectType = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getBusinessObjectType', arguments);
+};
+
+
+
+
+
+p.setErrorFieldList = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setErrorFieldList', arguments);
+};
+
+
+
+
+
+p.setSubSecStructureMap2 = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setSubSecStructureMap2', arguments);
+};
+
+
+
+
+p.getQuestionMetadataMap = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getQuestionMetadataMap', arguments);
+};
+
+
+
+
+
+p.setDwrStateSiteCounties = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setDwrStateSiteCounties', arguments);
+};
+
+
+
+
+
+p.clearDWRInvestigator = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'clearDWRInvestigator', arguments);
+};
+
+
+
+
+
+
+p.getDwrInvestigatorDetails = function(p0, p1, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getDwrInvestigatorDetails', arguments);
+};
+
+
+
+
+
+
+p.getDwrOrganizationDetailsByUid = function(p0, p1, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getDwrOrganizationDetailsByUid', arguments);
+};
+
+
+
+
+
+
+p.getDwrPopulateInvestigatorByUid = function(p0, p1, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getDwrPopulateInvestigatorByUid', arguments);
+};
+
+
+
+
+
+p.setBusinessObjectType = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setBusinessObjectType', arguments);
+};
+
+
+
+
+p.getErrorFieldList = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getErrorFieldList', arguments);
+};
+
+
+
+
+
+p.setDwrImportedCounties = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setDwrImportedCounties', arguments);
+};
+
+
+
+
+
+p.getCodedValueNoBlnk = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getCodedValueNoBlnk', arguments);
+};
+
+
+
+
+p.getBatchEntryMap2 = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getBatchEntryMap2', arguments);
+};
+
+
+
+
+p.getSubSecStructureMap = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getSubSecStructureMap', arguments);
+};
+
+
+
+
+p.getSubSecStructureMap2 = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getSubSecStructureMap2', arguments);
+};
+
+
+
+
+
+
+
+
+p.showHideOrganismByID = function(p0, p1, p2, p3, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'showHideOrganismByID', arguments);
+};
+
+
+
+
+
+p.setDwrOrganizationUid = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setDwrOrganizationUid', arguments);
+};
+
+
+
+
+
+p.setActionModeParent = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setActionModeParent', arguments);
+};
+
+
+
+
+
+p.deleteSubFormFromSession = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'deleteSubFormFromSession', arguments);
+};
+
+
+
+
+p.getActionModeParent = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getActionModeParent', arguments);
+};
+
+
+
+
+
+p.getDwrPatientDetails = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getDwrPatientDetails', arguments);
+};
+
+
+
+
+
+p.isTbConditionCode = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'isTbConditionCode', arguments);
+};
+
+
+
+
+
+p.getNamedInterviews = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getNamedInterviews', arguments);
+};
+
+
+
+
+
+p.getTheNamedInterview = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getTheNamedInterview', arguments);
+};
+
+
+
+
+
+
+
+p.showHideOrganismByTestCode = function(p0, p1, p2, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'showHideOrganismByTestCode', arguments);
+};
+
+
+
+
+
+p.getDwrPlaceDetailsByUid = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getDwrPlaceDetailsByUid', arguments);
+};
+
+
+
+
+p.getCodedResultData = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getCodedResultData', arguments);
+};
+
+
+
+
+p.clearDwrPatientDetails = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'clearDwrPatientDetails', arguments);
+};
+
+
+
+
+
+
+p.getDwrPopulateCodeResultByUid = function(p0, p1, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getDwrPopulateCodeResultByUid', arguments);
+};
+
+
+
+
+
+
+p.isStateCaseNumberUnique = function(p0, p1, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'isStateCaseNumberUnique', arguments);
+};
+
+
+
+
+
+
+
+
+p.getDwrContactPatientDetailsByUid = function(p0, p1, p2, p3, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getDwrContactPatientDetailsByUid', arguments);
+};
+
+
+
+
+p.getDwrOrganizationUid = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getDwrOrganizationUid', arguments);
+};
+
+
+
+
+
+p.isSyphilisCondition = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'isSyphilisCondition', arguments);
+};
+
+
+
+
+
+
+p.getDwrPopulateResultedTestByUid = function(p0, p1, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getDwrPopulateResultedTestByUid', arguments);
+};
+
+
+
+
+
+p.getSecurity = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getSecurity', arguments);
+};
+
+
+
+
+p.getActionMode = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getActionMode', arguments);
+};
+
+
+
+
+
+p.setDwrCounties = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setDwrCounties', arguments);
+};
+
+
+
+
+
+p.setAttributeMap = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setAttributeMap', arguments);
+};
+
+
+
+
+p.getDwrCounties = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getDwrCounties', arguments);
+};
+
+
+
+
+
+p.setBatchEntryMap = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setBatchEntryMap', arguments);
+};
+
+
+
+
+p.getSelection = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getSelection', arguments);
+};
+
+
+
+
+
+p.setPageTitle = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setPageTitle', arguments);
+};
+
+
+
+
+
+p.setLdfMap = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setLdfMap', arguments);
+};
+
+
+
+
+p.getPageTitle = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getPageTitle', arguments);
+};
+
+
+
+
+
+p.setSecurityMap = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setSecurityMap', arguments);
+};
+
+
+
+
+
+p.getLdf = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getLdf', arguments);
+};
+
+
+
+
+p.getFormFieldMap = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getFormFieldMap', arguments);
+};
+
+
+
+
+
+p.setAnswer = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setAnswer', arguments);
+};
+
+
+
+
+
+p.setErrorTabs = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setErrorTabs', arguments);
+};
+
+
+
+
+
+p.setSelection = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setSelection', arguments);
+};
+
+
+
+
+p.getLdfCollection = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getLdfCollection', arguments);
+};
+
+
+
+
+
+p.setLdfCollection = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setLdfCollection', arguments);
+};
+
+
+
+
+p.getErrorList = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getErrorList', arguments);
+};
+
+
+
+
+p.getSecurityMap = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getSecurityMap', arguments);
+};
+
+
+
+
+p.getLdfMap = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getLdfMap', arguments);
+};
+
+
+
+
+
+p.deleteAnswer = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'deleteAnswer', arguments);
+};
+
+
+
+
+
+p.setGenericType = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setGenericType', arguments);
+};
+
+
+
+
+
+p.updateAnswer = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'updateAnswer', arguments);
+};
+
+
+
+
+
+p.getAllAnswer2 = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getAllAnswer2', arguments);
+};
+
+
+
+
+p.getBatchEntryMap = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getBatchEntryMap', arguments);
+};
+
+
+
+
+p.getErrorTabs = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getErrorTabs', arguments);
+};
+
+
+
+
+
+p.setErrorList = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setErrorList', arguments);
+};
+
+
+
+
+
+p.getAllAnswer = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getAllAnswer', arguments);
+};
+
+
+
+
+
+p.setAttributeMap2 = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setAttributeMap2', arguments);
+};
+
+
+
+
+
+p.getRaceList = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getRaceList', arguments);
+};
+
+
+
+
+
+p.clearDWRContact = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'clearDWRContact', arguments);
+};
+
+
+
+
+
+p.setNoDataArray = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setNoDataArray', arguments);
+};
+
+
+
+
+p.getNoDataArray = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getNoDataArray', arguments);
+};
+
+
+
+
+
+p.setSecurityMap2 = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setSecurityMap2', arguments);
+};
+
+
+
+
+
+p.getDwrCityList = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getDwrCityList', arguments);
+};
+
+
+
+
+p.getOrganismData = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getOrganismData', arguments);
+};
+
+
+
+
+p.getAttributeMap2 = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getAttributeMap2', arguments);
+};
+
+
+
+
+p.getPageFormCd = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getPageFormCd', arguments);
+};
+
+
+
+
+p.getBirthCountry = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getBirthCountry', arguments);
+};
+
+
+
+
+p.getSecurityMap2 = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getSecurityMap2', arguments);
+};
+
+
+
+
+
+
+
+
+
+p.showHideOrganism = function(p0, p1, p2, p3, p4, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'showHideOrganism', arguments);
+};
+
+
+
+
+
+p.setPageFormCd = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setPageFormCd', arguments);
+};
+
+
+
+
+
+p.getCodedValue = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getCodedValue', arguments);
+};
+
+
+
+
+p.getCountryList = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getCountryList', arguments);
+};
+
+
+
+
+p.getStateList = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getStateList', arguments);
+};
+
+
+
+
+p.getLanguageCodes = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getLanguageCodes', arguments);
+};
+
+
+
+
+
+p.getDropDownValues = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getDropDownValues', arguments);
+};
+
+
+
+
+p.getJurisdictionList = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getJurisdictionList', arguments);
+};
+
+
+
+
+p.getDisableSubmitBeforePageLoadsFlag = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getDisableSubmitBeforePageLoadsFlag', arguments);
+};
+
+
+
+
+p.getAttributeMap = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getAttributeMap', arguments);
+};
+
+
+
+
+
+
+p.toJson = function(p0, p1, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'toJson', arguments);
+};
+
+
+
+
+
+
+p.getCodeShortDescTxt = function(p0, p1, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getCodeShortDescTxt', arguments);
+};
+
+
+
+
+p.getIsoCountryList = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getIsoCountryList', arguments);
+};
+
+
+
+
+p.getExportJurisdictionList = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getExportJurisdictionList', arguments);
+};
+
+
+
+
+p.getPrimaryOccupationCodes = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getPrimaryOccupationCodes', arguments);
+};
+
+
+
+
+
+p.getfilteredStatesByCountry = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getfilteredStatesByCountry', arguments);
+};
+
+
+
+
+p.getProgramAreaList = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getProgramAreaList', arguments);
+};
+
+
+
+
+p.getTabId = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getTabId', arguments);
+};
+
+
+
+
+
+p.setTabId = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setTabId', arguments);
+};
+
+
+
+
+
+p.setCityList = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setCityList', arguments);
+};
+
+
+
+
+p.getCityList = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getCityList', arguments);
+};
+
+
+
+
+
+p.setActionMode = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setActionMode', arguments);
+};
+
+
+
+
+
+p.setFormFieldMap = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setFormFieldMap', arguments);
+};
+
+
+
+
+
+p.validate = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'validate', arguments);
+};
+
+
+
+
+p.getResultValueMap = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getResultValueMap', arguments);
+};
+
+
+
+
+
+p.setValidatorResults = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setValidatorResults', arguments);
+};
+
+
+
+
+p.getValidatorResults = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getValidatorResults', arguments);
+};
+
+
+
+
+p.getPage = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getPage', arguments);
+};
+
+
+
+
+
+p.getValidationKey = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getValidationKey', arguments);
+};
+
+
+
+
+
+p.setPage = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setPage', arguments);
+};
+
+
+
+
+
+
+p.reset = function(p0, p1, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'reset', arguments);
+};
+
+
+
+
+
+
+p.validate = function(p0, p1, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'validate', arguments);
+};
+
+
+
+
+
+p.setMultipartRequestHandler = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setMultipartRequestHandler', arguments);
+};
+
+
+
+
+p.getServletWrapper = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getServletWrapper', arguments);
+};
+
+
+
+
+p.getMultipartRequestHandler = function(callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'getMultipartRequestHandler', arguments);
+};
+
+
+
+
+
+p.setServlet = function(p0, callback) {
+return dwr.engine._execute(p._path, 'JFChart', 'setServlet', arguments);
+};
+
+dwr.engine._setObject("JFChart", p);
+}
+})();
+

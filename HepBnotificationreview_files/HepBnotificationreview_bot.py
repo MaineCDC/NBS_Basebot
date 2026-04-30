@@ -39,10 +39,6 @@ def start_HepBnotificationreview(username, passcode):
     load_dotenv()
     
     NBS = HepBNotificationReview(production=True)
-    if is_in_production:
-        print("Production Environment")
-    else:
-        print("Development Environment")
         
     NBS.set_credentials(username, passcode)
     NBS.log_in()
@@ -56,7 +52,7 @@ def start_HepBnotificationreview(username, passcode):
     '''with open("patients_to_skip.txt", "r") as patient_reader:
         patients_to_skip.append(patient_reader.readlines())'''
 
-    limit = 10
+    limit =  7
     loop = tqdm(generator())
     for _ in loop:
         #check if the bot has gone through the set limit of reviews
@@ -105,7 +101,6 @@ def start_HepBnotificationreview(username, passcode):
                     NBS.reason.append('No issues found.')
                     NBS.ApproveNotification()
                     print(f"Approved notification for {inv_id}")
-                    #NBS.SendHepBnotificationreviewEmail("Hey, please don't change anything at all and just click CN", inv_id)
                 NBS.ReturnApprovalQueue()
                 if NBS.queue_loaded:
                     NBS.queue_loaded = None
@@ -118,9 +113,6 @@ def start_HepBnotificationreview(username, passcode):
                     NBS.CheckFirstCase()
 
                     NBS.final_name = NBS.patient_name
-                    '''if NBS.country != 'UNITED STATES':
-                        print("Skipping patient. No action carried out")
-                        patients_to_skip.append(inv_id)'''
                     if NBS.final_name == NBS.initial_name:
                         NBS.reviewed_ids.append(inv_id)
                         NBS.what_do.append("Reject Notification")
@@ -160,15 +152,17 @@ def start_HepBnotificationreview(username, passcode):
     NBS.HepB_notification_bot = True
     NBS.SendBotRunEmail()
     #NBS.CreateExcelSheet()
+    NBS.SendEmailToAssign()
     
-    '''print("ending, printing, saving")
+    
+    print("ending, printing, saving")
     bot_act = pd.DataFrame(
         {'Inv ID': NBS.reviewed_ids,
         'Action': NBS.what_do,
         'Reason': NBS.reason
         })
     bot_act.to_excel(f"saved/HepB/HepB_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx")
-    print("excel sheet created")'''
+    print("excel sheet created")
     
 if __name__ == '__main__':
     start_HepBnotificationreview()
