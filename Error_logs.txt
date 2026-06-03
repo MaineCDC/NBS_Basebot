@@ -5517,3 +5517,240 @@ Stacktrace:
            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
 TypeError: expected string or bytes-like object, got 'Timestamp'
 
+05_04_2026 - 13:41:59.871622 | audrey - Traceback (most recent call last):
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\audrey_files\audrey_bot.py", line 1774, in start_audrey
+    NBS.find_element(By.XPATH, '//*[@id="INV826"]').send_keys(re.findall(r'\b\d{2}/\d{2}/\d{4}\b',lab_report_table["Date Received"].iloc[0])[0])
+                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python312\Lib\re\__init__.py", line 217, in findall
+    return _compile(pattern, flags).findall(string)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: expected string or bytes-like object, got 'Timestamp'
+
+05_05_2026 - 09:17:17.095293 | audrey - Traceback (most recent call last):
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\audrey_files\audrey_bot.py", line 80, in start_audrey
+    NBS.log_in()
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\Base.py", line 147, in log_in
+    WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'))) #switch to element_to_be_clickable
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\support\wait.py", line 105, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	chromedriver!GetHandleVerifier [0x7ff662dca8e5+14e45]
+	chromedriver!GetHandleVerifier [0x7ff662dca950+14eb0]
+	chromedriver!(No symbol) [0x7ff662b3d6ed]
+	chromedriver!(No symbol) [0x7ff662b96cfe]
+	chromedriver!(No symbol) [0x7ff662b9700c]
+	chromedriver!(No symbol) [0x7ff662be7cb7]
+	chromedriver!(No symbol) [0x7ff662be483b]
+	chromedriver!(No symbol) [0x7ff662b890e8]
+	chromedriver!(No symbol) [0x7ff662b89fc3]
+	chromedriver!GetHandleVerifier [0x7ff6630e0149+32a6a9]
+	chromedriver!GetHandleVerifier [0x7ff6630da715+324c75]
+	chromedriver!GetHandleVerifier [0x7ff6630fc012+346572]
+	chromedriver!GetHandleVerifier [0x7ff662de7cb5+32215]
+	chromedriver!GetHandleVerifier [0x7ff662df087c+3addc]
+	chromedriver!GetHandleVerifier [0x7ff662dd40e4+1e644]
+	chromedriver!GetHandleVerifier [0x7ff662dd4296+1e7f6]
+	chromedriver!GetHandleVerifier [0x7ff662db8737+2c97]
+	KERNEL32!BaseThreadInitThunk [0x7ff9316f259d+1d]
+	ntdll!RtlUserThreadStart [0x7ff932e4afb8+28]
+
+
+05_05_2026 - 09:44:31.819816 | audrey - Traceback (most recent call last):
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\audrey_files\audrey_bot.py", line 1968, in start_audrey
+    NBS.go_to_home()
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\Base.py", line 367, in go_to_home
+    WebDriverWait(self, timeout).until(EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, partial_link)))
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\support\wait.py", line 96, in until
+    value = method(self._driver)
+            ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\support\expected_conditions.py", line 84, in _predicate
+    return driver.find_element(*locator)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 770, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 231, in check_response
+    raise exception_class(message, screen, stacktrace, alert_text)  # type: ignore[call-arg]  # mypy is not smart enough here
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+selenium.common.exceptions.UnexpectedAlertPresentException: Alert Text: This report will no longer be associated to any investigation(s). It will be marked as unprocessed and sent back to the Documents Requiring Review Queue. Are you sure you want to disassociate?
+Message: unexpected alert open: {Alert text : This report will no longer be associated to any investigation(s). It will be marked as unprocessed and sent back to the Documents Requiring Review Queue. Are you sure you want to disassociate?}
+  (Session info: chrome=147.0.7727.138)
+Stacktrace:
+	chromedriver!GetHandleVerifier [0x7ff662dca8e5+14e45]
+	chromedriver!GetHandleVerifier [0x7ff662dca950+14eb0]
+	chromedriver!(No symbol) [0x7ff662b3d6ed]
+	chromedriver!(No symbol) [0x7ff662be52d8]
+	chromedriver!(No symbol) [0x7ff662b890e8]
+	chromedriver!(No symbol) [0x7ff662b89fc3]
+	chromedriver!GetHandleVerifier [0x7ff6630e0149+32a6a9]
+	chromedriver!GetHandleVerifier [0x7ff6630da715+324c75]
+	chromedriver!GetHandleVerifier [0x7ff6630fc012+346572]
+	chromedriver!GetHandleVerifier [0x7ff662de7cb5+32215]
+	chromedriver!GetHandleVerifier [0x7ff662df087c+3addc]
+	chromedriver!GetHandleVerifier [0x7ff662dd40e4+1e644]
+	chromedriver!GetHandleVerifier [0x7ff662dd4296+1e7f6]
+	chromedriver!GetHandleVerifier [0x7ff662db8737+2c97]
+	KERNEL32!BaseThreadInitThunk [0x7ff9316f259d+1d]
+	ntdll!RtlUserThreadStart [0x7ff932e4afb8+28]
+
+
+05_06_2026 - 12:03:36.836147 | audrey - Traceback (most recent call last):
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\audrey_files\audrey_bot.py", line 1774, in start_audrey
+    NBS.find_element(By.XPATH, '//*[@id="INV826"]').send_keys(re.findall(r'\b\d{2}/\d{2}/\d{4}\b',lab_report_table["Date Received"].iloc[0])[0])
+                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python312\Lib\re\__init__.py", line 217, in findall
+    return _compile(pattern, flags).findall(string)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: expected string or bytes-like object, got 'Timestamp'
+
+05_07_2026 - 12:47:47.546438 | audrey - Traceback (most recent call last):
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\audrey_files\audrey_bot.py", line 1774, in start_audrey
+    NBS.find_element(By.XPATH, '//*[@id="INV826"]').send_keys(re.findall(r'\b\d{2}/\d{2}/\d{4}\b',lab_report_table["Date Received"].iloc[0])[0])
+                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python312\Lib\re\__init__.py", line 217, in findall
+    return _compile(pattern, flags).findall(string)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: expected string or bytes-like object, got 'Timestamp'
+
+05_11_2026 - 10:45:28.150762 | audrey - Traceback (most recent call last):
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\audrey_files\audrey_bot.py", line 2047, in start_audrey
+    bot_act = pd.DataFrame(
+              ^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\env\Lib\site-packages\pandas\core\frame.py", line 778, in __init__
+    mgr = dict_to_mgr(data, index, columns, dtype=dtype, copy=copy, typ=manager)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\env\Lib\site-packages\pandas\core\internals\construction.py", line 503, in dict_to_mgr
+    return arrays_to_mgr(arrays, columns, index, dtype=dtype, typ=typ, consolidate=copy)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\env\Lib\site-packages\pandas\core\internals\construction.py", line 114, in arrays_to_mgr
+    index = _extract_index(arrays)
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\env\Lib\site-packages\pandas\core\internals\construction.py", line 677, in _extract_index
+    raise ValueError("All arrays must be of the same length")
+ValueError: All arrays must be of the same length
+
+05_12_2026 - 15:16:33.726786 | audrey - Traceback (most recent call last):
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\audrey_files\audrey_bot.py", line 200, in start_audrey
+    WebDriverWait(NBS, timeout).until(EC.visibility_of_element_located((By.XPATH, click_ok_doc_type)))
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\support\wait.py", line 105, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	chromedriver!GetHandleVerifier [0x7ff6e120d6d5+14ef5]
+	chromedriver!GetHandleVerifier [0x7ff6e120d740+14f60]
+	chromedriver!(No symbol) [0x7ff6e0f5d59d]
+	chromedriver!(No symbol) [0x7ff6e0fb6f42]
+	chromedriver!(No symbol) [0x7ff6e0fb724c]
+	chromedriver!(No symbol) [0x7ff6e1007967]
+	chromedriver!(No symbol) [0x7ff6e10044ff]
+	chromedriver!(No symbol) [0x7ff6e0fa9608]
+	chromedriver!(No symbol) [0x7ff6e0faa4f3]
+	chromedriver!GetHandleVerifier [0x7ff6e150b779+312f99]
+	chromedriver!GetHandleVerifier [0x7ff6e1505c8b+30d4ab]
+	chromedriver!GetHandleVerifier [0x7ff6e1529012+330832]
+	chromedriver!GetHandleVerifier [0x7ff6e122a485+31ca5]
+	chromedriver!GetHandleVerifier [0x7ff6e1232e7c+3a69c]
+	chromedriver!GetHandleVerifier [0x7ff6e1216a74+1e294]
+	chromedriver!GetHandleVerifier [0x7ff6e1216c04+1e424]
+	chromedriver!GetHandleVerifier [0x7ff6e11fb327+2b47]
+	KERNEL32!BaseThreadInitThunk [0x7ffd67d1259d+1d]
+	ntdll!RtlUserThreadStart [0x7ffd6986afb8+28]
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\audrey_files\audrey_bot.py", line 207, in start_audrey
+    WebDriverWait(NBS, timeout).until(EC.visibility_of_element_located((By.XPATH, click_cancel_doc_type)))
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\support\wait.py", line 105, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	chromedriver!GetHandleVerifier [0x7ff6e120d6d5+14ef5]
+	chromedriver!GetHandleVerifier [0x7ff6e120d740+14f60]
+	chromedriver!(No symbol) [0x7ff6e0f5d59d]
+	chromedriver!(No symbol) [0x7ff6e0fb6f42]
+	chromedriver!(No symbol) [0x7ff6e0fb724c]
+	chromedriver!(No symbol) [0x7ff6e1007967]
+	chromedriver!(No symbol) [0x7ff6e10044ff]
+	chromedriver!(No symbol) [0x7ff6e0fa9608]
+	chromedriver!(No symbol) [0x7ff6e0faa4f3]
+	chromedriver!GetHandleVerifier [0x7ff6e150b779+312f99]
+	chromedriver!GetHandleVerifier [0x7ff6e1505c8b+30d4ab]
+	chromedriver!GetHandleVerifier [0x7ff6e1529012+330832]
+	chromedriver!GetHandleVerifier [0x7ff6e122a485+31ca5]
+	chromedriver!GetHandleVerifier [0x7ff6e1232e7c+3a69c]
+	chromedriver!GetHandleVerifier [0x7ff6e1216a74+1e294]
+	chromedriver!GetHandleVerifier [0x7ff6e1216c04+1e424]
+	chromedriver!GetHandleVerifier [0x7ff6e11fb327+2b47]
+	KERNEL32!BaseThreadInitThunk [0x7ffd67d1259d+1d]
+	ntdll!RtlUserThreadStart [0x7ffd6986afb8+28]
+
+
+05_14_2026 - 12:16:16.705287 | audrey - Traceback (most recent call last):
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\audrey_files\audrey_bot.py", line 1560, in start_audrey
+    date_str = date_value.strftime('%m/%d/%Y')
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "nattype.pyx", line 54, in pandas._libs.tslibs.nattype._make_error_func.f
+ValueError: NaTType does not support strftime
+
+05_18_2026 - 12:43:27.252906 | audrey - Traceback (most recent call last):
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\audrey_files\audrey_bot.py", line 1560, in start_audrey
+    date_str = date_value.strftime('%m/%d/%Y')
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "nattype.pyx", line 54, in pandas._libs.tslibs.nattype._make_error_func.f
+ValueError: NaTType does not support strftime
+
+05_29_2026 - 09:41:51.708737 | strep - Traceback (most recent call last):
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\decorator.py", line 9, in wrapper_error_handle
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\strep_files\strep_bot.py", line 40, in start_strep
+    from .strep import Strep
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\strep_files\strep.py", line 1, in <module>
+    from Base import NBSdriver
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\Base.py", line 5, in <module>
+    driver = webdriver.Chrome()
+             ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\chrome\webdriver.py", line 45, in __init__
+    super().__init__(
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\chromium\webdriver.py", line 55, in __init__
+    self.service.start()
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\common\service.py", line 108, in start
+    self.assert_process_still_running()
+  File "C:\Users\caleb.jones\Repos\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\common\service.py", line 121, in assert_process_still_running
+    raise WebDriverException(f"Service {self._path} unexpectedly exited. Status code was: {return_code}")
+selenium.common.exceptions.WebDriverException: Message: Service C:\Users\caleb.jones\.cache\selenium\chromedriver\win64\148.0.7778.178\chromedriver.exe unexpectedly exited. Status code was: 3221225786
+
+

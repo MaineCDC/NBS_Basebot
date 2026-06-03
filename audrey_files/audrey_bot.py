@@ -12,7 +12,9 @@ class Logger:
             self.log = open(filename, 'a')
     def write(self, message):
             self.terminal.write(message)
+            self.terminal.flush()
             self.log.write(message)
+            self.log.flush()
     def flush(self):
         self.terminal.flush()
         self.log.flush()
@@ -83,6 +85,47 @@ def start_audrey(username, passcode):
     NBS.get_patient_table()
     NBS.pause_for_database()
 
+    def is_this_each_js_error(exc):
+        return 'this.each is not a function' in str(exc)
+
+    def safe_click(xpath, label, primary_attempts=4, fallback_attempts=3, primary_step=15, fallback_step=10):
+        """Click with wait/retry and JS-click fallback. Returns True on success."""
+        for i in range(primary_attempts):
+            try:
+                timeout = NBS.wait_before_timeout + i * primary_step
+                WebDriverWait(NBS, timeout).until(EC.element_to_be_clickable((By.XPATH, xpath))).click()
+                return True
+            except TimeoutException:
+                print(f"TimeoutException for {label}, trying again... retry_number: {i}")
+            except StaleElementReferenceException:
+                print(f"StaleElementReferenceException for {label}, trying again... retry_number: {i}")
+                time.sleep(2)
+            except NoSuchElementException:
+                print(f"No {label} found, trying again... retry_number: {i}")
+                time.sleep(1)
+            except Exception as e:
+                print(f"{e} has occured for {label}, retry_number: {i}")
+                if is_this_each_js_error(e):
+                    time.sleep(1)
+
+        for i in range(fallback_attempts):
+            try:
+                timeout = NBS.wait_before_timeout + i * fallback_step
+                WebDriverWait(NBS, timeout).until(EC.presence_of_element_located((By.XPATH, xpath)))
+                WebDriverWait(NBS, timeout).until(EC.visibility_of_element_located((By.XPATH, xpath)))
+                element = NBS.find_element(By.XPATH, xpath)
+                try:
+                    element.click()
+                except Exception:
+                    NBS.execute_script("arguments[0].click();", element)
+                return True
+            except Exception as e:
+                print(f"Visibility Check: {e} has occured for {label}, retry_number: {i}")
+                if is_this_each_js_error(e):
+                    time.sleep(1)
+
+        return False
+
     limit = 500
     loop = tqdm(generator())
     for _ in loop:
@@ -129,38 +172,12 @@ def start_audrey(username, passcode):
         clear_document_checkbox = '//*[@id="parent"]/thead/tr/th[2]/div/label[2]/input'
         click_ok_doc_type ='//*[@id="b1"]'
         click_cancel_doc_type = '//*[@id="b2"]'
-        document_type_exec = True
-        for i in range(4):
-            try:
-                timeout = NBS.wait_before_timeout + i*15
-                WebDriverWait(NBS, timeout).until(EC.element_to_be_clickable((By.XPATH, document_type_path))).click()
-                document_type_exec = False
-                break
-            except TimeoutException:
-                print(f"TimeoutException for document_type_path, trying again... retry_number: {i}")
-            except StaleElementReferenceException:
-                print(f"StaleElementReferenceException for document_type_path, trying again... retry_number: {i}")
-                time.sleep(3)
-            except NoSuchElementException:
-                print(f"No document_type_path found, trying again... retry_number: {i}")
-                time.sleep(1)
-            except Exception as e:
-                print(f"{e} has occured for document_type_path, retry_number: {i}")
-        if document_type_exec:
-            for i in range(3):
-                try:
-                    timeout = NBS.wait_before_timeout + i*10
-                    WebDriverWait(NBS, timeout).until(EC.presence_of_element_located((By.XPATH, document_type_path)))
-                    WebDriverWait(NBS, timeout).until(EC.visibility_of_element_located((By.XPATH, document_type_path)))
-                    element = NBS.find_element(By.XPATH, document_type_path)
-                    try:
-                        element.click()
-                    except Exception as exc:
-                        NBS.execute_script("arguments[0].click();", element)
-                    break
-                except Exception as e:
-                    print(f"Visibility Check: {e} has occured for document_type_path, retry_number: {i}")
-                    time.sleep(1)
+        filter_setup_ok = safe_click(document_type_path, 'document_type_path')
+        if not filter_setup_ok:
+            print('document_type_path failed (including possible this.each JS error). Resetting to home and continuing...')
+            NBS.go_to_home()
+            time.sleep(2)
+            continue
         #clear checkboxes
         for i in range(3):
             try:
@@ -235,38 +252,12 @@ def start_audrey(username, passcode):
         time.sleep(1)
         #element.click()
         WebDriverWait(NBS, NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, description_path))).click()'''
-        description_exec = True
-        for i in range(4):
-            try:
-                timeout = NBS.wait_before_timeout + i*15
-                WebDriverWait(NBS, timeout).until(EC.element_to_be_clickable((By.XPATH, description_path))).click()
-                description_exec = False
-                break
-            except TimeoutException:
-                print(f"TimeoutException for description path, trying again... retry_number: {i}")
-            except StaleElementReferenceException:
-                print(f"StaleElementReferenceException for description_path, trying again... retry_number: {i}")
-                time.sleep(3)
-            except NoSuchElementException:
-                print(f"No description_path found, trying again... retry_number: {i}")
-                time.sleep(1)
-            except Exception as e:
-                print(f"{e} has occured for description_path, retry_number: {i}")
-        if description_exec:
-            for i in range(3):
-                try:
-                    timeout = NBS.wait_before_timeout + i*10
-                    WebDriverWait(NBS, timeout).until(EC.presence_of_element_located((By.XPATH, description_path)))
-                    WebDriverWait(NBS, timeout).until(EC.visibility_of_element_located((By.XPATH, description_path)))
-                    element = NBS.find_element(By.XPATH, description_path)
-                    try:
-                        element.click()
-                    except Exception as exc:
-                        NBS.execute_script("arguments[0].click();", element)
-                    break
-                except Exception as e:
-                    print(f"Visibility Check: {e} has occured for description_path, retry_number: {i}")
-                    time.sleep(1)
+        filter_setup_ok = safe_click(description_path, 'description_path')
+        if not filter_setup_ok:
+            print('description_path failed (including possible this.each JS error). Resetting to home and continuing...')
+            NBS.go_to_home()
+            time.sleep(2)
+            continue
         #clear checkboxes
         for i in range(3):
             try:
@@ -622,7 +613,11 @@ def start_audrey(username, passcode):
         #Read the ELR into a dataframe
         resulted_test_path = '//*[@id="RESULTED_TEST_CONTAINER"]/tbody/tr[1]/td/table'
         resulted_test_table = NBS.ReadTableToDF(resulted_test_path)
-        
+        #Drop message/comment rows (blank test name, or a Quest "... Message" narrative row) so a single test is not misread as a multi-test panel
+        if resulted_test_table is not None and "Resulted Test" in resulted_test_table.columns:
+            rt = resulted_test_table["Resulted Test"].astype(str).str.strip()
+            resulted_test_table = resulted_test_table[(rt != "") & (~rt.str.contains("Message", case=False, na=False))].reset_index(drop=True)
+
         #Process the ELR so that it is easier to go through the logic trees for Hepatitis B and C ELRs
         test_type = None
         mark_reviewed = False
@@ -1253,8 +1248,8 @@ def start_audrey(username, passcode):
                         hist[event_id].append("Could not parse result, skipped")
                         NBS.go_to_home()
                         continue
-        else: 
-            print("More than one test in ELR") 
+        else:
+            print("More than one test in ELR")
             what_do.append("Skip, more than one test in ELR")
             print(f"eventid = {event_id} and action = {what_do}")
             hist[event_id].append("Skip, more than one test in ELR")
@@ -1317,19 +1312,20 @@ def start_audrey(username, passcode):
                 NBS.go_to_home()
                 continue
             
-            #We need a smart way to grab the first and last name of a patient, this isn't it but I think it will catch most of what we want.
-            #Sometime a patient name in NBS will be just FIRST LAST, other times it can be FIRST I LAST or with suffixes.
-            #If it is just FIRST LAST, grab those. If it is anything more complicated, the last name is usually third in the string so grab that.
-            #This will run into problems with hyphenated last names or if they are St.something.
-            #We only check the first two characters in the merge function though so hopefully it will be alright.
+            #Grab the first and last name of the patient. NBS names can be FIRST LAST, FIRST I LAST, or carry a suffix.
+            #First token is the first name; last token is the last name, stepping back past a suffix (JR, SR, II...).
+            #Match the full first and last name against the patient list so unrelated people who only share the first
+            #couple of letters and a birth date are not falsely flagged as merges.
             potiental_merge = False
-            if len(pat_name.split()) > 2:
-                first_name = pat_name.split()[0]
-                last_name = pat_name.split()[2]
-            else:
-                first_name = pat_name.split()[0]
-                last_name = pat_name.split()[1]
-            matches = NBS.patient_list.loc[(NBS.patient_list.FIRST_NM.str[:2] == first_name[:2]) & (NBS.patient_list.LAST_NM.str[:2] == last_name[:2]) & (NBS.patient_list.BIRTH_DT == pat_dob)]
+            name_tokens = pat_name.split()
+            suffixes = {"JR", "SR", "II", "III", "IV", "V"}
+            first_name = name_tokens[0]
+            last_name = name_tokens[-1]
+            if last_name.upper().strip(".,") in suffixes and len(name_tokens) >= 3:
+                last_name = name_tokens[-2]
+            first_name = first_name.upper().strip(",")
+            last_name = last_name.upper().strip(",")
+            matches = NBS.patient_list.loc[(NBS.patient_list.FIRST_NM == first_name) & (NBS.patient_list.LAST_NM == last_name) & (NBS.patient_list.BIRTH_DT == pat_dob)]
             unique_profiles = matches.PERSON_PARENT_UID.unique()
             if len(unique_profiles) >= 2:
                 print('Possible merge(s) found. Lab skipped.')
@@ -1557,8 +1553,14 @@ def start_audrey(username, passcode):
                 #NBS.find_element(By.XPATH, '//*[@id="INV826"]').send_keys(re.findall(r'\b\d{2}/\d{2}/\d{4}\b',lab_report_table["Date Received"].iloc[0])[0])
                 WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV826"]')))
                 date_value = lab_report_table["Date Received"].iloc[0]
-                date_str = date_value.strftime('%m/%d/%Y')
-                NBS.find_element(By.XPATH, '//*[@id="INV826"]').send_keys(date_str)
+                if pd.isna(date_value):
+                    for fallback in (alt_lab["Date Received"].iloc[0], alt_lab["Date Collected"].iloc[0]):
+                        fallback = pd.to_datetime(fallback, errors='coerce')
+                        if not pd.isna(fallback):
+                            date_value = fallback
+                            break
+                if not pd.isna(date_value):
+                    NBS.find_element(By.XPATH, '//*[@id="INV826"]').send_keys(date_value.strftime('%m/%d/%Y'))
                 try:
                     ref_range = re.findall(r'(\d+-\d+)',alt_lab["Test Results"].iloc[0])
                     upper_limit_text = ref_range[0]
@@ -1771,7 +1773,9 @@ def start_audrey(username, passcode):
                 date_elem = NBS.find_element(By.XPATH, '//*[@id="INV826"]')
                 if date_elem.get_attribute("value") == '' and text_elem.get_attribute("value") == '':
                     NBS.find_element(By.XPATH, '//*[@id="1742_6"]').send_keys(re.findall(r'\b\d+\b',alt_lab["Test Results"].iloc[0])[0])
-                    NBS.find_element(By.XPATH, '//*[@id="INV826"]').send_keys(re.findall(r'\b\d{2}/\d{2}/\d{4}\b',lab_report_table["Date Received"].iloc[0])[0])
+                    received_dt = pd.to_datetime(lab_report_table["Date Received"].iloc[0], errors='coerce')
+                    if not pd.isna(received_dt):
+                        NBS.find_element(By.XPATH, '//*[@id="INV826"]').send_keys(received_dt.strftime('%m/%d/%Y'))
                     try:
                         ref_range = re.findall(r'(\d+-\d+)',alt_lab["Test Results"].iloc[0])
                         upper_limit_text = ref_range[0]
