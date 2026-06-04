@@ -19,7 +19,7 @@ import smtplib, ssl
 from email.message import EmailMessage
 from dotenv import load_dotenv
 import os
-from decorator import error_handle
+from custom_decorator import error_handle
 
 def generator():
     while True:

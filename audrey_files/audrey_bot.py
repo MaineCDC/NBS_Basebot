@@ -45,7 +45,7 @@ from dotenv import load_dotenv
 from dateutil.relativedelta import relativedelta
 from pandas._libs.tslibs.parsing import DateParseError
 from epiweeks import Week
-from decorator import error_handle 
+from custom_decorator import  error_handle 
 
 load_dotenv()
 

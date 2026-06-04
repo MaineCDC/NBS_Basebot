@@ -2,7 +2,7 @@
 from tqdm import tqdm
 import time
 import traceback
-from decorator import error_handle
+from custom_decorator import  error_handle
 import os
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -20,8 +20,7 @@ def start_athena(username, passcode):
     from .athena_prod import Athena
     from strep_files.strep_bot_prod import start_strep
 
-    NBS = Athena(driver=driver, production=is_in_production) # new code line for merge adding driver
-    #NBS = Athena(production=True) # comment out to run merge code
+    NBS = Athena(production=is_in_production)
     NBS.set_credentials(username, passcode)
     NBS.log_in()
     NBS.GoToApprovalQueue()
@@ -47,7 +46,6 @@ def start_athena(username, passcode):
                 start_strep(NBS.driver)
             # add new bots here
                 NBS.Sleep()
-                start_athena(driver)
                 continue
 
         NBS.CheckFirstCase()

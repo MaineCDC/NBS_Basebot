@@ -39,8 +39,7 @@ from strep_files.strep_bot import start_strep
 
 class NBSdriver(webdriver.Chrome):
     """ A class to provide basic functionality in NBS via Selenium. """
-    def __init__(self, driver, production=False):
-        self.driver = driver
+    def __init__(self, production=False):
         self.production = production
         self.read_config()
         self.get_email_info()
@@ -61,6 +60,7 @@ class NBSdriver(webdriver.Chrome):
         self.options.add_argument('--ignore-ssl-errors=yes')
         self.options.add_argument('--ignore-certificate-errors')
         super(NBSdriver, self).__init__(options = self.options)
+        self.driver = self
         self.issues = []
         self.reviewed_ids = []
         self.what_do = []
@@ -344,22 +344,28 @@ class NBSdriver(webdriver.Chrome):
         """ Go to NBS Home page. """
         #xpath = '//*[@id="bd"]/table[1]/tbody/tr/td[1]/table/tbody/tr/td[1]/a'
         partial_link = 'Home'
+        self.home_loaded = False
         for i in range(3):
             try:
-                #WebDriverWait(self.driver,self.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, xpath)))
-                #self.driver.find_element(By.XPATH, xpath).click()
                 timeout = self.wait_before_timeout + i*10
                 WebDriverWait(self.driver, timeout).until(EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, partial_link)))
-                self.driver.find_element(By.PARTIAL_LINK_TEXT, partial_link).click()
+                element = self.driver.find_element(By.PARTIAL_LINK_TEXT, partial_link)
+                try:
+                    element.click()
+                except Exception:
+                    # A still-open filter dropdown can intercept the click; a JS click ignores overlays.
+                    self.driver.execute_script("arguments[0].click();", element)
                 self.home_loaded = True
                 break
             except StaleElementReferenceException:
                 print("StaleElementReferenceException encountered, retrying...")
-                self.home_loaded = False
             except TimeoutException:
-                self.home_loaded = False
+                pass
+            except Exception as e:
+                print(f"{e} encountered going home, retrying... retry_number: {i}")
+                time.sleep(1)
         if not self.home_loaded:
-            sys.exit(print(f"Made {i} unsuccessful attempts to load Home page. A persistent issue with NBS was encountered."))
+            print(f"Made {i+1} unsuccessful attempts to load Home page. A persistent issue with NBS was encountered.")
 
     def GoToApprovalQueue(self):
         """ Navigate to approval queue from Home page. """
@@ -431,6 +437,51 @@ class NBSdriver(webdriver.Chrome):
         except (TimeoutException, ElementClickInterceptedException):
             self.HandleBadQueueReturn()
 
+    def is_this_each_js_error(self, exc):
+        return 'this.each is not a function' in str(exc)
+
+    def safe_click(self, xpath, label, primary_attempts=4, fallback_attempts=3, primary_step=15, fallback_step=10):
+        """Click with wait/retry and a JS-click fallback. Tolerates the legacy NBS
+        'this.each is not a function' error (thrown by the page's own jQuery on the
+        filter dropdowns under newer Chrome) by retrying instead of crashing.
+        Returns True on success, False if every attempt failed."""
+        for i in range(primary_attempts):
+            try:
+                timeout = self.wait_before_timeout + i * primary_step
+                WebDriverWait(self.driver, timeout).until(EC.element_to_be_clickable((By.XPATH, xpath))).click()
+                return True
+            except TimeoutException:
+                print(f"TimeoutException for {label}, trying again... retry_number: {i}")
+            except StaleElementReferenceException:
+                print(f"StaleElementReferenceException for {label}, trying again... retry_number: {i}")
+                time.sleep(2)
+            except NoSuchElementException:
+                print(f"No {label} found, trying again... retry_number: {i}")
+                time.sleep(1)
+            except Exception as e:
+                print(f"{e} has occured for {label}, retry_number: {i}")
+                if self.is_this_each_js_error(e):
+                    time.sleep(1)
+
+        for i in range(fallback_attempts):
+            try:
+                timeout = self.wait_before_timeout + i * fallback_step
+                WebDriverWait(self.driver, timeout).until(EC.presence_of_element_located((By.XPATH, xpath)))
+                WebDriverWait(self.driver, timeout).until(EC.visibility_of_element_located((By.XPATH, xpath)))
+                element = self.driver.find_element(By.XPATH, xpath)
+                try:
+                    element.click()
+                except Exception:
+                    self.driver.execute_script("arguments[0].click();", element)
+                return True
+            except Exception as e:
+                print(f"Visibility Check: {e} has occured for {label}, retry_number: {i}")
+                if self.is_this_each_js_error(e):
+                    time.sleep(1)
+                time.sleep(1)
+
+        return False
+
     def SortApprovalQueueAthena(self):
         """ Sort approval queue so that case are listed chronologically by
         notification creation date and in reverse alpha order so that
@@ -442,8 +493,7 @@ class NBSdriver(webdriver.Chrome):
         clear_checkbox_path = '/html/body/div[2]/form/div/table[2]/tbody/tr/td/table/thead/tr/th[8]/div/label[2]/input'
         try:
             # Clear all filters
-            WebDriverWait(self.driver,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, clear_filter_path)))
-            self.driver.find_element(By.XPATH, clear_filter_path).click()
+            self.safe_click(clear_filter_path, 'clear_filter_path')
             # The logic for this is somewhat weird but here is my understanding of what happens.
             # If we have anything in the queue that isn't covid-19 the bot will run until it hits that case and then stall out.
             # To prevent this we can select covid-19 cases from the condition menu, but if there are no covid-19 cases we still
@@ -454,45 +504,34 @@ class NBSdriver(webdriver.Chrome):
             # stalling the bot permanently once it runs into a non-covid-19 case.
             # Open Condition dropdown menu
             time.sleep(3)
-            WebDriverWait(self.driver,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, description_path)))
-            self.driver.find_element(By.XPATH, description_path).click()
+            self.safe_click(description_path, 'description_path')
             # Clear checkboxes
-            WebDriverWait(self.driver,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, clear_checkbox_path)))
-            self.driver.find_element(By.XPATH, clear_checkbox_path).click()
+            self.safe_click(clear_checkbox_path, 'clear_checkbox_path')
             try:
-                # Click on the 2019 Novel Coronavirus checkbox
-                self.driver.find_element(By.XPATH, "//label[contains(text(),'2019 Novel Coronavirus (2019-nCoV)')]/input").click()
-                try:
-                    self.driver.find_element(By.XPATH, "//label[contains(text(),'2019 Novel Coronavirus (2019-nCoV)')]/input").click()
-                    
-                except Exception as e:
-                    print(f"Error encountered: {e}")
-                # Click on the okay button
-                self.driver.find_element(By.XPATH,'/html/body/div[2]/form/div/table[2]/tbody/tr/td/table/thead/tr/th[8]/div/label[1]/input[1]').click()
+                # Detect the 2019 Novel Coronavirus checkbox; NoSuchElement -> no COVID cases -> cancel below.
+                self.driver.find_element(By.XPATH, "//label[contains(text(),'2019 Novel Coronavirus (2019-nCoV)')]/input")
+                # Check it and confirm OK via safe_click so the dropdown reliably closes. A plain click can be
+                # intercepted or hit the legacy this.each JS error, leaving the dropdown open and intercepting
+                # the later sort clicks.
+                self.safe_click("//label[contains(text(),'2019 Novel Coronavirus (2019-nCoV)')]/input", 'covid_checkbox')
+                self.safe_click('/html/body/div[2]/form/div/table[2]/tbody/tr/td/table/thead/tr/th[8]/div/label[1]/input[1]', 'filter_ok')
             except NoSuchElementException:
-                self.driver.find_element(By.XPATH,'/html/body/div[2]/form/div/table[2]/tbody/tr/td/table/thead/tr/th[8]/div/label[1]/input[2]').click()             
+                self.safe_click('/html/body/div[2]/form/div/table[2]/tbody/tr/td/table/thead/tr/th[8]/div/label[1]/input[2]', 'filter_cancel')
                 self.queue_loaded = False
             except Exception as e:
                 print(f"Error encountered: {e}")
             
-            for i in range(3):
-                try:
-                    WebDriverWait(self.driver,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, submit_date_path)))
-                    self.driver.find_element(By.XPATH, submit_date_path).click()
-                    WebDriverWait(self.driver,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, submit_date_path)))
-                    self.driver.find_element(By.XPATH, submit_date_path).click()
-                    break
-                except StaleElementReferenceException:
-                    print(f"StaleElementReferenceException for submit_date_path, trying again... retry_number: {i}")
-                except TimeoutException:
-                    print(f"TimeoutException for submit_date_path, trying again... retry_number: {i}")
+            # Sort by submit date (click twice). safe_click falls back to a JS click, which
+            # succeeds even when the still-open filter dropdown intercepts a normal click.
+            self.safe_click(submit_date_path, 'submit_date_path')
+            self.safe_click(submit_date_path, 'submit_date_path')
             # Double click condition for reverse alpha order.
-            WebDriverWait(self.driver,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, condition_path)))
-            self.driver.find_element(By.XPATH,condition_path).click()
-            WebDriverWait(self.driver,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, condition_path)))
-            self.driver.find_element(By.XPATH,condition_path).click()
-            WebDriverWait(self.driver,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, condition_path)))
+            self.safe_click(condition_path, 'condition_path')
+            self.safe_click(condition_path, 'condition_path')
         except (TimeoutException, ElementClickInterceptedException):
+            self.HandleBadQueueReturn()
+        except Exception as e:
+            print(f"Unexpected error while sorting approval queue ({e}); handling as a bad queue return instead of crashing.")
             self.HandleBadQueueReturn()
 
     def HandleBadQueueReturn(self):
@@ -507,7 +546,8 @@ class NBSdriver(webdriver.Chrome):
                 self.GoToApprovalQueue()
                 self.queue_loaded = True
                 break
-            except TimeoutException:
+            except Exception as e:
+                print(f"Attempt to reload approval queue failed ({e}).")
                 self.queue_loaded = False
         if not self.queue_loaded:
             print(f"Made {self.num_attempts} unsuccessful attempts to load approval queue. Either to queue is truly empty, or a persistent issue with NBS was encountered.")

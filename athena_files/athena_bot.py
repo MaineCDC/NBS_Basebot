@@ -1,7 +1,7 @@
 from tqdm import tqdm
 import time
 import traceback
-from decorator import error_handle
+from custom_decorator import  error_handle
 import os
 
 def generator():

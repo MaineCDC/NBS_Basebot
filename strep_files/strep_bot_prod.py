@@ -8,7 +8,7 @@ from tqdm import tqdm
 import time
 from selenium.webdriver.common.by import By
 import os
-from decorator import error_handle
+from custom_decorator import error_handle
 
 def generator():
     while True:
