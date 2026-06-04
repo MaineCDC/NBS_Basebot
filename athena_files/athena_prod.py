@@ -586,6 +586,11 @@ class Athena(NBSdriver):
         inv_status = self.ReadText('//*[@id="INV109"]')
         if not inv_status:
             self.issues.append('Investigation status is blank.')
+            # Investigator is only required when the investigation status is
+            # blank. COVID open/closed investigations do not require an
+            # investigator, so the blank-investigator check is gated here.
+            if not self.investigator_name:
+                self.issues.append('Investigator is blank.')
         elif inv_status == 'Open':
             self.issues.append('Investigation status is open.')
     ###################### Other Personal Details Check Methods ####################

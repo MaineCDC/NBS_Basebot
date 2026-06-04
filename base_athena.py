@@ -720,11 +720,12 @@ class NBSdriver(webdriver.Chrome):
                 self.issues.append('Missing investigator assigned date.')
    
     def CheckInvestigator(self):
-        """ Check if an investigator was assigned to the case. """
+        """ Read the assigned investigator from the Patient tab. The
+        blank-investigator check is gated on investigation status and handled in
+        CheckInvestigationStatus, since COVID open/closed investigations do not
+        require an investigator. """
         investigator = self.ReadText('//*[@id="INV180"]')
         self.investigator_name = investigator
-        if not investigator:
-            self.issues.append('Investigator is blank.')
 
 ################# Key Report Dates Check Methods ###############################
     def CheckReportDate(self):
