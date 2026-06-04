@@ -845,7 +845,7 @@ class NBSdriver(webdriver.Chrome):
     def CheckDischargeDate(self):
         """ Check for hospital discharge date."""
         discharge_date = self.ReadDate('//*[@id="NBS_INV_GENV2_UI_3"]/tbody/tr[4]/td[2]|//*[@id="INV133"]')
-        if self.self.patient_die_from_illness == "Yes" and self.hospitalization_indicator == "Yes":
+        if self.patient_die_from_illness == "Yes" and self.hospitalization_indicator == "Yes":
             if not discharge_date:                                                         #commented out
                 self.issues.append('Discharge date is blank.')                           #commented out
         if self.admission_date:
@@ -876,8 +876,8 @@ class NBSdriver(webdriver.Chrome):
 ####################### Patient Status Check Methods ############################
     def CheckDeath(self):
         """If died from illness is yes or no, need a death date """
-        self.self.patient_die_from_illness =  self.CheckForValue('//*[@id="INV145"]','Died from illness must be yes or no.')
-        if self.self.patient_die_from_illness == "Yes":
+        self.patient_die_from_illness =  self.CheckForValue('//*[@id="INV145"]','Died from illness must be yes or no.')
+        if self.patient_die_from_illness == "Yes":
             """ Death date must be present."""
             death_date = self.ReadDate('//*[@id="INV146"]')
             if not death_date:
