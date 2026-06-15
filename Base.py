@@ -716,6 +716,12 @@ class NBSdriver(webdriver.Chrome):
             except TimeoutException:
                 self.home_loaded = False
         if not self.home_loaded:
+            # Diagnostic: where is the browser actually stranded? (No "Home" link
+            # found means we're not on an NBS app page.)
+            try:
+                print(f"go_to_home FAILED. current_url={self.current_url!r} title={self.title!r}")
+            except Exception:
+                pass
             # Raise instead of sys.exit(): a single bot's home-load failure must
             # not kill the whole round-robin orchestrator. @error_handle / the
             # orchestrator catch this, log it, and move on to the next bot.
@@ -747,6 +753,14 @@ class NBSdriver(webdriver.Chrome):
             )
             self.find_element(By.PARTIAL_LINK_TEXT, partial_link).click()
         except TimeoutException:
+            # Diagnostic: log where we actually are when the approval-queue link
+            # isn't found, so we can tell whether login landed on Home at all.
+            try:
+                print(f"GoToApprovalQueue: '{partial_link}' link not found. "
+                      f"current_url={self.current_url!r} title={self.title!r} "
+                      f"window_handles={len(self.window_handles)}")
+            except Exception:
+                pass
             self.HandleBadQueueReturn()
 
     def ReturnApprovalQueue(self):
