@@ -365,6 +365,24 @@ class NBSdriver(webdriver.Chrome):
             return self._log_in_inductive(is_logged_in)
 
         portal_link_xpath = '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'
+
+        # Session reuse (multi-bot shared Chrome): a previous bot already logged
+        # in and we are still INSIDE the NBS app. Do NOT navigate back to the BEA
+        # portal (self.site) -- on a warm session that portal link usually does
+        # NOT reappear, and waiting on it is exactly what hung every bot after the
+        # first ("stuck in login"). Instead just return to the NBS Home page from
+        # wherever the previous bot left us; the caller's GoToApprovalQueue takes
+        # it from there. If Home can't be reached the session probably dropped, so
+        # fall through to a full login (which needs a fresh passcode and may fail;
+        # that's logged and non-fatal, and the user can relog in by hand).
+        if is_logged_in:
+            try:
+                self.go_to_home()
+                print("Reused warm NBS session; returned to Home (no re-login).")
+                return
+            except Exception as e:
+                print(f"Warm-session reuse failed ({e}); attempting a fresh login.")
+
         self.get(self.site)
 
         # A persisted session can skip the RSA login form entirely and land us
@@ -376,45 +394,37 @@ class NBSdriver(webdriver.Chrome):
             self.find_element(By.XPATH, portal_link_xpath).click()
             return
 
-        if not is_logged_in:
-            print("logging in...")
-            # Submit the login form, then give authentication a short window to
-            # land on the portal page. If the submit does not authenticate within
-            # auth_wait_seconds (failed/late passcode, a broken form load, etc.)
-            # reload the login page, re-enter the credentials, and try the whole
-            # thing again rather than giving up. Capped to limit RSA lockout risk
-            # from repeated bad submissions.
-            max_login_attempts = 3
-            auth_wait_seconds = 5
-            for login_attempt in range(max_login_attempts):
-                # _submit_login_form re-enters username + passcode each pass, so
-                # after a reload below the credentials are typed in fresh.
-                self._submit_login_form()
-                try:
-                    # Short wait: a successful auth surfaces the portal link almost
-                    # immediately. Don't block the full timeout here so a failed
-                    # submit reloads and re-enters credentials quickly.
-                    WebDriverWait(self, auth_wait_seconds).until(
-                        EC.element_to_be_clickable((By.XPATH, portal_link_xpath))
-                    )
-                    self.find_element(By.XPATH, portal_link_xpath).click()
-                    return  # logged in and portal reached
-                except TimeoutException:
-                    print(
-                        f"Authentication did not complete within {auth_wait_seconds}s "
-                        f"(attempt {login_attempt + 1}/{max_login_attempts}); reloading "
-                        f"login page and re-entering credentials..."
-                    )
-                    self.get(self.site)
-                    time.sleep(2)  # let the reloaded login page settle before re-entry
-            print("WARNING: login failed after reload retries; portal page not reached.")
-            return
-
-        # Already authenticated (session reuse): just open the portal link.
-        WebDriverWait(self, self.wait_before_timeout).until(
-            EC.element_to_be_clickable((By.XPATH, portal_link_xpath))
-        )
-        self.find_element(By.XPATH, portal_link_xpath).click()
+        print("logging in...")
+        # Submit the login form, then give authentication a short window to land
+        # on the portal page. If the submit does not authenticate within
+        # auth_wait_seconds (failed/late passcode, a broken form load, etc.)
+        # reload the login page, re-enter the credentials, and try again rather
+        # than giving up. Capped to limit RSA lockout risk from repeated bad
+        # submissions.
+        max_login_attempts = 3
+        auth_wait_seconds = 5
+        for login_attempt in range(max_login_attempts):
+            # _submit_login_form re-enters username + passcode each pass, so
+            # after a reload below the credentials are typed in fresh.
+            self._submit_login_form()
+            try:
+                # Short wait: a successful auth surfaces the portal link almost
+                # immediately. Don't block the full timeout here so a failed
+                # submit reloads and re-enters credentials quickly.
+                WebDriverWait(self, auth_wait_seconds).until(
+                    EC.element_to_be_clickable((By.XPATH, portal_link_xpath))
+                )
+                self.find_element(By.XPATH, portal_link_xpath).click()
+                return  # logged in and portal reached
+            except TimeoutException:
+                print(
+                    f"Authentication did not complete within {auth_wait_seconds}s "
+                    f"(attempt {login_attempt + 1}/{max_login_attempts}); reloading "
+                    f"login page and re-entering credentials..."
+                )
+                self.get(self.site)
+                time.sleep(2)  # let the reloaded login page settle before re-entry
+        print("WARNING: login failed after reload retries; portal page not reached.")
     
     def log_in_v2(self):
         """Log in to MENBS."""
