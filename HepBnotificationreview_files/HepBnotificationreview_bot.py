@@ -97,6 +97,13 @@ def start_HepBnotificationreview(username, passcode, login_complete=None, is_log
                 continue
             
             NBS.CheckFirstCase()
+            # Remember the case currently at the top of the queue. The reject
+            # path below re-sorts, re-reads the top case, and only rejects if it
+            # is still the SAME case (final_name == initial_name). Without this,
+            # initial_name stays None, the comparison is always False, the case
+            # is never rejected, stays at the top, and the bot re-reviews the
+            # same case forever.
+            NBS.initial_name = NBS.patient_name
             if'hepatitis b' in NBS.condition.lower():
                 NBS.GoToNCaseInApprovalQueue(n)
                 if NBS.queue_loaded:
