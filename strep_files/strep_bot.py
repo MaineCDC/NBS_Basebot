@@ -21,43 +21,66 @@ from email.message import EmailMessage
 
 from dotenv import load_dotenv
 import os
-from custom_decorator import error_handle
+from decorator import error_handle
 
 def generator():
     while True:
         yield
 
-reviewed_ids = []
-what_do = []
-reason = []
-
 is_in_production = os.getenv('ENVIRONMENT', 'production') != 'development'
 
 
 @error_handle
-def start_strep(username, passcode):
-    
+def start_strep(username, passcode, login_complete=None, is_logged_in=False):
+
     from .strep import Strep
 
     load_dotenv()
     
-    NBS = Strep(production=True)  # production=True & Test = is_in_production
+    reviewed_ids = []
+    what_do = []
+    reason = []
+    
+    from bot_env import is_production, target_site_label
+    print(f"[strep] target site: {target_site_label('strep')}")
+    NBS = Strep(production=is_production('strep'))
+    if is_in_production:
+        print("Production Environment")
+    else:
+        print("Development Environment")
         
     NBS.set_credentials(username, passcode)
-    NBS.log_in()
+    NBS.log_in(is_logged_in)
+    if login_complete is not None:
+        login_complete.set()
     NBS.GoToApprovalQueue()
-
+    #NBS.reviewed_ids = []
+    patients_to_skip = set()
     error_list = []
     error = False
     n = 1
     attempt_counter = 0
+    
+    with open("patients_to_skip.txt", "r") as patient_reader:
+        patients_to_skip |= set(patient_reader.readlines())
 
-    limit = 2
+    save_every = int(os.getenv("SAVE_EVERY_CASES", "10"))
+    # Whole queue per pass: the real stop is the "no cases" break below; this cap
+    # is a high backstop against a stuck case (override with MAX_CASES_PER_PASS).
+    limit = int(os.getenv("MAX_CASES_PER_PASS", "500"))
     loop = tqdm(generator())
     for _ in loop:
         #check if the bot haa gone through the set limit of reviews
-        if loop.n == limit:
+        if loop.n >= limit:
             break
+
+        # Incremental save: snapshot every save_every iterations so a hard kill
+        # loses at most that batch, not the whole pass.
+        if loop.n and loop.n % save_every == 0 and reviewed_ids:
+            NBS.safe_save_excel(
+                pd.DataFrame({'Inv ID': reviewed_ids, 'Action': what_do, 'Reason': reason}),
+                f"saved/strep/Strep_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx",
+            )
         try:
             #Sort review queue so that only strep investigations are listed
             paths = {
@@ -87,15 +110,20 @@ def start_strep(username, passcode):
                     NBS.queue_loaded = None
                     continue
                 inv_id = NBS.find_element(By.XPATH,'//*[@id="bd"]/table[3]/tbody/tr[2]/td[1]/span[2]').text 
+                '''if any(inv_id in skipped_patients for skipped_patients in patients_to_skip):
+                    print(f"present, {inv_id}")
+                    NBS.ReturnApprovalQueue()
+                    n = n + 1
+                    continue'''
                 
                 NBS.StandardChecks()
-
                 if not NBS.issues:
                     reviewed_ids.append(inv_id)
                     what_do.append("Approved Notification")
                     reason.append('No issues found.')
                     print("Approved Notification")
                     NBS.ApproveNotification()
+                    #NBS.SendStrepEmail("Hey, please don't change anything at all and just click CN", inv_id)
                 NBS.ReturnApprovalQueue()
                 if NBS.queue_loaded:
                     NBS.queue_loaded = None
@@ -108,6 +136,9 @@ def start_strep(username, passcode):
                     NBS.CheckFirstCase()
 
                     NBS.final_name = NBS.patient_name
+                    '''if NBS.country != 'UNITED STATES':
+                        print("Skipping patient. No action carried out")
+                        patients_to_skip.append(inv_id)'''
                     if NBS.final_name == NBS.initial_name:
                         reviewed_ids.append(inv_id)
                         what_do.append("Reject Notification")
@@ -154,7 +185,7 @@ def start_strep(username, passcode):
         'Action': what_do,
         'Reason': reason
         })
-    bot_act.to_excel(f"saved/Strep/Strep_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx")
+    NBS.safe_save_excel(bot_act, f"saved/strep/Strep_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx")
     print("Excel sheet created")
 
     '''completion_message = (
@@ -182,11 +213,11 @@ def start_strep(username, passcode):
     # smtpObj = smtplib.SMTP(NBS.smtp_server)
     # smtpObj.send_message(message)
     
-    '''with open("patients_to_skip.txt", "w") as patient_writer:
-        for patient_id in patients_to_skip: patient_writer.write(f"{patient_id}\n")
-    if error is not None: 
-        raise Exception(error_list)'''
-    #NBS.send_smtp_email("disease.reporting@maine.gov", 'Notification Review Report: NBSbot(Anaplasma Notification Review) AKA Group A Strep', body, 'Group A Strep Notification Review email')
+    with open("patients_to_skip.txt", "w") as patient_writer:
+        patient_writer.write("\n".join(patients_to_skip) + "\n")
+    
+    if error: 
+        raise Exception(error_list)
 
-    if __name__ == '__main__':
-        start_strep()
+if __name__ == '__main__':
+    print("Run bots via start_bots.py (shared Chrome session); direct execution is no longer supported.")

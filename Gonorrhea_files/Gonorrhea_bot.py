@@ -34,13 +34,17 @@ reason = []
 is_in_production = os.getenv('ENVIRONMENT', 'production') != 'development'
 
 @error_handle
-def start_Gonorrhea(username, passcode):
+def start_Gonorrhea(username, passcode, login_complete=None, is_logged_in=False):
     from .Gonorrhea import Gonorrhea
     load_dotenv()
-    NBS = Gonorrhea(production=is_in_production)
-        
+    from bot_env import is_production, target_site_label
+    print(f"[Gonorrhea] target site: {target_site_label('Gonorrhea')}")
+    NBS = Gonorrhea(production=is_production('Gonorrhea'))
+
     NBS.set_credentials(username, passcode)
-    NBS.log_in()
+    NBS.log_in(is_logged_in)
+    if login_complete is not None:
+        login_complete.set()
     NBS.GoToApprovalQueue()
 
     patients_to_skip = []
@@ -51,12 +55,26 @@ def start_Gonorrhea(username, passcode):
     '''with open("patients_to_skip.txt", "r") as patient_reader:
         patients_to_skip.append(patient_reader.readlines())'''
 
-    limit = 1
+    # These result lists are module-level; clear them so a fresh round-robin
+    # pass doesn't re-save the previous pass's cases.
+    reviewed_ids.clear(); what_do.clear(); reason.clear()
+    save_every = int(os.getenv("SAVE_EVERY_CASES", "10"))
+    # Whole queue per pass: the real stop is the "no cases" break below; this cap
+    # is a high backstop against a stuck case (override with MAX_CASES_PER_PASS).
+    limit = int(os.getenv("MAX_CASES_PER_PASS", "500"))
     loop = tqdm(generator())
     for _ in loop:
         #check if the bot haa gone through the set limit of reviews
-        if loop.n == limit:
+        if loop.n >= limit:
             break
+
+        # Incremental save: snapshot every save_every iterations so a hard kill
+        # loses at most that batch, not the whole pass.
+        if loop.n and loop.n % save_every == 0 and reviewed_ids:
+            NBS.safe_save_excel(
+                pd.DataFrame({'Inv ID': reviewed_ids, 'Action': what_do, 'Reason': reason}),
+                f"Gonorrhea_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx",
+            )
         try:
             #Sort review queue so that only strep investigations are listed
             paths = {
@@ -141,6 +159,9 @@ def start_Gonorrhea(username, passcode):
                     print("No Group A Gonorrhea cases in notification queue.")
                     NBS.SendManualReviewEmail()
                     #NBS.Sleep()
+                    # End this pass once the queue is empty (without this break the
+                    # whole-queue loop would spin until the MAX_CASES_PER_PASS cap).
+                    break
         except Exception as e:
             # raise Exception(e)
             error_list.append(str(e))
@@ -156,7 +177,7 @@ def start_Gonorrhea(username, passcode):
         'Action': what_do,
         'Reason': reason
         })
-    bot_act.to_excel(f"Gonorrhea_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx")
+    NBS.safe_save_excel(bot_act, f"Gonorrhea_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx")
 
     # body = "The list of Group A Strep notifications that need to be manually reviewed are in the attached spreadsheet."
     
@@ -182,4 +203,4 @@ def start_Gonorrhea(username, passcode):
     #NBS.send_smtp_email("disease.reporting@maine.gov", 'Notification Review Report: NBSbot(Anaplasma Notification Review) AKA Group A Strep', body, 'Group A Strep Notification Review email')
 
 if __name__ == '__main__':
-    start_Gonorrhea()
+    print("Run bots via start_bots.py (shared Chrome session); direct execution is no longer supported.")

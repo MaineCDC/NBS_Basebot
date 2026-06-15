@@ -31,12 +31,17 @@ reason = []
 
 is_in_production = os.getenv('ENVIRONMENT', 'production') != 'development'
 @error_handle
-def start_ILIOutbreak():
-    
+def start_ILIOutbreak(username, passcode, login_complete=None, is_logged_in=False):
+
     load_dotenv()
     from .ILIOutbreak import ILIOutbreak
-    NBS = ILIOutbreak(production=False)  # production=True & Test = is_in_production
-    NBS.log_in()
+    from bot_env import is_production, target_site_label
+    print(f"[ILIOutbreak] target site: {target_site_label('ILIOutbreak')}")
+    NBS = ILIOutbreak(production=is_production('ILIOutbreak'))
+    NBS.set_credentials(username, passcode)
+    NBS.log_in(is_logged_in)
+    if login_complete is not None:
+        login_complete.set()
     NBS.GoToApprovalQueue()
 
     patients_to_skip = []
@@ -44,12 +49,26 @@ def start_ILIOutbreak():
     error = False
     n = 1
     attempt_counter = 0
-    limit = 6
+    # what_do/reason are module-level; clear them so a fresh round-robin pass
+    # doesn't re-save the previous pass's actions (NBS.reviewed_ids is per-run).
+    what_do.clear(); reason.clear()
+    save_every = int(os.getenv("SAVE_EVERY_CASES", "10"))
+    # Whole queue per pass: the real stop is the "no cases" break below; this cap
+    # is a high backstop against a stuck case (override with MAX_CASES_PER_PASS).
+    limit = int(os.getenv("MAX_CASES_PER_PASS", "500"))
     loop = tqdm(generator())
     for _ in loop:
         #check if the bot haa gone through the set limit of reviews
-        if loop.n == limit:
+        if loop.n >= limit:
             break
+
+        # Incremental save: snapshot every save_every iterations so a hard kill
+        # loses at most that batch, not the whole pass.
+        if loop.n and loop.n % save_every == 0 and NBS.reviewed_ids:
+            NBS.safe_save_excel(
+                pd.DataFrame({'Inv ID': NBS.reviewed_ids, 'Action': what_do, 'Reason': reason}),
+                f"saved/ILIOutbreak/ILIOutbreak_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx",
+            )
         try:
             #Sort review queue so that ILIOutbreak investigations are listed
             paths = {
@@ -140,8 +159,8 @@ def start_ILIOutbreak():
         'Action': what_do,
         'Reason': reason
         })
-    bot_act.to_excel(f"saved/ILIOutbreak/ILIOutbreak_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx")
+    NBS.safe_save_excel(bot_act, f"saved/ILIOutbreak/ILIOutbreak_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx")
     print("Excel file created")
 
 if __name__ == '__main__':
-    start_ILIOutbreak()
+    print("Run bots via start_bots.py (shared Chrome session); direct execution is no longer supported.")

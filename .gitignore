@@ -3,3 +3,22 @@ __pycache__/
 env
 env/
 .venv
+
+# Chrome runtime profiles (per-machine browser state, must not be tracked)
+chrome-bot-profile/
+chrome_profile/
+chromedriver-win64/
+
+# Large runtime logs / debug dumps
+logfile.txt
+liverun_output.txt
+error_log.txt
+error_logs.txt
+Error_logs.txt
+*.out
+run_*_debug.out
+
+# Excel run artifacts (regenerated each run; temp lock files)
+~$*.xlsx
+saved/**/*.xlsx
+*_bot_activity_*.xlsx
