@@ -99,6 +99,10 @@ def start_Gonorrhea(username, passcode, login_complete=None, is_logged_in=False)
                 continue
             
             NBS.CheckFirstCase()
+            # Record the top-of-queue case so the reject path can confirm it's
+            # still the same case before rejecting. Without this, initial_name
+            # stays None, the case is never rejected, and the bot loops on it.
+            NBS.initial_name = NBS.patient_name
             if NBS.condition == 'Gonorrhea':
                 NBS.GoToNCaseInApprovalQueue(n)
                 if NBS.queue_loaded:
