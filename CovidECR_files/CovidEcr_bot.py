@@ -39,24 +39,31 @@ is_in_production = os.getenv('ENVIRONMENT', 'production') != 'development'
 
 
 @error_handle
-def start_CovidEcr(username, passcode):
-    
+def start_CovidEcr(username, passcode, login_complete=None, is_logged_in=False):
+
     from .CovidEcr import COVIDECR
-    
+
 
     load_dotenv()
-    NBS = COVIDECR(production=is_in_production)
+    from bot_env import is_production, target_site_label
+    print(f"[CovidEcr] target site: {target_site_label('CovidEcr')}")
+    NBS = COVIDECR(production=is_production('CovidEcr'))
     if is_in_production:
         print("Production Environment")
     else:
         print("Development Environment")
-    NBS.get_credentials()
-    NBS.log_in()
+    NBS.set_credentials(username, passcode)
+    NBS.log_in(is_logged_in)
+    if login_complete is not None:
+        login_complete.set()
     attempt_counter = 0
-    limit = 40
+    # Whole queue per pass: the loop already breaks when there are "No IDs to
+    # review" (IndexError handler below); this cap is a high backstop (override
+    # with MAX_CASES_PER_PASS).
+    limit = int(os.getenv("MAX_CASES_PER_PASS", "500"))
     loop = tqdm(generator())
     for _ in loop:
-        if loop.n == limit:
+        if loop.n >= limit:
             break
         partial_link = 'Documents Requiring Review'
         WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT, partial_link)))

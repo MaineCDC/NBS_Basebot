@@ -32,16 +32,20 @@ reason = []
 is_in_production = os.getenv('ENVIRONMENT', 'production') != 'development'
 
 @error_handle
-def start_HepBnotificationreview(username, passcode):
-    
+def start_HepBnotificationreview(username, passcode, login_complete=None, is_logged_in=False):
+
     from .HepBnotificationreview import HepBNotificationReview
-    
+
     load_dotenv()
-    
-    NBS = HepBNotificationReview(production=True)
-        
+
+    from bot_env import is_production, target_site_label
+    print(f"[HepBnotificationreview] target site: {target_site_label('HepBnotificationreview')}")
+    NBS = HepBNotificationReview(production=is_production('HepBnotificationreview'))
+
     NBS.set_credentials(username, passcode)
-    NBS.log_in()
+    NBS.log_in(is_logged_in)
+    if login_complete is not None:
+        login_complete.set()
     NBS.GoToApprovalQueue()
 
     patients_to_skip = []
@@ -52,12 +56,23 @@ def start_HepBnotificationreview(username, passcode):
     '''with open("patients_to_skip.txt", "r") as patient_reader:
         patients_to_skip.append(patient_reader.readlines())'''
 
-    limit =  7
+    save_every = int(os.getenv("SAVE_EVERY_CASES", "10"))
+    # Whole queue per pass: the real stop is the "no cases" break below; this cap
+    # is a high backstop against a stuck case (override with MAX_CASES_PER_PASS).
+    limit = int(os.getenv("MAX_CASES_PER_PASS", "500"))
     loop = tqdm(generator())
     for _ in loop:
         #check if the bot has gone through the set limit of reviews
-        if loop.n == limit:
+        if loop.n >= limit:
             break
+
+        # Incremental save: snapshot every save_every iterations so a hard kill
+        # loses at most that batch, not the whole pass.
+        if loop.n and loop.n % save_every == 0 and NBS.reviewed_ids:
+            NBS.safe_save_excel(
+                pd.DataFrame({'Inv ID': NBS.reviewed_ids, 'Action': NBS.what_do, 'Reason': NBS.reason}),
+                f"saved/HepB/HepB_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx",
+            )
         try:
             #Sort review queue so that only Hepatitis B investigations are listed
             paths = {
@@ -161,8 +176,8 @@ def start_HepBnotificationreview(username, passcode):
         'Action': NBS.what_do,
         'Reason': NBS.reason
         })
-    bot_act.to_excel(f"saved/HepB/HepB_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx")
+    NBS.safe_save_excel(bot_act, f"saved/HepB/HepB_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx")
     print("excel sheet created")
     
 if __name__ == '__main__':
-    start_HepBnotificationreview()
+    print("Run bots via start_bots.py (shared Chrome session); direct execution is no longer supported.")

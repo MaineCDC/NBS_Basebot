@@ -70,16 +70,20 @@ send_alt_email_ids = []
 is_in_production = os.getenv('ENVIRONMENT', 'production') != 'development'
 
 @error_handle
-def start_audrey(username, passcode):
+def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
     warnings.simplefilter(action='ignore', category=FutureWarning)
     pd.options.mode.chained_assignment = None
 
     from .audrey import Audrey
-    
-    NBS = Audrey(production=True)   # true for production, is_in_production for development
+
+    from bot_env import is_production, target_site_label
+    print(f"[audrey] target site: {target_site_label('audrey')}")
+    NBS = Audrey(production=is_production('audrey'))
 
     NBS.set_credentials(username, passcode)
-    NBS.log_in()
+    NBS.log_in(is_logged_in)
+    if login_complete is not None:
+        login_complete.set()
     attempt_counter = 0
     NBS.get_db_connection_info()
     NBS.get_patient_table()
@@ -126,12 +130,29 @@ def start_audrey(username, passcode):
 
         return False
 
-    limit = 500
+    # These accumulator lists are module-level; clear them so a fresh round-robin
+    # pass starts clean and doesn't re-save / re-email the previous pass's cases.
+    for _lst in (reviewed_ids, what_do, merges, merge_ids, Female_handled_epi_ids,
+                 Hep_inv_assign_ids, caseless_assign_ids, perinatal_inv_ids,
+                 no_collection_date_ids, below_36_months_ids, send_inv_email_ids,
+                 send_alt_email_ids):
+        _lst.clear()
+    save_every = int(os.getenv("SAVE_EVERY_CASES", "10"))
+    # Whole queue per pass (override the high backstop with MAX_CASES_PER_PASS).
+    limit = int(os.getenv("MAX_CASES_PER_PASS", "500"))
     loop = tqdm(generator())
     for _ in loop:
         #check if the bot has gone through the set limit of reviews
-        if loop.n == limit:
+        if loop.n >= limit:
             break
+
+        # Incremental save: snapshot every save_every iterations so a hard kill
+        # loses at most that batch, not the whole pass.
+        if loop.n and loop.n % save_every == 0 and reviewed_ids:
+            NBS.safe_save_excel(
+                pd.DataFrame({'Lab ID': reviewed_ids, 'Action': what_do}),
+                f"Hepatitis_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx",
+            )
         #Go to Document Requiring Review
         
         for i in range(3):
@@ -2052,7 +2073,7 @@ def start_audrey(username, passcode):
         {'Lab ID': reviewed_ids,
         'Action': what_do
         })
-    bot_act.to_excel(f"Hepatitis_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx")
+    NBS.safe_save_excel(bot_act, f"Hepatitis_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx")
     print("Excel file created")
 
 
@@ -2082,4 +2103,4 @@ def get_test_condition(resulted_test_table, test_type):
     return test_condition, test_type
             
 if __name__ == '__main__':
-    start_audrey()
+    print("Run bots via start_bots.py (shared Chrome session); direct execution is no longer supported.")

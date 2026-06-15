@@ -1,6 +1,7 @@
 from tqdm import tqdm
 import time
 import traceback
+from threading import Event
 from custom_decorator import  error_handle
 import os
 
@@ -9,13 +10,16 @@ def generator():
         yield
 is_in_production = os.getenv('ENVIRONMENT', 'production') != 'development'
 @error_handle
-def start_athena(username, passcode):
+def start_athena(username, passcode, login_complete: Event = None, is_logged_in=False):
     from .athena import Athena
-    from strep_files.strep_bot_prod import start_strep
 
-    NBS = Athena(production=is_in_production)
+    from bot_env import is_production, target_site_label
+    print(f"[athena] target site: {target_site_label('athena')}")
+    NBS = Athena(production=is_production('athena'))
     NBS.set_credentials(username, passcode)
-    NBS.log_in()
+    NBS.log_in(is_logged_in)
+    if login_complete is not None:
+        login_complete.set()
     NBS.GoToApprovalQueue()
 
     attempt_counter = 0
@@ -28,12 +32,13 @@ def start_athena(username, passcode):
             NBS.queue_loaded = None
             continue
         elif NBS.queue_loaded == False:
+            # Queue failed to load. End this pass; the round-robin orchestrator
+            # will re-run athena on the next cycle. (Previously this chained into
+            # strep and Sleep()'d forever -- the shared-session loop runs strep as
+            # its own entry, so athena just returns when it has no work.)
             NBS.queue_loaded = None
             NBS.SendManualReviewEmail()
-            start_strep(NBS.driver)
-            NBS.Sleep()
-            continue
-
+            return
         NBS.CheckFirstCase()
         NBS.initial_name = NBS.patient_name
         if NBS.condition == '2019 Novel Coronavirus (2019-nCoV)':
@@ -71,11 +76,12 @@ def start_athena(username, passcode):
             if attempt_counter < NBS.num_attempts:
                 attempt_counter += 1
             else:
+                # No COVID-19 cases left in the queue: this bot's pass is done.
+                # Return so the round-robin moves on to the next bot.
                 attempt_counter = 0
                 print("No COVID-19 cases in notification queue.")
                 NBS.SendManualReviewEmail()
-                start_strep()
-                NBS.Sleep()
+                return
         # except:
         #     tb = traceback.format_exc()
         #     print(tb)
