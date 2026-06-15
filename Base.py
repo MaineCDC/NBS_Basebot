@@ -260,7 +260,7 @@ class NBSdriver(webdriver.Chrome):
             (By.XPATH, "//input[@type='submit']"),
             (By.XPATH, "//input[@type='image']"),
         ]
-        for attempt in range(3):
+        for attempt in range(4):
             try:
                 self.switch_to.default_content()
                 WebDriverWait(self, login_load_timeout).until(
@@ -271,13 +271,23 @@ class NBSdriver(webdriver.Chrome):
                 WebDriverWait(self, login_load_timeout).until(
                     EC.element_to_be_clickable((By.ID, "username"))
                 )
+                # CRITICAL: the form's inner document reloads ~a moment after the
+                # frame first appears and wipes whatever we've typed. Let that
+                # reload fire and settle BEFORE typing, and force a page sync
+                # (the team found retrieving page_source load-bearing here), so
+                # the username/passcode aren't cleared out from under us.
+                time.sleep(4)
+                try:
+                    _ = self.page_source
+                except Exception:
+                    pass
                 user_field = self.find_element(By.ID, "username")
                 user_field.clear()
                 user_field.send_keys(self.username)
                 time.sleep(1)  # let any pending frame reload fire
                 if self.find_element(By.ID, "username").get_attribute("value") != self.username:
                     print(f"Login form reloaded and cleared the username, retry {attempt}...")
-                    time.sleep(2)
+                    time.sleep(3)
                     continue
                 # Form is stable now -- enter passcode and submit immediately.
                 self.find_element(By.ID, "passcode").send_keys(self.passcode)
