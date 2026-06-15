@@ -245,7 +245,9 @@ class NBSdriver(webdriver.Chrome):
         wiped it, retry. Only once the value persists is the form stable, at
         which point we enter the passcode and submit. Returns True if submitted.
         """
-        login_load_timeout = 120
+        # Bounded so a mismatched form can't hang for minutes (was 120s x 6 ~=
+        # 12 min, which looked like "stuck on the login page").
+        login_load_timeout = 30
         # The submit button locator differs between NBS form layouts. Try the
         # known-good production XPath (the one the team's original base used) and
         # a few value/type fallbacks, so login works regardless of the exact
@@ -258,7 +260,7 @@ class NBSdriver(webdriver.Chrome):
             (By.XPATH, "//input[@type='submit']"),
             (By.XPATH, "//input[@type='image']"),
         ]
-        for attempt in range(6):
+        for attempt in range(3):
             try:
                 self.switch_to.default_content()
                 WebDriverWait(self, login_load_timeout).until(
@@ -428,15 +430,21 @@ class NBSdriver(webdriver.Chrome):
         # than giving up. Capped to limit RSA lockout risk from repeated bad
         # submissions.
         max_login_attempts = 3
-        auth_wait_seconds = 5
+        auth_wait_seconds = 20  # give RSA/SecurID a real chance to land on the portal
         for login_attempt in range(max_login_attempts):
             # _submit_login_form re-enters username + passcode each pass, so
             # after a reload below the credentials are typed in fresh.
-            self._submit_login_form()
+            submitted = self._submit_login_form()
+            if not submitted:
+                print(
+                    f"Login form not submitted (attempt {login_attempt + 1}/"
+                    f"{max_login_attempts}); reloading and retrying..."
+                )
+                self.get(self.site)
+                time.sleep(2)
+                continue
             try:
-                # Short wait: a successful auth surfaces the portal link almost
-                # immediately. Don't block the full timeout here so a failed
-                # submit reloads and re-enters credentials quickly.
+                # Wait for the portal link to confirm authentication succeeded.
                 WebDriverWait(self, auth_wait_seconds).until(
                     EC.element_to_be_clickable((By.XPATH, portal_link_xpath))
                 )
@@ -448,6 +456,11 @@ class NBSdriver(webdriver.Chrome):
                     f"(attempt {login_attempt + 1}/{max_login_attempts}); reloading "
                     f"login page and re-entering credentials..."
                 )
+                # Diagnostic: where are we when auth didn't surface the portal?
+                try:
+                    print(f"  post-submit state: current_url={self.current_url!r} title={self.title!r}")
+                except Exception:
+                    pass
                 self.get(self.site)
                 time.sleep(2)  # let the reloaded login page settle before re-entry
         print("WARNING: login failed after reload retries; portal page not reached.")
