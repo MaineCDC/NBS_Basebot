@@ -246,15 +246,28 @@ class NBSdriver(webdriver.Chrome):
         which point we enter the passcode and submit. Returns True if submitted.
         """
         login_load_timeout = 120
-        login_button_xpath = "//input[@value='Log In']"
+        # The submit button locator differs between NBS form layouts. Try the
+        # known-good production XPath (the one the team's original base used) and
+        # a few value/type fallbacks, so login works regardless of the exact
+        # button. The username field -- not the button -- is the "form ready"
+        # signal, since the button locator is what varies.
+        submit_locators = [
+            (By.XPATH, "/html/body/div[2]/p[2]/input[1]"),  # original prod button
+            (By.XPATH, "//input[@value='Log In']"),
+            (By.XPATH, "//input[@value='Login']"),
+            (By.XPATH, "//input[@type='submit']"),
+            (By.XPATH, "//input[@type='image']"),
+        ]
         for attempt in range(6):
             try:
                 self.switch_to.default_content()
                 WebDriverWait(self, login_load_timeout).until(
                     EC.frame_to_be_available_and_switch_to_it("contentFrame")
                 )
+                # Wait on the username field (always present) rather than the
+                # submit button (whose locator varies between layouts).
                 WebDriverWait(self, login_load_timeout).until(
-                    EC.element_to_be_clickable((By.XPATH, login_button_xpath))
+                    EC.element_to_be_clickable((By.ID, "username"))
                 )
                 user_field = self.find_element(By.ID, "username")
                 user_field.clear()
@@ -266,8 +279,21 @@ class NBSdriver(webdriver.Chrome):
                     continue
                 # Form is stable now -- enter passcode and submit immediately.
                 self.find_element(By.ID, "passcode").send_keys(self.passcode)
-                self.find_element(By.XPATH, login_button_xpath).click()
+                submitted = False
+                for by, locator in submit_locators:
+                    try:
+                        btn = self.find_element(by, locator)
+                    except NoSuchElementException:
+                        continue
+                    btn.click()
+                    print(f"Login form submitted via {locator}")
+                    submitted = True
+                    break
                 self.switch_to.default_content()
+                if not submitted:
+                    print("Login form: no known submit button found; retrying...")
+                    time.sleep(2)
+                    continue
                 return True
             except (StaleElementReferenceException, TimeoutException) as e:
                 print(f"Login form not stable yet, retry {attempt}: {e}")
