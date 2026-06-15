@@ -423,47 +423,36 @@ class NBSdriver(webdriver.Chrome):
             return
 
         print("logging in...")
-        # Submit the login form, then give authentication a short window to land
-        # on the portal page. If the submit does not authenticate within
-        # auth_wait_seconds (failed/late passcode, a broken form load, etc.)
-        # reload the login page, re-enter the credentials, and try again rather
-        # than giving up. Capped to limit RSA lockout risk from repeated bad
-        # submissions.
-        max_login_attempts = 3
-        auth_wait_seconds = 20  # give RSA/SecurID a real chance to land on the portal
-        for login_attempt in range(max_login_attempts):
-            # _submit_login_form re-enters username + passcode each pass, so
-            # after a reload below the credentials are typed in fresh.
-            submitted = self._submit_login_form()
-            if not submitted:
-                print(
-                    f"Login form not submitted (attempt {login_attempt + 1}/"
-                    f"{max_login_attempts}); reloading and retrying..."
-                )
-                self.get(self.site)
-                time.sleep(2)
-                continue
+        # RSA SecurID passcodes are SINGLE-USE, so submit the form EXACTLY ONCE.
+        # Do NOT reload-and-resubmit on a slow redirect: that both consumes the
+        # one-time passcode (so a retry can never succeed) and navigates away from
+        # an authentication that may simply be slow -- which is what broke a live
+        # run. Submit once, then wait generously for the portal to appear.
+        if not self._submit_login_form():
+            print("WARNING: could not fill/submit the login form.")
+            return
+        auth_wait_seconds = 90  # RSA validation + NBS redirect can be slow
+        try:
+            WebDriverWait(self, auth_wait_seconds).until(
+                EC.element_to_be_clickable((By.XPATH, portal_link_xpath))
+            )
+            self.find_element(By.XPATH, portal_link_xpath).click()
+            print("Logged in; portal reached.")
+            return
+        except TimeoutException:
             try:
-                # Wait for the portal link to confirm authentication succeeded.
-                WebDriverWait(self, auth_wait_seconds).until(
-                    EC.element_to_be_clickable((By.XPATH, portal_link_xpath))
-                )
-                self.find_element(By.XPATH, portal_link_xpath).click()
-                return  # logged in and portal reached
-            except TimeoutException:
                 print(
-                    f"Authentication did not complete within {auth_wait_seconds}s "
-                    f"(attempt {login_attempt + 1}/{max_login_attempts}); reloading "
-                    f"login page and re-entering credentials..."
+                    f"Login did not reach the portal within {auth_wait_seconds}s. "
+                    f"current_url={self.current_url!r} title={self.title!r}"
                 )
-                # Diagnostic: where are we when auth didn't surface the portal?
-                try:
-                    print(f"  post-submit state: current_url={self.current_url!r} title={self.title!r}")
-                except Exception:
-                    pass
-                self.get(self.site)
-                time.sleep(2)  # let the reloaded login page settle before re-entry
-        print("WARNING: login failed after reload retries; portal page not reached.")
+            except Exception:
+                pass
+            print(
+                "WARNING: login failed -- the passcode was likely wrong/expired, "
+                "or NBS was slow/unavailable. Generate a FRESH passcode and re-run "
+                "(the single-use code can't be retried)."
+            )
+            return
     
     def log_in_v2(self):
         """Log in to MENBS."""
