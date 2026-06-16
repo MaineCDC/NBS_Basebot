@@ -137,17 +137,16 @@ def start_strep(username, passcode, login_complete=None, is_logged_in=False):
                     if NBS.queue_loaded:
                         NBS.queue_loaded = None
                         continue
-                    NBS.CheckFirstCase()
-
-                    NBS.final_name = NBS.patient_name
-                    '''if NBS.country != 'UNITED STATES':
-                        print("Skipping patient. No action carried out")
-                        patients_to_skip.append(inv_id)'''
-                    if NBS.final_name == NBS.initial_name:
+                    # The queue reorders after a case is viewed; find the reviewed
+                    # case's actual row by name and reject THAT row (instead of only
+                    # acting when it's still on top, which left most cases unrejected).
+                    reject_row = NBS.FindCaseRowByName(NBS.initial_name)
+                    if reject_row:
                         reviewed_ids.append(inv_id)
                         what_do.append("Reject Notification")
                         reason.append(' '.join(NBS.issues))
-                        NBS.RejectNotification()
+                        NBS.RejectNotification(reject_row)
+                        print(f"[strep] rejected inv_id={inv_id} ({NBS.initial_name!r}) at row {reject_row}")
                         body = ''
                         if  all(case in NBS.issues  for case in ['City is blank.', 'County is blank.', 'Zip code is blank.']):
                             body = 'Hey, please only update City, Zip Code and County, then Click CN'
@@ -156,10 +155,8 @@ def start_strep(username, passcode, login_complete=None, is_logged_in=False):
                         if body:
                             print('mail', body)
                             NBS.SendStrepEmail(body, inv_id)
-                        # NBS.ReturnApprovalQueue()
-                    elif NBS.final_name != NBS.initial_name:
-                        print(f"here : {NBS.final_name} {NBS.initial_name}")
-                        print('Case at top of queue changed. No action was taken on the reviewed case.')
+                    else:
+                        print(f"[strep] reviewed case {NBS.initial_name!r} not found in queue after re-sort; skipping.")
                         NBS.num_fail += 1
             else:
                 if attempt_counter < NBS.num_attempts:
