@@ -53,6 +53,10 @@ def start_HepBnotificationreview(username, passcode, login_complete=None, is_log
     error = False
     n = 1
     attempt_counter = 0
+    # Break the run after this many CONSECUTIVE errored iterations with no case
+    # actioned -- prevents spinning on an emptied queue (stale-element reads).
+    consecutive_errors = 0
+    max_consecutive_errors = 5
     '''with open("patients_to_skip.txt", "r") as patient_reader:
         patients_to_skip.append(patient_reader.readlines())'''
 
@@ -104,7 +108,11 @@ def start_HepBnotificationreview(username, passcode, login_complete=None, is_log
             # is never rejected, stays at the top, and the bot re-reviews the
             # same case forever.
             NBS.initial_name = NBS.patient_name
-            if'hepatitis b' in NBS.condition.lower():
+            # Guard against None (empty queue): CheckFirstCase sets condition=None
+            # when there's no row, and None.lower() would crash into the except
+            # handler and spin instead of reaching the no-case break below.
+            if NBS.condition and 'hepatitis b' in NBS.condition.lower():
+                consecutive_errors = 0  # a real HepB case was found
                 NBS.GoToNCaseInApprovalQueue(n)
                 if NBS.queue_loaded:
                     NBS.queue_loaded = None
@@ -175,6 +183,16 @@ def start_HepBnotificationreview(username, passcode, login_complete=None, is_log
             print(_tb.format_exc())
             error_list.append(str(e))
             error = True
+            # Once the queue is empty, SortQueue/CheckFirstCase keep throwing
+            # (stale element / nothing to read) and that lands here every pass.
+            # Without a bound the bot spins until the MAX_CASES_PER_PASS backstop.
+            # Break after several CONSECUTIVE errors (reset whenever a real case is
+            # found), so an emptied queue ends the run cleanly.
+            consecutive_errors += 1
+            if consecutive_errors >= max_consecutive_errors:
+                print(f"[HepB] {consecutive_errors} consecutive errors with no case "
+                      f"actioned; queue appears empty/unstable. Ending run.")
+                break
         #     # print(tb)
         #     with open("error_log.txt", "a") as log:
         #         log.write(f"{datetime.now().date().strftime('%m_%d_%Y')} | HepB - {str(tb)}")
