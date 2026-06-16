@@ -109,14 +109,16 @@ def start_HepBnotificationreview(username, passcode, login_complete=None, is_log
                 if NBS.queue_loaded:
                     NBS.queue_loaded = None
                     continue
-                inv_id = NBS.find_element(By.XPATH,'//*[@id="bd"]/table[3]/tbody/tr[2]/td[1]/span[2]').text 
+                inv_id = NBS.find_element(By.XPATH,'//*[@id="bd"]/table[3]/tbody/tr[2]/td[1]/span[2]').text
+                print(f"[HepB] reviewing inv_id={inv_id} name={NBS.patient_name!r}")
                 '''if any(inv_id in skipped_patients for skipped_patients in patients_to_skip):
                     print(f"present, {inv_id}")
                     NBS.ReturnApprovalQueue()
                     n = n + 1
                     continue'''
-                
+
                 NBS.StandardChecks()
+                print(f"[HepB] inv_id={inv_id} issues={NBS.issues}")
                 if not NBS.issues:
                     NBS.reviewed_ids.append(inv_id)
                     NBS.what_do.append("Approve Notification")
@@ -163,7 +165,11 @@ def start_HepBnotificationreview(username, passcode, login_complete=None, is_log
                     break
                     #NBS.Sleep()
         except Exception as e:
-            # raise Exception(e)
+            # Print the per-case exception (was silently swallowed, which hid why
+            # a case never got actioned and the bot re-read it forever).
+            import traceback as _tb
+            print(f"[HepB] EXCEPTION on case: {e}")
+            print(_tb.format_exc())
             error_list.append(str(e))
             error = True
         #     # print(tb)
