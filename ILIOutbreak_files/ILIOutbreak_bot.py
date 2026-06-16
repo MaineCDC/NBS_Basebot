@@ -49,6 +49,8 @@ def start_ILIOutbreak(username, passcode, login_complete=None, is_logged_in=Fals
     error = False
     n = 1
     attempt_counter = 0
+    consecutive_errors = 0
+    max_consecutive_errors = 5
     # what_do/reason are module-level; clear them so a fresh round-robin pass
     # doesn't re-save the previous pass's actions (NBS.reviewed_ids is per-run).
     what_do.clear(); reason.clear()
@@ -92,6 +94,7 @@ def start_ILIOutbreak(username, passcode, login_complete=None, is_logged_in=Fals
                 continue
             NBS.CheckFirstCase()
             if NBS.condition == 'ILI Related Outbreak':
+                consecutive_errors = 0  # a real case was found
                 NBS.GoToNCaseInApprovalQueue(n)
                 if NBS.queue_loaded:
                     NBS.queue_loaded = None
@@ -147,6 +150,11 @@ def start_ILIOutbreak(username, passcode, login_complete=None, is_logged_in=Fals
             # raise Exception(e)
             error_list.append(str(e))
             error = True
+            # Stop spinning once the queue is empty/unstable (stale reads land here).
+            consecutive_errors += 1
+            if consecutive_errors >= max_consecutive_errors:
+                print("Queue appears empty/unstable after consecutive errors; ending run.")
+                break
         
     NBS.ILIOutbreak_notification_bot = True
     NBS.SendEmailToIliAssign()

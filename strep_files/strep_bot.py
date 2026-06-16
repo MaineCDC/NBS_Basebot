@@ -60,6 +60,8 @@ def start_strep(username, passcode, login_complete=None, is_logged_in=False):
     error = False
     n = 1
     attempt_counter = 0
+    consecutive_errors = 0
+    max_consecutive_errors = 5
     
     with open("patients_to_skip.txt", "r") as patient_reader:
         patients_to_skip |= set(patient_reader.readlines())
@@ -109,6 +111,7 @@ def start_strep(username, passcode, login_complete=None, is_logged_in=False):
             # stays None, the case is never rejected, and the bot loops on it.
             NBS.initial_name = NBS.patient_name
             if NBS.condition == 'Group A Streptococcus, invasive':
+                consecutive_errors = 0  # a real case was found
                 NBS.GoToNCaseInApprovalQueue(n)
                 if NBS.queue_loaded:
                     NBS.queue_loaded = None
@@ -171,6 +174,11 @@ def start_strep(username, passcode, login_complete=None, is_logged_in=False):
             # raise Exception(e)
             error_list.append(str(e))
             error = True
+            # Stop spinning once the queue is empty/unstable (stale reads land here).
+            consecutive_errors += 1
+            if consecutive_errors >= max_consecutive_errors:
+                print("Queue appears empty/unstable after consecutive errors; ending run.")
+                break
         #     # print(tb)
         #     with open("error_log.txt", "a") as log:
         #         log.write(f"{datetime.now().date().strftime('%m_%d_%Y')} | Group A Strep - {str(tb)}")
