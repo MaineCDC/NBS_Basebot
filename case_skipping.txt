@@ -1,0 +1,4 @@
+2026-06-15 09:58:04  === RUN START === - mode=LIVE; cap=10; 10 Anaplasma case(s) in queue
+2026-06-15 10:04:39  === RUN END === - reviewed 10 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-06-15 10:39:26  === RUN START === - mode=LIVE; cap=6; 6 Anaplasma case(s) in queue
+2026-06-15 10:43:28  === RUN END === - reviewed 6 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
