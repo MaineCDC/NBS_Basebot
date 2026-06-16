@@ -133,28 +133,31 @@ def start_Gonorrhea(username, passcode, login_complete=None, is_logged_in=False)
                         continue
                     NBS.CheckFirstCase()
 
-                    NBS.final_name = NBS.patient_name
                     if NBS.country != 'UNITED STATES':
                         print("Skipping patient. No action carried out")
                         patients_to_skip.append(inv_id)
-                    elif NBS.final_name == NBS.initial_name:
-                        reviewed_ids.append(inv_id)
-                        what_do.append("Reject Notification")
-                        reason.append(' '.join(NBS.issues))
-                        NBS.RejectNotification()
-                        body = ''
-                        if  all(case in NBS.issues  for case in ['City is blank.', 'County is blank.', 'Zip code is blank.']):
-                            body = 'Hey, please only update City, Zip Code and County, then Click CN'
-                        elif NBS.CorrectCaseStatus:
-                            body = f'Hey, please only update the case status to {NBS.CorrectCaseStatus}, then click CN for this case.'
-                        if body:
-                            print('mail', body)
-                            NBS.SendGonorrheaEmail(body, inv_id)
-                        # NBS.ReturnApprovalQueue()
-                    elif NBS.final_name != NBS.initial_name:
-                        print(f"here : {NBS.final_name} {NBS.initial_name}")
-                        print('Case at top of queue changed. No action was taken on the reviewed case.')
-                        NBS.num_fail += 1
+                    else:
+                        # The queue reorders after a case is viewed; find the
+                        # reviewed case's actual row by name and reject THAT row
+                        # (instead of only acting when it's still on top).
+                        reject_row = NBS.FindCaseRowByName(NBS.initial_name)
+                        if reject_row:
+                            reviewed_ids.append(inv_id)
+                            what_do.append("Reject Notification")
+                            reason.append(' '.join(NBS.issues))
+                            NBS.RejectNotification(reject_row)
+                            print(f"[Gonorrhea] rejected inv_id={inv_id} ({NBS.initial_name!r}) at row {reject_row}")
+                            body = ''
+                            if  all(case in NBS.issues  for case in ['City is blank.', 'County is blank.', 'Zip code is blank.']):
+                                body = 'Hey, please only update City, Zip Code and County, then Click CN'
+                            elif NBS.CorrectCaseStatus:
+                                body = f'Hey, please only update the case status to {NBS.CorrectCaseStatus}, then click CN for this case.'
+                            if body:
+                                print('mail', body)
+                                NBS.SendGonorrheaEmail(body, inv_id)
+                        else:
+                            print(f"[Gonorrhea] reviewed case {NBS.initial_name!r} not found in queue after re-sort; skipping.")
+                            NBS.num_fail += 1
             else:
                 if attempt_counter < NBS.num_attempts:
                     attempt_counter += 1
