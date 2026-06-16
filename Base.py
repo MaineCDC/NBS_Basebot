@@ -13,6 +13,7 @@ from selenium.common.exceptions import (
     ElementClickInterceptedException,
     NoAlertPresentException,
     StaleElementReferenceException,
+    JavascriptException,
 )
 
 from webdriver_manager.chrome import ChromeDriverManager
@@ -749,12 +750,45 @@ class NBSdriver(webdriver.Chrome):
         )
         self.find_element(By.XPATH, demographics_path).click()
 
+    def home_url(self):
+        """Direct URL of the NBS Home page (for click-free navigation)."""
+        return self.site.rstrip("/") + "/nbs/HomePage.do?method=loadHomePage"
+
+    def dismiss_block_overlay(self, timeout=15):
+        """Wait out NBS's full-page "loading" overlay (<div id="blockparent">).
+
+        NBS shows this overlay during AJAX/page transitions; while it is
+        displayed it sits on top of the whole page and INTERCEPTS EVERY CLICK
+        (ElementClickInterceptedException -- "Other element would receive the
+        click: <div id='blockparent'>"). If it gets stuck visible it freezes the
+        bot: even the Home link can't be clicked, so the click-based recovery
+        (go_to_home) can't escape either, and the round-robin then reuses the
+        same frozen tab forever. Wait for it to go invisible before clicking.
+        Returns True if the page is clear, False if the overlay is still up.
+        """
+        try:
+            WebDriverWait(self, timeout).until(
+                EC.invisibility_of_element_located((By.ID, "blockparent"))
+            )
+            return True
+        except TimeoutException:
+            return False
+
     def go_to_home(self):
-        """Go to NBS Home page."""
+        """Go to NBS Home page.
+
+        Tries the in-page "Home" link first, but a stuck blockparent overlay can
+        intercept that click indefinitely, so any click failure falls back to a
+        hard URL navigation (self.get(home_url)). Loading a fresh URL discards
+        the frozen DOM/overlay, which is exactly what lets a poisoned warm
+        session recover instead of failing every cycle.
+        """
         partial_link = "Home"
         for i in range(3):
             try:
                 timeout = self.wait_before_timeout + i * 10
+                # Clear any loading overlay so the click isn't intercepted.
+                self.dismiss_block_overlay()
                 WebDriverWait(self, timeout).until(
                     EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, partial_link))
                 )
@@ -764,20 +798,33 @@ class NBSdriver(webdriver.Chrome):
             except StaleElementReferenceException:
                 print("StaleElementReferenceException encountered, retrying...")
                 self.home_loaded = False
-            except TimeoutException:
+            except (TimeoutException, ElementClickInterceptedException):
                 self.home_loaded = False
+
         if not self.home_loaded:
-            # Diagnostic: where is the browser actually stranded? (No "Home" link
-            # found means we're not on an NBS app page.)
+            # Click path failed (often a stuck blockparent overlay). Hard-navigate
+            # to the Home URL -- loading a fresh page tears down the frozen overlay
+            # and recovers the session instead of looping forever.
             try:
-                print(f"go_to_home FAILED. current_url={self.current_url!r} title={self.title!r}")
+                print(f"go_to_home: click path failed (current_url={self.current_url!r} "
+                      f"title={self.title!r}); hard-navigating to Home URL.")
             except Exception:
                 pass
+            try:
+                self.get(self.home_url())
+                WebDriverWait(self, self.wait_before_timeout).until(
+                    EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, partial_link))
+                )
+                self.home_loaded = True
+            except Exception:
+                self.home_loaded = False
+
+        if not self.home_loaded:
             # Raise instead of sys.exit(): a single bot's home-load failure must
             # not kill the whole round-robin orchestrator. @error_handle / the
             # orchestrator catch this, log it, and move on to the next bot.
             raise RuntimeError(
-                f"Made {i} unsuccessful attempts to load Home page. "
+                "Made unsuccessful attempts to load Home page (click + direct URL). "
                 "A persistent issue with NBS was encountered."
             )
 
@@ -799,17 +846,21 @@ class NBSdriver(webdriver.Chrome):
 
         partial_link = "Approval Queue for Initial Notifications"
         try:
+            # Clear any loading overlay so the link click isn't intercepted by a
+            # stuck blockparent (the failure mode that froze the HepB bot).
+            self.dismiss_block_overlay()
             WebDriverWait(self, self.wait_before_timeout).until(
                 EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, partial_link))
             )
             self.find_element(By.PARTIAL_LINK_TEXT, partial_link).click()
-        except TimeoutException:
-            # The Home-page link isn't there -- this happens on the transient
-            # "NBS Redirecting Page" after a warm-session portal click. Fall back
-            # to navigating straight to the approval-queue URL (the same one a
-            # successful run lands on), which is robust to that redirect.
+        except (TimeoutException, ElementClickInterceptedException):
+            # The Home-page link isn't there/clickable -- this happens on the
+            # transient "NBS Redirecting Page" after a warm-session portal click,
+            # or when a stuck overlay intercepts the click. Fall back to navigating
+            # straight to the approval-queue URL (the same one a successful run
+            # lands on), which is robust to both and tears down a frozen overlay.
             try:
-                print(f"GoToApprovalQueue: '{partial_link}' link not found. "
+                print(f"GoToApprovalQueue: '{partial_link}' link not found/clickable. "
                       f"current_url={self.current_url!r} title={self.title!r} "
                       f"window_handles={len(self.window_handles)}; "
                       f"falling back to direct queue URL.")
@@ -829,38 +880,83 @@ class NBSdriver(webdriver.Chrome):
         """Return to Approval Queue from an investigation initially accessed from the queue."""
         xpath = '//*[@id="bd"]/div[1]/a'
         try:
+            self.dismiss_block_overlay()
             WebDriverWait(self, self.wait_before_timeout).until(
                 EC.presence_of_element_located((By.XPATH, xpath))
             )
             self.find_element(By.XPATH, xpath).click()
-        except TimeoutException:
+        except (TimeoutException, ElementClickInterceptedException):
             self.HandleBadQueueReturn()
 
+    def safe_click_xpath(self, xpath, label="", attempts=4, step=10):
+        """Click an element by xpath, resilient to NBS's transient page glitches.
+
+        NBS intermittently raises a jQuery "this.each is not a function"
+        JavascriptException and StaleElementReferenceException during the
+        filter/sort interactions (the worklist page re-renders underneath us).
+        A single such error used to abort the whole sort -- and, when it happened
+        on every iteration, ended the bot's entire queue pass without actioning a
+        case. Here we dismiss any loading overlay, wait for clickability, retry
+        with a growing timeout, and fall back to a JS click. Returns True on a
+        successful click, False if every attempt failed.
+        """
+        last_exc = None
+        for i in range(attempts):
+            try:
+                self.dismiss_block_overlay()
+                timeout = self.wait_before_timeout + i * step
+                el = WebDriverWait(self, timeout).until(
+                    EC.element_to_be_clickable((By.XPATH, xpath))
+                )
+                try:
+                    el.click()
+                except (ElementClickInterceptedException, StaleElementReferenceException):
+                    # Re-find and use a JS click, which ignores overlays/interception.
+                    el = self.find_element(By.XPATH, xpath)
+                    self.execute_script("arguments[0].click();", el)
+                return True
+            except (StaleElementReferenceException, TimeoutException,
+                    ElementClickInterceptedException, JavascriptException,
+                    NoSuchElementException) as e:
+                last_exc = e
+                # NBS page re-rendered mid-interaction (stale / this.each): brief
+                # pause, then retry on a freshly-located element.
+                if "this.each is not a function" in str(e) or "stale element" in str(e).lower():
+                    time.sleep(1)
+                print(f"safe_click_xpath retry {i + 1}/{attempts} for "
+                      f"{label or xpath}: {type(e).__name__}")
+        print(f"safe_click_xpath: all {attempts} attempts failed for "
+              f"{label or xpath}: {last_exc}")
+        return False
+
     def SortQueue(self, paths: dict):
-        """Sort review queue so that only specified investigations are listed."""
+        """Sort review queue so that only specified investigations are listed.
+
+        Every filter/sort click goes through safe_click_xpath so a transient
+        stale-element or "this.each is not a function" glitch is retried instead
+        of aborting; a persistent failure falls back to HandleBadQueueReturn
+        (reload the queue) rather than killing the bot's pass.
+        """
         try:
+            # Clear any loading overlay first so the filter clicks below aren't
+            # intercepted by a stuck blockparent.
+            self.dismiss_block_overlay()
             # Clear all filters
-            WebDriverWait(self, self.wait_before_timeout).until(
-                EC.element_to_be_clickable((By.XPATH, paths["clear_filter_path"]))
-            )
-            self.find_element(By.XPATH, paths["clear_filter_path"]).click()
+            if not self.safe_click_xpath(paths["clear_filter_path"], "clear_filter_path"):
+                self.HandleBadQueueReturn()
+                return
             time.sleep(5)
 
             # Open condition dropdown menu
-            WebDriverWait(self, self.wait_before_timeout).until(
-                EC.presence_of_element_located((By.XPATH, paths["description_path"]))
-            )
-            WebDriverWait(self, self.wait_before_timeout).until(
-                EC.element_to_be_clickable((By.XPATH, paths["description_path"]))
-            )
-            self.find_element(By.XPATH, paths["description_path"]).click()
+            if not self.safe_click_xpath(paths["description_path"], "description_path"):
+                self.HandleBadQueueReturn()
+                return
             time.sleep(1)
 
             # Clear checkboxes
-            WebDriverWait(self, self.wait_before_timeout).until(
-                EC.element_to_be_clickable((By.XPATH, paths["clear_checkbox_path"]))
-            )
-            self.find_element(By.XPATH, paths["clear_checkbox_path"]).click()
+            if not self.safe_click_xpath(paths["clear_checkbox_path"], "clear_checkbox_path"):
+                self.HandleBadQueueReturn()
+                return
             time.sleep(1)
 
             # Select all tests. The Condition filter lists only the conditions
@@ -877,7 +973,8 @@ class NBSdriver(webdriver.Chrome):
                     for result in results:
                         result.click()
                         self.condition_filter_matches += 1
-                except (NoSuchElementException, ElementNotInteractableException):
+                except (NoSuchElementException, ElementNotInteractableException,
+                        StaleElementReferenceException):
                     pass
             time.sleep(1)
 
@@ -889,33 +986,20 @@ class NBSdriver(webdriver.Chrome):
                 print("No matching condition option in filter; skipping sort (0 cases).")
                 return
 
-            # Click ok
-            try:
-                WebDriverWait(self, self.wait_before_timeout).until(
-                    EC.element_to_be_clickable((By.XPATH, paths["click_ok_path"]))
-                )
-                self.find_element(By.XPATH, paths["click_ok_path"]).click()
-            except (NoSuchElementException, TimeoutException):
-                WebDriverWait(self, self.wait_before_timeout).until(
-                    EC.element_to_be_clickable((By.XPATH, paths["click_cancel_path"]))
-                )
-                self.find_element(By.XPATH, paths["click_cancel_path"]).click()
-                time.sleep(3)
-                self.Sleep()
+            # Click ok; if it won't click, cancel out and let the bot retry.
+            if not self.safe_click_xpath(paths["click_ok_path"], "click_ok_path"):
+                if self.safe_click_xpath(paths["click_cancel_path"], "click_cancel_path"):
+                    time.sleep(3)
+                    self.Sleep()
 
             time.sleep(1)
             print(f"sleep count {self.slept}")
 
-            # Sort chronologically, oldest first
-            WebDriverWait(self, self.wait_before_timeout).until(
-                EC.element_to_be_clickable((By.XPATH, paths["submit_date_path"]))
-            )
-            self.find_element(By.XPATH, paths["submit_date_path"]).click()
-            WebDriverWait(self, self.wait_before_timeout).until(
-                EC.element_to_be_clickable((By.XPATH, paths["submit_date_path"]))
-            )
-            self.find_element(By.XPATH, paths["submit_date_path"]).click()
-        except (TimeoutException, ElementClickInterceptedException):
+            # Sort chronologically, oldest first (click the date header twice).
+            self.safe_click_xpath(paths["submit_date_path"], "submit_date_path")
+            self.safe_click_xpath(paths["submit_date_path"], "submit_date_path")
+        except (TimeoutException, ElementClickInterceptedException,
+                StaleElementReferenceException, JavascriptException):
             self.HandleBadQueueReturn()
 
     def SortApprovalQueue(self):
@@ -1015,11 +1099,13 @@ class NBSdriver(webdriver.Chrome):
         """
         for _ in range(self.num_attempts):
             try:
+                # go_to_home now hard-navigates if a stuck overlay blocks the
+                # Home click, so this recovery can actually escape a frozen page.
                 self.go_to_home()
                 self.GoToApprovalQueue()
                 self.queue_loaded = True
                 break
-            except TimeoutException:
+            except (TimeoutException, ElementClickInterceptedException, RuntimeError):
                 self.queue_loaded = False
         if not self.queue_loaded:
             print(
@@ -1082,6 +1168,7 @@ class NBSdriver(webdriver.Chrome):
         xpath_to_case = '//*[@id="parent"]/tbody/tr[1]/td[8]/a'
         xpath_to_first_name = '//*[@id="DEM104"]'
         try:
+            self.dismiss_block_overlay()
             WebDriverWait(self, self.wait_before_timeout).until(
                 EC.presence_of_element_located((By.XPATH, xpath_to_case))
             )
@@ -1089,7 +1176,7 @@ class NBSdriver(webdriver.Chrome):
             WebDriverWait(self, self.wait_before_timeout).until(
                 EC.presence_of_element_located((By.XPATH, xpath_to_first_name))
             )
-        except TimeoutException:
+        except (TimeoutException, ElementClickInterceptedException):
             self.HandleBadQueueReturn()
 
     def GoToNCaseInApprovalQueue(self, n: int = 1):
@@ -1097,6 +1184,10 @@ class NBSdriver(webdriver.Chrome):
         xpath_to_case = f'//*[@id="parent"]/tbody/tr[{n}]/td[8]/a'
         xpath_to_first_name = '//*[@id="DEM104"]'
         try:
+            # A stuck blockparent overlay here is exactly what froze the HepB bot
+            # (the case-open <a> click was intercepted indefinitely). Wait it out,
+            # and route an intercepted click through the queue-recovery path.
+            self.dismiss_block_overlay()
             WebDriverWait(self, self.wait_before_timeout).until(
                 EC.presence_of_element_located((By.XPATH, xpath_to_case))
             )
@@ -1104,7 +1195,7 @@ class NBSdriver(webdriver.Chrome):
             WebDriverWait(self, self.wait_before_timeout).until(
                 EC.presence_of_element_located((By.XPATH, xpath_to_first_name))
             )
-        except TimeoutException:
+        except (TimeoutException, ElementClickInterceptedException):
             self.HandleBadQueueReturn()
 
     def GoToCaseInfo(self):
@@ -1669,8 +1760,22 @@ class NBSdriver(webdriver.Chrome):
         return bool(value)
 
     def ReadDate(self, xpath, attribute="innerText"):
-        """Read date from NBS and return a datetime.date object."""
-        date = self.find_element(By.XPATH, xpath).get_attribute(attribute)
+        """Read date from NBS and return a datetime.date object (or "" if absent).
+
+        A missing element -- e.g. a delivery-date field that simply doesn't exist
+        for this case (chronic Hep B investigations have no pregnancy/delivery
+        row) -- previously raised NoSuchElementException and crashed the entire
+        StandardChecks pass, which then cascaded into stale-element errors and
+        ended the bot's whole queue pass. Treat a missing/stale/empty element the
+        same as an unparseable date: return "" so the caller sees "no date"
+        instead of the bot aborting (and blocking) the case.
+        """
+        try:
+            date = self.find_element(By.XPATH, xpath).get_attribute(attribute)
+        except (NoSuchElementException, StaleElementReferenceException, TimeoutException):
+            return ""
+        if not date:
+            return ""
         try:
             date_pattern = r"^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d+$"
             if re.match(date_pattern, date.strip()):

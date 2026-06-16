@@ -312,6 +312,17 @@ def start_babesia(username, passcode, login_complete: Event = None, is_logged_in
                     NBS.final_name = NBS.patient_name
 
                     if NBS.final_name == NBS.initial_name:
+                        # Reject by the verified row. If the rejection itself fails,
+                        # advance past the case rather than spin on it forever.
+                        try:
+                            NBS.RejectNotification(n)
+                        except Exception as reject_error:
+                            print(f"RejectNotification failed for {inv_id}: {reject_error}", "current_iteration:", loop.n)
+                            NBS.num_fail += 1
+                            n += 1
+                            NBS.GoToApprovalQueue()
+                            continue
+
                         reviewed_ids.append(inv_id)
                         what_do.append("Reject Notification")
                         epi.append(NBS.investigator_name)
@@ -320,7 +331,6 @@ def start_babesia(username, passcode, login_complete: Event = None, is_logged_in
                         check_errors.append(' | '.join(getattr(NBS, "check_errors", [])))
                         print("issues seen on append:", NBS.issues, "current_iteration:", loop.n)
 
-                        NBS.RejectNotification(n)
                         if case_note:
                             print('mail', case_note, "current_iteration:", loop.n)
                             NBS.SendAnaplasmaEmail(case_note, inv_id)
@@ -332,6 +342,10 @@ def start_babesia(username, passcode, login_complete: Event = None, is_logged_in
                         print(f"here : {NBS.final_name} {NBS.initial_name}", "current_iteration:", loop.n)
                         print('Case at top of queue changed. No action was taken on the reviewed case.', "current_iteration:", loop.n)
                         NBS.num_fail += 1
+                        # Advance past the un-actioned case so a stuck case can't
+                        # block every case behind it (mirrors the anaplasma fix).
+                        n += 1
+                        NBS.GoToApprovalQueue()
             else:
                 # Increment consecutive no-case counter since we didn't find a valid Babesia case
                 consecutive_no_case_attempts += 1
@@ -350,6 +364,16 @@ def start_babesia(username, passcode, login_complete: Event = None, is_logged_in
             error_list.append(str(e))
             error = True
             print(f"Exception occurred: {str(e)}", "current_iteration:", loop.n)
+            # A case that raises MID-REVIEW (e.g. a missing field) is a "poison"
+            # case: it was never actioned, so it stays in the queue. Advance past
+            # it and reset to a clean approval queue so one bad case can't block
+            # every case behind it (and a broken page doesn't cascade into more
+            # errors). Forward progress is what keeps the pass from spinning.
+            n += 1
+            try:
+                NBS.GoToApprovalQueue()
+            except Exception as recover_err:
+                print(f"queue recovery after exception failed: {recover_err}")
 
     print("ending, printing, saving", "current_iteration:", loop.n)
 

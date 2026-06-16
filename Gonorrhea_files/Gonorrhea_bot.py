@@ -51,6 +51,10 @@ def start_Gonorrhea(username, passcode, login_complete=None, is_logged_in=False)
     error_list = []
     error = False
     n = 1
+    # Names of cases reviewed this pass that could NOT be actioned. Tracked so the
+    # bot steps past them instead of re-reading the same un-actionable case at the
+    # top forever (one stuck case otherwise walls off the cases behind it).
+    skipped_names = set()
     attempt_counter = 0
     consecutive_errors = 0
     max_consecutive_errors = 5
@@ -100,30 +104,41 @@ def start_Gonorrhea(username, passcode, login_complete=None, is_logged_in=False)
                 #NBS.Sleep()
                 continue
             
-            NBS.CheckFirstCase()
-            # Record the top-of-queue case so the reject path can confirm it's
-            # still the same case before rejecting. Without this, initial_name
-            # stays None, the case is never rejected, and the bot loops on it.
+            NBS.CheckFirstCase(n)
+            # Record the case at row n so the reject path can confirm it's still
+            # the same case before rejecting. Without this, initial_name stays
+            # None, the case is never rejected, and the bot loops on it.
             NBS.initial_name = NBS.patient_name
             if NBS.condition == 'Gonorrhea':
                 consecutive_errors = 0  # a real case was found
+
+                # Step over any case we already reviewed but could not action this
+                # pass, so it can't block the cases behind it.
+                if NBS.initial_name and NBS.initial_name in skipped_names:
+                    n += 1
+                    continue
+
                 NBS.GoToNCaseInApprovalQueue(n)
                 if NBS.queue_loaded:
                     NBS.queue_loaded = None
                     continue
-                inv_id = NBS.find_element(By.XPATH,'//*[@id="bd"]/table[3]/tbody/tr[2]/td[1]/span[2]').text 
+                inv_id = NBS.find_element(By.XPATH,'//*[@id="bd"]/table[3]/tbody/tr[2]/td[1]/span[2]').text
                 if any(inv_id in skipped_patients for skipped_patients in patients_to_skip):
                     print(f"present, {inv_id}")
                     NBS.ReturnApprovalQueue()
                     n = n + 1
                     continue
-                
+
                 NBS.StandardChecks()
+                # Track whether the case actually left the queue. If it did NOT,
+                # advance past it; if it did, rows shifted up so rescan from row 1.
+                actioned = False
                 if not NBS.issues:
                     reviewed_ids.append(inv_id)
                     what_do.append("Approved Notification")
                     print("Approved Notification")
                     NBS.ApproveNotification()
+                    actioned = True
                     NBS.SendGonorrheaEmail("Hey, please don't change anything at all and just click CN", inv_id)
                 NBS.ReturnApprovalQueue()
                 if NBS.queue_loaded:
@@ -139,6 +154,8 @@ def start_Gonorrhea(username, passcode, login_complete=None, is_logged_in=False)
                     if NBS.country != 'UNITED STATES':
                         print("Skipping patient. No action carried out")
                         patients_to_skip.append(inv_id)
+                        # Out-of-country case is intentionally left in the queue;
+                        # remember it so we step past it instead of re-reading it.
                     else:
                         # The queue reorders after a case is viewed; find the
                         # reviewed case's actual row by name and reject THAT row
@@ -149,6 +166,7 @@ def start_Gonorrhea(username, passcode, login_complete=None, is_logged_in=False)
                             what_do.append("Reject Notification")
                             reason.append(' '.join(NBS.issues))
                             NBS.RejectNotification(reject_row)
+                            actioned = True
                             print(f"[Gonorrhea] rejected inv_id={inv_id} ({NBS.initial_name!r}) at row {reject_row}")
                             body = ''
                             if  all(case in NBS.issues  for case in ['City is blank.', 'County is blank.', 'Zip code is blank.']):
@@ -161,7 +179,25 @@ def start_Gonorrhea(username, passcode, login_complete=None, is_logged_in=False)
                         else:
                             print(f"[Gonorrhea] reviewed case {NBS.initial_name!r} not found in queue after re-sort; skipping.")
                             NBS.num_fail += 1
+
+                if actioned:
+                    # Case left the queue; rows shifted up, so rescan from the top.
+                    n = 1
+                else:
+                    # Could not action this case (out-of-country, or not relocated
+                    # to reject); remember it and move past it.
+                    if NBS.initial_name:
+                        skipped_names.add(NBS.initial_name)
+                    n += 1
             else:
+                # No matching case at row n. If we've walked past row 1, the only
+                # cases left are ones already skipped this pass, so the pass is
+                # done. If still at row 1, the queue is genuinely empty.
+                if n > 1:
+                    print(f"[Gonorrhea] reached row {n} with no further cases; "
+                          f"{len(skipped_names)} skipped this pass. Ending pass.")
+                    NBS.SendManualReviewEmail()
+                    break
                 if attempt_counter < NBS.num_attempts:
                     attempt_counter += 1
                 else:
@@ -176,8 +212,19 @@ def start_Gonorrhea(username, passcode, login_complete=None, is_logged_in=False)
             # raise Exception(e)
             error_list.append(str(e))
             error = True
-            # Stop spinning once the queue is empty/unstable (stale reads land here).
             consecutive_errors += 1
+            # A case that raises MID-REVIEW is a "poison" case: it was never
+            # actioned, so it stays in the queue. Record it, advance past it, and
+            # reset to a clean approval queue so one bad case can't end the pass
+            # and block every case behind it.
+            if NBS.initial_name:
+                skipped_names.add(NBS.initial_name)
+            n += 1
+            try:
+                NBS.GoToApprovalQueue()
+            except Exception as recover_err:
+                print(f"[Gonorrhea] queue recovery after exception failed: {recover_err}")
+            # Stop spinning once the queue is empty/unstable (stale reads land here).
             if consecutive_errors >= max_consecutive_errors:
                 print("Queue appears empty/unstable after consecutive errors; ending run.")
                 break

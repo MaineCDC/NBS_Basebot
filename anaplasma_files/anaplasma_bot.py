@@ -390,6 +390,16 @@ def start_anaplasma(username, passcode, login_complete: Event = None, is_logged_
             error_list.append(str(e))
             error = True
             print(f"Exception occurred: {str(e)}", "current_iteration:", loop.n)
+            # A case that raises MID-REVIEW (e.g. a missing field) is a "poison"
+            # case: it was never actioned, so it stays in the queue. Advance past
+            # it and reset to a clean approval queue so one bad case can't block
+            # every case behind it (and a broken page doesn't cascade into more
+            # errors). Forward progress is what keeps the pass from spinning.
+            n += 1
+            try:
+                NBS.GoToApprovalQueue()
+            except Exception as recover_err:
+                print(f"queue recovery after exception failed: {recover_err}")
             
     print("ending, printing, saving", "current_iteration:", loop.n)
 
