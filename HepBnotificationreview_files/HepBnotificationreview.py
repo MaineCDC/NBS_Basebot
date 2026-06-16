@@ -970,7 +970,12 @@ class HepBNotificationReview(NBSdriver):
                     row_data_new.append('Yes')
                 if period_prior_to_onset: 
                     row_data_new.append(period_prior_to_onset)
-                row_data2 = [x.split(':')[1].strip() for x in row_data_new]
+                # Some entries are "Label: Value" but others are bare values
+                # (e.g. 'Yes' appended above), which have no ':'. Take the part
+                # after the first colon when present, else the whole value --
+                # otherwise x.split(':')[1] raises IndexError and the case is
+                # never actioned (the bot then re-reads it forever).
+                row_data2 = [x.split(':', 1)[1].strip() if ':' in x else x.strip() for x in row_data_new]
                 if 'Yes' in set(row_data2):
                         pass
                 elif 'Yes' not in set(row_data2):
@@ -1339,7 +1344,9 @@ class HepBNotificationReview(NBSdriver):
                     
     def SendEmailToAssign(self):
     #self.ili_outbreak_investigator = ['vaishnavi.appidi@maine.gov', 'Anna.Krueger@maine.gov']
-        if self.hepb_assign_email_id:
+        # getattr guard: hepb_assign_email_id is only created mid-case, so if
+        # every case errored before that point the attribute won't exist yet.
+        if getattr(self, "hepb_assign_email_id", None):
             body = f"Need manual review for the below HepB investigations,Investigation ids {self.hepb_assign_email_id} "
             print(f"body", body)
             if body:

@@ -791,15 +791,26 @@ class NBSdriver(webdriver.Chrome):
             )
             self.find_element(By.PARTIAL_LINK_TEXT, partial_link).click()
         except TimeoutException:
-            # Diagnostic: log where we actually are when the approval-queue link
-            # isn't found, so we can tell whether login landed on Home at all.
+            # The Home-page link isn't there -- this happens on the transient
+            # "NBS Redirecting Page" after a warm-session portal click. Fall back
+            # to navigating straight to the approval-queue URL (the same one a
+            # successful run lands on), which is robust to that redirect.
             try:
                 print(f"GoToApprovalQueue: '{partial_link}' link not found. "
                       f"current_url={self.current_url!r} title={self.title!r} "
-                      f"window_handles={len(self.window_handles)}")
+                      f"window_handles={len(self.window_handles)}; "
+                      f"falling back to direct queue URL.")
             except Exception:
                 pass
-            self.HandleBadQueueReturn()
+            queue_url = self.site.rstrip("/") + "/nbs/MyTaskList1.do?ContextAction=NNDApproval&initLoad=true"
+            try:
+                self.get(queue_url)
+                WebDriverWait(self, self.wait_before_timeout).until(
+                    EC.presence_of_element_located((By.XPATH, '//*[@id="removeFilters"]'))
+                )
+                return
+            except TimeoutException:
+                self.HandleBadQueueReturn()
 
     def ReturnApprovalQueue(self):
         """Return to Approval Queue from an investigation initially accessed from the queue."""
