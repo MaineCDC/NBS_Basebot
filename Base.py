@@ -438,31 +438,49 @@ class NBSdriver(webdriver.Chrome):
         # one-time passcode (so a retry can never succeed) and navigates away from
         # an authentication that may simply be slow -- which is what broke a live
         # run. Submit once, then wait generously for the portal to appear.
-        if not self._submit_login_form():
-            print("WARNING: could not fill/submit the login form.")
-            return
         auth_wait_seconds = 90  # RSA validation + NBS redirect can be slow
-        try:
-            WebDriverWait(self, auth_wait_seconds).until(
-                EC.element_to_be_clickable((By.XPATH, portal_link_xpath))
-            )
-            self.find_element(By.XPATH, portal_link_xpath).click()
-            print("Logged in; portal reached.")
-            return
-        except TimeoutException:
+        if self._submit_login_form():
             try:
-                print(
-                    f"Login did not reach the portal within {auth_wait_seconds}s. "
-                    f"current_url={self.current_url!r} title={self.title!r}"
+                WebDriverWait(self, auth_wait_seconds).until(
+                    EC.element_to_be_clickable((By.XPATH, portal_link_xpath))
                 )
+                self.find_element(By.XPATH, portal_link_xpath).click()
+                print("Logged in; portal reached.")
+                return
+            except TimeoutException:
+                try:
+                    print(
+                        f"Auto-login did not reach the portal within {auth_wait_seconds}s. "
+                        f"current_url={self.current_url!r} title={self.title!r}"
+                    )
+                except Exception:
+                    pass
+        else:
+            print("Auto-login could not fill/submit the form (racy reload).")
+
+        # MANUAL FALLBACK: the production login form is racy (reloads and clears
+        # the fields) and RSA passcodes are single-use, so automated fill can fail.
+        # Rather than burn the passcode, wait for the user to finish logging in by
+        # hand in the open Chrome window, then continue automatically. Polls for
+        # the authenticated state -- no stdin needed (works headless or attended).
+        print(
+            "\n*** LOGIN NEEDS ATTENTION ***\n"
+            "Please finish logging in to NBS in the open Chrome window now.\n"
+            "Waiting up to 5 minutes for the NBS portal/home to appear...\n"
+        )
+        for _ in range(60):  # 60 * 5s = 5 minutes
+            try:
+                if self._on_nbs_portal(portal_link_xpath, timeout=1):
+                    self.find_element(By.XPATH, portal_link_xpath).click()
+                    print("Login detected; continuing.")
+                    return
+                if self._on_nbs_dashboard(timeout=1):
+                    print("Login detected (on dashboard); continuing.")
+                    return
             except Exception:
                 pass
-            print(
-                "WARNING: login failed -- the passcode was likely wrong/expired, "
-                "or NBS was slow/unavailable. Generate a FRESH passcode and re-run "
-                "(the single-use code can't be retried)."
-            )
-            return
+            time.sleep(5)
+        print("WARNING: login still not complete after waiting 5 minutes; giving up.")
     
     def log_in_v2(self):
         """Log in to MENBS."""
