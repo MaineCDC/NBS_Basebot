@@ -271,12 +271,14 @@ class NBSdriver(webdriver.Chrome):
                 WebDriverWait(self, login_load_timeout).until(
                     EC.element_to_be_clickable((By.ID, "username"))
                 )
-                # CRITICAL: the form's inner document reloads ~a moment after the
-                # frame first appears and wipes whatever we've typed. Let that
-                # reload fire and settle BEFORE typing, and force a page sync
-                # (the team found retrieving page_source load-bearing here), so
-                # the username/passcode aren't cleared out from under us.
-                time.sleep(4)
+                # The form's inner document reloads ~a moment after the frame
+                # appears and wipes whatever we typed. Strategy that beats the
+                # race: let the initial reload pass (settle + page_source sync),
+                # then type username + passcode and SUBMIT immediately, in one
+                # fast burst, so a periodic reload can't clear the fields between
+                # typing and submitting. (The previous type->verify->retry left a
+                # gap the reload kept hitting, so auto-fill failed repeatedly.)
+                time.sleep(6)
                 try:
                     _ = self.page_source
                 except Exception:
@@ -284,12 +286,6 @@ class NBSdriver(webdriver.Chrome):
                 user_field = self.find_element(By.ID, "username")
                 user_field.clear()
                 user_field.send_keys(self.username)
-                time.sleep(1)  # let any pending frame reload fire
-                if self.find_element(By.ID, "username").get_attribute("value") != self.username:
-                    print(f"Login form reloaded and cleared the username, retry {attempt}...")
-                    time.sleep(3)
-                    continue
-                # Form is stable now -- enter passcode and submit immediately.
                 self.find_element(By.ID, "passcode").send_keys(self.passcode)
                 submitted = False
                 for by, locator in submit_locators:
@@ -302,11 +298,10 @@ class NBSdriver(webdriver.Chrome):
                     submitted = True
                     break
                 self.switch_to.default_content()
-                if not submitted:
-                    print("Login form: no known submit button found; retrying...")
-                    time.sleep(2)
-                    continue
-                return True
+                if submitted:
+                    return True
+                print(f"Login form: no known submit button found (attempt {attempt}); retrying...")
+                time.sleep(2)
             except (StaleElementReferenceException, TimeoutException) as e:
                 print(f"Login form not stable yet, retry {attempt}: {e}")
                 time.sleep(2)
@@ -1058,6 +1053,29 @@ class NBSdriver(webdriver.Chrome):
             print(f"An unexpected error occurred: {e}")
             self.condition = None
             self.patient_name = None
+
+    def FindCaseRowByName(self, name, max_rows=60):
+        """Return the 1-based queue row whose patient name matches `name`, else None.
+
+        The approval queue reorders after a case is opened/viewed, so the case we
+        just reviewed is often no longer at row 1. Scanning for it by name lets us
+        reject (or act on) the correct row wherever it landed, instead of blindly
+        acting on row 1 (wrong case) or skipping it (case never cleared).
+        """
+        if not name:
+            return None
+        for n in range(1, max_rows + 1):
+            try:
+                row_name = self.find_element(
+                    By.XPATH, f'//*[@id="parent"]/tbody/tr[{n}]/td[7]/a'
+                ).get_attribute("innerText")
+            except NoSuchElementException:
+                break  # ran past the last row
+            except Exception:
+                continue
+            if row_name == name:
+                return n
+        return None
 
     def GoToFirstCaseInApprovalQueue(self):
         """Navigate to first case in the approval queue."""
