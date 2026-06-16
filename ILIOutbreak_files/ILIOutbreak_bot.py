@@ -48,6 +48,10 @@ def start_ILIOutbreak(username, passcode, login_complete=None, is_logged_in=Fals
     error_list = []
     error = False
     n = 1
+    # Names of cases reviewed this pass that could NOT be actioned. Tracked so the
+    # bot steps past them instead of re-reading the same un-actionable case at the
+    # top forever (one stuck case otherwise walls off the cases behind it).
+    skipped_names = set()
     attempt_counter = 0
     consecutive_errors = 0
     max_consecutive_errors = 5
@@ -92,21 +96,37 @@ def start_ILIOutbreak(username, passcode, login_complete=None, is_logged_in=Fals
                 #NBS.SendManualReviewEmail()
                 #NBS.Sleep()
                 continue
-            NBS.CheckFirstCase()
+            NBS.CheckFirstCase(n)
+            # Record the case at row n so the reject path can confirm it's still
+            # the same case before rejecting (previously the reject acted on row 1
+            # unconditionally, which could reject the WRONG case after the queue
+            # reordered).
+            NBS.initial_name = NBS.patient_name
             if NBS.condition == 'ILI Related Outbreak':
                 consecutive_errors = 0  # a real case was found
+
+                # Step over any case we already reviewed but could not action this
+                # pass, so it can't block the cases behind it.
+                if NBS.initial_name and NBS.initial_name in skipped_names:
+                    n += 1
+                    continue
+
                 NBS.GoToNCaseInApprovalQueue(n)
                 if NBS.queue_loaded:
                     NBS.queue_loaded = None
                     continue
                 inv_id = NBS.ReadText('//*[@id="bd"]/table[3]/tbody/tr[2]/td[1]/span[2]')
                 NBS.StandardChecks()
+                # Track whether the case actually left the queue. If it did NOT,
+                # advance past it; if it did, rows shifted up so rescan from row 1.
+                actioned = False
                 if not NBS.issues:
                     NBS.reviewed_ids.append(inv_id)
                     what_do.append("Approved Notification")
                     reason.append('No issues found.')
                     print("Approved Notification")
                     NBS.ApproveNotification()
+                    actioned = True
                 NBS.ReturnApprovalQueue()
                 if NBS.queue_loaded:
                     NBS.queue_loaded = None
@@ -116,28 +136,45 @@ def start_ILIOutbreak(username, passcode, login_complete=None, is_logged_in=Fals
                     if NBS.queue_loaded:
                         NBS.queue_loaded = None
                         continue
-                    NBS.CheckFirstCase()
+                    # The queue reorders after a case is viewed; find the reviewed
+                    # case's actual row by name and reject THAT row instead of
+                    # blindly rejecting row 1 (which could reject a different case).
+                    reject_row = NBS.FindCaseRowByName(NBS.initial_name)
+                    if reject_row:
+                        NBS.reviewed_ids.append(inv_id)
+                        what_do.append("Reject Notification")
+                        reason.append(' '.join(NBS.issues))
+                        NBS.RejectNotification(reject_row)
+                        actioned = True
+                        '''body = ''
+                        if  all(case in NBS.issues  for case in ['City is blank.', 'County is blank.', 'Zip code is blank.']):
+                            body = 'Hey, please only update City, Zip Code and County, then Click CN'
+                        elif NBS.CorrectCaseStatus:
+                            body = f'Hey, please only update the case status to {NBS.CorrectCaseStatus}, then click CN for this case.'
+                        if body:
+                            print('mail', body)
+                            NBS.SendILIOutbreakEmail(NBS,body,inv_id)'''
+                    else:
+                        print(f"[ILIOutbreak] reviewed case {NBS.initial_name!r} not found in queue after re-sort; skipping.")
+                        NBS.num_fail += 1
 
-                    NBS.final_name = NBS.patient_name
-                    #if NBS.final_name == NBS.initial_name:
-                    NBS.reviewed_ids.append(inv_id)
-                    what_do.append("Reject Notification")
-                    reason.append(' '.join(NBS.issues))
-                    NBS.RejectNotification()
-                    '''body = ''
-                    if  all(case in NBS.issues  for case in ['City is blank.', 'County is blank.', 'Zip code is blank.']):
-                        body = 'Hey, please only update City, Zip Code and County, then Click CN'
-                    elif NBS.CorrectCaseStatus:
-                        body = f'Hey, please only update the case status to {NBS.CorrectCaseStatus}, then click CN for this case.'
-                    if body:
-                        print('mail', body)
-                        NBS.SendILIOutbreakEmail(NBS,body,inv_id)'''
-                        # NBS.ReturnApprovalQueue()
-                    #elif NBS.final_name != NBS.initial_name:
-                        #print(f"here : {NBS.final_name} {NBS.initial_name}")
-                        #print('Case at top of queue changed. No action was taken on the reviewed case.')
-                        #NBS.num_fail += 1
+                if actioned:
+                    # Case left the queue; rows shifted up, so rescan from the top.
+                    n = 1
+                else:
+                    # Could not action this case; remember it and move past it.
+                    if NBS.initial_name:
+                        skipped_names.add(NBS.initial_name)
+                    n += 1
             else:
+                # No matching case at row n. If we've walked past row 1, the only
+                # cases left are ones already skipped this pass, so the pass is
+                # done. If still at row 1, the queue is genuinely empty.
+                if n > 1:
+                    print(f"[ILIOutbreak] reached row {n} with no further cases; "
+                          f"{len(skipped_names)} skipped this pass. Ending pass.")
+                    NBS.SendManualReviewEmail()
+                    break
                 if attempt_counter < NBS.num_attempts:
                     attempt_counter += 1
                 else:
@@ -150,8 +187,19 @@ def start_ILIOutbreak(username, passcode, login_complete=None, is_logged_in=Fals
             # raise Exception(e)
             error_list.append(str(e))
             error = True
-            # Stop spinning once the queue is empty/unstable (stale reads land here).
             consecutive_errors += 1
+            # A case that raises MID-REVIEW is a "poison" case: it was never
+            # actioned, so it stays in the queue. Record it, advance past it, and
+            # reset to a clean approval queue so one bad case can't end the pass
+            # and block every case behind it.
+            if NBS.initial_name:
+                skipped_names.add(NBS.initial_name)
+            n += 1
+            try:
+                NBS.GoToApprovalQueue()
+            except Exception as recover_err:
+                print(f"[ILIOutbreak] queue recovery after exception failed: {recover_err}")
+            # Stop spinning once the queue is empty/unstable (stale reads land here).
             if consecutive_errors >= max_consecutive_errors:
                 print("Queue appears empty/unstable after consecutive errors; ending run.")
                 break
