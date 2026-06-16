@@ -134,14 +134,18 @@ def start_HepBnotificationreview(username, passcode, login_complete=None, is_log
                     if NBS.queue_loaded:
                         NBS.queue_loaded = None
                         continue
-                    NBS.CheckFirstCase()
-
-                    NBS.final_name = NBS.patient_name
-                    if NBS.final_name == NBS.initial_name:
+                    # The queue reorders after a case is viewed, so the reviewed
+                    # case is usually no longer at row 1. Find its actual row by
+                    # name and reject THAT row -- the old code only acted when the
+                    # case happened to still be on top, so most cases were never
+                    # cleared ("Case at top of queue changed").
+                    reject_row = NBS.FindCaseRowByName(NBS.initial_name)
+                    if reject_row:
                         NBS.reviewed_ids.append(inv_id)
                         NBS.what_do.append("Reject Notification")
                         NBS.reason.append(' '.join(NBS.issues))
-                        NBS.RejectNotification()
+                        NBS.RejectNotification(reject_row)
+                        print(f"[HepB] rejected inv_id={inv_id} ({NBS.initial_name!r}) at row {reject_row}")
                         body = ''
                         if  all(case in NBS.issues  for case in ['City is blank.', 'County is blank.', 'Zip code is blank.']):
                             body = 'Hey, please only update City, Zip Code and County, then Click CN'
@@ -150,10 +154,9 @@ def start_HepBnotificationreview(username, passcode, login_complete=None, is_log
                         if body:
                             print('mail', body)
                             NBS.SendHepBnotificationreviewEmail(body, inv_id)
-                        # NBS.ReturnApprovalQueue()
-                    elif NBS.final_name != NBS.initial_name:
-                        print(f"here : {NBS.final_name} {NBS.initial_name}")
-                        print('Case at top of queue changed. No action was taken on the reviewed case.')
+                    else:
+                        print(f"[HepB] reviewed case {NBS.initial_name!r} not found in queue after re-sort; "
+                              f"skipping (may have been actioned elsewhere).")
                         NBS.num_fail += 1
             else:
                 if attempt_counter < NBS.num_attempts:
