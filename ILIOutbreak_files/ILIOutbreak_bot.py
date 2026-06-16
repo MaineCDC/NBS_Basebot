@@ -71,10 +71,8 @@ def start_ILIOutbreak(username, passcode, login_complete=None, is_logged_in=Fals
         # Incremental save: snapshot every save_every iterations so a hard kill
         # loses at most that batch, not the whole pass.
         if loop.n and loop.n % save_every == 0 and NBS.reviewed_ids:
-            NBS.safe_save_excel(
-                pd.DataFrame({'Inv ID': NBS.reviewed_ids, 'Action': what_do, 'Reason': reason}),
-                f"saved/ILIOutbreak/ILIOutbreak_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx",
-            )
+            NBS.save_and_print_results("ILIOutbreak",
+                {'Inv ID': NBS.reviewed_ids, 'Action': what_do, 'Reason': reason}, "final")
         try:
             #Sort review queue so that ILIOutbreak investigations are listed
             paths = {
@@ -210,12 +208,11 @@ def start_ILIOutbreak(username, passcode, login_complete=None, is_logged_in=Fals
     #NBS.CreateExcelSheet()
     
     print("ending, printing, saving")
-    bot_act = pd.DataFrame(
+    NBS.save_and_print_results("ILIOutbreak",
         {'Inv ID': NBS.reviewed_ids,
         'Action': what_do,
         'Reason': reason
-        })
-    NBS.safe_save_excel(bot_act, f"saved/ILIOutbreak/ILIOutbreak_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx")
+        }, "final")
     print("Excel file created")
 
 if __name__ == '__main__':

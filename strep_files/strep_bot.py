@@ -83,10 +83,8 @@ def start_strep(username, passcode, login_complete=None, is_logged_in=False):
         # Incremental save: snapshot every save_every iterations so a hard kill
         # loses at most that batch, not the whole pass.
         if loop.n and loop.n % save_every == 0 and reviewed_ids:
-            NBS.safe_save_excel(
-                pd.DataFrame({'Inv ID': reviewed_ids, 'Action': what_do, 'Reason': reason}),
-                f"saved/strep/Strep_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx",
-            )
+            NBS.save_and_print_results("Strep",
+                {'Inv ID': reviewed_ids, 'Action': what_do, 'Reason': reason}, "final")
         try:
             #Sort review queue so that only strep investigations are listed
             paths = {
@@ -228,12 +226,11 @@ def start_strep(username, passcode, login_complete=None, is_logged_in=False):
     #NBS.CreateExcelSheet()
     
     print("ending, printing, saving")
-    bot_act = pd.DataFrame(
+    NBS.save_and_print_results("Strep",
         {'Inv ID': reviewed_ids,
         'Action': what_do,
         'Reason': reason
-        })
-    NBS.safe_save_excel(bot_act, f"saved/strep/Strep_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx")
+        }, "final")
     print("Excel sheet created")
 
     '''completion_message = (

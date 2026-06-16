@@ -149,10 +149,8 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
         # Incremental save: snapshot every save_every iterations so a hard kill
         # loses at most that batch, not the whole pass.
         if loop.n and loop.n % save_every == 0 and reviewed_ids:
-            NBS.safe_save_excel(
-                pd.DataFrame({'Lab ID': reviewed_ids, 'Action': what_do}),
-                f"Hepatitis_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx",
-            )
+            NBS.save_and_print_results("Hepatitis",
+                {'Lab ID': reviewed_ids, 'Action': what_do}, "final")
         #Go to Document Requiring Review
         
         for i in range(3):
@@ -2069,11 +2067,10 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
             print(f"{key}: {value}")
     
     
-    bot_act = pd.DataFrame(
+    NBS.save_and_print_results("Hepatitis",
         {'Lab ID': reviewed_ids,
         'Action': what_do
-        })
-    NBS.safe_save_excel(bot_act, f"Hepatitis_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx")
+        }, "final")
     print("Excel file created")
 
 

@@ -2102,9 +2102,15 @@ class NBSdriver(webdriver.Chrome):
             data_frame: dict,
             file_suffix=""
         ):
-        """Helper function to save results to Excel - appends if file exists"""
-        try: 
-            if len(data_frame['Inv ID']) > 0:
+        """Helper function to save results to Excel - appends if file exists.
+
+        The ID column used for the length check and de-duplication is the first
+        key of data_frame (e.g. 'Inv ID' for most bots, 'Lab ID' for Audrey), so
+        every bot can share this append+dedupe path regardless of its ID label.
+        """
+        try:
+            id_col = next(iter(data_frame))
+            if len(data_frame[id_col]) > 0:
                 print(f"Saving results: {', '.join([str(v) for k, v in data_frame.items()])}")
                 new_data = pd.DataFrame(
                 data_frame)
@@ -2123,9 +2129,9 @@ class NBSdriver(webdriver.Chrome):
                         # Append new data to existing data
                         combined_data = pd.concat([existing_data, new_data], ignore_index=True)
                         
-                        # Remove duplicates based on 'Inv ID' to avoid processing same case multiple times
+                        # Remove duplicates based on the ID column to avoid processing same case multiple times
                         # Keep the last occurrence (most recent) in case of duplicates
-                        combined_data = combined_data.drop_duplicates(subset=['Inv ID'], keep='last')
+                        combined_data = combined_data.drop_duplicates(subset=[id_col], keep='last')
                         
                         print(f"Appending {len(new_data)} new records to existing file with {len(existing_data)} records")
                         print(f"After removing duplicates: {len(combined_data)} total records")

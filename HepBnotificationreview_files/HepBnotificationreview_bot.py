@@ -87,10 +87,8 @@ def start_HepBnotificationreview(username, passcode, login_complete=None, is_log
         # Incremental save: snapshot every save_every iterations so a hard kill
         # loses at most that batch, not the whole pass.
         if loop.n and loop.n % save_every == 0 and NBS.reviewed_ids:
-            NBS.safe_save_excel(
-                pd.DataFrame({'Inv ID': NBS.reviewed_ids, 'Action': NBS.what_do, 'Reason': NBS.reason}),
-                f"saved/HepB/HepB_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx",
-            )
+            NBS.save_and_print_results("HepB",
+                {'Inv ID': NBS.reviewed_ids, 'Action': NBS.what_do, 'Reason': NBS.reason}, "final")
         try:
             #Sort review queue so that only Hepatitis B investigations are listed
             paths = {
@@ -282,12 +280,11 @@ def start_HepBnotificationreview(username, passcode, login_complete=None, is_log
 
 
     print("ending, printing, saving")
-    bot_act = pd.DataFrame(
+    NBS.save_and_print_results("HepB",
         {'Inv ID': NBS.reviewed_ids,
         'Action': NBS.what_do,
         'Reason': NBS.reason
-        })
-    NBS.safe_save_excel(bot_act, f"saved/HepB/HepB_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx")
+        }, "final")
     print("excel sheet created")
     
 if __name__ == '__main__':
