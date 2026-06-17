@@ -1199,12 +1199,21 @@ class NBSdriver(webdriver.Chrome):
             self.HandleBadQueueReturn()
 
     def GoToCaseInfo(self):
-        """Within an investigation navigate to the Case Info tab."""
+        """Within an investigation navigate to the Case Info tab.
+
+        The tab switch is a selectTab() onclick; on current Chrome a native click is
+        swallowed by NBS's jQuery handler, so run the onclick directly via JS.
+        """
         case_info_tab_path = '//*[@id="tabs0head1"]'
         WebDriverWait(self, self.wait_before_timeout).until(
             EC.presence_of_element_located((By.XPATH, case_info_tab_path))
         )
-        self.find_element(By.XPATH, case_info_tab_path).click()
+        el = self.find_element(By.XPATH, case_info_tab_path)
+        onclick = el.get_attribute("onclick")
+        if onclick:
+            self.execute_script(onclick)
+        else:
+            el.click()
 
     def GoToCOVID(self):
         """Within an investigation navigate to the condition-specific tab (COVID or other)."""

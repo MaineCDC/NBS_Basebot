@@ -130,6 +130,37 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
 
         return False
 
+    def js_click(target, label="element"):
+        """Trigger an NBS button/link the way that actually works on this Chrome.
+
+        NBS attaches a jQuery delegated click handler that, on this Chrome build,
+        throws "this.each is not a function" and SWALLOWS the native click before
+        the element's own onclick runs -- so Selenium's .click() does nothing (no
+        navigation, no save). Running the element's own onclick JS directly (or its
+        href / createLink URL) bypasses that broken handler. target may be an xpath
+        string or a WebElement. Returns True on success.
+        """
+        try:
+            el = target
+            if isinstance(target, str):
+                el = WebDriverWait(NBS, NBS.wait_before_timeout).until(
+                    EC.presence_of_element_located((By.XPATH, target)))
+            onclick = el.get_attribute("onclick")
+            href = el.get_attribute("href") or ""
+            m = re.search(r"createLink\([^,]+,\s*'([^']+)'\)", onclick or "")
+            if m:
+                NBS.get(NBS.site.rstrip("/") + m.group(1))
+            elif onclick:
+                NBS.execute_script(onclick)
+            elif href.startswith("http") and not href.endswith("#"):
+                NBS.get(href)
+            else:
+                NBS.execute_script("arguments[0].click();", el)
+            return True
+        except Exception as e:
+            print(f"js_click failed for {label}: {e}")
+            return False
+
     # These accumulator lists are module-level; clear them so a fresh round-robin
     # pass starts clean and doesn't re-save / re-email the previous pass's cases.
     for _lst in (reviewed_ids, what_do, merges, merge_ids, Female_handled_epi_ids,
@@ -153,212 +184,125 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
                 {'Lab ID': reviewed_ids, 'Action': what_do}, "final")
         #Go to Document Requiring Review
         
+        # Open the review queue. Do NOT click the dashboard's "Documents Requiring
+        # Review" link: NBS's jQuery click handler is broken on this Chrome build, so
+        # the click does nothing. Instead hard-load Home, READ that link's real href
+        # (it carries the proper session context + labReportsCount), and navigate to
+        # it. Navigating to a bare MyTaskList1.do can land on NBS's /error page from a
+        # stale flow, so the href (with count) is the reliable path; fall back to the
+        # bare URL only if the link can't be read.
+        fallback_queue_url = NBS.site.rstrip("/") + "/nbs/MyTaskList1.do?ContextAction=Review&initLoad=true"
+        queue_opened = False
         for i in range(3):
             try:
                 timeout = NBS.wait_before_timeout + i*10
-                partial_link = 'Documents Requiring Review'
-                WebDriverWait(NBS,timeout).until(EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT, partial_link)))
-                time.sleep(1)
-                NBS.find_element(By.PARTIAL_LINK_TEXT, partial_link).click()
+                NBS.get(NBS.home_url())
+                NBS.dismiss_block_overlay()
+                href = None
+                try:
+                    link = WebDriverWait(NBS, timeout).until(
+                        EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, "Documents Requiring Review")))
+                    href = link.get_attribute("href")
+                except TimeoutException:
+                    print(f"DRR link not found on Home; using fallback URL (retry {i})")
+                NBS.get(href if (href and "MyTaskList" in href) else fallback_queue_url)
+                NBS.dismiss_block_overlay()
+                WebDriverWait(NBS, timeout).until(EC.presence_of_element_located((By.ID, "parent")))
+                queue_opened = True
+                break
             except TimeoutException:
-                print(f"TimeoutException for {partial_link}, trying again... retry_number: {i}")
+                print(f"TimeoutException opening review queue, trying again... retry_number: {i}")
+                time.sleep(2)
             except StaleElementReferenceException:
-                print(f"StaleElementReferenceException for partial_link, trying again... retry_number: {i}")
+                print(f"StaleElementReferenceException opening review queue, trying again... retry_number: {i}")
+                time.sleep(2)
             except Exception as e:
-                print(f"Error occurred while clicking on {partial_link}: {e}")
-                continue
-        #Sort review queue so that only hepatitis cases are listed
-        clear_filter_path = '//*[@id="removeFilters"]/table/tbody/tr/td[2]/a'
-        description_path = '(//*[@id="queueIcon"])[5]|/html/body/div[2]/form/div/table[2]/tbody/tr/td/table/thead/tr/th[6]/img'
-        clear_checkbox_path = '//*[@id="parent"]/thead/tr/th[6]/div/label[2]/input'
-        click_ok_path = '/html/body/div[2]/form/div/table[2]/tbody/tr/td/table/thead/tr/th[6]/div/label[1]/input[1]'
-        click_cancel_path = '/html/body/div[2]/form/div/table[2]/tbody/tr/td/table/thead/tr/th[6]/div/label[1]/input[2]'
+                print(f"Error opening review queue: {e}; retry_number: {i}")
+                time.sleep(2)
+        if not queue_opened:
+            print("Could not open the review queue after 3 tries; resetting to Home and retrying pass.")
+            NBS.go_to_home()
+            time.sleep(2)
+            continue
+        #Sort review queue so that only hepatitis cases are listed.
+        #
+        # The NBS column filters are multiselect dropdowns whose icon-CLICK toggle
+        # throws "this.each is not a function" on this Chrome build, so the dropdown
+        # never opens and its checkboxes / OK button are unreachable (that hung/
+        # crashed the pass here). Force the dropdown open via JS and click its
+        # checkboxes + OK with JS clicks -- verified to apply the filter reliably.
         submit_date_path = '//*[@id="parent"]/thead/tr/th[3]/a'
-        #clear all filters
-        for i in range(3):
-            try:
-                timeout = NBS.wait_before_timeout + i*10
-                WebDriverWait(NBS, timeout).until(EC.element_to_be_clickable((By.XPATH, clear_filter_path)))
-                time.sleep(5)
-                NBS.find_element(By.XPATH, clear_filter_path).click()
-                break
-            except StaleElementReferenceException:
-                print(f"StaleElementReferenceException for clear_filter_path, trying again... retry_number: {i}")
-            except TimeoutException:
-                print(f"TimeoutException for clear_filter_path, trying again... retry_number: {i}")
-                       
-        document_type_path = '/html/body/div[2]/form/div/table[2]/tbody/tr/td/table/thead/tr/th[2]/img'
-        clear_document_checkbox = '//*[@id="parent"]/thead/tr/th[2]/div/label[2]/input'
-        click_ok_doc_type ='//*[@id="b1"]'
-        click_cancel_doc_type = '//*[@id="b2"]'
-        filter_setup_ok = safe_click(document_type_path, 'document_type_path')
-        if not filter_setup_ok:
-            print('document_type_path failed (including possible this.each JS error). Resetting to home and continuing...')
-            NBS.go_to_home()
-            time.sleep(2)
-            continue
-        #clear checkboxes
-        for i in range(3):
-            try:
-                timeout = NBS.wait_before_timeout + i*10
-                WebDriverWait(NBS, timeout).until(EC.element_to_be_clickable((By.XPATH, clear_document_checkbox)))
-                time.sleep(1)
-                NBS.find_element(By.XPATH, clear_document_checkbox).click()
-                break
-            except (StaleElementReferenceException , NoSuchElementException):
-                print(f"StaleElementReferenceException for clear_document_checkbox, trying again... retry_number: {i}")
-                time.sleep(1)
-            except TimeoutException:
-                print(f"TimeoutException for clear_document_checkbox, trying again... retry_number: {i}")
-            except Exception as e:
-                print(f"{e} has occured for clear_document_checkbox, retry_number: {i}")
-       
-        document_type = 'L'
-        for i in range(3):
-            try:
-                results = NBS.find_elements(By.XPATH,f"//label[contains(text(),'{document_type}')]")
-                for result in results:
-                    result.click()
-                    break
-            except StaleElementReferenceException:
-                    print(f"StaleElementReferenceException for document_type {document_type}, trying again... ")
-            except NoSuchElementException:
-                print(f"NoSuchElementException for document_type {document_type}, trying again... ")
-            except Exception as e:
-                print(f"{e} has occured for document_type {document_type}")
 
-        #click ok
-        for i in range(3): 
-            try:
-                timeout= NBS.wait_before_timeout + i*15
-                #WebDriverWait(NBS, timeout).until(EC.element_to_be_clickable((By.XPATH, click_ok_doc_type)))
-                #NBS.find_element(By.XPATH,click_ok_doc_type).click()
-                WebDriverWait(NBS, timeout).until(EC.visibility_of_element_located((By.XPATH, click_ok_doc_type)))
-                WebDriverWait(NBS, timeout).until(EC.element_to_be_clickable((By.XPATH, click_ok_doc_type))).click()
-                break
-            except TimeoutException:
-                print(f"Timeout waiting for click_ok_doc_type, retry_number: {i}")
-                #WebDriverWait(NBS,timeout).until(EC.element_to_be_clickable((By.XPATH, click_cancel_doc_type)))
-                #NBS.find_element(By.XPATH,click_cancel_doc_type).click()
-                WebDriverWait(NBS, timeout).until(EC.visibility_of_element_located((By.XPATH, click_cancel_doc_type)))
-                WebDriverWait(NBS, timeout).until(EC.element_to_be_clickable((By.XPATH, click_cancel_doc_type))).click()
-                NBS.go_to_home()
-                time.sleep(3)
-                #NBS.Sleep()
-                #this wont work if we are not running the for loop to cycle through the queue,
-                #comment out if not running the whole thing
-                continue
-            except StaleElementReferenceException:
-                print(f"StaleElementReferenceException for click_ok_doc_type, trying again... retry_number: {i}")
-            except Exception as e:
-                print(f"{e} has occured for document_type {document_type}")
-            except NoSuchElementException:
-                #click cancel and go back to home page to wait for more ELRs
-                #WebDriverWait(NBS,timeout).until(EC.element_to_be_clickable((By.XPATH, click_cancel_doc_type)))
-                #NBS.find_element(By.XPATH,click_cancel_doc_type).click()
-                WebDriverWait(NBS, timeout).until(EC.visibility_of_element_located((By.XPATH, click_cancel_doc_type)))
-                WebDriverWait(NBS, timeout).until(EC.element_to_be_clickable((By.XPATH, click_cancel_doc_type))).click()
-                NBS.go_to_home()
-                time.sleep(3)
-                #NBS.Sleep()
-                #this wont work if we are not running the for loop to cycle through the queue,
-                #comment out if not running the whole thing
-                continue
-            time.sleep(1)
-
-######## description dropdown code##############
-        '''element = WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, description_path)))
-        time.sleep(1)
-        #element.click()
-        WebDriverWait(NBS, NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, description_path))).click()'''
-        filter_setup_ok = safe_click(description_path, 'description_path')
-        if not filter_setup_ok:
-            print('description_path failed (including possible this.each JS error). Resetting to home and continuing...')
-            NBS.go_to_home()
-            time.sleep(2)
-            continue
-        #clear checkboxes
-        for i in range(3):
-            try:
-                timeout = NBS.wait_before_timeout + i*10
-                #WebDriverWait(NBS, timeout).until(EC.element_to_be_clickable((By.XPATH, clear_checkbox_path)))
-                WebDriverWait(NBS, timeout).until(EC.presence_of_element_located((By.XPATH, clear_checkbox_path)))
-                WebDriverWait(NBS, timeout).until(EC.visibility_of_element_located((By.XPATH, clear_checkbox_path)))
-                time.sleep(1)
-                #NBS.find_element(By.XPATH,clear_checkbox_path).click()
-                element = NBS.find_element(By.XPATH, clear_checkbox_path)
+        def set_queue_filter(header, keep_values=(), keep_substrings=()):
+            """Select ONLY the options matching keep_values (exact, case-insensitive)
+            or keep_substrings (substring, case-insensitive) in the named queue
+            filter dropdown, then click OK. Returns True if the queue reloaded."""
+            keep_values = tuple(v.lower() for v in keep_values)
+            keep_substrings = tuple(s.lower() for s in keep_substrings)
+            for attempt in range(3):
                 try:
-                    element.click()
-                except Exception as exc:
-                    NBS.execute_script("arguments[0].click();", element)
-                break
-            except (StaleElementReferenceException , NoSuchElementException):
-                print(f"StaleElementReferenceException for clear_checkbox, trying again... retry_number: {i}")
-                time.sleep(1)
-            except TimeoutException:
-                print(f"TimeoutException for clear_checkbox, trying again... retry_number: {i}")
-            except Exception as e:
-                print(f"{e} has occured for clear_checkbox, retry_number: {i}")
-        
-        #select all hepatitis tests
-        tests =  ["HCV","Hep", "HEP", "HAV", "HBV","Alanine", "ALT"]  #"HCV","Hep", "HEP", "HAV", "HBV","Alanine", "ALT"
-        clicked_labels = []
-        for test in tests:
-            results = NBS.find_elements(By.XPATH,f"//label[contains(text(),'{test}')]")
-            for result in results:
-                try:
-                    label_text = result.text.strip()
-                    if label_text in clicked_labels:
+                    opts = None
+                    for ic in NBS.find_elements(By.CSS_SELECTOR, "img.multiSelect"):
+                        th = ic.find_element(By.XPATH, "./ancestor::th[1]")
+                        if header in th.text:
+                            opts = ic.find_element(
+                                By.XPATH,
+                                "./following-sibling::div[contains(@class,'multiSelectOptions')]")
+                            break
+                    if opts is None:
+                        print(f"set_queue_filter: '{header}' dropdown not found (attempt {attempt})")
+                        time.sleep(2)
                         continue
-                    result.click()
-                    clicked_labels.append(label_text)
+                    NBS.execute_script("arguments[0].style.display='block';", opts)
+                    for lbl in opts.find_elements(By.TAG_NAME, "label"):
+                        cbs = lbl.find_elements(By.CSS_SELECTOR, "input[type='checkbox']")
+                        if not cbs:
+                            continue
+                        cb = cbs[0]
+                        if "selectAll" in (cb.get_attribute("class") or ""):
+                            # Start from a clean slate (Select All OFF).
+                            if cb.is_selected():
+                                NBS.execute_script("arguments[0].click();", cb)
+                            continue
+                        text = (lbl.text or "").strip().lower()
+                        val = (cb.get_attribute("value") or "").strip().lower()
+                        want = (val in keep_values) or any(s in text for s in keep_substrings)
+                        if want and not cb.is_selected():
+                            NBS.execute_script("arguments[0].click();", cb)
+                        elif (not want) and cb.is_selected():
+                            NBS.execute_script("arguments[0].click();", cb)
+                    ok_btns = opts.find_elements(
+                        By.XPATH, ".//input[@id='b1' or normalize-space(@value)='OK']")
+                    if not ok_btns:
+                        ok_btns = opts.find_elements(By.XPATH, ".//input[@type='button']")
+                    NBS.execute_script("arguments[0].click();", ok_btns[0])
+                    NBS.dismiss_block_overlay()
+                    WebDriverWait(NBS, NBS.wait_before_timeout).until(
+                        EC.presence_of_element_located((By.ID, "parent")))
+                    return True
                 except StaleElementReferenceException:
-                    print(f"StaleElementReferenceException for test {test}, trying again... ")
-                except NoSuchElementException:
-                    print(f"NoSuchElementException for test {test}, trying again... ")
+                    print(f"set_queue_filter '{header}': stale element, retrying (attempt {attempt})")
+                    time.sleep(2)
                 except Exception as e:
-                    print(f"{e} has occured for tests")
-        
-        for i in range(3): 
-            try:
-                timeout= NBS.wait_before_timeout + i*10
-                #WebDriverWait(NBS, timeout).until(EC.element_to_be_clickable((By.XPATH, click_ok_path)))
-                WebDriverWait(NBS, timeout).until(EC.presence_of_element_located((By.XPATH, click_ok_path)))
-                WebDriverWait(NBS, timeout).until(EC.visibility_of_element_located((By.XPATH, click_ok_path)))
-                element = NBS.find_element(By.XPATH,click_ok_path)
-                try:
-                    element.click()
-                except Exception as exc:
-                    NBS.execute_script("arguments[0].click();", element)
-                break
-            except TimeoutException:
-                print(f"Timeout waiting for click_ok_path, retry_number: {i}")
-                #WebDriverWait(NBS,timeout).until(EC.element_to_be_clickable((By.XPATH, click_cancel_path)))
-                WebDriverWait(NBS, timeout).until(EC.presence_of_element_located((By.XPATH, click_cancel_path)))
-                WebDriverWait(NBS, timeout).until(EC.visibility_of_element_located((By.XPATH, click_cancel_path)))
-                NBS.find_element(By.XPATH,click_cancel_path).click()
-                NBS.go_to_home()
-                time.sleep(3)
-                #NBS.Sleep()
-                #this wont work if we are not running the for loop to cycle through the queue,
-                #comment out if not running the whole thing
-                continue
-            except StaleElementReferenceException:
-                print(f"StaleElementReferenceException for click_ok_path, trying again... retry_number: {i}")
-            except NoSuchElementException:
-                #click cancel and go back to home page to wait for more ELRs
-                #WebDriverWait(NBS,timeout).until(EC.element_to_be_clickable((By.XPATH, click_cancel_path)))
-                WebDriverWait(NBS, timeout).until(EC.presence_of_element_located((By.XPATH, click_cancel_path)))
-                WebDriverWait(NBS, timeout).until(EC.visibility_of_element_located((By.XPATH, click_cancel_path)))
-                NBS.find_element(By.XPATH,click_cancel_path).click()
-                NBS.go_to_home()
-                time.sleep(3)
-                #NBS.Sleep()
-                #this wont work if we are not running the for loop to cycle through the queue,
-                #comment out if not running the whole thing
-                continue
-            time.sleep(1)
-        
+                    print(f"set_queue_filter '{header}' error: {e} (attempt {attempt})")
+                    time.sleep(2)
+            return False
+
+        # Filter to Lab Reports only (Document Type column).
+        if not set_queue_filter("Document Type", keep_values=("Lab Report",)):
+            print("Document Type filter failed; resetting to Home and retrying pass.")
+            NBS.go_to_home()
+            time.sleep(2)
+            continue
+
+        # Filter Description column to hepatitis-related tests only.
+        hep_tests = ["HCV", "Hep", "HEP", "HAV", "HBV", "Alanine", "ALT"]
+        if not set_queue_filter("Description", keep_substrings=hep_tests):
+            print("Description filter failed; resetting to Home and retrying pass.")
+            NBS.go_to_home()
+            time.sleep(2)
+            continue
+
         #sort chronologically, oldest first
         for i in range(3):
             try:
@@ -410,8 +354,30 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
             anc = NBS.find_element(By.XPATH,f"//td[contains(text(),'{event_id}')]/../td/a")
         except NoSuchElementException:
             anc = NBS.find_element(By.XPATH,f"//font[contains(text(),'{event_id}')]/../../td/a")
-        anc.click()
-        
+        # The queue anchor navigates via onclick="createLink(this,'/nbs/NewLabReview1.do?...')",
+        # which uses NBS's jQuery. On this Chrome build that jQuery throws
+        # "this.each is not a function", so a plain .click() fires the handler but
+        # NEVER navigates -- so every case was skipped at the #Name wait below.
+        # Parse the real target URL out of the onclick and navigate to it directly.
+        onclick = anc.get_attribute("onclick") or ""
+        m = re.search(r"createLink\([^,]+,\s*'([^']+)'\)", onclick)
+        if m:
+            NBS.get(NBS.site.rstrip("/") + m.group(1))
+        else:
+            anc.click()
+        # WAIT for the demographics (#Name) to appear before reading them -- the old
+        # code did 3 instant find_element retries that all fired before the page
+        # loaded, so it never found Name/DOB/Sex and crashed downstream.
+        try:
+            WebDriverWait(NBS, NBS.wait_before_timeout).until(
+                EC.presence_of_element_located((By.XPATH, '//*[@id="Name"]')))
+        except TimeoutException:
+            print(f"Lab report page did not load for {event_id}; skipping case.")
+            NBS.go_to_home()
+            what_do.append("Lab report page did not load")
+            hist[event_id].append("Lab report page did not load")
+            continue
+
         skip_patient = False
         #check the patient name if it is a source patient skip, look for numbers in the name
         for i in range(3):
@@ -457,12 +423,27 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
                 print(f"No patient sex found, retrying {i}")
         
         
-        #go to the patient file to review investigations
+        #go to the patient file to review investigations.
+        # The "View File" link's native navigation is intercepted by NBS's jQuery
+        # click handler, which throws "this.each is not a function" on this Chrome
+        # build, so a .click() does nothing. Navigate via its real href directly.
+        # The investigations table (#inv1) is then present in the patient-file DOM
+        # (the Summary/Events/Demographics tabs are just CSS show/hide).
+        patient_file_ok = False
         for i in range(3):
             try:
                 timeout= NBS.wait_before_timeout + i*10
-                WebDriverWait(NBS, timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="doc3"]/div[1]/a[1]')))
-                NBS.find_element(By.XPATH, '//*[@id="doc3"]/div[1]/a[1]').click()
+                link = WebDriverWait(NBS, timeout).until(
+                    EC.presence_of_element_located((By.XPATH, '//*[@id="doc3"]/div[1]/a[1]')))
+                href = link.get_attribute("href")
+                if href and href.startswith("http"):
+                    NBS.get(href)
+                else:
+                    link.click()
+                # Wait for the patient-file page (the Events tab header always exists there).
+                WebDriverWait(NBS, timeout).until(
+                    EC.presence_of_element_located((By.XPATH, '//*[@id="tabs0head1"]')))
+                patient_file_ok = True
                 break
             except TimeoutException:
                 print(f"Timeout waiting for patient file, retry_number: {i}")
@@ -470,7 +451,13 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
                 print(f"StaleElementReferenceException for patient file, trying again... retry_number: {i}")
             except Exception as e:
                 print(f"exception: {e} occurred for patient file, trying again... retry_number: {i}")
-        
+        if not patient_file_ok:
+            print(f"Could not open patient file for {event_id}; skipping case.")
+            NBS.go_to_home()
+            what_do.append("Could not open patient file")
+            hist[event_id].append("Could not open patient file")
+            continue
+
         time.sleep(3)
         
         #Go to events tab
@@ -491,7 +478,14 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
         no_start_date = False
         no_start_date_ids = []
         #for idx, row in investigation_table.iterrows():
-        investigation_table = NBS.read_investigation_table()
+        # A patient with no prior investigations has no #inv1 table; read_investigation_table
+        # raises NoSuchElementException in that case, so treat any failure as "no
+        # investigations" (None) instead of crashing the whole pass.
+        try:
+            investigation_table = NBS.read_investigation_table()
+        except Exception as e:
+            print(f"No investigation table for {event_id} (treating as none): {e}")
+            investigation_table = None
         date_value = False
         #try:
         if investigation_table is not None and not investigation_table.empty:
@@ -536,10 +530,26 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
             lab_path = f'/html/body/div[2]/form/div/table[4]/tbody/tr[2]/td/div[2]/table/tbody/tr/td/div[1]/div[5]/div/table/tbody/tr/td/table/tbody/tr[{str(lab_index)}]/td[1]/a'
         elif lab_index == 1:
             lab_path = '/html/body/div[2]/form/div/table[4]/tbody/tr[2]/td/div[2]/table/tbody/tr/td/div[1]/div[5]/div/table/tbody/tr/td/table/tbody/tr/td[1]/a'
+        # The lab link in the patient file's lab table navigates via onclick=createLink,
+        # which is broken on this Chrome build (.click() does nothing). Navigate to the
+        # lab report via the URL embedded in the onclick (or a real href) instead.
+        lab_opened = False
         for i in range(3):
             try:
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, lab_path)))
-                NBS.find_element(By.XPATH, lab_path).click()
+                link = WebDriverWait(NBS, NBS.wait_before_timeout).until(
+                    EC.presence_of_element_located((By.XPATH, lab_path)))
+                onclick = link.get_attribute("onclick") or ""
+                href = link.get_attribute("href") or ""
+                m = re.search(r"createLink\([^,]+,\s*'([^']+)'\)", onclick)
+                if m:
+                    NBS.get(NBS.site.rstrip("/") + m.group(1))
+                elif href.startswith("http") and not href.endswith("#"):
+                    NBS.get(href)
+                else:
+                    link.click()
+                WebDriverWait(NBS, NBS.wait_before_timeout).until(
+                    EC.presence_of_element_located((By.XPATH, '//*[@id="bd"]/table[1]')))
+                lab_opened = True
                 break
             except TimeoutException:
                 print("Timeout waiting for lab path link")
@@ -547,7 +557,13 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
                 print(f"StaleElementReferenceException lab_path, trying again... retry_number: {i}")
             except Exception as e:
                 print(f"exception: {e} occurred lab_path, trying again... retry_number: {i}")
-            
+        if not lab_opened:
+            print(f"Could not open lab report from patient file for {event_id}; skipping case.")
+            NBS.go_to_home()
+            what_do.append("Could not open lab report from patient file")
+            hist[event_id].append("Could not open lab report from patient file")
+            continue
+
         #Grab alanine aminotransferase results in case we need to create an investigation
         alt_lab_table = lab_report_table[lab_report_table["Test Results"].str.contains("ALANINE|ALT|Alanine")]
         
@@ -1293,12 +1309,16 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
             for i in range(3):
                 try:
                     timeout= NBS.wait_before_timeout + i*10
-                    WebDriverWait(NBS, timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="doc3"]/div[2]/table/tbody/tr/td[1]/input')))
-                    NBS.find_element(By.XPATH, '//*[@id="doc3"]/div[2]/table/tbody/tr/td[1]/input').click()
+                    # onclick=markAsReviewed('') is the real save; native .click() is
+                    # swallowed by NBS's broken jQuery handler, so run it via js_click.
+                    WebDriverWait(NBS, timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="doc3"]/div[2]/table/tbody/tr/td[1]/input')))
+                    if not js_click('//*[@id="doc3"]/div[2]/table/tbody/tr/td[1]/input', 'markAsReviewed'):
+                        raise TimeoutException("js_click markAsReviewed failed")
                     print("Mark as Reviewed")
                     what_do.append("Mark as Reviewed")
                     print(f"eventid = {event_id} and action = {what_do}")
                     hist[event_id].append("Mark as Reviewed")
+                    time.sleep(2)
                     break
                 except TimeoutException:
                     print(f"Timeout waiting for mark_reviewed, retry_number: {i}")
@@ -1369,16 +1389,64 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
                 NBS.go_to_home()
                 continue
             
-            #create investigation
+            #create investigation (buttons use onclick JS -> run via js_click, native click is swallowed)
             create_investigation_button_path = '//*[@id="doc3"]/div[2]/table/tbody/tr/td[2]/input[1]'
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, create_investigation_button_path)))
-            NBS.find_element(By.XPATH, create_investigation_button_path).click()
-            select_condition_field_path = '//*[@id="ccd_ac_table"]/tbody/tr[1]/td/input'
+            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, create_investigation_button_path)))
+            js_click(create_investigation_button_path, 'CreateInvestigation')
+            select_condition_field_path = '//*[@id="ccd_ac_table"]//input[@name="ccd_textbox"]'
             WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, select_condition_field_path)))
-            NBS.find_element(By.XPATH, select_condition_field_path).send_keys(condition)
-            submit_button_path = '/html/body/table/tbody/tr/td/table/tbody/tr[3]/td/table/thead/tr[2]/td/div/table/tbody/tr/td/table/tbody/tr/td[4]/table[1]/tbody/tr[1]/td/input'
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, submit_button_path)))
-            NBS.find_element(By.XPATH, submit_button_path).click()
+            # The condition field is a jQuery autocomplete; synthetic keystrokes don't
+            # drive it (the handler never fires on this Chrome) so the hidden code field
+            # stays empty and the form submits with no condition. Set BOTH the visible
+            # textbox and the hidden conditionCdDescTxt directly via JS.
+            # Set the condition the way the (broken) autocomplete would, then submit.
+            # The conditions live in a hidden <select id="ccd"> (value=code,
+            # text=description). The server needs the CODE; submitting only the
+            # description NPEs. So select the matching option in #ccd (sets the code),
+            # mirror the description into the textbox + conditionCdDescTxt, and submit
+            # the form (it carries hidden ContextAction=Submit).
+            cond_set = NBS.execute_script("""
+                var cond = arguments[0];
+                var matched = false;
+                var sel = document.getElementById('ccd');
+                if (sel) {
+                    for (var i=0;i<sel.options.length;i++){
+                        if (sel.options[i].text.trim() === cond){ sel.selectedIndex = i; matched = true; break; }
+                    }
+                }
+                var box = document.querySelector('#ccd_ac_table input[name="ccd_textbox"]');
+                if (box) box.value = cond;
+                var hid = document.querySelector('input[name="conditionCdDescTxt"]');
+                if (hid) hid.value = cond;
+                if (matched && box && box.form) { box.form.submit(); }
+                return matched;
+            """, condition)
+            if not cond_set:
+                print(f"Condition {condition!r} not found in #ccd list; skipping create for {event_id}.")
+                NBS.go_to_home()
+                what_do.append("Condition not in NBS list")
+                hist[event_id].append("Condition not in NBS list")
+                continue
+            print(f"Set condition to: {condition} (code selected) and submitted condition form")
+            # The condition submit POSTs and loads the new investigation form; js_click
+            # returns immediately, so WAIT for the form's address table (NBS_UI_15) to
+            # appear before filling it -- otherwise set_state/check_ethnicity hit
+            # not-yet-present elements and crash.
+            inv_form_loaded = False
+            for _w in range(4):
+                try:
+                    WebDriverWait(NBS, NBS.wait_before_timeout).until(
+                        EC.presence_of_element_located((By.XPATH, '//*[@id="NBS_UI_15"]')))
+                    inv_form_loaded = True
+                    break
+                except TimeoutException:
+                    print(f"Investigation form not loaded yet, retry {_w}")
+            if not inv_form_loaded:
+                print(f"Create-investigation form did not load for {event_id}; skipping case.")
+                NBS.go_to_home()
+                what_do.append("Create-investigation form did not load")
+                hist[event_id].append("Create-investigation form did not load")
+                continue
             NBS.read_address()
             for i in range(3):
                 try:
@@ -1431,83 +1499,50 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
             closed_option = '//*[@id="INV109"]/option[1]'
             
 
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, investigation_status_down_arrow)))
-            NBS.find_element(By.XPATH, investigation_status_down_arrow).click()
-            for i in range(3):
-                try:
-                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, closed_option)))
-                    NBS.find_element(By.XPATH, closed_option).click()
-                    break
-                except TimeoutException:
-                    print(f"Timeout waiting for closed_option, retry_number: {i}")
-                except StaleElementReferenceException:
-                    print(f"StaleElementReferenceException for closed_option, trying again... retry_number: {i}")
-                except NoSuchElementException:
-                    print(f"No closed_option found, retry_number: {i}")
-                    time.sleep(1)
-                except Exception as e:
-                    print(f"{e} has occured for closed_option, retry_number: {i}")
+            # Investigation status is an img overlay on <select id="INV109">
+            # (0:Closed, 1:Open). The img/option clicks are swallowed on this Chrome,
+            # so set the select directly to "Closed" via JS.
+            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV109"]')))
+            NBS.execute_script("""
+                var s=document.getElementById('INV109');
+                if(s){for(var i=0;i<s.options.length;i++){if(s.options[i].text.trim()==='Closed'){s.selectedIndex=i;break;}}}
+            """)
             NBS.set_state_case_id()
             NBS.set_county_and_state_report_dates(PH_report_date)
             #Reporting organization is automatically filled in
             
-            #set reporting source type
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="NBS_UI_23"]/tbody/tr[1]/td[2]/img')))
-            NBS.find_element(By.XPATH, '//*[@id="NBS_UI_23"]/tbody/tr[1]/td[2]/img').click()
-            
-            #Set reporting source to Laboratory
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="INV112"]/option[15]')))
-            NBS.find_element(By.XPATH, '//*[@id="INV112"]/option[15]').click()
-            
-            #set case status
+            #set reporting source type to Laboratory via the underlying <select id="INV112">
+            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV112"]')))
+            NBS.execute_script("""
+                var s=document.getElementById('INV112');
+                if(s){for(var i=0;i<s.options.length;i++){if(s.options[i].text.trim()==='Laboratory'){s.selectedIndex=i;break;}}}
+            """)
+
+            #set case status (text field) + confirmation method (<select id=INV161>).
+            # Driven via JS: the autocomplete typing / option clicks are swallowed on
+            # this Chrome. Values match the original logic (non-Antibody -> Confirmed /
+            # Laboratory confirmed; Antibody/perinatal -> Probable / Laboratory report).
             case_status_path = '//*[@id="NBS_UI_2"]/tbody/tr[5]/td[2]/input'
-            
-            NBS.find_element(By.XPATH, case_status_path).send_keys(Keys.CONTROL+'a')
+            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, case_status_path)))
             if test_type != "Antibody":
-                for i in range(3):
-                    try:
-                        timeout= NBS.wait_before_timeout + i*10
-                        WebDriverWait(NBS,timeout).until(EC.presence_of_element_located((By.XPATH, case_status_path)))
-                        NBS.find_element(By.XPATH, case_status_path).send_keys("Confirmed")
-                        #set confirmation method to laboratory confirmed
-                        WebDriverWait(NBS,timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="INV161"]/option[6]')))
-                        NBS.find_element(By.XPATH, '//*[@id="INV161"]/option[6]').click()
-                        break
-                    except TimeoutException:
-                        print(f"TimeoutException for case_status_path confirmed, trying again... retry_number: {i}")
-                    except StaleElementReferenceException:
-                        print(f"StaleElementReferenceException for case_status_path confirmed, trying again... retry_number: {i}")
-                    except NoSuchElementException:
-                        print(f"No case_status_path confirmed found, trying again... retry_number: {i}")
-                        time.sleep(1)
-                    except Exception as e:
-                        print(f"{e} has occured for case_status_path confirmed, retry_number: {i}")
-            elif test_type == "Antibody" or peri_inv == True:
-                for i in range(3):
-                    try:
-                        timeout= NBS.wait_before_timeout + i*10
-                        WebDriverWait(NBS,timeout).until(EC.presence_of_element_located((By.XPATH, case_status_path)))
-                        NBS.find_element(By.XPATH, case_status_path).send_keys("Probable")
-                        #set confirmation method to lab report
-                        WebDriverWait(NBS,timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="INV161"]/option[7]')))
-                        NBS.find_element(By.XPATH, '//*[@id="INV161"]/option[7]').click()
-                        break
-                    except TimeoutException:
-                        print(f"TimeoutException for case_status_path Probable, trying again... retry_number: {i}")
-                    except StaleElementReferenceException:
-                        print(f"StaleElementReferenceException for case_status_path Probable, trying again... retry_number: {i}")
-                    except NoSuchElementException:
-                        print(f"No case_status_path Probable found, trying again... retry_number: {i}")
-                        time.sleep(1)
-                    except Exception as e:
-                        print(f"{e} has occured for case_status_path Probable, retry_number: {i}")
+                case_status_val, conf_method = "Confirmed", "Laboratory confirmed"
+            else:
+                case_status_val, conf_method = "Probable", "Laboratory report"
+            NBS.execute_script("arguments[0].value = arguments[1];",
+                               NBS.find_element(By.XPATH, case_status_path), case_status_val)
+            NBS.execute_script("""
+                var s=document.getElementById('INV161');
+                if(s){for(var i=0;i<s.options.length;i++){if(s.options[i].text.trim()===arguments[0]){s.selectedIndex=i;break;}}}
+            """, conf_method)
+            print(f"Case status={case_status_val}, confirmation method={conf_method}")
             NBS.set_confirmation_date()
             
             NBS.write_general_comment(f'Created investigation from lab {event_id}. -nbsbot {NBS.now_str}')
             
-            #add in lab info
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="tabs0head2"]')))
-            NBS.find_element(By.XPATH, '//*[@id="tabs0head2"]').click()
+            #add in lab info -- switch to the lab-info tab via its selectTab onclick (js_click)
+            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="tabs0head2"]')))
+            js_click('//*[@id="tabs0head2"]', 'lab info tab')
+            time.sleep(2)
             if test_type == "Antibody" or test_type == "Antigen":
                 timeout = NBS.wait_before_timeout + i*10
                 WebDriverWait(NBS,timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="LP38332_0_DT"]')))
@@ -1605,7 +1640,7 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
                 NBS.check_jurisdiction()
             except NoSuchElementException:
                 WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="SubmitTop"]')))
-                NBS.find_element(By.XPATH, '//*[@id="SubmitTop"]').click()
+                js_click('//*[@id="SubmitTop"]', 'SubmitTop')
                 NBS.check_jurisdiction()
             if len(NBS.incomplete_address_log) > 0: 
                 #NBS.click_submit()
@@ -1618,25 +1653,23 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
             print(f"eventid = {event_id} and action = {what_do}")
             hist[event_id].append("Create Investigation: " + condition)
         elif update_status == True and create_inv == False:
-            #update investigation status
-            #go to events 
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="doc3"]/div[1]/a')))
-            NBS.find_element(By.XPATH,'//*[@id="doc3"]/div[1]/a').click()
+            #update investigation status -- nav/edit links use onclick JS (run via js_click)
+            #go to events
+            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="doc3"]/div[1]/a')))
+            js_click('//*[@id="doc3"]/div[1]/a', 'events link')
+            time.sleep(2)
             #click on investigation date
-            #WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, f"//a[contains(text(),'{inv_date.strftime('%m/%d/%Y')}')]")))
-            #NBS.find_element(By.XPATH,f"//a[contains(text(),'{inv_date.strftime('%m/%d/%Y')}')]").click()
-            
             results = NBS.find_elements(By.XPATH,f"//a[contains(text(),'{inv_date.strftime('%m/%d/%Y')}')]")
             for result in results:
                 try:
-                    result.click()
-                except  StaleElementReferenceException :
-                    print ("StaleElementReferenceException, trying again...")
-                except ElementNotInteractableException as e:
+                    js_click(result, 'investigation date link')
+                    break
+                except Exception:
                     pass
-            #click edit 
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="delete"]')))
-            NBS.find_element(By.XPATH, '//*[@id="delete"]').click()
+            time.sleep(2)
+            #click edit
+            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="delete"]')))
+            js_click('//*[@id="delete"]', 'edit investigation')
             #click okay
             try:
                 WebDriverWait(NBS, 10).until(EC.alert_is_present())
@@ -1650,28 +1683,24 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
             NBS.GoToCaseInfo()
             time.sleep(1)
             
-            #change confirmation method to laboratory confirmed
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="INV161"]/option[6]')))
-            lab_conf = NBS.find_element(By.XPATH, '//*[@id="INV161"]/option[6]')
-            if lab_conf.is_selected():
-                pass
-            else:
-                lab_conf.click()
-            
+            #change confirmation method to laboratory confirmed (<select id=INV161> via JS)
+            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV161"]')))
+            NBS.execute_script("""
+                var s=document.getElementById('INV161');
+                if(s){for(var i=0;i<s.options.length;i++){if(s.options[i].text.trim()==='Laboratory confirmed'){s.selectedIndex=i;break;}}}
+            """)
+
             #update confirmation date
             WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV162"]')))
             NBS.find_element(By.XPATH, '//*[@id="INV162"]').clear()
             NBS.find_element(By.XPATH, '//*[@id="INV162"]').send_keys(lab_date.strftime('%m/%d/%Y'))
-            
-            #Enter confirmed
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="NBS_UI_2"]/tbody/tr[5]/td[2]/img')))
-            NBS.find_element(By.XPATH, '//*[@id="NBS_UI_2"]/tbody/tr[5]/td[2]/img').click()
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="INV163"]/option[2]')))
+
+            #Set case status via <select id=INV163> (option[2]=Confirmed, option[3]=Not a Case).
+            # The img dropdown + option clicks are swallowed, so set the select via JS by index.
+            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV163"]')))
+            NBS.execute_script("var s=document.getElementById('INV163'); if(s){s.selectedIndex=arguments[0];}", 2 if not_a_case else 1)
             if not_a_case:
-                NBS.find_element(By.XPATH, '//*[@id="INV163"]/option[3]').click()
                 NBS.write_general_comment(f'\nNegative Hepatitis C RNA test for a patient with a probable Hepatitis C investigation. Case classification is changed from probable to Not a Case. Lab Id: {event_id} -nbsbot {NBS.now_str}')
-            else:
-                NBS.find_element(By.XPATH, '//*[@id="INV163"]/option[2]').click()
             
             WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bd"]/h1/table/tbody/tr[1]/td[1]/a')))
             inv_type_elem = NBS.find_element(By.XPATH, '//*[@id="bd"]/h1/table/tbody/tr[1]/td[1]/a')
@@ -1686,9 +1715,11 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
             if test_condition == "Hepatitis C" and test_type in ("Genotype", "RNA") and "chronic" in inv_type and not_a_case == False:
                 NBS.write_general_comment(f'\nNew hepatitis C NAAT. Case classification is changed from probable to confirmed. Lab Id: {event_id} -nbsbot {NBS.now_str}')
                 
-            #add in lab info
+            #add in lab info -- switch tab via selectTab onclick (js_click)
             #Do we want to overwrite if there is already a test? No
-            NBS.find_element(By.XPATH, '//*[@id="tabs0head2"]').click()
+            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="tabs0head2"]')))
+            js_click('//*[@id="tabs0head2"]', 'lab info tab')
+            time.sleep(2)
             if test_type == "Antibody" :
                 if test_condition == "Hepatitis B":
                     if any(x in str(resulted_test_table["Resulted Test"]) for x in ["surface", "Surface", "SURFACE"]): 
@@ -1809,7 +1840,7 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
                 try:
                     timeout = NBS.wait_before_timeout + i*10
                     WebDriverWait(NBS, timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="SubmitBottom"]')))
-                    NBS.find_element(By.XPATH, '//*[@id="SubmitBottom"]').click()
+                    js_click('//*[@id="SubmitBottom"]', 'SubmitBottom')
                     associate = True
                     print("Update Status")
                     break
@@ -1824,45 +1855,61 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
                     print(f"{e} has occured for submit_button for update status, retry_number: {i}")
 
             
-            #go back to patient page
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="bd"]/div[1]/a')))
-            NBS.find_element(By.XPATH, '//*[@id="bd"]/div[1]/a').click()
-            
+            #go back to patient page (link uses onclick -> js_click)
+            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bd"]/div[1]/a')))
+            js_click('//*[@id="bd"]/div[1]/a', 'back to patient page')
+            time.sleep(2)
             #go to lab
             try:
                 anc = NBS.find_element(By.XPATH,f"//td[contains(text(),'{event_id.split()[0]}')]/../td/a") #possible index error
-                anc.click()
-            except ElementNotInteractableException:
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="tabs0head0"]')))
-                NBS.find_element(By.XPATH, '//*[@id="tabs0head0"]').click()
+                js_click(anc, 'lab link')
+            except (ElementNotInteractableException, NoSuchElementException):
+                js_click('//*[@id="tabs0head0"]', 'events tab')
+                time.sleep(1)
                 anc = NBS.find_element(By.XPATH,f"//td[contains(text(),'{event_id.split()[0]}')]/../td/a") #possible index error
-                anc.click()
+                js_click(anc, 'lab link')
                 
         #update investigation to acute if ALT > 200 and there is a closed chronic Hep C investigation, update if there is a Hep acute and there is a negative RNA test
         elif update_inv_type == True:
-            #change condition status to acute
-            #go to events 
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="doc3"]/div[1]/a')))
-            NBS.find_element(By.XPATH,'//*[@id="doc3"]/div[1]/a').click()
+            #change condition status to acute (links/buttons use onclick -> js_click)
+            #go to events
+            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="doc3"]/div[1]/a')))
+            js_click('//*[@id="doc3"]/div[1]/a', 'events link')
+            time.sleep(2)
             #click into investigation
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, f"//a[contains(text(),'{inv_date.strftime('%m/%d/%Y')}')]")))
-            NBS.find_element(By.XPATH,f"//a[contains(text(),'{inv_date.strftime('%m/%d/%Y')}')]").click()
+            inv_links = NBS.find_elements(By.XPATH,f"//a[contains(text(),'{inv_date.strftime('%m/%d/%Y')}')]")
+            for _il in inv_links:
+                try:
+                    js_click(_il, 'investigation date link'); break
+                except Exception:
+                    pass
+            time.sleep(2)
             #click change condition
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="changeCond"]')))
-            NBS.find_element(By.XPATH, '//*[@id="changeCond"]').click()
+            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="changeCond"]')))
+            js_click('//*[@id="changeCond"]', 'change condition')
+            time.sleep(2)
             #navigate to the new window
             original_window = NBS.window_handles[0] #possible index error
             new_window = NBS.window_handles[1] #possible index error
             NBS.switch_to.window(new_window)
-            #Enter either Hepatitis B/C, acute
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="subsect_chng_cond"]/tbody/tr[2]/td[2]/input')))
-            NBS.find_element(By.XPATH, '//*[@id="subsect_chng_cond"]/tbody/tr[2]/td[2]/input').send_keys(condition)
-            #click submit
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="popupButtonBottom"]/input[1]')))
-            NBS.find_element(By.XPATH, '//*[@id="popupButtonBottom"]/input[1]').click()
+            #Enter either Hepatitis B/C, acute -- popup condition autocomplete: set the
+            # input + any matching underlying <select> via JS (synthetic input doesn't drive it).
+            cond_input = '//*[@id="subsect_chng_cond"]/tbody/tr[2]/td[2]/input'
+            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, cond_input)))
+            NBS.execute_script("""
+                var cond=arguments[0], inp=arguments[1];
+                if(inp) inp.value=cond;
+                var sels=document.getElementsByTagName('select');
+                for(var k=0;k<sels.length;k++){var s=sels[k];
+                    for(var i=0;i<s.options.length;i++){if(s.options[i].text.trim()===cond){s.selectedIndex=i;break;}}}
+            """, condition, NBS.find_element(By.XPATH, cond_input))
+            #click submit (popup)
+            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="popupButtonBottom"]/input[1]')))
+            js_click('//*[@id="popupButtonBottom"]/input[1]', 'popup submit')
+            time.sleep(2)
             #click okay
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="confirmationText"]/tbody/tr[11]/td/input[1]')))
-            NBS.find_element(By.XPATH, '//*[@id="confirmationText"]/tbody/tr[11]/td/input[1]').click()
+            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="confirmationText"]/tbody/tr[11]/td/input[1]')))
+            js_click('//*[@id="confirmationText"]/tbody/tr[11]/td/input[1]', 'popup okay')
             #go back to original window
             NBS.switch_to.window(original_window)
             #leave comment
@@ -1875,20 +1922,20 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
                 WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="DEM196"]')))
                 NBS.find_element(By.XPATH, '//*[@id="DEM196"]').send_keys(f'\nNew ALT lab >200 within 3 months. Case classification is changed from chronic to confirmed acute. -nbsbot Lab Id: {event_id} -nbsbot {NBS.now_str}')
                 
-            #set investigation status to closed
-            investigation_status_down_arrow = '//*[@id="NBS_UI_19"]/tbody/tr[4]/td[2]/img'
-            closed_option = '//*[@id="INV109"]/option[1]' 
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, investigation_status_down_arrow)))
-            NBS.find_element(By.XPATH, investigation_status_down_arrow).click()
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, closed_option)))
-            NBS.find_element(By.XPATH, closed_option).click()
-            #set case status to confirmed
+            #set investigation status to closed (<select id=INV109> via JS)
+            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV109"]')))
+            NBS.execute_script("""
+                var s=document.getElementById('INV109');
+                if(s){for(var i=0;i<s.options.length;i++){if(s.options[i].text.trim()==='Closed'){s.selectedIndex=i;break;}}}
+            """)
+            #set case status to confirmed (text field via JS)
             WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, case_status_path)))
-            NBS.find_element(By.XPATH, case_status_path).send_keys("Confirmed")
-            
-            #go to hepatitis core tab
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="tabs0head2"]')))
-            NBS.find_element(By.XPATH, '//*[@id="tabs0head2"]').click()
+            NBS.execute_script("arguments[0].value='Confirmed';", NBS.find_element(By.XPATH, case_status_path))
+
+            #go to hepatitis core tab via selectTab onclick (js_click)
+            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="tabs0head2"]')))
+            js_click('//*[@id="tabs0head2"]', 'hepatitis core tab')
+            time.sleep(2)
             
             #fill in lab info
             if test_type == "Antigen":
@@ -1925,7 +1972,7 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
                 try:
                     timeout = NBS.wait_before_timeout + i*10
                     WebDriverWait(NBS, timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="SubmitTop"]')))
-                    NBS.find_element(By.XPATH, '//*[@id="SubmitTop"]').click()
+                    js_click('//*[@id="SubmitTop"]', 'SubmitTop')
                     print("Update investigation to acute")
                     what_do.append("Update investigation to acute")
                     print(f"eventid = {event_id} and action = {what_do}")
@@ -1943,18 +1990,18 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
         #associate with investigation
         #click on associate button
         if associate == True:
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="doc3"]/div[2]/table/tbody/tr/td[2]/input[2]')))
-            NBS.find_element(By.XPATH, '//*[@id="doc3"]/div[2]/table/tbody/tr/td[2]/input[2]').click()
+            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="doc3"]/div[2]/table/tbody/tr/td[2]/input[2]')))
+            js_click('//*[@id="doc3"]/div[2]/table/tbody/tr/td[2]/input[2]', 'associate button')
             time.sleep(3)
             #identify investigation, name and date? maybe index from investigations table
             inv_to_assoc = investigation_table[investigation_table["Condition"].str.contains(test_condition)]
             for i in inv_to_assoc.index:
                 inv_ind = i+1
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, f"//*[@id='parent']/tbody/tr[{inv_ind}]/td[1]/div/input")))
-                NBS.find_element(By.XPATH, f"//*[@id='parent']/tbody/tr[{inv_ind}]/td[1]/div/input").click()
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, f"//*[@id='parent']/tbody/tr[{inv_ind}]/td[1]/div/input")))
+                js_click(f"//*[@id='parent']/tbody/tr[{inv_ind}]/td[1]/div/input", 'associate checkbox')
             #click submit
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="Submit"]')))
-            NBS.find_element(By.XPATH, '//*[@id="Submit"]').click()
+            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="Submit"]')))
+            js_click('//*[@id="Submit"]', 'associate submit')
             print("Associate with Investigation")
             if update_status == True:
                 what_do.append("Update and Associate with Investigation")
