@@ -784,6 +784,18 @@ class NBSdriver(webdriver.Chrome):
         session recover instead of failing every cycle.
         """
         partial_link = "Home"
+        # A prior step (popup/notification window) may have closed the window the
+        # driver was on, leaving the current handle dead (NoSuchWindowException on the
+        # next call). Switch to a surviving window before doing anything else.
+        try:
+            _ = self.current_url
+        except Exception:
+            try:
+                handles = self.window_handles
+                if handles:
+                    self.switch_to.window(handles[0])
+            except Exception as e:
+                print(f"go_to_home: could not recover a live window: {e}")
         for i in range(3):
             try:
                 timeout = self.wait_before_timeout + i * 10

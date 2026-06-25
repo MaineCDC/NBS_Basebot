@@ -21,6 +21,11 @@ class HepBNotificationReview(NBSdriver):
         self.num_approved = 0
         self.num_rejected = 0
         self.num_fail = 0
+        # Manual-review ids accumulate across the whole run and are consumed by
+        # SendEmailToAssign() at end-of-run. Initialized here (NOT reset per case)
+        # so every flagged case is emailed, not just the last one.
+        self.hepb_assign_email_id = []
+        self.hepb_email = False
         # self.Reset()
         # self.read_config()
         # self.GetObInvNames()
@@ -86,6 +91,88 @@ class HepBNotificationReview(NBSdriver):
         self.liverenzymelevels() #alt_sgpt_result
         self.CheckDiagnosticTestResults() #diagnostic test results
         self.CaseClassificationHepB()
+        # Case 3 (per epi 06/16/2026): detect a prior Hep B investigation already on
+        # the patient. Runs last because it navigates to the patient file and back.
+        self.CheckPriorHepBInvestigation()
+
+    def CheckPriorHepBInvestigation(self):
+        """ Case 3 fix (per epi 06/16/2026): flag a case that already has a prior
+        Hepatitis B investigation on the patient and route it to manual review.
+
+        CaseClassificationHepB only reads the supplemental 'previous investigation'
+        fields (ME10099141/142), which are frequently blank even when a prior
+        investigation exists. This reads the patient's investigation table (#inv1 on
+        the Events tab) directly -- the same source audrey_bot uses -- and flags the
+        case if another confirmed/probable Hep B investigation is present.
+
+        This NAVIGATES to the patient file and back, so it is fully defensive: any
+        failure leaves self.issues untouched (no false rejection) and best-effort
+        restores the investigation view for the subsequent ReturnApprovalQueue/reject
+        flow.
+
+        *** MUST BE LIVE-TESTED ***  Confirm (1) the 'View File' link
+        //*[@id="doc3"]/div[1]/a[1] is present in the notification-review view, and
+        (2) returning to origin_url restores the queue context so ReturnApprovalQueue()
+        and RejectNotification() still work. Watch a prod run closely before trusting.
+        """
+        origin_url = None
+        try:
+            origin_url = self.current_url
+        except Exception:
+            pass
+        try:
+            # Open the patient file. NBS's jQuery intercepts the native link click on
+            # current Chrome, so navigate via the href directly (same as audrey_bot).
+            view_file = WebDriverWait(self, self.wait_before_timeout).until(
+                EC.presence_of_element_located((By.XPATH, '//*[@id="doc3"]/div[1]/a[1]')))
+            href = view_file.get_attribute("href")
+            if href and href.startswith("http"):
+                self.get(href)
+            else:
+                view_file.click()
+            WebDriverWait(self, self.wait_before_timeout).until(
+                EC.presence_of_element_located((By.XPATH, '//*[@id="tabs0head1"]')))
+            self.go_to_events()
+            try:
+                inv_table = self.read_investigation_table()
+            except Exception as e:
+                print(f"CheckPriorHepBInvestigation: no investigation table ({e}); skipping.")
+                inv_table = None
+            if inv_table is not None and 'Condition' in list(inv_table.columns):
+                hepb = inv_table[inv_table['Condition'].str.contains('hepatitis b', case=False, na=False)]
+                # Exclude the investigation currently under review.
+                if 'Investigation ID' in hepb.columns and getattr(self, 'inv_id', None):
+                    hepb = hepb[hepb['Investigation ID'].astype(str).str.strip()
+                                != str(self.inv_id).strip()]
+                # Only a prior CONFIRMED/PROBABLE Hep B investigation indicates the
+                # current notification is likely a duplicate of an already-counted case.
+                if 'Case Status' in hepb.columns:
+                    prior = hepb[hepb['Case Status'].str.contains('confirmed|probable',
+                                                                  case=False, na=False)]
+                else:
+                    prior = hepb
+                if len(prior) > 0:
+                    self.hepb_email = True
+                    if self.inv_id not in self.hepb_assign_email_id:
+                        self.hepb_assign_email_id.append(self.inv_id)
+                    self.issues.append('Prior Hepatitis B investigation exists on this '
+                                       'case - manual review required.')
+        except Exception as e:
+            print(f"CheckPriorHepBInvestigation failed (skipping, no issue added): {e}")
+        finally:
+            # Best-effort restore so the queue-return/reject flow keeps working.
+            try:
+                if origin_url and self.current_url != origin_url:
+                    self.get(origin_url)
+                    WebDriverWait(self, self.wait_before_timeout).until(
+                        EC.presence_of_element_located((By.XPATH, '//*[@id="bd"]/div[1]/a')))
+            except Exception as e:
+                print(f"CheckPriorHepBInvestigation: could not restore investigation "
+                      f"view ({e}); trying browser back.")
+                try:
+                    self.back()
+                except Exception:
+                    pass
 
     def CheckInvestigationType(self):
         """ Check if investigation type is acute or chronic."""
@@ -1082,8 +1169,7 @@ class HepBNotificationReview(NBSdriver):
         from dateutil.relativedelta import relativedelta
         import re
         inv_id = self.ReadText('//*[@id="bd"]/table[3]/tbody/tr[2]/td[1]/span[2]')
-        self.hepb_assign_email_id = []
-        self.hepb_email = False
+        self.inv_id = inv_id
         diff = relativedelta(self.now, self.dob)
         months_diff = diff.years * 12 + diff.months
         # Safe lower helpers
@@ -1164,6 +1250,35 @@ class HepBNotificationReview(NBSdriver):
         hbeag_result = get_result(self.result_check_hbeag)
         hbeag_pos = hbeag_result == "positive"
         hbeag_neg = hbeag_result == "negative"
+
+        # Case 1 fix (per epi 06/16/2026): acute Hepatitis B (confirmed OR probable)
+        # requires clinical criteria in addition to lab criteria. Clinical criteria =
+        # jaundice, OR ALT/SGPT > 200, OR total bilirubin > 3.0. This mirrors the
+        # expression already used in the chronic branches below.
+        self.clinical_criteria_met = (
+            safe_lower(self.was_patient_jaundiced) == 'yes'
+            or (self.alt_sgpt_result and str(self.alt_sgpt_result).strip().isdigit()
+                and int(self.alt_sgpt_result) > 200)
+            or (self.total_bilirubin_result
+                and str(self.total_bilirubin_result).replace('.', '', 1).isdigit()
+                and float(self.total_bilirubin_result) > 3.0)
+        )
+
+        def acute_verdict(message):
+            """Emit an 'acute' classification only when clinical criteria are met.
+            When labs indicate acute but clinical criteria are absent, route the case
+            to manual review instead of auto-classifying it as acute."""
+            if self.clinical_criteria_met:
+                self.issues.append(message)
+            else:
+                self.hepb_email = True
+                if inv_id not in self.hepb_assign_email_id:
+                    self.hepb_assign_email_id.append(inv_id)
+                self.issues.append(
+                    'Labs suggest acute Hepatitis B but clinical criteria (jaundice, '
+                    'ALT>200, or total bilirubin>3.0) are not documented - routing to '
+                    'manual review.'
+                )
 # 3/30/2026
         '''dna_pos = is_positive(self.result_check_dna)
         dna_neg = is_negative(self.result_check_dna)
@@ -1238,13 +1353,13 @@ class HepBNotificationReview(NBSdriver):
                     elif ( not previous_investigation_chronic or  previous_investigation_chronic == 'none') and ( not previous_investigation_acute or previous_investigation_acute == 'none'):
                         if documented_neg_hbsag_test == "yes" and  previous_negative_exists == True:
                             if not self.acute_inv or current_status != "confirmed":
-                                self.issues.append("incorrect case classification, should be acute confirmed." )
+                                acute_verdict("incorrect case classification, should be acute confirmed.")
                             return
                         # Core decision tree (cleaned)
                         elif dna_pos :
                             if igm_pos:
                                 if not self.acute_inv or current_status != "confirmed":
-                                    self.issues.append( "incorrect case classification, should be acute confirmed.")
+                                    acute_verdict("incorrect case classification, should be acute confirmed.")
                             elif igm_neg:
                                 if not self.chronic_inv or current_status != "confirmed":
                                     self.issues.append("incorrect case classification, should be chronic confirmed.")
@@ -1263,7 +1378,7 @@ class HepBNotificationReview(NBSdriver):
                             if antigen_pos:
                                 if igm_pos:
                                     if not self.acute_inv or current_status != "confirmed":
-                                        self.issues.append("incorrect case classification, should be acute confirmed.")
+                                        acute_verdict("incorrect case classification, should be acute confirmed.")
                                 elif igm_neg:
                                     if core_pos:
                                         if not self.chronic_inv or current_status != "confirmed":
@@ -1307,7 +1422,7 @@ class HepBNotificationReview(NBSdriver):
                                 if hbeag_pos:
                                     if igm_pos:
                                         if self.acute_inv == False or self.current_case_status.lower() != "confirmed":
-                                            self.issues.append("incorrect case classification, should be acute confirmed.")
+                                            acute_verdict("incorrect case classification, should be acute confirmed.")
                                     elif igm_neg or (not igm_pos and not igm_neg):
                                         if core_pos:
                                             if self.chronic_inv == False or self.current_case_status.lower() != "confirmed":

@@ -1,12 +1,19 @@
-C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\audrey_files\audrey_bot.py:1803: SyntaxWarning: invalid escape sequence '\d'
-  NBS.find_element(By.XPATH, '//*[@id="1742_6"]').send_keys(re.findall(r'\b\d+\b',alt_lab["Test Results"].iloc[0])[0])
 [run_audrey_iter] user='nbsauto.dhhs' is_logged_in=True
 [audrey] target site: PRODUCTION
-current-handle-title:  Documents Requiring Review
-Handle ID: 3AB05C4D0B310A61010D29385041049E | Title: NBS Page Management | URL: https://nbs.iphis.maine.gov/nbs/PageAction.do?method=createSubmit&ContextAction=Submit
-Handle ID: 9BD06F99CD91B2236E03D5CD342E3B25 | Title: Documents Requiring Review | URL: https://nbs.iphis.maine.gov/nbs/MyTaskList1.do?ContextAction=Review&initLoad=true&labReportsCount=115
-handles: ['3AB05C4D0B310A61010D29385041049E', '9BD06F99CD91B2236E03D5CD342E3B25']
-Reused warm NBS session; returned to Home (no re-login).
+current-handle-title:  repos
+Handle ID: 03D0B07B4EDF3234E779B7EA521A7917 | Title: repos | URL: http://repos/NBS_Basebot/chrome-bot-profile
+handles: ['03D0B07B4EDF3234E779B7EA521A7917']
+go_to_home: click path failed (current_url='http://repos/NBS_Basebot/chrome-bot-profile' title='repos'); hard-navigating to Home URL.
+Warm-session reuse failed (Made unsuccessful attempts to load Home page (click + direct URL). A persistent issue with NBS was encountered.); attempting a fresh login.
+logging in...
+Login form submitted via /html/body/div[2]/p[2]/input[1]
+Auto-login did not reach the portal within 90s. current_url='https://nbs.iphis.maine.gov/' title='RSA SecurID PASSCODE Request'
+
+*** LOGIN NEEDS ATTENTION ***
+Please finish logging in to NBS in the open Chrome window now.
+Waiting up to 5 minutes for the NBS portal/home to appear...
+
+WARNING: login still not complete after waiting 5 minutes; giving up.
 RETRIEVE NBS PATIENT LIST:
 Connecting to nbs_odse database...
 cstring: DRIVER={ODBC Driver 18 for SQL Server}; SERVER=sql-dhhs-nbs-prod.som.w2k.state.me.us\NBS; DATABASE=nbs_odse; UID=nbs_rdb; PWD=rdb; TrustServerCertificate=yes
@@ -14,42 +21,23 @@ Connected to nbs_odse. Executing query...
 C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\audrey_files\audrey.py:100: UserWarning: pandas only supports SQLAlchemy connectable (engine/connection) or database string URI or sqlite3 DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
   self.patient_list = pd.read_sql_query(query, Connection)
 Data recieved and database connection closed.
-0it [00:00, ?it/s]Mark as Reviewed
-eventid = OBS61975867ME01 and action = ['Mark as Reviewed']
-1it [00:31, 31.40s/it]Mark as Reviewed
-eventid = OBS61975860ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed']
-2it [01:03, 32.02s/it]C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\audrey_files\audrey_bot.py:629: UserWarning: Could not infer format, so each element will be parsed individually, falling back to `dateutil`. To ensure parsing is consistent and as-expected, please specify a format.
-  alt_lab_table['Date Received'] = pd.to_datetime(alt_lab_table['Date Received'])
-Mark as Reviewed
-eventid = OBS61975856ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed']
-3it [01:37, 32.79s/it]C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\audrey_files\audrey_bot.py:629: UserWarning: Could not infer format, so each element will be parsed individually, falling back to `dateutil`. To ensure parsing is consistent and as-expected, please specify a format.
-  alt_lab_table['Date Received'] = pd.to_datetime(alt_lab_table['Date Received'])
-Mark as Reviewed
-eventid = OBS61975853ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed']
-4it [02:08, 32.07s/it]More than one test in ELR
-eventid = OBS61975774ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR']
-0    NAKAI-LOMBARDI, SHARI  Patient ID: 16909382 Fe...
-Name: Patient, dtype: object
-5it [02:32, 29.06s/it]More than one test in ELR
-eventid = OBS61975762ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR']
-1    DEANS, DEBORAH  Patient ID: 4668941 Female 12/...
-Name: Patient, dtype: object
-6it [02:57, 27.80s/it]More than one test in ELR
-eventid = OBS61975596ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR']
-2    HEWEY, MELANIE  Patient ID: 1130613 Female 03/...
-Name: Patient, dtype: object
-7it [03:24, 27.66s/it]More than one test in ELR
-eventid = OBS61975509ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR']
-3    RICHARDSON, KEVIN  Patient ID: 16548465 Male 1...
-Name: Patient, dtype: object
-8it [03:52, 27.54s/it]Mark as Reviewed
-eventid = OBS61975950ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Mark as Reviewed']
-9it [04:22, 28.36s/it]Mark as Reviewed
-eventid = OBS61975948ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Mark as Reviewed']
-10it [04:57, 30.44s/it]Saving results: ['OBS61975867ME01', 'OBS61975860ME01', 'OBS61975856ME01', 'OBS61975853ME01', 'OBS61975774ME01', 'OBS61975762ME01', 'OBS61975596ME01', 'OBS61975509ME01', 'OBS61975950ME01', 'OBS61975948ME01'], ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Mark as Reviewed']
-Appending 10 new records to existing file with 18 records
-After removing duplicates: 25 total records
-Results saved to saved/Hepatitis/Hepatitis_bot_activity_final_06_17_2026.xlsx (Total records: 25)
-Mark as Reviewed
-eventid = OBS61975945ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed']
-11it [05:31, 31.49s/it]
+0it [00:00, ?it/s]DRR link not found on Home; using fallback URL (retry 0)
+TimeoutException opening review queue, trying again... retry_number: 0
+DRR link not found on Home; using fallback URL (retry 1)
+TimeoutException opening review queue, trying again... retry_number: 1
+DRR link not found on Home; using fallback URL (retry 2)
+TimeoutException opening review queue, trying again... retry_number: 2
+Could not open the review queue after 3 tries; resetting to Home and retrying pass.
+go_to_home: click path failed (current_url='https://nbs.iphis.maine.gov/nbs/timeout' title='NBS'); hard-navigating to Home URL.
+0it [06:49, ?it/s]
+
+==================== UNHANDLED EXCEPTION ====================
+Traceback (most recent call last):
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\run_audrey_iter.py", line 32, in main
+    target(username, passcode, None, is_logged_in)
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\audrey_files\audrey_bot.py", line 224, in start_audrey
+    NBS.go_to_home()
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\Base.py", line 838, in go_to_home
+    raise RuntimeError(
+RuntimeError: Made unsuccessful attempts to load Home page (click + direct URL). A persistent issue with NBS was encountered.
+============================================================

@@ -2,3 +2,14 @@
 2026-06-15 10:04:39  === RUN END === - reviewed 10 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
 2026-06-15 10:39:26  === RUN START === - mode=LIVE; cap=6; 6 Anaplasma case(s) in queue
 2026-06-15 10:43:28  === RUN END === - reviewed 6 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-06-17 14:55:05  === RUN START === - mode=LIVE; cap=33; 33 Anaplasma case(s) in queue
+2026-06-17 15:29:44  === RUN END === - reviewed 33 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-06-18 09:21:02  === RUN START === - mode=LIVE; cap=17; 17 Anaplasma case(s) in queue
+2026-06-18 09:42:00  === RUN END === - reviewed 17 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-06-22 12:35:35  === RUN START === - mode=LIVE; cap=17; 17 Anaplasma case(s) in queue
+2026-06-22 12:54:15  === RUN END === - reviewed 17 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-06-22 13:39:24  === RUN START === - mode=LIVE; cap=371; 371 Anaplasma case(s) in queue
+2026-06-24 08:46:04  === RUN START === - mode=LIVE; cap=69; 69 Anaplasma case(s) in queue
+2026-06-24 11:03:52  === RUN END === - reviewed 36 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-06-24 14:25:05  === RUN START === - mode=LIVE; cap=56; 56 Anaplasma case(s) in queue
+2026-06-24 17:07:26  === RUN END === - reviewed 6 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx

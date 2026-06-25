@@ -904,16 +904,33 @@ class Audrey(NBSdriver):
 
     def create_notification(self):
         """After completing a case create notification for it."""
+        def _js_or_click(xpath):
+            # Native clicks are swallowed by NBS's jQuery handler on current Chrome;
+            # run the element's own onclick directly instead.
+            el = self.find_element(By.XPATH, xpath)
+            oc = el.get_attribute("onclick")
+            if oc:
+                self.execute_script(oc)
+            else:
+                el.click()
         for i in range(3):
             try:
                 create_button_path = '//*[@id="createNoti"]'
                 WebDriverWait(self,self.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, create_button_path)))
-                self.find_element(By.XPATH,create_button_path).click()
+                _js_or_click(create_button_path)
+                sleep(2)
                 self.switch_to_secondary_window()
                 submit_button_path = '//*[@id="botcreatenotId"]/input[1]'
                 WebDriverWait(self,self.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, submit_button_path)))
-                self.find_element(By.XPATH, submit_button_path).click()
-                self.switch_to.window(self.main_window_handle)
+                _js_or_click(submit_button_path)
+                sleep(2)
+                # Always return to a live main window (the popup may have closed).
+                try:
+                    self.switch_to.window(self.main_window_handle)
+                except Exception:
+                    handles = self.window_handles
+                    if handles:
+                        self.switch_to.window(handles[0])
                 break
             except TimeoutException:
                 print(f"Timeout waiting for create_notification, retry_number: {i}")
