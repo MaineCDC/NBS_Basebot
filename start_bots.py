@@ -24,11 +24,6 @@ from selenium.webdriver.chrome.options import Options
 CHROME_PORT = 9223
 USER_DATA_DIR = os.getcwd() + r"\chrome-bot-profile"
 
-# Seconds to wait after a full pass over every selected bot before looping back
-# to re-check each dropdown for new cases. The periodic queue activity also keeps
-# the NBS session warm so no re-login is needed. Override with IDLE_BACKOFF_SECONDS.
-IDLE_BACKOFF_SECONDS = int(os.getenv("IDLE_BACKOFF_SECONDS", "300"))
-
 
 def kill_bot_profile_chrome():
     """Terminate only Chrome processes using the bot profile dir.
@@ -216,36 +211,34 @@ def run_bots():
         passcode = input('Enter your RSA passcode:')
         chrome_process = launch_chrome()
 
-        # CONTINUOUS ROUND-ROBIN: run the selected bots in the user's order,
-        # over and over. The FIRST bot of the FIRST cycle performs the single
-        # login (is_logged_in=False); every other run reuses the warm shared
-        # session (is_logged_in=True). Each bot ends its own pass when its queue
-        # is empty, then the next bot runs; after the last bot we sleep briefly
-        # and loop back to re-check every dropdown for newly arrived cases.
+        # SINGLE ROUND-ROBIN PASS: run the selected bots once, in the user's
+        # order. The FIRST bot performs the single login (is_logged_in=False);
+        # every other run reuses the warm shared session (is_logged_in=True).
+        # Each bot ends its own pass when its queue is empty, then the next bot
+        # runs. After the last bot finishes we STOP -- the bots no longer loop
+        # back to re-check the queues (that auto-rerun spammed a "bot run" email
+        # every cycle even when there were no new cases). Re-run start_bots.py
+        # whenever you want another pass.
         # The @error_handle decorator on each start_* already logs per-bot
-        # exceptions, and we also guard here so one bad bot never stops the loop.
+        # exceptions, and we also guard here so one bad bot never stops the pass.
         # Stop cleanly any time with Ctrl-C.
-        cycle = 0
-        while True:
-            cycle += 1
-            print(f"\n================= CYCLE {cycle} =================")
-            for i, target in enumerate(targets):
-                is_logged_in = not (cycle == 1 and i == 0)
-                name = target.__name__.replace('start_', '')
-                print(f"[cycle {cycle}] starting bot {i + 1}/{len(targets)}: {name} "
-                      f"({'reusing session' if is_logged_in else 'logging in'})")
-                try:
-                    target(username, passcode, login_complete, is_logged_in)
-                except Exception as e:
-                    # @error_handle already wrote the traceback to error_logs.txt;
-                    # keep cycling so a single failing bot can't halt the others.
-                    print(f"[cycle {cycle}] {name} raised an error; continuing: {e}")
-                print(f"[cycle {cycle}] finished bot {name}; moving to the next bot...")
+        print("\n================= STARTING SINGLE PASS =================")
+        for i, target in enumerate(targets):
+            is_logged_in = i != 0
+            name = target.__name__.replace('start_', '')
+            print(f"starting bot {i + 1}/{len(targets)}: {name} "
+                  f"({'reusing session' if is_logged_in else 'logging in'})")
+            try:
+                target(username, passcode, login_complete, is_logged_in)
+            except Exception as e:
+                # @error_handle already wrote the traceback to error_logs.txt;
+                # keep going so a single failing bot can't halt the others.
+                print(f"{name} raised an error; continuing: {e}")
+            print(f"finished bot {name}; moving to the next bot...")
 
-            print(f"================= CYCLE {cycle} COMPLETE ================="
-                  f"\nNo more cases this pass. Sleeping {IDLE_BACKOFF_SECONDS}s, then "
-                  f"re-checking every dropdown for new cases. (Ctrl-C to stop.)")
-            time.sleep(IDLE_BACKOFF_SECONDS)
+        print("================= PASS COMPLETE ================="
+              "\nAll selected bots have run once. Stopping (no auto-rerun). "
+              "Run start_bots.py again for another pass.")
 
     except KeyboardInterrupt:
         print("\nStop requested (Ctrl-C). Shutting the bots down cleanly...")

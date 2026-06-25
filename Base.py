@@ -1018,7 +1018,16 @@ class NBSdriver(webdriver.Chrome):
         """
         Sort approval queue so that cases are listed chronologically by
         notification creation date and in reverse alpha order.
-        (Strep-focused version from newer file.)
+
+        Athena-only (COVID-19) helper. This filters the Condition dropdown down
+        to '2019 Novel Coronavirus (2019-nCoV)' so athena reviews COVID cases
+        instead of whatever happens to sit at the top of the queue. (It used to
+        select the Group A Streptococcus boxes -- a strep-focused version got
+        merged in here -- which made athena filter OUT every COVID case and only
+        ever see iGAS, so it always reported "No COVID-19 cases".) If there are
+        no COVID cases the Condition checkbox won't exist, so we cancel out of the
+        dropdown and flag queue_loaded = False, matching the original
+        SortApprovalQueueAthena behavior.
         """
         clear_filter_path = '//*[@id="removeFilters"]/a/font'
         submit_date_path = '//*[@id="parent"]/thead/tr/th[3]/a'
@@ -1044,26 +1053,27 @@ class NBSdriver(webdriver.Chrome):
             )
             self.find_element(By.XPATH, clear_checkbox_path).click()
             try:
-                # Group A Streptococcus logic (newer)
+                # COVID-19 logic: filter the Condition dropdown to COVID so
+                # athena reviews COVID cases. If the COVID option isn't present
+                # there are no COVID cases -> NoSuchElementException -> cancel the
+                # dropdown (input[2]) and flag the queue empty for athena.
                 self.find_element(
-                    By.XPATH, "//label[contains(text(),'Group A Streptococcus, invasive')]/input"
+                    By.XPATH, "//label[contains(text(),'2019 Novel Coronavirus (2019-nCoV)')]/input"
                 ).click()
-                try:
-                    self.find_element(
-                        By.XPATH, "//label[contains(text(),'STREPTOCOCCUS PYOGENES')]/input"
-                    ).click()
-                except Exception as e:
-                    print(f"Error encountered: {e}")
 
+                # Click OK (input[1]) to apply the COVID filter.
                 self.find_element(
                     By.XPATH,
                     "/html/body/div[2]/form/div/table[2]/tbody/tr/td/table/thead/tr/th[8]/div/label[1]/input[1]",
                 ).click()
             except NoSuchElementException:
+                # No COVID cases in the queue: cancel out of the dropdown and let
+                # athena's "No COVID-19 cases" path end the pass cleanly.
                 self.find_element(
                     By.XPATH,
                     "/html/body/div[2]/form/div/table[2]/tbody/tr/td/table/thead/tr/th[8]/div/label[1]/input[2]",
                 ).click()
+                self.queue_loaded = False
             except Exception as e:
                 print(f"Error encountered: {e}")
 
