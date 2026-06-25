@@ -840,6 +840,23 @@ class NBSdriver(webdriver.Chrome):
                 "A persistent issue with NBS was encountered."
             )
 
+    def _on_approval_queue(self, timeout=2):
+        """True if the browser is on the Initial Notifications approval queue.
+
+        Lets callers tell apart "no filter to clear / already unfiltered" (fine --
+        keep going) from "we're on the Dashboard or a broken page" (must recover),
+        and lets GoToApprovalQueue verify its link click actually navigated. Matches
+        on the queue page's title or URL, both of which differ from Home.
+        """
+        try:
+            return bool(WebDriverWait(self, timeout).until(
+                lambda d: ("Approval Queue" in (d.title or ""))
+                or ("MyTaskList1.do" in d.current_url)
+                or ("LoadReviewNotifications" in d.current_url)
+            ))
+        except Exception:
+            return False
+
     def GoToApprovalQueue(self):
         """Navigate to approval queue from Home page."""
         # On the new test site the home-page worklist link's click is intercepted
@@ -857,6 +874,7 @@ class NBSdriver(webdriver.Chrome):
             return
 
         partial_link = "Approval Queue for Initial Notifications"
+        queue_url = self.site.rstrip("/") + "/nbs/MyTaskList1.do?ContextAction=NNDApproval&initLoad=true"
         try:
             # Clear any loading overlay so the link click isn't intercepted by a
             # stuck blockparent (the failure mode that froze the HepB bot).
@@ -868,25 +886,38 @@ class NBSdriver(webdriver.Chrome):
         except (TimeoutException, ElementClickInterceptedException):
             # The Home-page link isn't there/clickable -- this happens on the
             # transient "NBS Redirecting Page" after a warm-session portal click,
-            # or when a stuck overlay intercepts the click. Fall back to navigating
-            # straight to the approval-queue URL (the same one a successful run
-            # lands on), which is robust to both and tears down a frozen overlay.
+            # or when a stuck overlay intercepts the click. The direct-URL
+            # navigation below is robust to both and tears down a frozen overlay.
             try:
                 print(f"GoToApprovalQueue: '{partial_link}' link not found/clickable. "
                       f"current_url={self.current_url!r} title={self.title!r} "
-                      f"window_handles={len(self.window_handles)}; "
-                      f"falling back to direct queue URL.")
+                      f"window_handles={len(self.window_handles)}.")
             except Exception:
                 pass
-            queue_url = self.site.rstrip("/") + "/nbs/MyTaskList1.do?ContextAction=NNDApproval&initLoad=true"
+
+        # VERIFY we actually reached the queue. The Home-page link's click can
+        # register WITHOUT navigating (an onclick handler swallows it), raising no
+        # exception -- so the bot silently stays on the Dashboard and every
+        # following SortQueue then fails on a page that has no filter controls,
+        # looping forever in HandleBadQueueReturn. If we are not on the queue,
+        # hard-navigate to its URL (the same one a successful run lands on). Done
+        # for BOTH paths above (link click and the exception fallback) since a
+        # silent no-nav click is exactly what broke a live run.
+        if not self._on_approval_queue(timeout=self.wait_before_timeout):
+            try:
+                print(f"GoToApprovalQueue: did not reach the queue after the link "
+                      f"click (current_url={self.current_url!r} title={self.title!r}); "
+                      f"navigating directly to the queue URL.")
+            except Exception:
+                pass
             try:
                 self.get(queue_url)
-                WebDriverWait(self, self.wait_before_timeout).until(
-                    EC.presence_of_element_located((By.XPATH, '//*[@id="removeFilters"]'))
-                )
-                return
-            except TimeoutException:
-                self.HandleBadQueueReturn()
+                # Don't gate on '#removeFilters' here: a freshly loaded queue is
+                # unfiltered, so that link is absent -- waiting on it timed out on
+                # a perfectly good queue. Confirm arrival by the queue page itself.
+                self._on_approval_queue(timeout=self.wait_before_timeout)
+            except Exception as e:
+                print(f"GoToApprovalQueue: direct navigation to the queue failed: {e}")
 
     def RecoverQueueAfterError(self, hard_reset_threshold=2):
         """Recover to a clean, filterable queue after a mid-review page error.
@@ -971,6 +1002,58 @@ class NBSdriver(webdriver.Chrome):
               f"{label or xpath}: {last_exc}")
         return False
 
+    def _multiselect_dropdown_open(self, dropdown_div_xpath):
+        """True if NBS's Condition multi-select dropdown is currently expanded."""
+        try:
+            div = self.find_element(By.XPATH, dropdown_div_xpath)
+        except (NoSuchElementException, StaleElementReferenceException):
+            return False
+        try:
+            return self.execute_script(
+                "return getComputedStyle(arguments[0]).display;", div
+            ) != "none"
+        except (JavascriptException, StaleElementReferenceException):
+            return False
+
+    def ensure_multiselect_open(self, toggle_xpath, dropdown_div_xpath, attempts=4):
+        """Open NBS's Condition multi-select dropdown and CONFIRM it expanded.
+
+        The Condition filter is a custom toggle: clicking the queueIcon <img>
+        flips a sibling .multiSelectOptions <div> between display:none and
+        visible. The "(Select All)" checkbox and condition checkboxes live inside
+        that <div>, so they are 0x0 / not clickable until it is open.
+
+        The old SortQueue clicked the toggle BLINDLY every pass. That works when
+        the dropdown starts closed, but in the review loop the dropdown can
+        already be open (clicking it then CLOSES it) or a reload right after
+        clearing filters re-closes it after the click "succeeds" -- either way the
+        (Select All) checkbox stays hidden and every in-loop sort timed out on it,
+        burning ~3 min per case and actioning nothing. So instead of toggling
+        blindly we check the div's computed display and only click when it is
+        actually closed, then verify it opened (retrying, with a JS-click
+        fallback). Returns True once the dropdown is confirmed open.
+        """
+        for i in range(attempts):
+            if self._multiselect_dropdown_open(dropdown_div_xpath):
+                return True
+            self.dismiss_block_overlay()
+            try:
+                img = WebDriverWait(self, self.wait_before_timeout).until(
+                    EC.element_to_be_clickable((By.XPATH, toggle_xpath))
+                )
+                try:
+                    img.click()
+                except (ElementClickInterceptedException, StaleElementReferenceException):
+                    self.execute_script(
+                        "arguments[0].click();", self.find_element(By.XPATH, toggle_xpath)
+                    )
+            except (TimeoutException, StaleElementReferenceException,
+                    JavascriptException, NoSuchElementException) as e:
+                print(f"ensure_multiselect_open retry {i + 1}/{attempts} for "
+                      f"{toggle_xpath}: {type(e).__name__}")
+            time.sleep(1)
+        return self._multiselect_dropdown_open(dropdown_div_xpath)
+
     def SortQueue(self, paths: dict):
         """Sort review queue so that only specified investigations are listed.
 
@@ -983,19 +1066,41 @@ class NBSdriver(webdriver.Chrome):
             # Clear any loading overlay first so the filter clicks below aren't
             # intercepted by a stuck blockparent.
             self.dismiss_block_overlay()
-            # Clear all filters
+            # Clear any existing filter. The "remove filters" link only exists
+            # when a filter is actually applied, so a failure here usually just
+            # means the queue is already unfiltered -- NOT a broken page. Only
+            # recover (reload the queue) when we're genuinely off the queue (e.g.
+            # a recovery left us on the Dashboard); otherwise keep going and
+            # (re)apply the condition filter via the dropdown below. Previously any
+            # clear_filter failure bailed to HandleBadQueueReturn, which on an
+            # unfiltered queue looped forever (reload -> still no filter link ->
+            # reload), burning ~100s/iteration and actioning nothing.
             if not self.safe_click_xpath(paths["clear_filter_path"], "clear_filter_path"):
-                self.HandleBadQueueReturn()
-                return
+                if not self._on_approval_queue(timeout=5):
+                    print("SortQueue: clear_filter failed and not on the approval "
+                          "queue; recovering via HandleBadQueueReturn.")
+                    self.HandleBadQueueReturn()
+                    return
+                print("SortQueue: no filter to clear (queue already unfiltered); "
+                      "continuing to apply the condition filter.")
             time.sleep(5)
 
-            # Open condition dropdown menu
-            if not self.safe_click_xpath(paths["description_path"], "description_path"):
+            # Open the Condition dropdown and CONFIRM it actually expanded. The
+            # toggle <img> flips a sibling .multiSelectOptions <div>; clicking it
+            # blindly can leave it closed (already-open -> click closes it, or a
+            # post-clear_filter reload re-closes it), which made every in-loop
+            # sort time out on the (Select All) checkbox inside it. The div is the
+            # img's sibling: description_path ".../th[8]/img" -> ".../th[8]/div".
+            dropdown_div_path = paths["description_path"].rsplit("/", 1)[0] + "/div"
+            if not self.ensure_multiselect_open(paths["description_path"], dropdown_div_path):
                 self.HandleBadQueueReturn()
                 return
             time.sleep(1)
 
-            # Clear checkboxes
+            # Clear checkboxes (deselect all before selecting the target
+            # condition). Re-confirm the dropdown is open first -- a late reload
+            # can re-close it in the gap above -- so the checkbox is interactable.
+            self.ensure_multiselect_open(paths["description_path"], dropdown_div_path)
             if not self.safe_click_xpath(paths["clear_checkbox_path"], "clear_checkbox_path"):
                 self.HandleBadQueueReturn()
                 return

@@ -1,19 +1,11 @@
-[run_audrey_iter] user='nbsauto.dhhs' is_logged_in=True
+[run_audrey_iter] user='' is_logged_in=False
 [audrey] target site: PRODUCTION
 current-handle-title:  repos
-Handle ID: 03D0B07B4EDF3234E779B7EA521A7917 | Title: repos | URL: http://repos/NBS_Basebot/chrome-bot-profile
-handles: ['03D0B07B4EDF3234E779B7EA521A7917']
-go_to_home: click path failed (current_url='http://repos/NBS_Basebot/chrome-bot-profile' title='repos'); hard-navigating to Home URL.
-Warm-session reuse failed (Made unsuccessful attempts to load Home page (click + direct URL). A persistent issue with NBS was encountered.); attempting a fresh login.
+Handle ID: 9549CAE68DAC351E27D9F2A0F70BCAD9 | Title: repos | URL: http://repos/NBS_Basebot/chrome-bot-profile
+handles: ['9549CAE68DAC351E27D9F2A0F70BCAD9']
 logging in...
 Login form submitted via /html/body/div[2]/p[2]/input[1]
-Auto-login did not reach the portal within 90s. current_url='https://nbs.iphis.maine.gov/' title='RSA SecurID PASSCODE Request'
-
-*** LOGIN NEEDS ATTENTION ***
-Please finish logging in to NBS in the open Chrome window now.
-Waiting up to 5 minutes for the NBS portal/home to appear...
-
-WARNING: login still not complete after waiting 5 minutes; giving up.
+Logged in; portal reached.
 RETRIEVE NBS PATIENT LIST:
 Connecting to nbs_odse database...
 cstring: DRIVER={ODBC Driver 18 for SQL Server}; SERVER=sql-dhhs-nbs-prod.som.w2k.state.me.us\NBS; DATABASE=nbs_odse; UID=nbs_rdb; PWD=rdb; TrustServerCertificate=yes
@@ -21,23 +13,12 @@ Connected to nbs_odse. Executing query...
 C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\audrey_files\audrey.py:100: UserWarning: pandas only supports SQLAlchemy connectable (engine/connection) or database string URI or sqlite3 DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
   self.patient_list = pd.read_sql_query(query, Connection)
 Data recieved and database connection closed.
-0it [00:00, ?it/s]DRR link not found on Home; using fallback URL (retry 0)
-TimeoutException opening review queue, trying again... retry_number: 0
-DRR link not found on Home; using fallback URL (retry 1)
-TimeoutException opening review queue, trying again... retry_number: 1
-DRR link not found on Home; using fallback URL (retry 2)
-TimeoutException opening review queue, trying again... retry_number: 2
-Could not open the review queue after 3 tries; resetting to Home and retrying pass.
-go_to_home: click path failed (current_url='https://nbs.iphis.maine.gov/nbs/timeout' title='NBS'); hard-navigating to Home URL.
-0it [06:49, ?it/s]
-
-==================== UNHANDLED EXCEPTION ====================
-Traceback (most recent call last):
-  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\run_audrey_iter.py", line 32, in main
-    target(username, passcode, None, is_logged_in)
-  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\audrey_files\audrey_bot.py", line 224, in start_audrey
-    NBS.go_to_home()
-  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\Base.py", line 838, in go_to_home
-    raise RuntimeError(
-RuntimeError: Made unsuccessful attempts to load Home page (click + direct URL). A persistent issue with NBS was encountered.
-============================================================
+0it [00:00, ?it/s]Mark as Reviewed
+eventid = OBS62002856ME01 and action = ['Mark as Reviewed']
+1it [00:32, 32.55s/it]Mark as Reviewed
+eventid = OBS62002848ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed']
+2it [01:05, 32.71s/it]Mark as Reviewed
+eventid = OBS62002846ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed']
+3it [01:35, 31.34s/it]Mark as Reviewed
+eventid = OBS62002844ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed']
+4it [02:04, 30.72s/it]

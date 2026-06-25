@@ -13,3 +13,9 @@
 2026-06-24 11:03:52  === RUN END === - reviewed 36 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
 2026-06-24 14:25:05  === RUN START === - mode=LIVE; cap=56; 56 Anaplasma case(s) in queue
 2026-06-24 17:07:26  === RUN END === - reviewed 6 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-06-25 08:49:47  === RUN START === - mode=LIVE; cap=57; 57 Anaplasma case(s) in queue
+2026-06-25 08:53:39  CAS11053539ME01 - Queue top changed after re-sort (expected 'PETTINGILL, TIMOTHY', saw 'POTYK, BARBARA'); advanced past case without acting to avoid acting on the wrong case. Issues: Meets case definition for a probable case but is not a probable case.
+2026-06-25 09:10:29  === RUN START === - mode=LIVE; cap=56; 56 Anaplasma case(s) in queue
+2026-06-25 09:40:58  === RUN START === - mode=LIVE; cap=60; 60 Anaplasma case(s) in queue
+2026-06-25 10:33:23  === RUN START === - mode=LIVE; cap=49; 49 Anaplasma case(s) in queue
+2026-06-25 11:11:38  === RUN END === - reviewed 27 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx

@@ -217,9 +217,3 @@ Defined in [bot_env.py](../bot_env.py):
 
 Each bot prints its target at startup, e.g. `[athena] target site: PRODUCTION`.
 
----
-
-## 7. Known issues
-
-- **Ana (anaplasma) sometimes stops scanning cases mid-pass.** Under
-  investigation — flagged as a debugging task for later, not yet fixed.

@@ -172,6 +172,7 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
     # Whole queue per pass (override the high backstop with MAX_CASES_PER_PASS).
     limit = int(os.getenv("MAX_CASES_PER_PASS", "500"))
     loop = tqdm(generator())
+    consecutive_errors = 0
     for _ in loop:
         #check if the bot has gone through the set limit of reviews
         if loop.n >= limit:
@@ -182,966 +183,920 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
         if loop.n and loop.n % save_every == 0 and reviewed_ids:
             NBS.save_and_print_results("Hepatitis",
                 {'Lab ID': reviewed_ids, 'Action': what_do}, "final")
-        #Go to Document Requiring Review
+        try:
+            #Go to Document Requiring Review
         
-        # Open the review queue. Do NOT click the dashboard's "Documents Requiring
-        # Review" link: NBS's jQuery click handler is broken on this Chrome build, so
-        # the click does nothing. Instead hard-load Home, READ that link's real href
-        # (it carries the proper session context + labReportsCount), and navigate to
-        # it. Navigating to a bare MyTaskList1.do can land on NBS's /error page from a
-        # stale flow, so the href (with count) is the reliable path; fall back to the
-        # bare URL only if the link can't be read.
-        fallback_queue_url = NBS.site.rstrip("/") + "/nbs/MyTaskList1.do?ContextAction=Review&initLoad=true"
-        queue_opened = False
-        for i in range(3):
-            try:
-                timeout = NBS.wait_before_timeout + i*10
-                NBS.get(NBS.home_url())
-                NBS.dismiss_block_overlay()
-                href = None
+            # Open the review queue. Do NOT click the dashboard's "Documents Requiring
+            # Review" link: NBS's jQuery click handler is broken on this Chrome build, so
+            # the click does nothing. Instead hard-load Home, READ that link's real href
+            # (it carries the proper session context + labReportsCount), and navigate to
+            # it. Navigating to a bare MyTaskList1.do can land on NBS's /error page from a
+            # stale flow, so the href (with count) is the reliable path; fall back to the
+            # bare URL only if the link can't be read.
+            fallback_queue_url = NBS.site.rstrip("/") + "/nbs/MyTaskList1.do?ContextAction=Review&initLoad=true"
+            queue_opened = False
+            for i in range(3):
                 try:
-                    link = WebDriverWait(NBS, timeout).until(
-                        EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, "Documents Requiring Review")))
-                    href = link.get_attribute("href")
-                except TimeoutException:
-                    print(f"DRR link not found on Home; using fallback URL (retry {i})")
-                NBS.get(href if (href and "MyTaskList" in href) else fallback_queue_url)
-                NBS.dismiss_block_overlay()
-                WebDriverWait(NBS, timeout).until(EC.presence_of_element_located((By.ID, "parent")))
-                queue_opened = True
-                break
-            except TimeoutException:
-                print(f"TimeoutException opening review queue, trying again... retry_number: {i}")
-                time.sleep(2)
-            except StaleElementReferenceException:
-                print(f"StaleElementReferenceException opening review queue, trying again... retry_number: {i}")
-                time.sleep(2)
-            except Exception as e:
-                print(f"Error opening review queue: {e}; retry_number: {i}")
-                time.sleep(2)
-        if not queue_opened:
-            print("Could not open the review queue after 3 tries; resetting to Home and retrying pass.")
-            NBS.go_to_home()
-            time.sleep(2)
-            continue
-        #Sort review queue so that only hepatitis cases are listed.
-        #
-        # The NBS column filters are multiselect dropdowns whose icon-CLICK toggle
-        # throws "this.each is not a function" on this Chrome build, so the dropdown
-        # never opens and its checkboxes / OK button are unreachable (that hung/
-        # crashed the pass here). Force the dropdown open via JS and click its
-        # checkboxes + OK with JS clicks -- verified to apply the filter reliably.
-        submit_date_path = '//*[@id="parent"]/thead/tr/th[3]/a'
-
-        def set_queue_filter(header, keep_values=(), keep_substrings=()):
-            """Select ONLY the options matching keep_values (exact, case-insensitive)
-            or keep_substrings (substring, case-insensitive) in the named queue
-            filter dropdown, then click OK. Returns True if the queue reloaded."""
-            keep_values = tuple(v.lower() for v in keep_values)
-            keep_substrings = tuple(s.lower() for s in keep_substrings)
-            for attempt in range(3):
-                try:
-                    opts = None
-                    for ic in NBS.find_elements(By.CSS_SELECTOR, "img.multiSelect"):
-                        th = ic.find_element(By.XPATH, "./ancestor::th[1]")
-                        if header in th.text:
-                            opts = ic.find_element(
-                                By.XPATH,
-                                "./following-sibling::div[contains(@class,'multiSelectOptions')]")
-                            break
-                    if opts is None:
-                        print(f"set_queue_filter: '{header}' dropdown not found (attempt {attempt})")
-                        time.sleep(2)
-                        continue
-                    NBS.execute_script("arguments[0].style.display='block';", opts)
-                    for lbl in opts.find_elements(By.TAG_NAME, "label"):
-                        cbs = lbl.find_elements(By.CSS_SELECTOR, "input[type='checkbox']")
-                        if not cbs:
-                            continue
-                        cb = cbs[0]
-                        if "selectAll" in (cb.get_attribute("class") or ""):
-                            # Start from a clean slate (Select All OFF).
-                            if cb.is_selected():
-                                NBS.execute_script("arguments[0].click();", cb)
-                            continue
-                        text = (lbl.text or "").strip().lower()
-                        val = (cb.get_attribute("value") or "").strip().lower()
-                        want = (val in keep_values) or any(s in text for s in keep_substrings)
-                        if want and not cb.is_selected():
-                            NBS.execute_script("arguments[0].click();", cb)
-                        elif (not want) and cb.is_selected():
-                            NBS.execute_script("arguments[0].click();", cb)
-                    ok_btns = opts.find_elements(
-                        By.XPATH, ".//input[@id='b1' or normalize-space(@value)='OK']")
-                    if not ok_btns:
-                        ok_btns = opts.find_elements(By.XPATH, ".//input[@type='button']")
-                    NBS.execute_script("arguments[0].click();", ok_btns[0])
+                    timeout = NBS.wait_before_timeout + i*10
+                    NBS.get(NBS.home_url())
                     NBS.dismiss_block_overlay()
-                    WebDriverWait(NBS, NBS.wait_before_timeout).until(
-                        EC.presence_of_element_located((By.ID, "parent")))
-                    return True
+                    href = None
+                    try:
+                        link = WebDriverWait(NBS, timeout).until(
+                            EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, "Documents Requiring Review")))
+                        href = link.get_attribute("href")
+                    except TimeoutException:
+                        print(f"DRR link not found on Home; using fallback URL (retry {i})")
+                    NBS.get(href if (href and "MyTaskList" in href) else fallback_queue_url)
+                    NBS.dismiss_block_overlay()
+                    WebDriverWait(NBS, timeout).until(EC.presence_of_element_located((By.ID, "parent")))
+                    queue_opened = True
+                    break
+                except TimeoutException:
+                    print(f"TimeoutException opening review queue, trying again... retry_number: {i}")
+                    time.sleep(2)
                 except StaleElementReferenceException:
-                    print(f"set_queue_filter '{header}': stale element, retrying (attempt {attempt})")
+                    print(f"StaleElementReferenceException opening review queue, trying again... retry_number: {i}")
                     time.sleep(2)
                 except Exception as e:
-                    print(f"set_queue_filter '{header}' error: {e} (attempt {attempt})")
+                    print(f"Error opening review queue: {e}; retry_number: {i}")
                     time.sleep(2)
-            return False
+            if not queue_opened:
+                print("Could not open the review queue after 3 tries; resetting to Home and retrying pass.")
+                NBS.go_to_home()
+                time.sleep(2)
+                continue
+            #Sort review queue so that only hepatitis cases are listed.
+            #
+            # The NBS column filters are multiselect dropdowns whose icon-CLICK toggle
+            # throws "this.each is not a function" on this Chrome build, so the dropdown
+            # never opens and its checkboxes / OK button are unreachable (that hung/
+            # crashed the pass here). Force the dropdown open via JS and click its
+            # checkboxes + OK with JS clicks -- verified to apply the filter reliably.
+            submit_date_path = '//*[@id="parent"]/thead/tr/th[3]/a'
 
-        # Filter to Lab Reports only (Document Type column).
-        if not set_queue_filter("Document Type", keep_values=("Lab Report",)):
-            print("Document Type filter failed; resetting to Home and retrying pass.")
-            NBS.go_to_home()
-            time.sleep(2)
-            continue
+            def set_queue_filter(header, keep_values=(), keep_substrings=()):
+                """Select ONLY the options matching keep_values (exact, case-insensitive)
+                or keep_substrings (substring, case-insensitive) in the named queue
+                filter dropdown, then click OK. Returns True if the queue reloaded."""
+                keep_values = tuple(v.lower() for v in keep_values)
+                keep_substrings = tuple(s.lower() for s in keep_substrings)
+                for attempt in range(3):
+                    try:
+                        opts = None
+                        for ic in NBS.find_elements(By.CSS_SELECTOR, "img.multiSelect"):
+                            th = ic.find_element(By.XPATH, "./ancestor::th[1]")
+                            if header in th.text:
+                                opts = ic.find_element(
+                                    By.XPATH,
+                                    "./following-sibling::div[contains(@class,'multiSelectOptions')]")
+                                break
+                        if opts is None:
+                            print(f"set_queue_filter: '{header}' dropdown not found (attempt {attempt})")
+                            time.sleep(2)
+                            continue
+                        NBS.execute_script("arguments[0].style.display='block';", opts)
+                        for lbl in opts.find_elements(By.TAG_NAME, "label"):
+                            cbs = lbl.find_elements(By.CSS_SELECTOR, "input[type='checkbox']")
+                            if not cbs:
+                                continue
+                            cb = cbs[0]
+                            if "selectAll" in (cb.get_attribute("class") or ""):
+                                # Start from a clean slate (Select All OFF).
+                                if cb.is_selected():
+                                    NBS.execute_script("arguments[0].click();", cb)
+                                continue
+                            text = (lbl.text or "").strip().lower()
+                            val = (cb.get_attribute("value") or "").strip().lower()
+                            want = (val in keep_values) or any(s in text for s in keep_substrings)
+                            if want and not cb.is_selected():
+                                NBS.execute_script("arguments[0].click();", cb)
+                            elif (not want) and cb.is_selected():
+                                NBS.execute_script("arguments[0].click();", cb)
+                        ok_btns = opts.find_elements(
+                            By.XPATH, ".//input[@id='b1' or normalize-space(@value)='OK']")
+                        if not ok_btns:
+                            ok_btns = opts.find_elements(By.XPATH, ".//input[@type='button']")
+                        NBS.execute_script("arguments[0].click();", ok_btns[0])
+                        NBS.dismiss_block_overlay()
+                        WebDriverWait(NBS, NBS.wait_before_timeout).until(
+                            EC.presence_of_element_located((By.ID, "parent")))
+                        return True
+                    except StaleElementReferenceException:
+                        print(f"set_queue_filter '{header}': stale element, retrying (attempt {attempt})")
+                        time.sleep(2)
+                    except Exception as e:
+                        print(f"set_queue_filter '{header}' error: {e} (attempt {attempt})")
+                        time.sleep(2)
+                return False
 
-        # Filter Description column to hepatitis-related tests only.
-        hep_tests = ["HCV", "Hep", "HEP", "HAV", "HBV", "Alanine", "ALT"]
-        if not set_queue_filter("Description", keep_substrings=hep_tests):
-            print("Description filter failed; resetting to Home and retrying pass.")
-            NBS.go_to_home()
-            time.sleep(2)
-            continue
+            # Filter to Lab Reports only (Document Type column).
+            if not set_queue_filter("Document Type", keep_values=("Lab Report",)):
+                print("Document Type filter failed; resetting to Home and retrying pass.")
+                NBS.go_to_home()
+                time.sleep(2)
+                continue
 
-        #sort chronologically, oldest first
-        for i in range(3):
-            try:
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, submit_date_path)))
-                NBS.find_element(By.XPATH, submit_date_path).click()
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, submit_date_path)))
-                NBS.find_element(By.XPATH, submit_date_path).click()
-                time.sleep(1)
-                break
-            except StaleElementReferenceException:
-                print(f"StaleElementReferenceException for chronological order, trying again... retry_number: {i}")
-            except Exception as e:
-                print(f"exception: {e} occurred for chronological order, trying again... retry_number: {i}")
-        
-        #Grab all ELRs in the queue to reference later. Grab the event ID so we can make sure that we
-        #don't get stuck in a loop at the top of the queue if an ELR doesn't get cleared out of the queue
-        
-        #Grab the ELR table 
-        for i in range(3):
-            try:
-                review_queue_table_path = '//*[@id="parent"]'
-                html = NBS.find_element(By.XPATH, review_queue_table_path).get_attribute('outerHTML')
-                soup = BeautifulSoup(html, 'html.parser')
-                review_queue_table = pd.read_html(StringIO(str(soup)))[0]
-                review_queue_table.fillna('', inplace = True)
-                break
-                #maybe change above '' to None
-            except NoSuchElementException as e:
-                print(f"No review_queue_table_path found, retrying {i}")
-            except Exception as e:
-                print(f"exception: {e} occurred for review_queue_table_path, trying again... retry_number: {i}") 
+            # Filter Description column to hepatitis-related tests only.
+            hep_tests = ["HCV", "Hep", "HEP", "HAV", "HBV", "Alanine", "ALT"]
+            if not set_queue_filter("Description", keep_substrings=hep_tests):
+                print("Description filter failed; resetting to Home and retrying pass.")
+                NBS.go_to_home()
+                time.sleep(2)
+                continue
 
-        #Check to see if we have looked at this ELR before by the local ID
-        i = 0
-        try:
-            while review_queue_table["Local ID"].iloc[i] in reviewed_ids:
-                i += 1
-        except IndexError:
-            print("No IDs to review. Stopping...")
-            break
-        hist = dict()
-        #grab the first local ID we haven't reviewed and append it to the list for later use 
-        event_id = review_queue_table["Local ID"].iloc[i]
-        reviewed_ids.append(event_id) 
-        hist[event_id] = []
-        #identify the element that has the event id to be reviewed and navigate to that Lab Report
-        
-        try:
-            anc = NBS.find_element(By.XPATH,f"//td[contains(text(),'{event_id}')]/../td/a")
-        except NoSuchElementException:
-            anc = NBS.find_element(By.XPATH,f"//font[contains(text(),'{event_id}')]/../../td/a")
-        # The queue anchor navigates via onclick="createLink(this,'/nbs/NewLabReview1.do?...')",
-        # which uses NBS's jQuery. On this Chrome build that jQuery throws
-        # "this.each is not a function", so a plain .click() fires the handler but
-        # NEVER navigates -- so every case was skipped at the #Name wait below.
-        # Parse the real target URL out of the onclick and navigate to it directly.
-        onclick = anc.get_attribute("onclick") or ""
-        m = re.search(r"createLink\([^,]+,\s*'([^']+)'\)", onclick)
-        if m:
-            NBS.get(NBS.site.rstrip("/") + m.group(1))
-        else:
-            anc.click()
-        # WAIT for the demographics (#Name) to appear before reading them -- the old
-        # code did 3 instant find_element retries that all fired before the page
-        # loaded, so it never found Name/DOB/Sex and crashed downstream.
-        try:
-            WebDriverWait(NBS, NBS.wait_before_timeout).until(
-                EC.presence_of_element_located((By.XPATH, '//*[@id="Name"]')))
-        except TimeoutException:
-            print(f"Lab report page did not load for {event_id}; skipping case.")
-            NBS.go_to_home()
-            what_do.append("Lab report page did not load")
-            hist[event_id].append("Lab report page did not load")
-            continue
-
-        skip_patient = False
-        #check the patient name if it is a source patient skip, look for numbers in the name
-        for i in range(3):
-            try:
-                #pat_name_elem = NBS.find_element(By.XPATH, '//*[@id="Name"]')
-                #pat_name = pat_name_elem.text
-                pat_name_elem = NBS.find_element(By.XPATH,'//*[@id="Name"]')
-                pat_name = pat_name_elem.text
-                if bool(re.search(r'\d', pat_name)) or bool(re.search(r'SRC', pat_name)):
-                    print("Source patient, skip")
-                    print(f"incrementing what_do for index: {loop.n}")
-                    skip_patient = True
-                break
-            except NoSuchElementException as e:
-                print(f"No patient name found, retrying {i}")
-            except Exception as e:
-                print(f"exception: {e} occurred for source patient skip, trying again... retry_number: {i}")
-        if skip_patient:
-            NBS.go_to_home()
-            what_do.append("Source patient, skip")
-            print(f"eventid = {event_id} and action = {what_do}")
-            hist[event_id].append("Source patient, skip")
-            continue
-        
-        #grab the patients age, if younger the 3 years do not continue
-        for i in range(3):
-            try:
-                pat_dob_elem = NBS.find_element(By.XPATH, '//*[@id="Dob"]')
-                pat_dob_text = pat_dob_elem.text
-                pat_dob_date = re.findall(r'\b\d{2}/\d{2}/\d{4}\b',pat_dob_text)[0]
-                pat_dob = datetime.strptime(pat_dob_date, '%m/%d/%Y').date()
-                break
-            except NoSuchElementException as e:
-                print(f"No patient DOB found  retrying {i}")
-        
-        #grab the patient gender, we are going to let an epi take care of inveg=tigations for females age 14-39
-        for i in range(3):
-            try:
-                pat_gen_elem = NBS.find_element(By.XPATH, '//*[@id="Sex"]')
-                pat_gen = pat_gen_elem.text
-                break
-            except NoSuchElementException as e:
-                print(f"No patient sex found, retrying {i}")
-        
-        
-        #go to the patient file to review investigations.
-        # The "View File" link's native navigation is intercepted by NBS's jQuery
-        # click handler, which throws "this.each is not a function" on this Chrome
-        # build, so a .click() does nothing. Navigate via its real href directly.
-        # The investigations table (#inv1) is then present in the patient-file DOM
-        # (the Summary/Events/Demographics tabs are just CSS show/hide).
-        patient_file_ok = False
-        for i in range(3):
-            try:
-                timeout= NBS.wait_before_timeout + i*10
-                link = WebDriverWait(NBS, timeout).until(
-                    EC.presence_of_element_located((By.XPATH, '//*[@id="doc3"]/div[1]/a[1]')))
-                href = link.get_attribute("href")
-                if href and href.startswith("http"):
-                    NBS.get(href)
-                else:
-                    link.click()
-                # Wait for the patient-file page (the Events tab header always exists there).
-                WebDriverWait(NBS, timeout).until(
-                    EC.presence_of_element_located((By.XPATH, '//*[@id="tabs0head1"]')))
-                patient_file_ok = True
-                break
-            except TimeoutException:
-                print(f"Timeout waiting for patient file, retry_number: {i}")
-            except StaleElementReferenceException:
-                print(f"StaleElementReferenceException for patient file, trying again... retry_number: {i}")
-            except Exception as e:
-                print(f"exception: {e} occurred for patient file, trying again... retry_number: {i}")
-        if not patient_file_ok:
-            print(f"Could not open patient file for {event_id}; skipping case.")
-            NBS.go_to_home()
-            what_do.append("Could not open patient file")
-            hist[event_id].append("Could not open patient file")
-            continue
-
-        time.sleep(3)
-        
-        #Go to events tab
-        for i in range(3):
-            try:
-                timeout= NBS.wait_before_timeout + i*10
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="tabs0head1"]')))
-                NBS.find_element(By.XPATH, '//*[@id="tabs0head1"]').click()
-                break
-            except TimeoutException:
-                print(f"Timeout waiting for events tab, retry_number: {i}")
-            except StaleElementReferenceException:
-                print(f"StaleElementReferenceException for events tab, trying again... retry_number: {i}")
-            except Exception as e:
-                print(f"exception: {e} occurred for events tab, trying again... retry_number: {i}")
-        
-        #if inv_found:
-        no_start_date = False
-        no_start_date_ids = []
-        #for idx, row in investigation_table.iterrows():
-        # A patient with no prior investigations has no #inv1 table; read_investigation_table
-        # raises NoSuchElementException in that case, so treat any failure as "no
-        # investigations" (None) instead of crashing the whole pass.
-        try:
-            investigation_table = NBS.read_investigation_table()
-        except Exception as e:
-            print(f"No investigation table for {event_id} (treating as none): {e}")
-            investigation_table = None
-        date_value = False
-        #try:
-        if investigation_table is not None and not investigation_table.empty:
-            for idx, row in investigation_table.iterrows():
-                investigation_table['Start Date'] = pd.to_datetime(investigation_table['Start Date'], errors = 'coerce')
-                if investigation_table['Start Date'].isna().any():
-                    no_start_date = True
-                    no_start_date_ids.append(event_id)
-                    date_value = True
-                    break
-        #except NoSuchElementException:
-        else:
-            inv_found = False
-            existing_not_a_case = False
-        if date_value == True:
-            print("No start date for investigation")
-            what_do.append("No start date for investigation")
-            print(f"event_id: {event_id} and action: {what_do}")
-            hist[event_id].append("No start date for investigation")
-            NBS.go_to_home()
-            continue 
-            
-        #Navigate to the lab report to be processed using the Event ID from the patient page
-        for i in range(3):
-            try:
-                lab_report_table_path = '//*[@id="lab1"]'
-                lab_report_table = NBS.ReadTableToDF(lab_report_table_path)
-                break
-            except NoSuchElementException as e:
-                print("No lab_report_table_path found")
-            except TimeoutException:
-                print(f"Timeout waiting for lab_report_table_path, retry_number: {i}")
-            except StaleElementReferenceException:
-                print(f"StaleElementReferenceException lab_report_table_path, trying again... retry_number: {i}")
-            except Exception as e:
-                print(f"exception: {e} occurred lab_report_table_path, trying again... retry_number: {i}")
-        
-        lab_row = lab_report_table[lab_report_table['Event ID'] == re.findall(r'OBS\d+ME\d+',event_id)[0]]
-        lab_index = int(lab_row.index.to_list()[0]) + 1
-        
-        if lab_index > 1:
-            lab_path = f'/html/body/div[2]/form/div/table[4]/tbody/tr[2]/td/div[2]/table/tbody/tr/td/div[1]/div[5]/div/table/tbody/tr/td/table/tbody/tr[{str(lab_index)}]/td[1]/a'
-        elif lab_index == 1:
-            lab_path = '/html/body/div[2]/form/div/table[4]/tbody/tr[2]/td/div[2]/table/tbody/tr/td/div[1]/div[5]/div/table/tbody/tr/td/table/tbody/tr/td[1]/a'
-        # The lab link in the patient file's lab table navigates via onclick=createLink,
-        # which is broken on this Chrome build (.click() does nothing). Navigate to the
-        # lab report via the URL embedded in the onclick (or a real href) instead.
-        lab_opened = False
-        for i in range(3):
-            try:
-                link = WebDriverWait(NBS, NBS.wait_before_timeout).until(
-                    EC.presence_of_element_located((By.XPATH, lab_path)))
-                onclick = link.get_attribute("onclick") or ""
-                href = link.get_attribute("href") or ""
-                m = re.search(r"createLink\([^,]+,\s*'([^']+)'\)", onclick)
-                if m:
-                    NBS.get(NBS.site.rstrip("/") + m.group(1))
-                elif href.startswith("http") and not href.endswith("#"):
-                    NBS.get(href)
-                else:
-                    link.click()
-                WebDriverWait(NBS, NBS.wait_before_timeout).until(
-                    EC.presence_of_element_located((By.XPATH, '//*[@id="bd"]/table[1]')))
-                lab_opened = True
-                break
-            except TimeoutException:
-                print("Timeout waiting for lab path link")
-            except StaleElementReferenceException:
-                print(f"StaleElementReferenceException lab_path, trying again... retry_number: {i}")
-            except Exception as e:
-                print(f"exception: {e} occurred lab_path, trying again... retry_number: {i}")
-        if not lab_opened:
-            print(f"Could not open lab report from patient file for {event_id}; skipping case.")
-            NBS.go_to_home()
-            what_do.append("Could not open lab report from patient file")
-            hist[event_id].append("Could not open lab report from patient file")
-            continue
-
-        #Grab alanine aminotransferase results in case we need to create an investigation
-        alt_lab_table = lab_report_table[lab_report_table["Test Results"].str.contains("ALANINE|ALT|Alanine")]
-        
-        #sometime we don't have a collection date or report date, try collection date first then report date
-        try:
-            lab_elem_path = '//*[@id="bd"]/table[1]/tbody/tr[5]/td[1]/span[2]'
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, lab_elem_path)))
-            lab_elem = NBS.find_element(By.XPATH, lab_elem_path)
-            lab_date_text = lab_elem.text
-            lab_date = datetime.strptime(lab_date_text, '%m/%d/%Y').date()
-        except ValueError:
-            lab_elem = NBS.find_element(By.XPATH, '//*[@id="bd"]/table[1]/tbody/tr[5]/td[2]/span[2]')
-            lab_date_text = lab_elem.text
-            lab_date = datetime.strptime(lab_date_text, '%m/%d/%Y').date()
-        
-        #make sure the patient is over 36 months old
-        below_36_months = False
-        age = lab_date - pat_dob
-        if age.days < 1095:
-            below_36_months = True
-            below_36_months_ids.append(event_id)
-            NBS.go_to_home()
-            print("Patient is below 36 months, EOC assign to Field Epi as Hepatitis C, Perinatal")
-            what_do.append("Patient is below 36 months, EOC assign to Field Epi as Hepatitis C, Perinatal")
-            print(f"eventid = {event_id} and action = {what_do}")
-            hist[event_id].append("Patient is below 36 months, EOC assign to Field Epi as Hepatitis C, Perinatal")
-            continue
-        
-        no_collection_date = False
-        current_year = datetime.today().year
-        #lab_report_table['Date Collected'] = pd.to_datetime(lab_report_table['Date Collected'], format="%m/%d/%Y %I:%M %p", errors='coerce')
-        lab_report_table['Date Received'] = pd.to_datetime(lab_report_table['Date Received'], format="%m/%d/%Y %I:%M %p", errors='coerce')
-        for idx, row in lab_report_table.iterrows():
-            date_val = False
-            collected = str(row['Date Collected']).strip()
-            received = row['Date Received']
-            if collected in ["No Date", "None", "NaT", "nat", ""]:
-                if not pd.isna(received) and received.year == current_year:
-                    no_collection_date = True
-                    no_collection_date_ids.append(event_id)
-                    date_val = True
-                    break
-        if date_val == True:
-            print("No date collected for lab report")
-            what_do.append("No date collected for lab report")
-            print(f"eventid = {event_id} and action = {what_do}")
-            hist[event_id].append("No date collected for lab report")
-            NBS.go_to_home()
-            continue
-
-        alt_lab = None
-        #We only care about the highest alanine aminotransferase result that has the highest result within a +- 3 month interval
-        if len(alt_lab_table) >= 1:
-            try:
-                alt_lab_table['Date Collected'] = pd.to_datetime(alt_lab_table['Date Collected'])
-                keep = (alt_lab_table["Date Collected"] <= lab_date  + pd.DateOffset(months=3)) & (alt_lab_table["Date Collected"] >= lab_date - pd.DateOffset(months=3))
-                alt_lab_table = alt_lab_table[keep]
-                #need to make sure the first number is always the result. pretty sure it is
-                alt_lab_table["num_res"] = alt_lab_table['Test Results'].str.extract(r'(\d+)').astype(int)
-                alt_lab = alt_lab_table[alt_lab_table.index == alt_lab_table["num_res"].idxmax()]
-            except ValueError:
+            #sort chronologically, oldest first
+            for i in range(3):
                 try:
-                    alt_lab_table['Date Received'] = pd.to_datetime(alt_lab_table['Date Received'])
-                    keep = (alt_lab_table["Date Received"] <= lab_date  + pd.DateOffset(months=3)) & (alt_lab_table["Date Received"] >= lab_date - pd.DateOffset(months=3))
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, submit_date_path)))
+                    NBS.find_element(By.XPATH, submit_date_path).click()
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, submit_date_path)))
+                    NBS.find_element(By.XPATH, submit_date_path).click()
+                    time.sleep(1)
+                    break
+                except StaleElementReferenceException:
+                    print(f"StaleElementReferenceException for chronological order, trying again... retry_number: {i}")
+                except Exception as e:
+                    print(f"exception: {e} occurred for chronological order, trying again... retry_number: {i}")
+        
+            #Grab all ELRs in the queue to reference later. Grab the event ID so we can make sure that we
+            #don't get stuck in a loop at the top of the queue if an ELR doesn't get cleared out of the queue
+        
+            #Grab the ELR table 
+            for i in range(3):
+                try:
+                    review_queue_table_path = '//*[@id="parent"]'
+                    html = NBS.find_element(By.XPATH, review_queue_table_path).get_attribute('outerHTML')
+                    soup = BeautifulSoup(html, 'html.parser')
+                    review_queue_table = pd.read_html(StringIO(str(soup)))[0]
+                    review_queue_table.fillna('', inplace = True)
+                    break
+                    #maybe change above '' to None
+                except NoSuchElementException as e:
+                    print(f"No review_queue_table_path found, retrying {i}")
+                except Exception as e:
+                    print(f"exception: {e} occurred for review_queue_table_path, trying again... retry_number: {i}") 
+
+            #Check to see if we have looked at this ELR before by the local ID
+            i = 0
+            try:
+                while review_queue_table["Local ID"].iloc[i] in reviewed_ids:
+                    i += 1
+            except IndexError:
+                print("No IDs to review. Stopping...")
+                break
+            hist = dict()
+            #grab the first local ID we haven't reviewed and append it to the list for later use 
+            event_id = review_queue_table["Local ID"].iloc[i]
+            reviewed_ids.append(event_id) 
+            consecutive_errors = 0  # queue is alive; reset the streak
+            hist[event_id] = []
+            #identify the element that has the event id to be reviewed and navigate to that Lab Report
+        
+            try:
+                anc = NBS.find_element(By.XPATH,f"//td[contains(text(),'{event_id}')]/../td/a")
+            except NoSuchElementException:
+                anc = NBS.find_element(By.XPATH,f"//font[contains(text(),'{event_id}')]/../../td/a")
+            # The queue anchor navigates via onclick="createLink(this,'/nbs/NewLabReview1.do?...')",
+            # which uses NBS's jQuery. On this Chrome build that jQuery throws
+            # "this.each is not a function", so a plain .click() fires the handler but
+            # NEVER navigates -- so every case was skipped at the #Name wait below.
+            # Parse the real target URL out of the onclick and navigate to it directly.
+            onclick = anc.get_attribute("onclick") or ""
+            m = re.search(r"createLink\([^,]+,\s*'([^']+)'\)", onclick)
+            if m:
+                NBS.get(NBS.site.rstrip("/") + m.group(1))
+            else:
+                anc.click()
+            # WAIT for the demographics (#Name) to appear before reading them -- the old
+            # code did 3 instant find_element retries that all fired before the page
+            # loaded, so it never found Name/DOB/Sex and crashed downstream.
+            try:
+                WebDriverWait(NBS, NBS.wait_before_timeout).until(
+                    EC.presence_of_element_located((By.XPATH, '//*[@id="Name"]')))
+            except TimeoutException:
+                print(f"Lab report page did not load for {event_id}; skipping case.")
+                NBS.go_to_home()
+                what_do.append("Lab report page did not load")
+                hist[event_id].append("Lab report page did not load")
+                continue
+
+            skip_patient = False
+            #check the patient name if it is a source patient skip, look for numbers in the name
+            for i in range(3):
+                try:
+                    #pat_name_elem = NBS.find_element(By.XPATH, '//*[@id="Name"]')
+                    #pat_name = pat_name_elem.text
+                    pat_name_elem = NBS.find_element(By.XPATH,'//*[@id="Name"]')
+                    pat_name = pat_name_elem.text
+                    if bool(re.search(r'\d', pat_name)) or bool(re.search(r'SRC', pat_name)):
+                        print("Source patient, skip")
+                        print(f"incrementing what_do for index: {loop.n}")
+                        skip_patient = True
+                    break
+                except NoSuchElementException as e:
+                    print(f"No patient name found, retrying {i}")
+                except Exception as e:
+                    print(f"exception: {e} occurred for source patient skip, trying again... retry_number: {i}")
+            if skip_patient:
+                NBS.go_to_home()
+                what_do.append("Source patient, skip")
+                print(f"eventid = {event_id} and action = {what_do}")
+                hist[event_id].append("Source patient, skip")
+                continue
+        
+            #grab the patients age, if younger the 3 years do not continue
+            for i in range(3):
+                try:
+                    pat_dob_elem = NBS.find_element(By.XPATH, '//*[@id="Dob"]')
+                    pat_dob_text = pat_dob_elem.text
+                    pat_dob_date = re.findall(r'\b\d{2}/\d{2}/\d{4}\b',pat_dob_text)[0]
+                    pat_dob = datetime.strptime(pat_dob_date, '%m/%d/%Y').date()
+                    break
+                except NoSuchElementException as e:
+                    print(f"No patient DOB found  retrying {i}")
+        
+            #grab the patient gender, we are going to let an epi take care of inveg=tigations for females age 14-39
+            for i in range(3):
+                try:
+                    pat_gen_elem = NBS.find_element(By.XPATH, '//*[@id="Sex"]')
+                    pat_gen = pat_gen_elem.text
+                    break
+                except NoSuchElementException as e:
+                    print(f"No patient sex found, retrying {i}")
+        
+        
+            #go to the patient file to review investigations.
+            # The "View File" link's native navigation is intercepted by NBS's jQuery
+            # click handler, which throws "this.each is not a function" on this Chrome
+            # build, so a .click() does nothing. Navigate via its real href directly.
+            # The investigations table (#inv1) is then present in the patient-file DOM
+            # (the Summary/Events/Demographics tabs are just CSS show/hide).
+            patient_file_ok = False
+            for i in range(3):
+                try:
+                    timeout= NBS.wait_before_timeout + i*10
+                    link = WebDriverWait(NBS, timeout).until(
+                        EC.presence_of_element_located((By.XPATH, '//*[@id="doc3"]/div[1]/a[1]')))
+                    href = link.get_attribute("href")
+                    if href and href.startswith("http"):
+                        NBS.get(href)
+                    else:
+                        link.click()
+                    # Wait for the patient-file page (the Events tab header always exists there).
+                    WebDriverWait(NBS, timeout).until(
+                        EC.presence_of_element_located((By.XPATH, '//*[@id="tabs0head1"]')))
+                    patient_file_ok = True
+                    break
+                except TimeoutException:
+                    print(f"Timeout waiting for patient file, retry_number: {i}")
+                except StaleElementReferenceException:
+                    print(f"StaleElementReferenceException for patient file, trying again... retry_number: {i}")
+                except Exception as e:
+                    print(f"exception: {e} occurred for patient file, trying again... retry_number: {i}")
+            if not patient_file_ok:
+                print(f"Could not open patient file for {event_id}; skipping case.")
+                NBS.go_to_home()
+                what_do.append("Could not open patient file")
+                hist[event_id].append("Could not open patient file")
+                continue
+
+            time.sleep(3)
+        
+            #Go to events tab
+            for i in range(3):
+                try:
+                    timeout= NBS.wait_before_timeout + i*10
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="tabs0head1"]')))
+                    NBS.find_element(By.XPATH, '//*[@id="tabs0head1"]').click()
+                    break
+                except TimeoutException:
+                    print(f"Timeout waiting for events tab, retry_number: {i}")
+                except StaleElementReferenceException:
+                    print(f"StaleElementReferenceException for events tab, trying again... retry_number: {i}")
+                except Exception as e:
+                    print(f"exception: {e} occurred for events tab, trying again... retry_number: {i}")
+        
+            #if inv_found:
+            no_start_date = False
+            no_start_date_ids = []
+            #for idx, row in investigation_table.iterrows():
+            # A patient with no prior investigations has no #inv1 table; read_investigation_table
+            # raises NoSuchElementException in that case, so treat any failure as "no
+            # investigations" (None) instead of crashing the whole pass.
+            try:
+                investigation_table = NBS.read_investigation_table()
+            except Exception as e:
+                print(f"No investigation table for {event_id} (treating as none): {e}")
+                investigation_table = None
+            date_value = False
+            #try:
+            if investigation_table is not None and not investigation_table.empty:
+                for idx, row in investigation_table.iterrows():
+                    investigation_table['Start Date'] = pd.to_datetime(investigation_table['Start Date'], errors = 'coerce')
+                    if investigation_table['Start Date'].isna().any():
+                        no_start_date = True
+                        no_start_date_ids.append(event_id)
+                        date_value = True
+                        break
+            #except NoSuchElementException:
+            else:
+                inv_found = False
+                existing_not_a_case = False
+            if date_value == True:
+                print("No start date for investigation")
+                what_do.append("No start date for investigation")
+                print(f"event_id: {event_id} and action: {what_do}")
+                hist[event_id].append("No start date for investigation")
+                NBS.go_to_home()
+                continue 
+            
+            #Navigate to the lab report to be processed using the Event ID from the patient page
+            for i in range(3):
+                try:
+                    lab_report_table_path = '//*[@id="lab1"]'
+                    lab_report_table = NBS.ReadTableToDF(lab_report_table_path)
+                    break
+                except NoSuchElementException as e:
+                    print("No lab_report_table_path found")
+                except TimeoutException:
+                    print(f"Timeout waiting for lab_report_table_path, retry_number: {i}")
+                except StaleElementReferenceException:
+                    print(f"StaleElementReferenceException lab_report_table_path, trying again... retry_number: {i}")
+                except Exception as e:
+                    print(f"exception: {e} occurred lab_report_table_path, trying again... retry_number: {i}")
+        
+            lab_row = lab_report_table[lab_report_table['Event ID'] == re.findall(r'OBS\d+ME\d+',event_id)[0]]
+            lab_index = int(lab_row.index.to_list()[0]) + 1
+        
+            if lab_index > 1:
+                lab_path = f'/html/body/div[2]/form/div/table[4]/tbody/tr[2]/td/div[2]/table/tbody/tr/td/div[1]/div[5]/div/table/tbody/tr/td/table/tbody/tr[{str(lab_index)}]/td[1]/a'
+            elif lab_index == 1:
+                lab_path = '/html/body/div[2]/form/div/table[4]/tbody/tr[2]/td/div[2]/table/tbody/tr/td/div[1]/div[5]/div/table/tbody/tr/td/table/tbody/tr/td[1]/a'
+            # The lab link in the patient file's lab table navigates via onclick=createLink,
+            # which is broken on this Chrome build (.click() does nothing). Navigate to the
+            # lab report via the URL embedded in the onclick (or a real href) instead.
+            lab_opened = False
+            for i in range(3):
+                try:
+                    link = WebDriverWait(NBS, NBS.wait_before_timeout).until(
+                        EC.presence_of_element_located((By.XPATH, lab_path)))
+                    onclick = link.get_attribute("onclick") or ""
+                    href = link.get_attribute("href") or ""
+                    m = re.search(r"createLink\([^,]+,\s*'([^']+)'\)", onclick)
+                    if m:
+                        NBS.get(NBS.site.rstrip("/") + m.group(1))
+                    elif href.startswith("http") and not href.endswith("#"):
+                        NBS.get(href)
+                    else:
+                        link.click()
+                    WebDriverWait(NBS, NBS.wait_before_timeout).until(
+                        EC.presence_of_element_located((By.XPATH, '//*[@id="bd"]/table[1]')))
+                    lab_opened = True
+                    break
+                except TimeoutException:
+                    print("Timeout waiting for lab path link")
+                except StaleElementReferenceException:
+                    print(f"StaleElementReferenceException lab_path, trying again... retry_number: {i}")
+                except Exception as e:
+                    print(f"exception: {e} occurred lab_path, trying again... retry_number: {i}")
+            if not lab_opened:
+                print(f"Could not open lab report from patient file for {event_id}; skipping case.")
+                NBS.go_to_home()
+                what_do.append("Could not open lab report from patient file")
+                hist[event_id].append("Could not open lab report from patient file")
+                continue
+
+            #Grab alanine aminotransferase results in case we need to create an investigation
+            alt_lab_table = lab_report_table[lab_report_table["Test Results"].str.contains("ALANINE|ALT|Alanine")]
+        
+            #sometime we don't have a collection date or report date, try collection date first then report date
+            try:
+                lab_elem_path = '//*[@id="bd"]/table[1]/tbody/tr[5]/td[1]/span[2]'
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, lab_elem_path)))
+                lab_elem = NBS.find_element(By.XPATH, lab_elem_path)
+                lab_date_text = lab_elem.text
+                lab_date = datetime.strptime(lab_date_text, '%m/%d/%Y').date()
+            except ValueError:
+                lab_elem = NBS.find_element(By.XPATH, '//*[@id="bd"]/table[1]/tbody/tr[5]/td[2]/span[2]')
+                lab_date_text = lab_elem.text
+                lab_date = datetime.strptime(lab_date_text, '%m/%d/%Y').date()
+        
+            #make sure the patient is over 36 months old
+            below_36_months = False
+            age = lab_date - pat_dob
+            if age.days < 1095:
+                below_36_months = True
+                below_36_months_ids.append(event_id)
+                NBS.go_to_home()
+                print("Patient is below 36 months, EOC assign to Field Epi as Hepatitis C, Perinatal")
+                what_do.append("Patient is below 36 months, EOC assign to Field Epi as Hepatitis C, Perinatal")
+                print(f"eventid = {event_id} and action = {what_do}")
+                hist[event_id].append("Patient is below 36 months, EOC assign to Field Epi as Hepatitis C, Perinatal")
+                continue
+        
+            no_collection_date = False
+            current_year = datetime.today().year
+            #lab_report_table['Date Collected'] = pd.to_datetime(lab_report_table['Date Collected'], format="%m/%d/%Y %I:%M %p", errors='coerce')
+            lab_report_table['Date Received'] = pd.to_datetime(lab_report_table['Date Received'], format="%m/%d/%Y %I:%M %p", errors='coerce')
+            for idx, row in lab_report_table.iterrows():
+                date_val = False
+                collected = str(row['Date Collected']).strip()
+                received = row['Date Received']
+                if collected in ["No Date", "None", "NaT", "nat", ""]:
+                    if not pd.isna(received) and received.year == current_year:
+                        no_collection_date = True
+                        no_collection_date_ids.append(event_id)
+                        date_val = True
+                        break
+            if date_val == True:
+                print("No date collected for lab report")
+                what_do.append("No date collected for lab report")
+                print(f"eventid = {event_id} and action = {what_do}")
+                hist[event_id].append("No date collected for lab report")
+                NBS.go_to_home()
+                continue
+
+            alt_lab = None
+            #We only care about the highest alanine aminotransferase result that has the highest result within a +- 3 month interval
+            if len(alt_lab_table) >= 1:
+                try:
+                    alt_lab_table['Date Collected'] = pd.to_datetime(alt_lab_table['Date Collected'])
+                    keep = (alt_lab_table["Date Collected"] <= lab_date  + pd.DateOffset(months=3)) & (alt_lab_table["Date Collected"] >= lab_date - pd.DateOffset(months=3))
                     alt_lab_table = alt_lab_table[keep]
                     #need to make sure the first number is always the result. pretty sure it is
                     alt_lab_table["num_res"] = alt_lab_table['Test Results'].str.extract(r'(\d+)').astype(int)
                     alt_lab = alt_lab_table[alt_lab_table.index == alt_lab_table["num_res"].idxmax()]
                 except ValueError:
-                    pass
+                    try:
+                        alt_lab_table['Date Received'] = pd.to_datetime(alt_lab_table['Date Received'])
+                        keep = (alt_lab_table["Date Received"] <= lab_date  + pd.DateOffset(months=3)) & (alt_lab_table["Date Received"] >= lab_date - pd.DateOffset(months=3))
+                        alt_lab_table = alt_lab_table[keep]
+                        #need to make sure the first number is always the result. pretty sure it is
+                        alt_lab_table["num_res"] = alt_lab_table['Test Results'].str.extract(r'(\d+)').astype(int)
+                        alt_lab = alt_lab_table[alt_lab_table.index == alt_lab_table["num_res"].idxmax()]
+                    except ValueError:
+                        pass
         
-        #grab date reported to public health from lab report
-        #WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="NBS_LAB201"]')))
-        #PH_report = NBS.find_element(By.XPATH, '//*[@id="NBS_LAB201"]')
-        WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bd"]/table[1]/tbody/tr[5]/td[3]/span[2]')))
-        PH_report = NBS.find_element(By.XPATH, '//*[@id="bd"]/table[1]/tbody/tr[5]/td[3]/span[2]')
-        PH_report_date_text = PH_report.text
-        PH_report_date = datetime.strptime(PH_report_date_text, '%m/%d/%Y').date()
+            #grab date reported to public health from lab report
+            #WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="NBS_LAB201"]')))
+            #PH_report = NBS.find_element(By.XPATH, '//*[@id="NBS_LAB201"]')
+            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bd"]/table[1]/tbody/tr[5]/td[3]/span[2]')))
+            PH_report = NBS.find_element(By.XPATH, '//*[@id="bd"]/table[1]/tbody/tr[5]/td[3]/span[2]')
+            PH_report_date_text = PH_report.text
+            PH_report_date = datetime.strptime(PH_report_date_text, '%m/%d/%Y').date()
         
-        time.sleep(3)
+            time.sleep(3)
         
-        #Read the ELR into a dataframe
-        resulted_test_path = '//*[@id="RESULTED_TEST_CONTAINER"]/tbody/tr[1]/td/table'
-        resulted_test_table = NBS.ReadTableToDF(resulted_test_path)
-        #Drop message/comment rows (blank test name, or a Quest "... Message" narrative row) so a single test is not misread as a multi-test panel
-        if resulted_test_table is not None and "Resulted Test" in resulted_test_table.columns:
-            rt = resulted_test_table["Resulted Test"].astype(str).str.strip()
-            resulted_test_table = resulted_test_table[(rt != "") & (~rt.str.contains("Message", case=False, na=False))].reset_index(drop=True)
+            #Read the ELR into a dataframe
+            resulted_test_path = '//*[@id="RESULTED_TEST_CONTAINER"]/tbody/tr[1]/td/table'
+            resulted_test_table = NBS.ReadTableToDF(resulted_test_path)
+            #Drop message/comment rows (blank test name, or a Quest "... Message" narrative row) so a single test is not misread as a multi-test panel
+            if resulted_test_table is not None and "Resulted Test" in resulted_test_table.columns:
+                rt = resulted_test_table["Resulted Test"].astype(str).str.strip()
+                resulted_test_table = resulted_test_table[(rt != "") & (~rt.str.contains("Message", case=False, na=False))].reset_index(drop=True)
 
-        #Process the ELR so that it is easier to go through the logic trees for Hepatitis B and C ELRs
-        test_type = None
-        mark_reviewed = False
-        create_inv = False
-        update_status = False
-        associate = False
-        send_alt_email = False
-        send_inv_email = False
-        condition = None
-        update_inv_type = False
-        not_a_case = False
-        acute_inv = None
-        chronic_inv = None
-        Genotype_test = None
-        genotype = None
-        Hep_inv_assign = False
-        Female_handled_epi = False
-        caseless_assign = False
-        perinatal_inv = False
-        NBS.incomplete_address_log = []
-        NBS.incomplete_address = False
-        peri_inv = False
-        send_peri_email = False
+            #Process the ELR so that it is easier to go through the logic trees for Hepatitis B and C ELRs
+            test_type = None
+            mark_reviewed = False
+            create_inv = False
+            update_status = False
+            associate = False
+            send_alt_email = False
+            send_inv_email = False
+            condition = None
+            update_inv_type = False
+            not_a_case = False
+            acute_inv = None
+            chronic_inv = None
+            Genotype_test = None
+            genotype = None
+            Hep_inv_assign = False
+            Female_handled_epi = False
+            caseless_assign = False
+            perinatal_inv = False
+            NBS.incomplete_address_log = []
+            NBS.incomplete_address = False
+            peri_inv = False
+            send_peri_email = False
 
             
-        if len(resulted_test_table) == 2:
-            test_condition, test_type = get_test_condition(resulted_test_table, test_type)
-            if test_condition == "Hepatitis B":
-                #check for ELRs that have two Hep B tests, if so only look at the antigen test
-                #antibody
-                search_term1 = "HBV Ab|HBV AB|HBV IgG|HBV IgM|HBV ANTIBODY|HBV Antibody|HBV antibody|HBV IGG|HBV IgG"
-                search_term2 = "Hepatitis B Ab|Hepatitis B AB|Hepatitis B IgG|Hepatitis B IgM|Hepatitis B ANTIBODY|Hepatitis B Antibody|Hepatitis B antibody|Hepatitis B IGG|Hepatitis B IgG"
-                resulted_test_table_A = resulted_test_table[resulted_test_table["Resulted Test"].str.contains(f"{search_term1}|{search_term2}")]
-                if len(resulted_test_table_A) == 2:
-                    resulted_test_table = resulted_test_table_A.iloc[[0]]
+            if len(resulted_test_table) == 2:
+                test_condition, test_type = get_test_condition(resulted_test_table, test_type)
+                if test_condition == "Hepatitis B":
+                    #check for ELRs that have two Hep B tests, if so only look at the antigen test
+                    #antibody
+                    search_term1 = "HBV Ab|HBV AB|HBV IgG|HBV IgM|HBV ANTIBODY|HBV Antibody|HBV antibody|HBV IGG|HBV IgG"
+                    search_term2 = "Hepatitis B Ab|Hepatitis B AB|Hepatitis B IgG|Hepatitis B IgM|Hepatitis B ANTIBODY|Hepatitis B Antibody|Hepatitis B antibody|Hepatitis B IGG|Hepatitis B IgG"
+                    resulted_test_table_A = resulted_test_table[resulted_test_table["Resulted Test"].str.contains(f"{search_term1}|{search_term2}")]
+                    if len(resulted_test_table_A) == 2:
+                        resulted_test_table = resulted_test_table_A.iloc[[0]]
                 
-                # antigen
-                search_term1 = "HBV Ag|HBV AG|HBV ANTIGEN|HBV Antigen|HBV antigen|HBV SURFACE AG"
-                search_term2 = "Hepatitis B Ag|Hepatitis B AG|Hepatitis B ANTIGEN|Hepatitis B Antigen|Hepatitis B antigen|HBV SURFACE AG"
-                resulted_test_table_B = resulted_test_table[resulted_test_table["Resulted Test"].str.contains(f"{search_term1}|{search_term2}")]
-                if len(resulted_test_table_B) == 2:
-                    resulted_test_table = resulted_test_table_B.iloc[[0]]
+                    # antigen
+                    search_term1 = "HBV Ag|HBV AG|HBV ANTIGEN|HBV Antigen|HBV antigen|HBV SURFACE AG"
+                    search_term2 = "Hepatitis B Ag|Hepatitis B AG|Hepatitis B ANTIGEN|Hepatitis B Antigen|Hepatitis B antigen|HBV SURFACE AG"
+                    resulted_test_table_B = resulted_test_table[resulted_test_table["Resulted Test"].str.contains(f"{search_term1}|{search_term2}")]
+                    if len(resulted_test_table_B) == 2:
+                        resulted_test_table = resulted_test_table_B.iloc[[0]]
                 
-                # DNA
-                search_term1 = "HBV DNA"
-                search_term2 = "Hepatitis B DNA"
-                resulted_test_table_C = resulted_test_table[resulted_test_table["Resulted Test"].str.contains(f"{search_term1}|{search_term2}")]
-                if len(resulted_test_table_C) == 2:
-                    resulted_test_table = resulted_test_table_C.iloc[[0]]
-            elif test_condition == "Hepatitis C":
-                #Some Hep C RNA tests have base 10 and log 10 values, we only need one. 
-                #Some tests have both Hep C RNA and Genotype. Use the RNA for the workflows, save the genotype in case an investigation needs to be created.
-                resulted_test_table_D = resulted_test_table[resulted_test_table["Resulted Test"].str.contains("HCV RNA|Hepatitis C RNA |HEPATITIS C RNA")]
-                if len(resulted_test_table_D) == 2:
-                    resulted_test_table = resulted_test_table_D.iloc[[0]]
-                search_term1 = "HCV Ab|HCV AB|HCV IgG|HCV IgM|HCV ANTIBODY|HCV Antibody|HCV antibody|HCV IGG|HCV IgG"
-                search_term2 = "Hepatitis C Ab|Hepatitis C AB|Hepatitis C IgG|Hepatitis C IgM|Hepatitis C ANTIBODY|Hepatitis C Antibody|Hepatitis C antibody|Hepatitis C IGG|Hepatitis C IgG"  
+                    # DNA
+                    search_term1 = "HBV DNA"
+                    search_term2 = "Hepatitis B DNA"
+                    resulted_test_table_C = resulted_test_table[resulted_test_table["Resulted Test"].str.contains(f"{search_term1}|{search_term2}")]
+                    if len(resulted_test_table_C) == 2:
+                        resulted_test_table = resulted_test_table_C.iloc[[0]]
+                elif test_condition == "Hepatitis C":
+                    #Some Hep C RNA tests have base 10 and log 10 values, we only need one. 
+                    #Some tests have both Hep C RNA and Genotype. Use the RNA for the workflows, save the genotype in case an investigation needs to be created.
+                    resulted_test_table_D = resulted_test_table[resulted_test_table["Resulted Test"].str.contains("HCV RNA|Hepatitis C RNA |HEPATITIS C RNA")]
+                    if len(resulted_test_table_D) == 2:
+                        resulted_test_table = resulted_test_table_D.iloc[[0]]
+                    search_term1 = "HCV Ab|HCV AB|HCV IgG|HCV IgM|HCV ANTIBODY|HCV Antibody|HCV antibody|HCV IGG|HCV IgG"
+                    search_term2 = "Hepatitis C Ab|Hepatitis C AB|Hepatitis C IgG|Hepatitis C IgM|Hepatitis C ANTIBODY|Hepatitis C Antibody|Hepatitis C antibody|Hepatitis C IGG|Hepatitis C IgG"  
                 
-                resulted_test_table_E = resulted_test_table[resulted_test_table["Resulted Test"].str.contains(f"{search_term1}|{search_term2}")]
-                if len(resulted_test_table_E) == 2:
-                    resulted_test_table = resulted_test_table_E.iloc[[0]]
+                    resulted_test_table_E = resulted_test_table[resulted_test_table["Resulted Test"].str.contains(f"{search_term1}|{search_term2}")]
+                    if len(resulted_test_table_E) == 2:
+                        resulted_test_table = resulted_test_table_E.iloc[[0]]
                 
             
-        # If only one test remains, clean up the test name and categorize it
-        if len(resulted_test_table) == 1:        # Clean up test name
-            test_condition, test_type = get_test_condition(resulted_test_table, test_type)
+            # If only one test remains, clean up the test name and categorize it
+            if len(resulted_test_table) == 1:        # Clean up test name
+                test_condition, test_type = get_test_condition(resulted_test_table, test_type)
             
-            existing_investigations = None
-            if type(investigation_table) == pd.core.frame.DataFrame:
-                existing_investigations = investigation_table[investigation_table["Condition"].str.contains(test_condition)]
-                existing_investigations = existing_investigations[existing_investigations["Case Status"].str.contains("Confirmed|Probable")]
+                existing_investigations = None
+                if type(investigation_table) == pd.core.frame.DataFrame:
+                    existing_investigations = investigation_table[investigation_table["Condition"].str.contains(test_condition)]
+                    existing_investigations = existing_investigations[existing_investigations["Case Status"].str.contains("Confirmed|Probable")]
                 
-                if len(existing_investigations) >= 1:
-                    inv_found = True
-                    #Sometimes the C is capitalised in chronic investigations and sometimes 
-                    #it is not so we are just going to look for "hronic" to avoid it
-                    chronic_inv = existing_investigations[existing_investigations["Condition"].str.contains("hronic")]
-                    acute_inv = existing_investigations[existing_investigations["Condition"].str.contains("acute")]
-                    perinatal_inv = existing_investigations[existing_investigations["Condition"].str.contains("perinatal")]
-                    #try:
-                    if len(acute_inv) >= 1:
-                        inv_date = acute_inv['Start Date'].iloc[0]
-                        inv_date = inv_date.date()
-                        #get difference in time between lab result and time from investigation
-                        time_diff = lab_date - inv_date
-                        diff_days = time_diff.days
-                #except:
-                    if len(chronic_inv) >= 1:
-                        inv_date = chronic_inv['Start Date'].iloc[0]
-                        inv_date = inv_date.date()
-                        time_diff = lab_date - inv_date
-                        diff_days = time_diff.days
+                    if len(existing_investigations) >= 1:
+                        inv_found = True
+                        #Sometimes the C is capitalised in chronic investigations and sometimes 
+                        #it is not so we are just going to look for "hronic" to avoid it
+                        chronic_inv = existing_investigations[existing_investigations["Condition"].str.contains("hronic")]
+                        acute_inv = existing_investigations[existing_investigations["Condition"].str.contains("acute")]
+                        perinatal_inv = existing_investigations[existing_investigations["Condition"].str.contains("perinatal")]
+                        #try:
+                        if len(acute_inv) >= 1:
+                            inv_date = acute_inv['Start Date'].iloc[0]
+                            inv_date = inv_date.date()
+                            #get difference in time between lab result and time from investigation
+                            time_diff = lab_date - inv_date
+                            diff_days = time_diff.days
+                    #except:
+                        if len(chronic_inv) >= 1:
+                            inv_date = chronic_inv['Start Date'].iloc[0]
+                            inv_date = inv_date.date()
+                            time_diff = lab_date - inv_date
+                            diff_days = time_diff.days
                     
-                    if len(existing_investigations.loc[existing_investigations['Case Status'] == 'Not a Case']) > 0:
-                        existing_not_a_case = True
+                        if len(existing_investigations.loc[existing_investigations['Case Status'] == 'Not a Case']) > 0:
+                            existing_not_a_case = True
+                        else:
+                            existing_not_a_case = False
                     else:
-                        existing_not_a_case = False
+                            NBS.existing_investigation_index = None
+                            inv_found = False
+                            existing_not_a_case = False
                 else:
-                        NBS.existing_investigation_index = None
                         inv_found = False
                         existing_not_a_case = False
-            else:
-                    inv_found = False
-                    existing_not_a_case = False
             
-            #if there is more than one probable/confirmed of the same investigation, skip over the ELR and send an email
-            #chronic_inv.loc[chronic_inv.index.repeat(2)]
-            if acute_inv is not None and chronic_inv is not None:
-                if len(acute_inv) > 1:
-                    if len(np.unique(acute_inv.Condition)) == 1 and len(acute_inv[acute_inv["Case Status"].str.contains("Probable|Confirmed")]) >=2:
-                        send_inv_email = True
-                        send_inv_email_ids.append(event_id)
-                        NBS.go_to_home()
-                        print("More than one acute investigation of the same condition")
-                        what_do.append("Multiple Investigations of same condition")
-                        print(f"eventid = {event_id} and action = {what_do}")
-                        hist[event_id].append("Multiple Investigations of same condition")
-                        continue  
-                if len(chronic_inv) > 1:
-                    if len(np.unique(chronic_inv.Condition)) == 1 and len(chronic_inv[chronic_inv["Case Status"].str.contains("Probable|Confirmed")]) >=2:
-                        send_inv_email = True
-                        send_inv_email_ids.append(event_id)
-                        NBS.go_to_home()
-                        print("More than one chronic investigation of the same condition")
-                        what_do.append("Multiple Investigations of same condition")
-                        print(f"eventid = {event_id} and action = {what_do}")
-                        hist[event_id].append("Multiple Investigations of same condition")
-                        continue
-
-            
-            #added by V to check if result contains presumptive then it should be mark as reviewed
-            #if resulted_test_table["Coded Result / Organism Name"].astype(str).str.contains("Presumptive| presumptive").iloc[0] or resulted_test_table["Text Result"].astype(str).str.contains("Presumptive| presumptive").iloc[0] or resulted_test_table["Numeric Result"].astype(str).str.contains("Presumptive| presumptive").iloc[0]:
-            if resulted_test_table["Text Result"].astype(str).str.contains("Presumptive| presumptive").iloc[0] :
-                mark_reviewed = True
-                print("Presumptive result, mark as reviewed")
-
-            elif resulted_test_table["Text Result"].astype(str).str.contains("tnp|test not performed|TNP|TEST NOT PERFORMED|Test Not Performed").iloc[0]:
-                mark_reviewed = True
-                print("test not performed case")
-                
-            ###Hepatitis A###
-            elif test_condition == "Hepatitis A":
-                if test_type == "Antibody" and "igm" not in str(resulted_test_table["Resulted Test"]).lower():
-                    mark_reviewed = True
-                elif test_type == "Antibody" and  "igm" in str(resulted_test_table["Resulted Test"]).lower() and (resulted_test_table["Coded Result / Organism Name"].str.contains("Neg|NEG|neg|See Below|UNDETECTED|Undetected|undetected|Non-Reactive|NON-REACTIVE|NOT DETECTED|Not Detected").any()):
-                    mark_reviewed = True
-                elif test_type == "Antibody" and "igm" in str(resulted_test_table["Resulted Test"]).lower() and (resulted_test_table["Coded Result / Organism Name"].str.contains("POS|Positive|POSITIVE|Reactive|REACTIVE|Detected|DETECTED").any()):
-                    Hep_inv_assign=True
-                    Hep_inv_assign_ids.append(event_id)
-                    print("Hepatitis A, Leave for field epi follow up.")
-                    what_do.append("Hepatitis A, Leave for field epi follow up.")
-                    print(f"eventid = {event_id} and action = {what_do}")
-                    hist[event_id].append("Hepatitis A, Leave for field epi follow up.")
-                    NBS.go_to_home()
-                    continue
-                elif test_type == "Antibody":
-                    mark_reviewed = True
-                else:
-                    print("Hepatitis A, skip")
-                    what_do.append("Hepatitis A, skip")
-                    print(f"eventid = {event_id} and action = {what_do}")
-                    hist[event_id].append("Hepatitis A, skip")
-                    NBS.go_to_home()
-                    continue
-            
-            ###Hepatitis C Antibody test logic###
-            elif test_condition == "Hepatitis C" and test_type == "Antibody":
-                if inv_found:
-                    age = lab_date - pat_dob
-                    if age.days < 1095:
-                        #If there is an existing perinatal investigation we are going to leave the ELR alone.
-                        perinatal_inv = existing_investigations[existing_investigations["Condition"].str.contains("perinatal")]
-                        if len(perinatal_inv) >= 1 or len(existing_investigations.loc[existing_investigations['Case Status'] == 'Not a Case']) > 0:
-                            mark_reviewed = True
-                    elif len(existing_investigations) is None:
-                        print("Patient has a perinatal investigation, leave for an epi")
-                        perinatal_inv = True
-                        perinatal_inv_ids.append(event_id)
-                        what_do.append("Patient has a perinatal investigation, leave for an epi")
-                        print(f"eventid = {event_id} and action = {what_do}")
-                        hist[event_id].append("Patient has a perinatal investigation, leave for an epi")
-                        NBS.go_to_home()
-                        continue
-    
-                case_less_than_not_detected = resulted_test_table["Coded Result / Organism Name"].astype(str).str.contains("<").iloc[0] or resulted_test_table["Text Result"].astype(str).str.contains("<").iloc[0] or resulted_test_table["Numeric Result"].astype(str).str.contains("<").iloc[0] and bool(resulted_test_table['Result Comments'].str.contains("not detected|Not Detected").any())
-                if case_less_than_not_detected or (any(x in str(resulted_test_table["Coded Result / Organism Name"]).lower() for x in ["pos", "positive", "reactive", "detected"]) or any(x in str(resulted_test_table["Text Result"]).lower() for x in ["pos", "positive", "reactive", "detected"])) and ("non-reactive" not in resulted_test_table["Text Result"].iloc[0].lower() and "non reactive" not in resulted_test_table["Text Result"].iloc[0].lower() and "non-reactive" not in resulted_test_table["Coded Result / Organism Name"].iloc[0].lower() and "non reactive" not in resulted_test_table["Coded Result / Organism Name"].iloc[0].lower() and "non-reactive" not in resulted_test_table["Coded Result / Organism Name"].iloc[0].lower() and "non-reactive" not in resulted_test_table["Text Result"].iloc[0].lower()): 
-                    #grab all negative RNA\Genotype labs within a year, but not after
-                    Gen_rna_lab = lab_report_table[lab_report_table["Test Results"].str.contains("Gen|RNA")]
-                    Gen_rna_lab = Gen_rna_lab[Gen_rna_lab["Test Results"].str.contains("HEPATITIS C|HCV|Hepatitis C")]
-                    try:
-                        Gen_rna_lab["Date Collected"] = pd.to_datetime(Gen_rna_lab["Date Collected"]).dt.date
-                        #Gen_rna_lab = Gen_rna_lab[Gen_rna_lab["Date Collected"]<=lab_date]
-                        Gen_rna_lab = Gen_rna_lab[Gen_rna_lab["Date Collected"]>=lab_date]
-                    except (DateParseError, ValueError):
-                        Gen_rna_lab["Date Received"] = pd.to_datetime(Gen_rna_lab["Date Received"]).dt.date
-                        #Gen_rna_lab = Gen_rna_lab[Gen_rna_lab["Date Received"]<=lab_date]
-                        Gen_rna_lab = Gen_rna_lab[Gen_rna_lab["Date Received"]>=lab_date]
-                    
-                    
-                    year = int(datetime.today().strftime("%Y"))
-                    mmwr_week = Week(year, 1)
-                    
-                    #put space in front to avoid grabbing tests that have the results in the reference range
-                    Neg_Gen_rna_lab = Gen_rna_lab[Gen_rna_lab["Test Results"].str.contains("Neg|NEG|neg|See Below|UNDETECTED|Undetected|negative|undetected| Non-Reactive| NON-REACTIVE| NOT DETECTED| Not Detected", case = False)] 
-                    #grab all negative genotype or RNA tests to use as an index to find all positive genotype or RNA tests
-                    Pos_Gen_rna_lab = Gen_rna_lab.drop(Neg_Gen_rna_lab.index)
-                    Neg_Gen_rna_lab["Date Collected"] = pd.to_datetime(Neg_Gen_rna_lab["Date Collected"]).dt.date
-                    Neg_Gen_rna_lab = Neg_Gen_rna_lab[Neg_Gen_rna_lab["Date Collected"]>mmwr_week.startdate()]
-                    
-                    #grab all negative labs within a year, add a space for the name so it doesn't trigger on the reference range
-                    if lab_report_table['Test Results'].str.contains("Reference Range", case=False, na=False).any():
-                        Neg_lab = lab_report_table[lab_report_table["Test Results"].str.contains(" Neg|NEG|neg|negative|Not Detected| NOT DETECTED| UNDETECTED| Undetected| undetected",case = False) & ~lab_report_table['Test Results'].str.contains("Reference Range", case=False, na=False)]
-                    else:
-                        Neg_lab = lab_report_table[lab_report_table["Test Results"].str.contains(" Neg|NEG|neg|negative|Not Detected| NOT DETECTED| UNDETECTED| Undetected| undetected",case = False)]
-                    Neg_lab = Neg_lab[Neg_lab["Test Results"].str.contains("HEPATITIS C|HCV|Hepatitis C")]
-                    Neg_lab["Date Collected"].replace('No Date', pd.NA, inplace=True)
-                    #Neg_lab["Date Collected"] = pd.to_datetime(Neg_lab["Date Collected"]).dt.date
-                    Neg_lab["Date Collected"] = pd.to_datetime(Neg_lab["Date Collected"])
-                    cutoff_date = datetime.today() - relativedelta(years=1)
-                    Neg_lab = Neg_lab[Neg_lab["Date Collected"]>cutoff_date]
-                    #check investigation status
-                    if chronic_inv is not None and acute_inv is not None:    
-                        if len(chronic_inv) > 0 and chronic_inv["Case Status"].str.contains("Probable").any() or chronic_inv["Case Status"].str.contains("Confirmed").any():
-                            mark_reviewed = True
-                        elif len(acute_inv) > 0 and "Probable" in acute_inv["Case Status"].values or "Confirmed" in acute_inv["Case Status"].values:
-                            mark_reviewed = True
-                        elif len(chronic_inv)> 0 and chronic_inv["Case Status"].str.contains("Not a Case").any() or len(acute_inv) > 0 and acute_inv["Case Status"].str.contains("Not a Case").any():
-                            mark_reviewed = True
-                    elif len(Neg_Gen_rna_lab) >= 1:
-                        mark_reviewed = True
-                    elif len(Pos_Gen_rna_lab) == 0:
-                        if alt_lab is not None:    
-                            if alt_lab["num_res"].iloc[0] <= 200 and len(Neg_lab) == 0: 
-                                create_inv = True
-                                condition = 'Hepatitis C, chronic'
-                            else:
-                                #condition = "Hepatitis C, acute"
-                                Hep_inv_assign = True
-                                Hep_inv_assign_ids.append(event_id)
-                                print("Hepatitis B, acute investigation to be assigned out")
-                                what_do.append("Hepatitis B, acute investigation to be assigned out")
-                                print(f"eventid = {event_id} and action = {what_do}")
-                                hist[event_id].append("Hepatitis B, acute investigation to be assigned out")
-                                NBS.go_to_home()
-                                continue
-                        else:
-                            create_inv = True
-                            condition = "Hepatitis C, chronic"
-                    elif len(Pos_Gen_rna_lab) > 0:
-                            print("Skip, Previous positive RNA/Genotype. Should already have investigation created")
-                            what_do.append("Skip, Previous positive RNA/Genotype. Should already have investigation created")
+                #if there is more than one probable/confirmed of the same investigation, skip over the ELR and send an email
+                #chronic_inv.loc[chronic_inv.index.repeat(2)]
+                if acute_inv is not None and chronic_inv is not None:
+                    if len(acute_inv) > 1:
+                        if len(np.unique(acute_inv.Condition)) == 1 and len(acute_inv[acute_inv["Case Status"].str.contains("Probable|Confirmed")]) >=2:
+                            send_inv_email = True
+                            send_inv_email_ids.append(event_id)
+                            NBS.go_to_home()
+                            print("More than one acute investigation of the same condition")
+                            what_do.append("Multiple Investigations of same condition")
                             print(f"eventid = {event_id} and action = {what_do}")
-                            hist[event_id].append("Skip, Previous positive RNA/Genotype. Should already have investigation created")
+                            hist[event_id].append("Multiple Investigations of same condition")
+                            continue  
+                    if len(chronic_inv) > 1:
+                        if len(np.unique(chronic_inv.Condition)) == 1 and len(chronic_inv[chronic_inv["Case Status"].str.contains("Probable|Confirmed")]) >=2:
+                            send_inv_email = True
+                            send_inv_email_ids.append(event_id)
+                            NBS.go_to_home()
+                            print("More than one chronic investigation of the same condition")
+                            what_do.append("Multiple Investigations of same condition")
+                            print(f"eventid = {event_id} and action = {what_do}")
+                            hist[event_id].append("Multiple Investigations of same condition")
+                            continue
+
+            
+                #added by V to check if result contains presumptive then it should be mark as reviewed
+                #if resulted_test_table["Coded Result / Organism Name"].astype(str).str.contains("Presumptive| presumptive").iloc[0] or resulted_test_table["Text Result"].astype(str).str.contains("Presumptive| presumptive").iloc[0] or resulted_test_table["Numeric Result"].astype(str).str.contains("Presumptive| presumptive").iloc[0]:
+                if resulted_test_table["Text Result"].astype(str).str.contains("Presumptive| presumptive").iloc[0] :
+                    mark_reviewed = True
+                    print("Presumptive result, mark as reviewed")
+
+                elif resulted_test_table["Text Result"].astype(str).str.contains("tnp|test not performed|TNP|TEST NOT PERFORMED|Test Not Performed").iloc[0]:
+                    mark_reviewed = True
+                    print("test not performed case")
+                
+                ###Hepatitis A###
+                elif test_condition == "Hepatitis A":
+                    if test_type == "Antibody" and "igm" not in str(resulted_test_table["Resulted Test"]).lower():
+                        mark_reviewed = True
+                    elif test_type == "Antibody" and  "igm" in str(resulted_test_table["Resulted Test"]).lower() and (resulted_test_table["Coded Result / Organism Name"].str.contains("Neg|NEG|neg|See Below|UNDETECTED|Undetected|undetected|Non-Reactive|NON-REACTIVE|NOT DETECTED|Not Detected").any()):
+                        mark_reviewed = True
+                    elif test_type == "Antibody" and "igm" in str(resulted_test_table["Resulted Test"]).lower() and (resulted_test_table["Coded Result / Organism Name"].str.contains("POS|Positive|POSITIVE|Reactive|REACTIVE|Detected|DETECTED").any()):
+                        Hep_inv_assign=True
+                        Hep_inv_assign_ids.append(event_id)
+                        print("Hepatitis A, Leave for field epi follow up.")
+                        what_do.append("Hepatitis A, Leave for field epi follow up.")
+                        print(f"eventid = {event_id} and action = {what_do}")
+                        hist[event_id].append("Hepatitis A, Leave for field epi follow up.")
+                        NBS.go_to_home()
+                        continue
+                    elif test_type == "Antibody":
+                        mark_reviewed = True
+                    else:
+                        print("Hepatitis A, skip")
+                        what_do.append("Hepatitis A, skip")
+                        print(f"eventid = {event_id} and action = {what_do}")
+                        hist[event_id].append("Hepatitis A, skip")
+                        NBS.go_to_home()
+                        continue
+            
+                ###Hepatitis C Antibody test logic###
+                elif test_condition == "Hepatitis C" and test_type == "Antibody":
+                    if inv_found:
+                        age = lab_date - pat_dob
+                        if age.days < 1095:
+                            #If there is an existing perinatal investigation we are going to leave the ELR alone.
+                            perinatal_inv = existing_investigations[existing_investigations["Condition"].str.contains("perinatal")]
+                            if len(perinatal_inv) >= 1 or len(existing_investigations.loc[existing_investigations['Case Status'] == 'Not a Case']) > 0:
+                                mark_reviewed = True
+                        elif len(existing_investigations) is None:
+                            print("Patient has a perinatal investigation, leave for an epi")
+                            perinatal_inv = True
+                            perinatal_inv_ids.append(event_id)
+                            what_do.append("Patient has a perinatal investigation, leave for an epi")
+                            print(f"eventid = {event_id} and action = {what_do}")
+                            hist[event_id].append("Patient has a perinatal investigation, leave for an epi")
                             NBS.go_to_home()
                             continue
-                else:
-                    #Mark as reviewed
-                    mark_reviewed = True
-            
-            ###Hepatitis C RNA/Genotype logic###
-            elif test_condition == "Hepatitis C" and test_type in ("RNA", "DNA", "Genotype"):
-                if inv_found:
-                    age = lab_date - pat_dob
-                    if len(perinatal_inv) >= 1:
-                        if age.days < 1095:
-                            hep_c_rna = lab_report_table['Test Results'].lower().str.contains("hepatitis C|hcv|hep c").any() and lab_report_table['Test Results'].lower().str.contains("genotype|rna").any() and lab_report_table['Test Results'].lower().str.contains("positive|pos|reactive|detected").any()
-                            if hep_c_rna:
-                                create_inv = True
-                                condition = "Hepatitis C, chronic"
-                                peri_inv = True
-                                send_peri_email == True
-                            else:
-                                mark_reviewed = True
-                        else:
-                            if len(perinatal_inv)==1 and existing_investigations[existing_investigations["Case Status"].str.contains("Confirmed")]:
-                                mark_reviewed = True
-                            elif len(perinatal_inv)==1 and existing_investigations[existing_investigations["Case Status"].str.contains("Not a Case")]:
-                                if hep_c_rna:
-                                    print("Patient has a perinatal investigation, leave for an epi")
-                                    perinatal_inv = True
-                                    perinatal_inv_ids.append(event_id)
-                                    what_do.append("Patient has a perinatal investigation, leave for an epi")
-                                    print(f"eventid = {event_id} and action = {what_do}")
-                                    hist[event_id].append("Patient has a perinatal investigation, leave for an epi")
-                                    NBS.go_to_home()
-                                    continue
-                                else:
-                                    mark_reviewed = True
-                        
-                case_less_than_not_detected = resulted_test_table["Coded Result / Organism Name"].astype(str).str.contains("<").iloc[0] or resulted_test_table["Text Result"].astype(str).str.contains("<").iloc[0] or resulted_test_table["Numeric Result"].astype(str).str.contains("<").iloc[0] and bool(resulted_test_table['Result Comments'].str.contains("not detected|Not Detected").any()) # if < in result, comments should say not detected
-                if type(resulted_test_table["Numeric Result"].iloc[0]) == str  and resulted_test_table["Numeric Result"].iloc[0] != "" and bool(re.search(r'\d', resulted_test_table["Numeric Result"].iloc[0])):
-                    if resulted_test_table["Numeric Result"].str.extract(r'(\d+)').astype(int).iloc[0,0] > 0:
-                        num_res = True
-                elif type(resulted_test_table["Text Result"].iloc[0]) == str  and resulted_test_table["Text Result"].iloc[0] != "" and bool(re.search(r'\d', resulted_test_table["Text Result"].iloc[0])):
-                    if resulted_test_table["Text Result"].str.extract(r'(\d+)').astype(int).iloc[0,0] > 0:
-                        num_res = True
-                elif type(resulted_test_table["Coded Result / Organism Name"].iloc[0]) == str  and resulted_test_table["Coded Result / Organism Name"].iloc[0] != "" and bool(re.search(r'\d', resulted_test_table["Coded Result / Organism Name"].iloc[0])):
-                    if resulted_test_table["Coded Result / Organism Name"].str.extract(r'(\d+)').astype(int).iloc[0,0] > 0:
-                        num_res = True
-                elif type(resulted_test_table["Numeric Result"].iloc[0]) == np.int64:
-                    if int(resulted_test_table["Numeric Result"].iloc[0])  > 0:
-                        num_res = True
-                elif type(resulted_test_table["Text Result"].iloc[0]) == np.int64:
-                    if int(resulted_test_table["Text Result"].iloc[0])  > 0:
-                        num_res = True
-                elif type(resulted_test_table["Numeric Result"].iloc[0]) == np.float64:
-                    if int(resulted_test_table["Numeric Result"].iloc[0])  > 0:
-                        num_res = True
-                elif type(resulted_test_table["Text Result"].iloc[0]) == np.float64:
-                    if int(resulted_test_table["Text Result"].iloc[0])  > 0:
-                        num_res = True
-                elif type(resulted_test_table["Numeric Result"].iloc[0]) == float:
-                    if int(resulted_test_table["Numeric Result"].iloc[0])  > 0:
-                        num_res = True
-                elif type(resulted_test_table["Text Result"].iloc[0]) == float:
-                    if int(resulted_test_table["Text Result"].iloc[0])  > 0:
-                        num_res = True
-                elif type(resulted_test_table["Numeric Result"].iloc[0]) == int:
-                    if int(resulted_test_table["Numeric Result"].iloc[0])  > 0:
-                        num_res = True
-                elif type(resulted_test_table["Text Result"].iloc[0]) == int:
-                    if int(resulted_test_table["Text Result"].iloc[0])  > 0:
-                        num_res = True
-                elif resulted_test_table["Coded Result / Organism Name"].iloc[0] == "Detected":
-                    num_res = True
-                else:
-                    num_res = False
-                #grab negative labs within the last year, put a space for the name so that we don't grab the reference range by accident
-                Neg_lab = lab_report_table[lab_report_table["Test Results"].str.contains(" Neg| NEG| Not Detected| NOT DETECTED| UNDETECTED| not detected| Undetected| undetected")]       
-                Neg_lab = Neg_lab[Neg_lab["Test Results"].str.contains("HEPATITIS C|HCV|Hepatitis C")]
-                Neg_lab["Date Collected"] = pd.to_datetime(Neg_lab["Date Collected"]).dt.date
-                Neg_lab = Neg_lab[Neg_lab["Date Collected"]>lab_date-relativedelta(years=1)]
-                if case_less_than_not_detected or (any(x in str(resulted_test_table["Coded Result / Organism Name"]).lower() for x in ["undetected", "negative", "unable", "not detected" ])  or any(x in str(resulted_test_table["Text Result"]).lower() for x in ["undetected", "negative", "unable", "not detected"]) or any(x in str(resulted_test_table["Result Comments"]) for x in ["HCV RNA Not Detected"])): 
-                    if acute_inv is not None and chronic_inv is not None: 
+    
+                    case_less_than_not_detected = resulted_test_table["Coded Result / Organism Name"].astype(str).str.contains("<").iloc[0] or resulted_test_table["Text Result"].astype(str).str.contains("<").iloc[0] or resulted_test_table["Numeric Result"].astype(str).str.contains("<").iloc[0] and bool(resulted_test_table['Result Comments'].str.contains("not detected|Not Detected").any())
+                    if case_less_than_not_detected or (any(x in str(resulted_test_table["Coded Result / Organism Name"]).lower() for x in ["pos", "positive", "reactive", "detected"]) or any(x in str(resulted_test_table["Text Result"]).lower() for x in ["pos", "positive", "reactive", "detected"])) and ("non-reactive" not in resulted_test_table["Text Result"].iloc[0].lower() and "non reactive" not in resulted_test_table["Text Result"].iloc[0].lower() and "non-reactive" not in resulted_test_table["Coded Result / Organism Name"].iloc[0].lower() and "non reactive" not in resulted_test_table["Coded Result / Organism Name"].iloc[0].lower() and "non-reactive" not in resulted_test_table["Coded Result / Organism Name"].iloc[0].lower() and "non-reactive" not in resulted_test_table["Text Result"].iloc[0].lower()): 
+                        #grab all negative RNA\Genotype labs within a year, but not after
+                        Gen_rna_lab = lab_report_table[lab_report_table["Test Results"].str.contains("Gen|RNA")]
+                        Gen_rna_lab = Gen_rna_lab[Gen_rna_lab["Test Results"].str.contains("HEPATITIS C|HCV|Hepatitis C")]
+                        try:
+                            Gen_rna_lab["Date Collected"] = pd.to_datetime(Gen_rna_lab["Date Collected"]).dt.date
+                            #Gen_rna_lab = Gen_rna_lab[Gen_rna_lab["Date Collected"]<=lab_date]
+                            Gen_rna_lab = Gen_rna_lab[Gen_rna_lab["Date Collected"]>=lab_date]
+                        except (DateParseError, ValueError):
+                            Gen_rna_lab["Date Received"] = pd.to_datetime(Gen_rna_lab["Date Received"]).dt.date
+                            #Gen_rna_lab = Gen_rna_lab[Gen_rna_lab["Date Received"]<=lab_date]
+                            Gen_rna_lab = Gen_rna_lab[Gen_rna_lab["Date Received"]>=lab_date]
+                    
+                    
                         year = int(datetime.today().strftime("%Y"))
                         mmwr_week = Week(year, 1)
-                        hep_c_ab = lab_report_table['Test Results'].str.contains("Hepatitis C|HEPATITIS C|HCV|Hep C").any() and lab_report_table['Test Results'].str.contains("Ab|AB|ANTIBODY|Antibody|antibody").any()
-                        if len(acute_inv) > 0 and hep_c_ab and inv_date > mmwr_week.startdate() and test_type == "RNA" and "Probable" in acute_inv["Case Status"].values:
-                            update_status = True
-                            not_a_case = True
-                            associate = True
-                        elif len(chronic_inv) > 0 and hep_c_ab and inv_date > mmwr_week.startdate() and test_type == "RNA" and "Probable" in chronic_inv["Case Status"].values:
-                            update_status = True
-                            not_a_case = True
-                            associate = True
+                    
+                        #put space in front to avoid grabbing tests that have the results in the reference range
+                        Neg_Gen_rna_lab = Gen_rna_lab[Gen_rna_lab["Test Results"].str.contains("Neg|NEG|neg|See Below|UNDETECTED|Undetected|negative|undetected| Non-Reactive| NON-REACTIVE| NOT DETECTED| Not Detected", case = False)] 
+                        #grab all negative genotype or RNA tests to use as an index to find all positive genotype or RNA tests
+                        Pos_Gen_rna_lab = Gen_rna_lab.drop(Neg_Gen_rna_lab.index)
+                        Neg_Gen_rna_lab["Date Collected"] = pd.to_datetime(Neg_Gen_rna_lab["Date Collected"]).dt.date
+                        Neg_Gen_rna_lab = Neg_Gen_rna_lab[Neg_Gen_rna_lab["Date Collected"]>mmwr_week.startdate()]
+                    
+                        #grab all negative labs within a year, add a space for the name so it doesn't trigger on the reference range
+                        if lab_report_table['Test Results'].str.contains("Reference Range", case=False, na=False).any():
+                            Neg_lab = lab_report_table[lab_report_table["Test Results"].str.contains(" Neg|NEG|neg|negative|Not Detected| NOT DETECTED| UNDETECTED| Undetected| undetected",case = False) & ~lab_report_table['Test Results'].str.contains("Reference Range", case=False, na=False)]
                         else:
+                            Neg_lab = lab_report_table[lab_report_table["Test Results"].str.contains(" Neg|NEG|neg|negative|Not Detected| NOT DETECTED| UNDETECTED| Undetected| undetected",case = False)]
+                        Neg_lab = Neg_lab[Neg_lab["Test Results"].str.contains("HEPATITIS C|HCV|Hepatitis C")]
+                        Neg_lab["Date Collected"].replace('No Date', pd.NA, inplace=True)
+                        #Neg_lab["Date Collected"] = pd.to_datetime(Neg_lab["Date Collected"]).dt.date
+                        Neg_lab["Date Collected"] = pd.to_datetime(Neg_lab["Date Collected"])
+                        cutoff_date = datetime.today() - relativedelta(years=1)
+                        Neg_lab = Neg_lab[Neg_lab["Date Collected"]>cutoff_date]
+                        #check investigation status
+                        if chronic_inv is not None and acute_inv is not None:    
+                            if len(chronic_inv) > 0 and chronic_inv["Case Status"].str.contains("Probable").any() or chronic_inv["Case Status"].str.contains("Confirmed").any():
+                                mark_reviewed = True
+                            elif len(acute_inv) > 0 and "Probable" in acute_inv["Case Status"].values or "Confirmed" in acute_inv["Case Status"].values:
+                                mark_reviewed = True
+                            elif len(chronic_inv)> 0 and chronic_inv["Case Status"].str.contains("Not a Case").any() or len(acute_inv) > 0 and acute_inv["Case Status"].str.contains("Not a Case").any():
+                                mark_reviewed = True
+                        elif len(Neg_Gen_rna_lab) >= 1:
                             mark_reviewed = True
-                    else:
-                        mark_reviewed = True
-                elif not case_less_than_not_detected or ("Not Detected" not in resulted_test_table["Coded Result / Organism Name"].values and "Below threshold" not in resulted_test_table["Coded Result / Organism Name"].values and "Not Detected" not in resulted_test_table["Text Result"].values and "Below threshold" not in resulted_test_table["Text Result"].values and "Unable" not in resulted_test_table["Text Result"].values and "Unable" not in resulted_test_table["Coded Result / Organism Name"].values and "HCV RNA Not Detected" not in resulted_test_table["Result Comments"].values and num_res):
-                    if chronic_inv is not None and acute_inv is not None:
-                        if len(chronic_inv) > 0 and "Confirmed" in chronic_inv["Case Status"].values:
-                            #Mark as reviewed
-                            mark_reviewed = True
-                        elif len(chronic_inv) > 0 and "Probable" in chronic_inv["Case Status"].values:
-                            #update investigation to confirmed
-                            update_status = True
-                        elif len(acute_inv) > 0 and "Confirmed" in acute_inv["Case Status"].values and diff_days < 365:
-                            #Mark as reviewed
-                            mark_reviewed = True
-                        elif len(acute_inv) > 0 and "Confirmed" in acute_inv["Case Status"].values and diff_days >= 365:  
-                            create_inv = True
-                            condition = "Hepatitis C, chronic"
-                        elif len(acute_inv) > 0 and "Probable" in acute_inv["Case Status"].values and diff_days < 365:
-                            #update investigation to confirmed
-                            update_status = True
-                        elif len(acute_inv) > 0 and "Probable" in acute_inv["Case Status"].values and diff_days >= 365:
-                            create_inv = True
-                            condition = "Hepatitis C, chronic"
-                    else:
-                        if alt_lab is not None:
-                            if alt_lab["num_res"].iloc[0] <= 200 and len(Neg_lab) == 0: 
-                                create_inv = True
-                                condition = 'Hepatitis C, chronic'
+                        elif len(Pos_Gen_rna_lab) == 0:
+                            if alt_lab is not None:    
+                                if alt_lab["num_res"].iloc[0] <= 200 and len(Neg_lab) == 0: 
+                                    create_inv = True
+                                    condition = 'Hepatitis C, chronic'
+                                else:
+                                    #condition = "Hepatitis C, acute"
+                                    Hep_inv_assign = True
+                                    Hep_inv_assign_ids.append(event_id)
+                                    print("Hepatitis B, acute investigation to be assigned out")
+                                    what_do.append("Hepatitis B, acute investigation to be assigned out")
+                                    print(f"eventid = {event_id} and action = {what_do}")
+                                    hist[event_id].append("Hepatitis B, acute investigation to be assigned out")
+                                    NBS.go_to_home()
+                                    continue
                             else:
-                                #condition = "Hepatitis C, acute"
-                                Hep_inv_assign = True
-                                Hep_inv_assign_ids.append(event_id)
-                                print("Hepatitis B, acute investigation to be assigned out")
-                                what_do.append("Hepatitis B, acute investigation to be assigned out")
+                                create_inv = True
+                                condition = "Hepatitis C, chronic"
+                        elif len(Pos_Gen_rna_lab) > 0:
+                                print("Skip, Previous positive RNA/Genotype. Should already have investigation created")
+                                what_do.append("Skip, Previous positive RNA/Genotype. Should already have investigation created")
                                 print(f"eventid = {event_id} and action = {what_do}")
-                                hist[event_id].append("Hepatitis B, acute investigation to be assigned out")
+                                hist[event_id].append("Skip, Previous positive RNA/Genotype. Should already have investigation created")
                                 NBS.go_to_home()
                                 continue
-                        else:
-                            create_inv = True
-                            condition = "Hepatitis C, chronic"
-                else:
-                    #Mark as reviewed
-                    mark_reviewed = True
-                #putting this here to override above logic since it won't catch 
-                #ambiguous results
-                if "See Below" in resulted_test_table["Text Result"].values:
-                    print("Do nothing") 
-                    what_do.append("Skip, ambiguous result")
-                    print(f"eventid = {event_id} and action = {what_do}")
-                    hist[event_id].append("Skip, ambiguous result")
-                    mark_reviewed = False
-                    NBS.go_to_home()
-                    continue
+                    else:
+                        #Mark as reviewed
+                        mark_reviewed = True
             
-            #########Hep_B logic#########
-                    
-            elif test_condition == "Hepatitis B":
-                if inv_found:
-                    #If there is an existing perinatal investigation we are going to leave the ELR alone.
-                    perinatal_inv = existing_investigations[existing_investigations["Condition"].str.contains("perinatal")]
-                    if len(perinatal_inv) >= 1:
-                        print("Patient has a perinatal investigation, leave for an epi")
-                        what_do.append("Patient has a perinatal investigation, leave for an epi")
-                        print(f"eventid = {event_id} and action = {what_do}")
-                        hist[event_id].append("Patient has a perinatal investigation, leave for an epi")
-                        NBS.go_to_home()
-                        continue
-                if test_type == "Antigen" and resulted_test_table["Result Comments"].str.contains("To be confirmed by Neutralization Assay").any():
-                    mark_reviewed = True
-                case_less_than_not_detected = resulted_test_table["Coded Result / Organism Name"].astype(str).str.contains("<").iloc[0] or resulted_test_table["Text Result"].astype(str).str.contains("<").iloc[0] or resulted_test_table["Numeric Result"].astype(str).str.contains("<").iloc[0] and bool(resulted_test_table['Result Comments'].str.contains("not detected", case=False).any())
-                
-                if case_less_than_not_detected or ("not detected" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]).lower() or "below threshold" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]).lower() or "not detected" in str(resulted_test_table["Text Result"].iloc[0]).lower() or "below threshold" in str(resulted_test_table["Text Result"].iloc[0]).lower() or "unable" in str(resulted_test_table["Text Result"].iloc[0]).lower() or "unable" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]).lower() or "not detected" in str(resulted_test_table["Text Result"].iloc[0]).lower() or "undetected" in str(resulted_test_table["Text Result"].iloc[0]).lower() or "undetected" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]).lower() or "undetected" in str(resulted_test_table["Numeric Result"].iloc[0]).lower() or "negative" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]).lower() or "negative" in str(resulted_test_table["Numeric Result"].iloc[0]).lower() or "non-reactive" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]).lower() or "non-reactive" in str(resulted_test_table["Numeric Result"].iloc[0]).lower() or "non-reactive" in str(resulted_test_table["Text Result"].iloc[0]).lower() or "neg" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]).lower() or "neg" in str(resulted_test_table["Numeric Result"].iloc[0]).lower() or "neg" in str(resulted_test_table["Text Result"].iloc[0]).lower() or "non-reactive" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]).lower() or "non-reactive" in str(resulted_test_table["Numeric Result"].iloc[0]).lower() or "non-reactive" in str(resulted_test_table["Text Result"].iloc[0]).lower()):
-                    mark_reviewed = True
-                
-                else:
-                    IgM_lab = lab_report_table[lab_report_table["Test Results"].str.contains("IgM|IGM")]
-                    IgM_lab = IgM_lab[IgM_lab["Test Results"].str.contains("HEPATITIS B|HBV|Hepatitis B")]
-                
-                    try:
-                        IgM_lab["Date Collected"] = pd.to_datetime(IgM_lab["Date Collected"]).dt.date
-                        IgM_lab = IgM_lab[IgM_lab["Date Collected"]>lab_date-relativedelta(months=6)]
-                    except DateParseError:
-                        IgM_lab["Date Received"] = pd.to_datetime(IgM_lab["Date Received"]).dt.date
-                        IgM_lab = IgM_lab[IgM_lab["Date Received"]>lab_date-relativedelta(months=6)]
-                        
-                    Neg_IgM_lab = IgM_lab[IgM_lab["Test Results"].str.contains("Neg|NEG|See Below")]
-                    Pos_IgM_lab = IgM_lab[IgM_lab["Test Results"].str.contains("Pos|POS|Det|DET|REA|Rea")]
-                    
-                    if acute_inv is None and chronic_inv is None:
-                        if len(resulted_test_table) == 1 and test_type == "Antibody" and resulted_test_table["Resulted Test"].str.contains('core IgG+IgM|IGG/IGM').any():#, regex=False,case = False
-                            mark_reviewed = True
-                        elif len(resulted_test_table) == 1 and test_type == "Antibody" and "IgM" not in str(resulted_test_table["Resulted Test"]) and "IGM" not in str(resulted_test_table["Resulted Test"]): #add in logic for IgM
-                            mark_reviewed = True
-                        elif len(resulted_test_table) == 1 and test_type == "Antibody" and ("IgM" in str(resulted_test_table["Resulted Test"]) or "IGM" in str(resulted_test_table["Resulted Test"])) and "EQUIVOCAL" not in resulted_test_table["Coded Result / Organism Name"].iloc[0]:
-                            #create_inv = True
-                            #condition = "Hepatitis B, acute"
-                            Hep_inv_assign = True
-                            Hep_inv_assign_ids.append(event_id)
-                            print("Hepatitis B, acute investigation to be assigned out")
-                            what_do.append("Hepatitis B, acute investigation to be assigned out")
-                            print(f"eventid = {event_id} and action = {what_do}")
-                            hist[event_id].append("Hepatitis B, acute investigation to be assigned out")
-                            NBS.go_to_home()
-                            continue
-                        elif len(resulted_test_table) == 1 and test_type == "Antibody" and "IgM" in str(resulted_test_table["Resulted Test"]).lower()  and "EQUIVOCAL" in resulted_test_table["Coded Result / Organism Name"].iloc[0] or "EQUIVOCAL" in resulted_test_table["Text Result"].iloc[0]:
-                            mark_reviewed = True
-                        elif test_type in ("Antigen", "DNA", "RNA"): 
-                            #add in logic to check IgM and ALT results
-                            if len(IgM_lab) == 0:
-                                #create_inv = True
-                                if alt_lab is not None:
-                                    if alt_lab["num_res"].iloc[0] <= 200:            
-                                        #condition = 'Hepatitis B virus infection, chronic'
-                                        Hep_inv_assign = True
-                                        Hep_inv_assign_ids.append(event_id)
-                                        print("Hepatitis B, chronic investigation to be assigned out")
-                                        what_do.append("Hepatitis B, chronic investigation to be assigned out")
+                ###Hepatitis C RNA/Genotype logic###
+                elif test_condition == "Hepatitis C" and test_type in ("RNA", "DNA", "Genotype"):
+                    if inv_found:
+                        age = lab_date - pat_dob
+                        if len(perinatal_inv) >= 1:
+                            if age.days < 1095:
+                                hep_c_rna = lab_report_table['Test Results'].lower().str.contains("hepatitis C|hcv|hep c").any() and lab_report_table['Test Results'].lower().str.contains("genotype|rna").any() and lab_report_table['Test Results'].lower().str.contains("positive|pos|reactive|detected").any()
+                                if hep_c_rna:
+                                    create_inv = True
+                                    condition = "Hepatitis C, chronic"
+                                    peri_inv = True
+                                    send_peri_email == True
+                                else:
+                                    mark_reviewed = True
+                            else:
+                                if len(perinatal_inv)==1 and existing_investigations[existing_investigations["Case Status"].str.contains("Confirmed")]:
+                                    mark_reviewed = True
+                                elif len(perinatal_inv)==1 and existing_investigations[existing_investigations["Case Status"].str.contains("Not a Case")]:
+                                    if hep_c_rna:
+                                        print("Patient has a perinatal investigation, leave for an epi")
+                                        perinatal_inv = True
+                                        perinatal_inv_ids.append(event_id)
+                                        what_do.append("Patient has a perinatal investigation, leave for an epi")
                                         print(f"eventid = {event_id} and action = {what_do}")
-                                        hist[event_id].append("Hepatitis B, chronic investigation to be assigned out")
+                                        hist[event_id].append("Patient has a perinatal investigation, leave for an epi")
                                         NBS.go_to_home()
                                         continue
                                     else:
-                                        #condition = "Hepatitis B, acute"
-                                        Hep_inv_assign = True
-                                        Hep_inv_assign_ids.append(event_id)
-                                        print("Hepatitis B, acute investigation to be assigned out")
-                                        what_do.append("Hepatitis B, acute investigation to be assigned out")
-                                        print(f"eventid = {event_id} and action = {what_do}")
-                                        hist[event_id].append("Hepatitis B, acute investigation to be assigned out")
-                                        NBS.go_to_home()
-                                        continue
+                                        mark_reviewed = True
+                        
+                    case_less_than_not_detected = resulted_test_table["Coded Result / Organism Name"].astype(str).str.contains("<").iloc[0] or resulted_test_table["Text Result"].astype(str).str.contains("<").iloc[0] or resulted_test_table["Numeric Result"].astype(str).str.contains("<").iloc[0] and bool(resulted_test_table['Result Comments'].str.contains("not detected|Not Detected").any()) # if < in result, comments should say not detected
+                    if type(resulted_test_table["Numeric Result"].iloc[0]) == str  and resulted_test_table["Numeric Result"].iloc[0] != "" and bool(re.search(r'\d', resulted_test_table["Numeric Result"].iloc[0])):
+                        if resulted_test_table["Numeric Result"].str.extract(r'(\d+)').astype(int).iloc[0,0] > 0:
+                            num_res = True
+                    elif type(resulted_test_table["Text Result"].iloc[0]) == str  and resulted_test_table["Text Result"].iloc[0] != "" and bool(re.search(r'\d', resulted_test_table["Text Result"].iloc[0])):
+                        if resulted_test_table["Text Result"].str.extract(r'(\d+)').astype(int).iloc[0,0] > 0:
+                            num_res = True
+                    elif type(resulted_test_table["Coded Result / Organism Name"].iloc[0]) == str  and resulted_test_table["Coded Result / Organism Name"].iloc[0] != "" and bool(re.search(r'\d', resulted_test_table["Coded Result / Organism Name"].iloc[0])):
+                        if resulted_test_table["Coded Result / Organism Name"].str.extract(r'(\d+)').astype(int).iloc[0,0] > 0:
+                            num_res = True
+                    elif type(resulted_test_table["Numeric Result"].iloc[0]) == np.int64:
+                        if int(resulted_test_table["Numeric Result"].iloc[0])  > 0:
+                            num_res = True
+                    elif type(resulted_test_table["Text Result"].iloc[0]) == np.int64:
+                        if int(resulted_test_table["Text Result"].iloc[0])  > 0:
+                            num_res = True
+                    elif type(resulted_test_table["Numeric Result"].iloc[0]) == np.float64:
+                        if int(resulted_test_table["Numeric Result"].iloc[0])  > 0:
+                            num_res = True
+                    elif type(resulted_test_table["Text Result"].iloc[0]) == np.float64:
+                        if int(resulted_test_table["Text Result"].iloc[0])  > 0:
+                            num_res = True
+                    elif type(resulted_test_table["Numeric Result"].iloc[0]) == float:
+                        if int(resulted_test_table["Numeric Result"].iloc[0])  > 0:
+                            num_res = True
+                    elif type(resulted_test_table["Text Result"].iloc[0]) == float:
+                        if int(resulted_test_table["Text Result"].iloc[0])  > 0:
+                            num_res = True
+                    elif type(resulted_test_table["Numeric Result"].iloc[0]) == int:
+                        if int(resulted_test_table["Numeric Result"].iloc[0])  > 0:
+                            num_res = True
+                    elif type(resulted_test_table["Text Result"].iloc[0]) == int:
+                        if int(resulted_test_table["Text Result"].iloc[0])  > 0:
+                            num_res = True
+                    elif resulted_test_table["Coded Result / Organism Name"].iloc[0] == "Detected":
+                        num_res = True
+                    else:
+                        num_res = False
+                    #grab negative labs within the last year, put a space for the name so that we don't grab the reference range by accident
+                    Neg_lab = lab_report_table[lab_report_table["Test Results"].str.contains(" Neg| NEG| Not Detected| NOT DETECTED| UNDETECTED| not detected| Undetected| undetected")]       
+                    Neg_lab = Neg_lab[Neg_lab["Test Results"].str.contains("HEPATITIS C|HCV|Hepatitis C")]
+                    Neg_lab["Date Collected"] = pd.to_datetime(Neg_lab["Date Collected"]).dt.date
+                    Neg_lab = Neg_lab[Neg_lab["Date Collected"]>lab_date-relativedelta(years=1)]
+                    if case_less_than_not_detected or (any(x in str(resulted_test_table["Coded Result / Organism Name"]).lower() for x in ["undetected", "negative", "unable", "not detected" ])  or any(x in str(resulted_test_table["Text Result"]).lower() for x in ["undetected", "negative", "unable", "not detected"]) or any(x in str(resulted_test_table["Result Comments"]) for x in ["HCV RNA Not Detected"])): 
+                        if acute_inv is not None and chronic_inv is not None: 
+                            year = int(datetime.today().strftime("%Y"))
+                            mmwr_week = Week(year, 1)
+                            hep_c_ab = lab_report_table['Test Results'].str.contains("Hepatitis C|HEPATITIS C|HCV|Hep C").any() and lab_report_table['Test Results'].str.contains("Ab|AB|ANTIBODY|Antibody|antibody").any()
+                            if len(acute_inv) > 0 and hep_c_ab and inv_date > mmwr_week.startdate() and test_type == "RNA" and "Probable" in acute_inv["Case Status"].values:
+                                update_status = True
+                                not_a_case = True
+                                associate = True
+                            elif len(chronic_inv) > 0 and hep_c_ab and inv_date > mmwr_week.startdate() and test_type == "RNA" and "Probable" in chronic_inv["Case Status"].values:
+                                update_status = True
+                                not_a_case = True
+                                associate = True
+                            else:
+                                mark_reviewed = True
+                        else:
+                            mark_reviewed = True
+                    elif not case_less_than_not_detected or ("Not Detected" not in resulted_test_table["Coded Result / Organism Name"].values and "Below threshold" not in resulted_test_table["Coded Result / Organism Name"].values and "Not Detected" not in resulted_test_table["Text Result"].values and "Below threshold" not in resulted_test_table["Text Result"].values and "Unable" not in resulted_test_table["Text Result"].values and "Unable" not in resulted_test_table["Coded Result / Organism Name"].values and "HCV RNA Not Detected" not in resulted_test_table["Result Comments"].values and num_res):
+                        if chronic_inv is not None and acute_inv is not None:
+                            if len(chronic_inv) > 0 and "Confirmed" in chronic_inv["Case Status"].values:
+                                #Mark as reviewed
+                                mark_reviewed = True
+                            elif len(chronic_inv) > 0 and "Probable" in chronic_inv["Case Status"].values:
+                                #update investigation to confirmed
+                                update_status = True
+                            elif len(acute_inv) > 0 and "Confirmed" in acute_inv["Case Status"].values and diff_days < 365:
+                                #Mark as reviewed
+                                mark_reviewed = True
+                            elif len(acute_inv) > 0 and "Confirmed" in acute_inv["Case Status"].values and diff_days >= 365:  
+                                create_inv = True
+                                condition = "Hepatitis C, chronic"
+                            elif len(acute_inv) > 0 and "Probable" in acute_inv["Case Status"].values and diff_days < 365:
+                                #update investigation to confirmed
+                                update_status = True
+                            elif len(acute_inv) > 0 and "Probable" in acute_inv["Case Status"].values and diff_days >= 365:
+                                create_inv = True
+                                condition = "Hepatitis C, chronic"
+                        else:
+                            if alt_lab is not None:
+                                if alt_lab["num_res"].iloc[0] <= 200 and len(Neg_lab) == 0: 
+                                    create_inv = True
+                                    condition = 'Hepatitis C, chronic'
                                 else:
-                                    #condition = 'Hepatitis B virus infection, chronic'
+                                    #condition = "Hepatitis C, acute"
                                     Hep_inv_assign = True
                                     Hep_inv_assign_ids.append(event_id)
-                                    print("Hepatitis B, chronic investigation to be assigned out")
-                                    what_do.append("Hepatitis B, chronic investigation to be assigned out")
+                                    print("Hepatitis B, acute investigation to be assigned out")
+                                    what_do.append("Hepatitis B, acute investigation to be assigned out")
                                     print(f"eventid = {event_id} and action = {what_do}")
-                                    hist[event_id].append("Hepatitis B, chronic investigation to be assigned out")
+                                    hist[event_id].append("Hepatitis B, acute investigation to be assigned out")
                                     NBS.go_to_home()
                                     continue
-                            elif len(Pos_IgM_lab) > 0:
+                            else:
+                                create_inv = True
+                                condition = "Hepatitis C, chronic"
+                    else:
+                        #Mark as reviewed
+                        mark_reviewed = True
+                    #putting this here to override above logic since it won't catch 
+                    #ambiguous results
+                    if "See Below" in resulted_test_table["Text Result"].values:
+                        print("Do nothing") 
+                        what_do.append("Skip, ambiguous result")
+                        print(f"eventid = {event_id} and action = {what_do}")
+                        hist[event_id].append("Skip, ambiguous result")
+                        mark_reviewed = False
+                        NBS.go_to_home()
+                        continue
+            
+                #########Hep_B logic#########
+                    
+                elif test_condition == "Hepatitis B":
+                    if inv_found:
+                        #If there is an existing perinatal investigation we are going to leave the ELR alone.
+                        perinatal_inv = existing_investigations[existing_investigations["Condition"].str.contains("perinatal")]
+                        if len(perinatal_inv) >= 1:
+                            print("Patient has a perinatal investigation, leave for an epi")
+                            what_do.append("Patient has a perinatal investigation, leave for an epi")
+                            print(f"eventid = {event_id} and action = {what_do}")
+                            hist[event_id].append("Patient has a perinatal investigation, leave for an epi")
+                            NBS.go_to_home()
+                            continue
+                    if test_type == "Antigen" and resulted_test_table["Result Comments"].str.contains("To be confirmed by Neutralization Assay").any():
+                        mark_reviewed = True
+                    case_less_than_not_detected = resulted_test_table["Coded Result / Organism Name"].astype(str).str.contains("<").iloc[0] or resulted_test_table["Text Result"].astype(str).str.contains("<").iloc[0] or resulted_test_table["Numeric Result"].astype(str).str.contains("<").iloc[0] and bool(resulted_test_table['Result Comments'].str.contains("not detected", case=False).any())
+                
+                    if case_less_than_not_detected or ("not detected" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]).lower() or "below threshold" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]).lower() or "not detected" in str(resulted_test_table["Text Result"].iloc[0]).lower() or "below threshold" in str(resulted_test_table["Text Result"].iloc[0]).lower() or "unable" in str(resulted_test_table["Text Result"].iloc[0]).lower() or "unable" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]).lower() or "not detected" in str(resulted_test_table["Text Result"].iloc[0]).lower() or "undetected" in str(resulted_test_table["Text Result"].iloc[0]).lower() or "undetected" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]).lower() or "undetected" in str(resulted_test_table["Numeric Result"].iloc[0]).lower() or "negative" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]).lower() or "negative" in str(resulted_test_table["Numeric Result"].iloc[0]).lower() or "non-reactive" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]).lower() or "non-reactive" in str(resulted_test_table["Numeric Result"].iloc[0]).lower() or "non-reactive" in str(resulted_test_table["Text Result"].iloc[0]).lower() or "neg" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]).lower() or "neg" in str(resulted_test_table["Numeric Result"].iloc[0]).lower() or "neg" in str(resulted_test_table["Text Result"].iloc[0]).lower() or "non-reactive" in str(resulted_test_table["Coded Result / Organism Name"].iloc[0]).lower() or "non-reactive" in str(resulted_test_table["Numeric Result"].iloc[0]).lower() or "non-reactive" in str(resulted_test_table["Text Result"].iloc[0]).lower()):
+                        mark_reviewed = True
+                
+                    else:
+                        IgM_lab = lab_report_table[lab_report_table["Test Results"].str.contains("IgM|IGM")]
+                        IgM_lab = IgM_lab[IgM_lab["Test Results"].str.contains("HEPATITIS B|HBV|Hepatitis B")]
+                
+                        try:
+                            IgM_lab["Date Collected"] = pd.to_datetime(IgM_lab["Date Collected"]).dt.date
+                            IgM_lab = IgM_lab[IgM_lab["Date Collected"]>lab_date-relativedelta(months=6)]
+                        except DateParseError:
+                            IgM_lab["Date Received"] = pd.to_datetime(IgM_lab["Date Received"]).dt.date
+                            IgM_lab = IgM_lab[IgM_lab["Date Received"]>lab_date-relativedelta(months=6)]
+                        
+                        Neg_IgM_lab = IgM_lab[IgM_lab["Test Results"].str.contains("Neg|NEG|See Below")]
+                        Pos_IgM_lab = IgM_lab[IgM_lab["Test Results"].str.contains("Pos|POS|Det|DET|REA|Rea")]
+                    
+                        if acute_inv is None and chronic_inv is None:
+                            if len(resulted_test_table) == 1 and test_type == "Antibody" and resulted_test_table["Resulted Test"].str.contains('core IgG+IgM|IGG/IGM').any():#, regex=False,case = False
+                                mark_reviewed = True
+                            elif len(resulted_test_table) == 1 and test_type == "Antibody" and "IgM" not in str(resulted_test_table["Resulted Test"]) and "IGM" not in str(resulted_test_table["Resulted Test"]): #add in logic for IgM
+                                mark_reviewed = True
+                            elif len(resulted_test_table) == 1 and test_type == "Antibody" and ("IgM" in str(resulted_test_table["Resulted Test"]) or "IGM" in str(resulted_test_table["Resulted Test"])) and "EQUIVOCAL" not in resulted_test_table["Coded Result / Organism Name"].iloc[0]:
                                 #create_inv = True
                                 #condition = "Hepatitis B, acute"
                                 Hep_inv_assign = True
@@ -1152,7 +1107,78 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
                                 hist[event_id].append("Hepatitis B, acute investigation to be assigned out")
                                 NBS.go_to_home()
                                 continue
-                            elif len(Neg_IgM_lab) > 0:
+                            elif len(resulted_test_table) == 1 and test_type == "Antibody" and "IgM" in str(resulted_test_table["Resulted Test"]).lower()  and "EQUIVOCAL" in resulted_test_table["Coded Result / Organism Name"].iloc[0] or "EQUIVOCAL" in resulted_test_table["Text Result"].iloc[0]:
+                                mark_reviewed = True
+                            elif test_type in ("Antigen", "DNA", "RNA"): 
+                                #add in logic to check IgM and ALT results
+                                if len(IgM_lab) == 0:
+                                    #create_inv = True
+                                    if alt_lab is not None:
+                                        if alt_lab["num_res"].iloc[0] <= 200:            
+                                            #condition = 'Hepatitis B virus infection, chronic'
+                                            Hep_inv_assign = True
+                                            Hep_inv_assign_ids.append(event_id)
+                                            print("Hepatitis B, chronic investigation to be assigned out")
+                                            what_do.append("Hepatitis B, chronic investigation to be assigned out")
+                                            print(f"eventid = {event_id} and action = {what_do}")
+                                            hist[event_id].append("Hepatitis B, chronic investigation to be assigned out")
+                                            NBS.go_to_home()
+                                            continue
+                                        else:
+                                            #condition = "Hepatitis B, acute"
+                                            Hep_inv_assign = True
+                                            Hep_inv_assign_ids.append(event_id)
+                                            print("Hepatitis B, acute investigation to be assigned out")
+                                            what_do.append("Hepatitis B, acute investigation to be assigned out")
+                                            print(f"eventid = {event_id} and action = {what_do}")
+                                            hist[event_id].append("Hepatitis B, acute investigation to be assigned out")
+                                            NBS.go_to_home()
+                                            continue
+                                    else:
+                                        #condition = 'Hepatitis B virus infection, chronic'
+                                        Hep_inv_assign = True
+                                        Hep_inv_assign_ids.append(event_id)
+                                        print("Hepatitis B, chronic investigation to be assigned out")
+                                        what_do.append("Hepatitis B, chronic investigation to be assigned out")
+                                        print(f"eventid = {event_id} and action = {what_do}")
+                                        hist[event_id].append("Hepatitis B, chronic investigation to be assigned out")
+                                        NBS.go_to_home()
+                                        continue
+                                elif len(Pos_IgM_lab) > 0:
+                                    #create_inv = True
+                                    #condition = "Hepatitis B, acute"
+                                    Hep_inv_assign = True
+                                    Hep_inv_assign_ids.append(event_id)
+                                    print("Hepatitis B, acute investigation to be assigned out")
+                                    what_do.append("Hepatitis B, acute investigation to be assigned out")
+                                    print(f"eventid = {event_id} and action = {what_do}")
+                                    hist[event_id].append("Hepatitis B, acute investigation to be assigned out")
+                                    NBS.go_to_home()
+                                    continue
+                                elif len(Neg_IgM_lab) > 0:
+                                    #create_inv = True
+                                    #condition = "Hepatitis B virus infection, Chronic"
+                                    Hep_inv_assign = True
+                                    Hep_inv_assign_ids.append(event_id)
+                                    print("Hepatitis B, chronic investigation to be assigned out")
+                                    what_do.append("Hepatitis B, chronic investigation to be assigned out")
+                                    print(f"eventid = {event_id} and action = {what_do}")
+                                    hist[event_id].append("Hepatitis B, chronic investigation to be assigned out")
+                                    NBS.go_to_home()
+                                    continue
+                        elif len(chronic_inv) > 0 and "Confirmed" in chronic_inv["Case Status"].values:
+                                mark_reviewed = True
+                        elif chronic_inv is not None and acute_inv is not None and test_type in ("Antigen", "DNA", "RNA"):
+                            if len(chronic_inv) > 0 and "Confirmed" in chronic_inv["Case Status"].values:
+                                mark_reviewed = True
+                            elif len(chronic_inv) > 0 and "Probable" in chronic_inv["Case Status"].values and diff_days >= 183 and test_type == "Antigen":
+                                update_status = True
+                            elif len(chronic_inv) > 0 and "Probable" in chronic_inv["Case Status"].values and diff_days < 183 and test_type == "Antigen":
+                                mark_reviewed = True
+                            elif len(chronic_inv) > 0 and "Probable" in chronic_inv["Case Status"].values and test_type in ("DNA", "RNA"):
+                                update_status = True
+
+                            if len(acute_inv) > 0 and "Confirmed" in acute_inv["Case Status"].values and diff_days >= 183 and len(chronic_inv) == 0:
                                 #create_inv = True
                                 #condition = "Hepatitis B virus infection, Chronic"
                                 Hep_inv_assign = True
@@ -1163,630 +1189,400 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
                                 hist[event_id].append("Hepatitis B, chronic investigation to be assigned out")
                                 NBS.go_to_home()
                                 continue
-                    elif len(chronic_inv) > 0 and "Confirmed" in chronic_inv["Case Status"].values:
-                            mark_reviewed = True
-                    elif chronic_inv is not None and acute_inv is not None and test_type in ("Antigen", "DNA", "RNA"):
-                        if len(chronic_inv) > 0 and "Confirmed" in chronic_inv["Case Status"].values:
-                            mark_reviewed = True
-                        elif len(chronic_inv) > 0 and "Probable" in chronic_inv["Case Status"].values and diff_days >= 183 and test_type == "Antigen":
-                            update_status = True
-                        elif len(chronic_inv) > 0 and "Probable" in chronic_inv["Case Status"].values and diff_days < 183 and test_type == "Antigen":
-                            mark_reviewed = True
-                        elif len(chronic_inv) > 0 and "Probable" in chronic_inv["Case Status"].values and test_type in ("DNA", "RNA"):
-                            update_status = True
-
-                        if len(acute_inv) > 0 and "Confirmed" in acute_inv["Case Status"].values and diff_days >= 183 and len(chronic_inv) == 0:
-                            #create_inv = True
-                            #condition = "Hepatitis B virus infection, Chronic"
-                            Hep_inv_assign = True
-                            Hep_inv_assign_ids.append(event_id)
-                            print("Hepatitis B, chronic investigation to be assigned out")
-                            what_do.append("Hepatitis B, chronic investigation to be assigned out")
-                            print(f"eventid = {event_id} and action = {what_do}")
-                            hist[event_id].append("Hepatitis B, chronic investigation to be assigned out")
-                            NBS.go_to_home()
-                            continue
-                        elif len(acute_inv) > 0 and "Confirmed" in acute_inv["Case Status"].values and diff_days < 183:
-                            associate = True
-                        #elif len(acute_inv) > 0 and "Probable" in acute_inv["Case Status"].values and test_type == "DNA":
-                            #change case status to confirmed
-                            #update_status = True
-                        elif len(acute_inv) > 0 and "Probable" in acute_inv["Case Status"].values and diff_days < 183:
-                            #change case status to confirmed
-                            update_status = True
-                        elif len(acute_inv) > 0 and "Probable" in acute_inv["Case Status"].values and diff_days >= 183 and len(chronic_inv) == 0:
-                            #create_inv = True
-                            #condition = "Hepatitis B virus infection, Chronic"
-                            Hep_inv_assign = True
-                            Hep_inv_assign_ids.append(event_id)
-                            print("Hepatitis B, chronic investigation to be assigned out")
-                            what_do.append("Hepatitis B, chronic investigation to be assigned out")
-                            print(f"eventid = {event_id} and action = {what_do}")
-                            hist[event_id].append("Hepatitis B, chronic investigation to be assigned out")
-                            NBS.go_to_home()
-                            continue
-                    elif acute_inv is not None and chronic_inv is not None and test_type in "Antibody":
-                        if len(acute_inv) > 0:
-                            mark_reviewed = True
-                        elif "IgM" in str(resulted_test_table["Resulted Test"]) and diff_days < 183 and len(acute_inv) == 0 and "Probable" in chronic_inv["Case Status"].values:
-                            #change to confirmed acute
-                            update_inv_type = True
-                            condition = "Hepatitis B, acute"
-                        else:
-                            mark_reviewed = True 
+                            elif len(acute_inv) > 0 and "Confirmed" in acute_inv["Case Status"].values and diff_days < 183:
+                                associate = True
+                            #elif len(acute_inv) > 0 and "Probable" in acute_inv["Case Status"].values and test_type == "DNA":
+                                #change case status to confirmed
+                                #update_status = True
+                            elif len(acute_inv) > 0 and "Probable" in acute_inv["Case Status"].values and diff_days < 183:
+                                #change case status to confirmed
+                                update_status = True
+                            elif len(acute_inv) > 0 and "Probable" in acute_inv["Case Status"].values and diff_days >= 183 and len(chronic_inv) == 0:
+                                #create_inv = True
+                                #condition = "Hepatitis B virus infection, Chronic"
+                                Hep_inv_assign = True
+                                Hep_inv_assign_ids.append(event_id)
+                                print("Hepatitis B, chronic investigation to be assigned out")
+                                what_do.append("Hepatitis B, chronic investigation to be assigned out")
+                                print(f"eventid = {event_id} and action = {what_do}")
+                                hist[event_id].append("Hepatitis B, chronic investigation to be assigned out")
+                                NBS.go_to_home()
+                                continue
+                        elif acute_inv is not None and chronic_inv is not None and test_type in "Antibody":
+                            if len(acute_inv) > 0:
+                                mark_reviewed = True
+                            elif "IgM" in str(resulted_test_table["Resulted Test"]) and diff_days < 183 and len(acute_inv) == 0 and "Probable" in chronic_inv["Case Status"].values:
+                                #change to confirmed acute
+                                update_inv_type = True
+                                condition = "Hepatitis B, acute"
+                            else:
+                                mark_reviewed = True 
                 
-            ###ALT Logic###
-            #Sometimes the numeric result will have a < or > in it which converts the type to a string so we have to deal with that
-            elif test_condition == "Hepatitis" and test_type == "Alanine": 
-                if resulted_test_table.empty: 
-                    print("Could not parse") 
-                    what_do.append("Could not parse result, skipped")
-                    print(f"eventid = {event_id} and action = {what_do}")
-                    hist[event_id].append("Could not parse result, skipped")
-                    NBS.go_to_home()
-                    continue
-                else: 
-                    # Extract Numeric Result (if available) 
-                    numeric_result = None 
-                    text_result = None 
-                    if "Numeric Result" in resulted_test_table.columns and not resulted_test_table["Numeric Result"].isna().iloc[0]: 
-                        try: 
-                            numeric_result = int(resulted_test_table["Numeric Result"].iloc[0])
-                        except ValueError:
-                            match = re.search(r'\d+', str(resulted_test_table["Numeric Result"].iloc[0])) 
-                            if match:
-                                numeric_result = int(match.group()) 
-                    if "Text Result" in resulted_test_table.columns and not resulted_test_table["Text Result"].isna().iloc[0]: 
-                        try: 
-                            text_result = int(resulted_test_table["Text Result"].iloc[0]) 
-                        except ValueError: 
-                            match = re.search(r'\d+', str(resulted_test_table["Text Result"].iloc[0])) 
-                            if match: 
-                                text_result = int(match.group())
-                    # Determine the result value 
-                    result_value = numeric_result if numeric_result is not None else text_result 
-                    if result_value is not None:
-                        if result_value > 200: 
-                            if acute_inv is not None and chronic_inv is not None: 
-                                if diff_days > 92: 
-                                    mark_reviewed = True
-                                elif diff_days <= 92: 
-                                    if len(acute_inv) > 0:
-                                        mark_reviewed = True 
-                                    elif chronic_inv["Status"].iloc[0] == "Open":
-                                        associate = True
-                                        send_alt_email = True
-                                        send_alt_email_ids.append(event_id)
-                                        print("Send ALT Email for chronic open investigation")
-                                        what_do.append("Send ALT Email for chronic open investigation")
-                                    elif chronic_inv["Status"].iloc[0] == "Closed": 
-                                        if "Hepatitis C" in chronic_inv["Condition"].iloc[0]:
-                                            associate = True 
-                                            condition = "Hepatitis C, acute"
-                                            send_alt_email = True 
-                                            send_alt_email_ids.append(event_id)
-                                            print("Send ALT Email for investigation ")
-                                            what_do.append("Send ALT Email for investigation ")
-                                        elif "Hepatitis B" in chronic_inv["Condition"].iloc[0]: 
-                                            send_alt_email = True 
-                                            send_alt_email_ids.append(event_id)
-                                            print("Send ALT Email for chronic investigation")
-                                            what_do.append("Send ALT Email for chronic investigation")
-                            elif chronic_inv is None and acute_inv is None: 
-                                mark_reviewed = True 		
-                        else: 
-                            mark_reviewed = True 
-                    else: 
-                        print("Could not parse result")
+                ###ALT Logic###
+                #Sometimes the numeric result will have a < or > in it which converts the type to a string so we have to deal with that
+                elif test_condition == "Hepatitis" and test_type == "Alanine": 
+                    if resulted_test_table.empty: 
+                        print("Could not parse") 
                         what_do.append("Could not parse result, skipped")
                         print(f"eventid = {event_id} and action = {what_do}")
                         hist[event_id].append("Could not parse result, skipped")
                         NBS.go_to_home()
                         continue
-        else:
-            print("More than one test in ELR")
-            what_do.append("Skip, more than one test in ELR")
-            print(f"eventid = {event_id} and action = {what_do}")
-            hist[event_id].append("Skip, more than one test in ELR")
-            print(review_queue_table[review_queue_table["Local ID"] == event_id]["Patient"])
-            NBS.go_to_home()
-            continue
-        ###If there is an open investigation, associate the lab to that investigation###
-        if investigation_table is not None:
-            open_inv = None
-            open_inv = investigation_table[investigation_table["Condition"].str.contains(test_condition)]
-            open_inv = open_inv[open_inv["Status"].str.contains("Open")]
-            if len(open_inv) >= 1:
-                associate = True
-                mark_reviewed = False
-                create_inv = False
-                update_status = False
-                update_inv_type = False
+                    else: 
+                        # Extract Numeric Result (if available) 
+                        numeric_result = None 
+                        text_result = None 
+                        if "Numeric Result" in resulted_test_table.columns and not resulted_test_table["Numeric Result"].isna().iloc[0]: 
+                            try: 
+                                numeric_result = int(resulted_test_table["Numeric Result"].iloc[0])
+                            except ValueError:
+                                match = re.search(r'\d+', str(resulted_test_table["Numeric Result"].iloc[0])) 
+                                if match:
+                                    numeric_result = int(match.group()) 
+                        if "Text Result" in resulted_test_table.columns and not resulted_test_table["Text Result"].isna().iloc[0]: 
+                            try: 
+                                text_result = int(resulted_test_table["Text Result"].iloc[0]) 
+                            except ValueError: 
+                                match = re.search(r'\d+', str(resulted_test_table["Text Result"].iloc[0])) 
+                                if match: 
+                                    text_result = int(match.group())
+                        # Determine the result value 
+                        result_value = numeric_result if numeric_result is not None else text_result 
+                        if result_value is not None:
+                            if result_value > 200: 
+                                if acute_inv is not None and chronic_inv is not None: 
+                                    if diff_days > 92: 
+                                        mark_reviewed = True
+                                    elif diff_days <= 92: 
+                                        if len(acute_inv) > 0:
+                                            mark_reviewed = True 
+                                        elif chronic_inv["Status"].iloc[0] == "Open":
+                                            associate = True
+                                            send_alt_email = True
+                                            send_alt_email_ids.append(event_id)
+                                            print("Send ALT Email for chronic open investigation")
+                                            what_do.append("Send ALT Email for chronic open investigation")
+                                        elif chronic_inv["Status"].iloc[0] == "Closed": 
+                                            if "Hepatitis C" in chronic_inv["Condition"].iloc[0]:
+                                                associate = True 
+                                                condition = "Hepatitis C, acute"
+                                                send_alt_email = True 
+                                                send_alt_email_ids.append(event_id)
+                                                print("Send ALT Email for investigation ")
+                                                what_do.append("Send ALT Email for investigation ")
+                                            elif "Hepatitis B" in chronic_inv["Condition"].iloc[0]: 
+                                                send_alt_email = True 
+                                                send_alt_email_ids.append(event_id)
+                                                print("Send ALT Email for chronic investigation")
+                                                what_do.append("Send ALT Email for chronic investigation")
+                                elif chronic_inv is None and acute_inv is None: 
+                                    mark_reviewed = True 		
+                            else: 
+                                mark_reviewed = True 
+                        else: 
+                            print("Could not parse result")
+                            what_do.append("Could not parse result, skipped")
+                            print(f"eventid = {event_id} and action = {what_do}")
+                            hist[event_id].append("Could not parse result, skipped")
+                            NBS.go_to_home()
+                            continue
+            else:
+                print("More than one test in ELR")
+                what_do.append("Skip, more than one test in ELR")
+                print(f"eventid = {event_id} and action = {what_do}")
+                hist[event_id].append("Skip, more than one test in ELR")
+                print(review_queue_table[review_queue_table["Local ID"] == event_id]["Patient"])
+                NBS.go_to_home()
+                continue
+            ###If there is an open investigation, associate the lab to that investigation###
+            if investigation_table is not None:
+                open_inv = None
+                open_inv = investigation_table[investigation_table["Condition"].str.contains(test_condition)]
+                open_inv = open_inv[open_inv["Status"].str.contains("Open")]
+                if len(open_inv) >= 1:
+                    associate = True
+                    mark_reviewed = False
+                    create_inv = False
+                    update_status = False
+                    update_inv_type = False
         
-        #Now that we have determined what action we want to take, we need to actually do it
-        if mark_reviewed == True and create_inv == False and update_status == False:
+            #Now that we have determined what action we want to take, we need to actually do it
+            if mark_reviewed == True and create_inv == False and update_status == False:
             
-            for i in range(3):
-                try:
-                    timeout= NBS.wait_before_timeout + i*10
-                    # onclick=markAsReviewed('') is the real save; native .click() is
-                    # swallowed by NBS's broken jQuery handler, so run it via js_click.
-                    WebDriverWait(NBS, timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="doc3"]/div[2]/table/tbody/tr/td[1]/input')))
-                    if not js_click('//*[@id="doc3"]/div[2]/table/tbody/tr/td[1]/input', 'markAsReviewed'):
-                        raise TimeoutException("js_click markAsReviewed failed")
-                    print("Mark as Reviewed")
-                    what_do.append("Mark as Reviewed")
+                for i in range(3):
+                    try:
+                        timeout= NBS.wait_before_timeout + i*10
+                        # onclick=markAsReviewed('') is the real save; native .click() is
+                        # swallowed by NBS's broken jQuery handler, so run it via js_click.
+                        WebDriverWait(NBS, timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="doc3"]/div[2]/table/tbody/tr/td[1]/input')))
+                        if not js_click('//*[@id="doc3"]/div[2]/table/tbody/tr/td[1]/input', 'markAsReviewed'):
+                            raise TimeoutException("js_click markAsReviewed failed")
+                        print("Mark as Reviewed")
+                        what_do.append("Mark as Reviewed")
+                        print(f"eventid = {event_id} and action = {what_do}")
+                        hist[event_id].append("Mark as Reviewed")
+                        time.sleep(2)
+                        break
+                    except TimeoutException:
+                        print(f"Timeout waiting for mark_reviewed, retry_number: {i}")
+                    except StaleElementReferenceException:
+                        print(f"StaleElementReferenceException for mark_reviewed, trying again... retry_number: {i}")
+                    except Exception as e:
+                        print(f"exception: {e} occurred for mark_reviewed, trying again... retry_number: {i}")
+        
+        
+            elif create_inv == True and update_status == False:
+                #don't create an investigation for female patients that are 14-49 
+
+                if test_condition == "Hepatitis C" and pat_gen == "Female" and  5113 <= age.days <= 18263:
+                    Female_handled_epi=True
+                    Female_handled_epi_ids.append(event_id)
+                    print("Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic")
+                    what_do.append("Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic")
                     print(f"eventid = {event_id} and action = {what_do}")
-                    hist[event_id].append("Mark as Reviewed")
-                    time.sleep(2)
-                    break
-                except TimeoutException:
-                    print(f"Timeout waiting for mark_reviewed, retry_number: {i}")
-                except StaleElementReferenceException:
-                    print(f"StaleElementReferenceException for mark_reviewed, trying again... retry_number: {i}")
-                except Exception as e:
-                    print(f"exception: {e} occurred for mark_reviewed, trying again... retry_number: {i}")
-        
-        
-        elif create_inv == True and update_status == False:
-            #don't create an investigation for female patients that are 14-49 
-
-            if test_condition == "Hepatitis C" and pat_gen == "Female" and  5113 <= age.days <= 18263:
-                Female_handled_epi=True
-                Female_handled_epi_ids.append(event_id)
-                print("Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic")
-                what_do.append("Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic")
-                print(f"eventid = {event_id} and action = {what_do}")
-                hist[event_id].append("Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic")
-                NBS.go_to_home()
-                continue
-                #Hep C acute investigations need to be followed up by a field epi
-            if condition == "Hepatitis C, acute" and create_inv == False:
-                Hep_inv_assign=True
-                Hep_inv_assign_ids.append(event_id)
-                print("Hepatitis C, acute investigation. Leave for field epi follow up.")
-                what_do.append("Hepatitis C, acute investigation. Leave for field epi follow up.")
-                print(f"eventid = {event_id} and action = {what_do}")
-                hist[event_id].append("Hepatitis C, acute investigation. Leave for field epi follow up.")
-                NBS.go_to_home()
-                continue
+                    hist[event_id].append("Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic")
+                    NBS.go_to_home()
+                    continue
+                    #Hep C acute investigations need to be followed up by a field epi
+                if condition == "Hepatitis C, acute" and create_inv == False:
+                    Hep_inv_assign=True
+                    Hep_inv_assign_ids.append(event_id)
+                    print("Hepatitis C, acute investigation. Leave for field epi follow up.")
+                    what_do.append("Hepatitis C, acute investigation. Leave for field epi follow up.")
+                    print(f"eventid = {event_id} and action = {what_do}")
+                    hist[event_id].append("Hepatitis C, acute investigation. Leave for field epi follow up.")
+                    NBS.go_to_home()
+                    continue
             
-            #Grab the first and last name of the patient. NBS names can be FIRST LAST, FIRST I LAST, or carry a suffix.
-            #First token is the first name; last token is the last name, stepping back past a suffix (JR, SR, II...).
-            #Match the full first and last name against the patient list so unrelated people who only share the first
-            #couple of letters and a birth date are not falsely flagged as merges.
-            potiental_merge = False
-            name_tokens = pat_name.split()
-            suffixes = {"JR", "SR", "II", "III", "IV", "V"}
-            first_name = name_tokens[0]
-            last_name = name_tokens[-1]
-            if last_name.upper().strip(".,") in suffixes and len(name_tokens) >= 3:
-                last_name = name_tokens[-2]
-            first_name = first_name.upper().strip(",")
-            last_name = last_name.upper().strip(",")
-            matches = NBS.patient_list.loc[(NBS.patient_list.FIRST_NM == first_name) & (NBS.patient_list.LAST_NM == last_name) & (NBS.patient_list.BIRTH_DT == pat_dob)]
-            unique_profiles = matches.PERSON_PARENT_UID.unique()
-            if len(unique_profiles) >= 2:
-                print('Possible merge(s) found. Lab skipped.')
-                what_do.append('Possible merge(s) found. Lab skipped.')
-                print(f"eventid = {event_id} and action = {what_do}")
-                hist[event_id].append('Possible merge(s) found. Lab skipped.')
-                potiental_merge = True
-                merges.append(event_id)
-                merge_ids.append(str(unique_profiles))
-                NBS.go_to_home()
-                continue
+                #Grab the first and last name of the patient. NBS names can be FIRST LAST, FIRST I LAST, or carry a suffix.
+                #First token is the first name; last token is the last name, stepping back past a suffix (JR, SR, II...).
+                #Match the full first and last name against the patient list so unrelated people who only share the first
+                #couple of letters and a birth date are not falsely flagged as merges.
+                potiental_merge = False
+                name_tokens = pat_name.split()
+                suffixes = {"JR", "SR", "II", "III", "IV", "V"}
+                first_name = name_tokens[0]
+                last_name = name_tokens[-1]
+                if last_name.upper().strip(".,") in suffixes and len(name_tokens) >= 3:
+                    last_name = name_tokens[-2]
+                first_name = first_name.upper().strip(",")
+                last_name = last_name.upper().strip(",")
+                matches = NBS.patient_list.loc[(NBS.patient_list.FIRST_NM == first_name) & (NBS.patient_list.LAST_NM == last_name) & (NBS.patient_list.BIRTH_DT == pat_dob)]
+                unique_profiles = matches.PERSON_PARENT_UID.unique()
+                if len(unique_profiles) >= 2:
+                    print('Possible merge(s) found. Lab skipped.')
+                    what_do.append('Possible merge(s) found. Lab skipped.')
+                    print(f"eventid = {event_id} and action = {what_do}")
+                    hist[event_id].append('Possible merge(s) found. Lab skipped.')
+                    potiental_merge = True
+                    merges.append(event_id)
+                    merge_ids.append(str(unique_profiles))
+                    NBS.go_to_home()
+                    continue
         
-            #check to make sure the address is from Maine
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="Address"]')))
-            add_elem = NBS.find_element(By.XPATH, '//*[@id="Address"]')
-            address = add_elem.text
-            if 'ME' not in address:
-                print('Out of State Patient Lab skipped.')
-                what_do.append('Out of State Patient Lab skipped.')
-                print(f"eventid = {event_id} and action = {what_do}")
-                hist[event_id].append('Out of State Patient Lab skipped.')
-                NBS.go_to_home()
-                continue
+                #check to make sure the address is from Maine
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="Address"]')))
+                add_elem = NBS.find_element(By.XPATH, '//*[@id="Address"]')
+                address = add_elem.text
+                if 'ME' not in address:
+                    print('Out of State Patient Lab skipped.')
+                    what_do.append('Out of State Patient Lab skipped.')
+                    print(f"eventid = {event_id} and action = {what_do}")
+                    hist[event_id].append('Out of State Patient Lab skipped.')
+                    NBS.go_to_home()
+                    continue
             
-            #create investigation (buttons use onclick JS -> run via js_click, native click is swallowed)
-            create_investigation_button_path = '//*[@id="doc3"]/div[2]/table/tbody/tr/td[2]/input[1]'
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, create_investigation_button_path)))
-            js_click(create_investigation_button_path, 'CreateInvestigation')
-            select_condition_field_path = '//*[@id="ccd_ac_table"]//input[@name="ccd_textbox"]'
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, select_condition_field_path)))
-            # The condition field is a jQuery autocomplete; synthetic keystrokes don't
-            # drive it (the handler never fires on this Chrome) so the hidden code field
-            # stays empty and the form submits with no condition. Set BOTH the visible
-            # textbox and the hidden conditionCdDescTxt directly via JS.
-            # Set the condition the way the (broken) autocomplete would, then submit.
-            # The conditions live in a hidden <select id="ccd"> (value=code,
-            # text=description). The server needs the CODE; submitting only the
-            # description NPEs. So select the matching option in #ccd (sets the code),
-            # mirror the description into the textbox + conditionCdDescTxt, and submit
-            # the form (it carries hidden ContextAction=Submit).
-            cond_set = NBS.execute_script("""
-                var cond = arguments[0];
-                var matched = false;
-                var sel = document.getElementById('ccd');
-                if (sel) {
-                    for (var i=0;i<sel.options.length;i++){
-                        if (sel.options[i].text.trim() === cond){ sel.selectedIndex = i; matched = true; break; }
+                #create investigation (buttons use onclick JS -> run via js_click, native click is swallowed)
+                create_investigation_button_path = '//*[@id="doc3"]/div[2]/table/tbody/tr/td[2]/input[1]'
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, create_investigation_button_path)))
+                js_click(create_investigation_button_path, 'CreateInvestigation')
+                select_condition_field_path = '//*[@id="ccd_ac_table"]//input[@name="ccd_textbox"]'
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, select_condition_field_path)))
+                # The condition field is a jQuery autocomplete; synthetic keystrokes don't
+                # drive it (the handler never fires on this Chrome) so the hidden code field
+                # stays empty and the form submits with no condition. Set BOTH the visible
+                # textbox and the hidden conditionCdDescTxt directly via JS.
+                # Set the condition the way the (broken) autocomplete would, then submit.
+                # The conditions live in a hidden <select id="ccd"> (value=code,
+                # text=description). The server needs the CODE; submitting only the
+                # description NPEs. So select the matching option in #ccd (sets the code),
+                # mirror the description into the textbox + conditionCdDescTxt, and submit
+                # the form (it carries hidden ContextAction=Submit).
+                cond_set = NBS.execute_script("""
+                    var cond = arguments[0];
+                    var matched = false;
+                    var sel = document.getElementById('ccd');
+                    if (sel) {
+                        for (var i=0;i<sel.options.length;i++){
+                            if (sel.options[i].text.trim() === cond){ sel.selectedIndex = i; matched = true; break; }
+                        }
                     }
-                }
-                var box = document.querySelector('#ccd_ac_table input[name="ccd_textbox"]');
-                if (box) box.value = cond;
-                var hid = document.querySelector('input[name="conditionCdDescTxt"]');
-                if (hid) hid.value = cond;
-                if (matched && box && box.form) { box.form.submit(); }
-                return matched;
-            """, condition)
-            if not cond_set:
-                print(f"Condition {condition!r} not found in #ccd list; skipping create for {event_id}.")
-                NBS.go_to_home()
-                what_do.append("Condition not in NBS list")
-                hist[event_id].append("Condition not in NBS list")
-                continue
-            print(f"Set condition to: {condition} (code selected) and submitted condition form")
-            # The condition submit POSTs and loads the new investigation form; js_click
-            # returns immediately, so WAIT for the form's address table (NBS_UI_15) to
-            # appear before filling it -- otherwise set_state/check_ethnicity hit
-            # not-yet-present elements and crash.
-            inv_form_loaded = False
-            for _w in range(4):
-                try:
-                    WebDriverWait(NBS, NBS.wait_before_timeout).until(
-                        EC.presence_of_element_located((By.XPATH, '//*[@id="NBS_UI_15"]')))
-                    inv_form_loaded = True
-                    break
-                except TimeoutException:
-                    print(f"Investigation form not loaded yet, retry {_w}")
-            if not inv_form_loaded:
-                print(f"Create-investigation form did not load for {event_id}; skipping case.")
-                NBS.go_to_home()
-                what_do.append("Create-investigation form did not load")
-                hist[event_id].append("Create-investigation form did not load")
-                continue
-            NBS.read_address()
-            for i in range(3):
-                try:
-                    NBS.set_state('M')
-                    break
-                except NoSuchElementException as e:
-                    print(f"No state name found, retrying {i}")
-                except Exception as e:
-                    print(f"exception: {e} occurred for state M, trying again... retry_number: {i}")
-            #NBS.set_country('UNITED S')
-            for i in range(3):
-                try:
-                    NBS.set_country('UNITED S')
-                    break
-                except NoSuchElementException as e:
-                    print(f"No country name found, retrying {i}")
-                except Exception as e:
-                    print(f"exception: {e} occurred for country UNITED S, trying again... retry_number: {i}")
-            if not NBS.county and NBS.city:
-                NBS.county = NBS.county_lookup(NBS.city, 'Maine')
-                NBS.write_county()
-            if not NBS.zip_code and NBS.street and NBS.city:
-                NBS.zip_code = NBS.zip_code_lookup(NBS.street, NBS.city, 'ME')
-                NBS.write_zip()
-            NBS.check_ethnicity()
-            NBS.check_race()
-            NBS.patient_id = NBS.ReadPatientID()
-            # commented by Vaishnavi - asked to ignore if any missing demographics will be handled in data cleaning 
-            '''if not all([NBS.street, NBS.city, NBS.zip_code, NBS.county, NBS.ethnicity, NBS.unambiguous_race]):
-                NBS.incomplete_address_log.append(NBS.ReadPatientID())
-                body = f"A new investigation has been created for patient {NBS.ReadPatientID()}, but they are missing demographic information. The investigation has been left open for manual review."
-                NBS.send_smtp_email("Chloe.Manchester@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot', body, 'Hepatitis Investigation Missing Demographic Info email')'''
+                    var box = document.querySelector('#ccd_ac_table input[name="ccd_textbox"]');
+                    if (box) box.value = cond;
+                    var hid = document.querySelector('input[name="conditionCdDescTxt"]');
+                    if (hid) hid.value = cond;
+                    if (matched && box && box.form) { box.form.submit(); }
+                    return matched;
+                """, condition)
+                if not cond_set:
+                    print(f"Condition {condition!r} not found in #ccd list; skipping create for {event_id}.")
+                    NBS.go_to_home()
+                    what_do.append("Condition not in NBS list")
+                    hist[event_id].append("Condition not in NBS list")
+                    continue
+                print(f"Set condition to: {condition} (code selected) and submitted condition form")
+                # The condition submit POSTs and loads the new investigation form; js_click
+                # returns immediately, so WAIT for the form's address table (NBS_UI_15) to
+                # appear before filling it -- otherwise set_state/check_ethnicity hit
+                # not-yet-present elements and crash.
+                inv_form_loaded = False
+                for _w in range(4):
+                    try:
+                        WebDriverWait(NBS, NBS.wait_before_timeout).until(
+                            EC.presence_of_element_located((By.XPATH, '//*[@id="NBS_UI_15"]')))
+                        inv_form_loaded = True
+                        break
+                    except TimeoutException:
+                        print(f"Investigation form not loaded yet, retry {_w}")
+                if not inv_form_loaded:
+                    print(f"Create-investigation form did not load for {event_id}; skipping case.")
+                    NBS.go_to_home()
+                    what_do.append("Create-investigation form did not load")
+                    hist[event_id].append("Create-investigation form did not load")
+                    continue
+                NBS.read_address()
+                for i in range(3):
+                    try:
+                        NBS.set_state('M')
+                        break
+                    except NoSuchElementException as e:
+                        print(f"No state name found, retrying {i}")
+                    except Exception as e:
+                        print(f"exception: {e} occurred for state M, trying again... retry_number: {i}")
+                #NBS.set_country('UNITED S')
+                for i in range(3):
+                    try:
+                        NBS.set_country('UNITED S')
+                        break
+                    except NoSuchElementException as e:
+                        print(f"No country name found, retrying {i}")
+                    except Exception as e:
+                        print(f"exception: {e} occurred for country UNITED S, trying again... retry_number: {i}")
+                if not NBS.county and NBS.city:
+                    NBS.county = NBS.county_lookup(NBS.city, 'Maine')
+                    NBS.write_county()
+                if not NBS.zip_code and NBS.street and NBS.city:
+                    NBS.zip_code = NBS.zip_code_lookup(NBS.street, NBS.city, 'ME')
+                    NBS.write_zip()
+                NBS.check_ethnicity()
+                NBS.check_race()
+                NBS.patient_id = NBS.ReadPatientID()
+                # commented by Vaishnavi - asked to ignore if any missing demographics will be handled in data cleaning 
+                '''if not all([NBS.street, NBS.city, NBS.zip_code, NBS.county, NBS.ethnicity, NBS.unambiguous_race]):
+                    NBS.incomplete_address_log.append(NBS.ReadPatientID())
+                    body = f"A new investigation has been created for patient {NBS.ReadPatientID()}, but they are missing demographic information. The investigation has been left open for manual review."
+                    NBS.send_smtp_email("Chloe.Manchester@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot', body, 'Hepatitis Investigation Missing Demographic Info email')'''
             
-            NBS.GoToCaseInfo()
-            investigation_status_down_arrow = '//*[@id="NBS_UI_19"]/tbody/tr[4]/td[2]/img'
-            '''open_option = '//*[@id="INV109"]/option[2]'
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, investigation_status_down_arrow)))
-            NBS.find_element(By.XPATH, investigation_status_down_arrow).click()
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, open_option)))
-            NBS.find_element(By.XPATH, open_option).click()''' 
+                NBS.GoToCaseInfo()
+                investigation_status_down_arrow = '//*[@id="NBS_UI_19"]/tbody/tr[4]/td[2]/img'
+                '''open_option = '//*[@id="INV109"]/option[2]'
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, investigation_status_down_arrow)))
+                NBS.find_element(By.XPATH, investigation_status_down_arrow).click()
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, open_option)))
+                NBS.find_element(By.XPATH, open_option).click()''' 
                
-            #set investigation status to open or closed
-            #set this to option[2] for open or option[1] for closed
+                #set investigation status to open or closed
+                #set this to option[2] for open or option[1] for closed
 
-            '''if len(NBS.incomplete_address_log) > 0: 
-                closed_option = '//*[@id="INV109"]/option[2]'    #open
-            else:
-                closed_option = '//*[@id="INV109"]/option[1]'  ''' #closed
+                '''if len(NBS.incomplete_address_log) > 0: 
+                    closed_option = '//*[@id="INV109"]/option[2]'    #open
+                else:
+                    closed_option = '//*[@id="INV109"]/option[1]'  ''' #closed
             
-            closed_option = '//*[@id="INV109"]/option[1]'
+                closed_option = '//*[@id="INV109"]/option[1]'
             
 
-            # Investigation status is an img overlay on <select id="INV109">
-            # (0:Closed, 1:Open). The img/option clicks are swallowed on this Chrome,
-            # so set the select directly to "Closed" via JS.
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV109"]')))
-            NBS.execute_script("""
-                var s=document.getElementById('INV109');
-                if(s){for(var i=0;i<s.options.length;i++){if(s.options[i].text.trim()==='Closed'){s.selectedIndex=i;break;}}}
-            """)
-            NBS.set_state_case_id()
-            NBS.set_county_and_state_report_dates(PH_report_date)
-            #Reporting organization is automatically filled in
+                # Investigation status is an img overlay on <select id="INV109">
+                # (0:Closed, 1:Open). The img/option clicks are swallowed on this Chrome,
+                # so set the select directly to "Closed" via JS.
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV109"]')))
+                NBS.execute_script("""
+                    var s=document.getElementById('INV109');
+                    if(s){for(var i=0;i<s.options.length;i++){if(s.options[i].text.trim()==='Closed'){s.selectedIndex=i;break;}}}
+                """)
+                NBS.set_state_case_id()
+                NBS.set_county_and_state_report_dates(PH_report_date)
+                #Reporting organization is automatically filled in
             
-            #set reporting source type to Laboratory via the underlying <select id="INV112">
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV112"]')))
-            NBS.execute_script("""
-                var s=document.getElementById('INV112');
-                if(s){for(var i=0;i<s.options.length;i++){if(s.options[i].text.trim()==='Laboratory'){s.selectedIndex=i;break;}}}
-            """)
+                #set reporting source type to Laboratory via the underlying <select id="INV112">
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV112"]')))
+                NBS.execute_script("""
+                    var s=document.getElementById('INV112');
+                    if(s){for(var i=0;i<s.options.length;i++){if(s.options[i].text.trim()==='Laboratory'){s.selectedIndex=i;break;}}}
+                """)
 
-            #set case status (text field) + confirmation method (<select id=INV161>).
-            # Driven via JS: the autocomplete typing / option clicks are swallowed on
-            # this Chrome. Values match the original logic (non-Antibody -> Confirmed /
-            # Laboratory confirmed; Antibody/perinatal -> Probable / Laboratory report).
-            case_status_path = '//*[@id="NBS_UI_2"]/tbody/tr[5]/td[2]/input'
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, case_status_path)))
-            if test_type != "Antibody":
-                case_status_val, conf_method = "Confirmed", "Laboratory confirmed"
-            else:
-                case_status_val, conf_method = "Probable", "Laboratory report"
-            NBS.execute_script("arguments[0].value = arguments[1];",
-                               NBS.find_element(By.XPATH, case_status_path), case_status_val)
-            NBS.execute_script("""
-                var s=document.getElementById('INV161');
-                if(s){for(var i=0;i<s.options.length;i++){if(s.options[i].text.trim()===arguments[0]){s.selectedIndex=i;break;}}}
-            """, conf_method)
-            print(f"Case status={case_status_val}, confirmation method={conf_method}")
-            NBS.set_confirmation_date()
+                #set case status (text field) + confirmation method (<select id=INV161>).
+                # Driven via JS: the autocomplete typing / option clicks are swallowed on
+                # this Chrome. Values match the original logic (non-Antibody -> Confirmed /
+                # Laboratory confirmed; Antibody/perinatal -> Probable / Laboratory report).
+                case_status_path = '//*[@id="NBS_UI_2"]/tbody/tr[5]/td[2]/input'
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, case_status_path)))
+                if test_type != "Antibody":
+                    case_status_val, conf_method = "Confirmed", "Laboratory confirmed"
+                else:
+                    case_status_val, conf_method = "Probable", "Laboratory report"
+                NBS.execute_script("arguments[0].value = arguments[1];",
+                                   NBS.find_element(By.XPATH, case_status_path), case_status_val)
+                NBS.execute_script("""
+                    var s=document.getElementById('INV161');
+                    if(s){for(var i=0;i<s.options.length;i++){if(s.options[i].text.trim()===arguments[0]){s.selectedIndex=i;break;}}}
+                """, conf_method)
+                print(f"Case status={case_status_val}, confirmation method={conf_method}")
+                NBS.set_confirmation_date()
             
-            NBS.write_general_comment(f'Created investigation from lab {event_id}. -nbsbot {NBS.now_str}')
+                NBS.write_general_comment(f'Created investigation from lab {event_id}. -nbsbot {NBS.now_str}')
             
-            #add in lab info -- switch to the lab-info tab via its selectTab onclick (js_click)
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="tabs0head2"]')))
-            js_click('//*[@id="tabs0head2"]', 'lab info tab')
-            time.sleep(2)
-            if test_type == "Antibody" or test_type == "Antigen":
-                timeout = NBS.wait_before_timeout + i*10
-                WebDriverWait(NBS,timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="LP38332_0_DT"]')))
-                NBS.find_element(By.XPATH, '//*[@id="LP38332_0_DT"]').send_keys(lab_date.strftime('%m/%d/%Y'))
-                WebDriverWait(NBS,timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[25]/td[2]/input')))
-                NBS.find_element(By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[25]/td[2]/input').send_keys("Positive")
-            elif test_type == "RNA":
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="LP38335_3_DT"]')))
-                NBS.find_element(By.XPATH, '//*[@id="LP38335_3_DT"]').send_keys(lab_date.strftime('%m/%d/%Y'))
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[28]/td[2]/input')))
-                NBS.find_element(By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[28]/td[2]/input').send_keys("Positive")
-                if Genotype_test  is not None:
+                #add in lab info -- switch to the lab-info tab via its selectTab onclick (js_click)
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="tabs0head2"]')))
+                js_click('//*[@id="tabs0head2"]', 'lab info tab')
+                time.sleep(2)
+                if test_type == "Antibody" or test_type == "Antigen":
+                    timeout = NBS.wait_before_timeout + i*10
+                    WebDriverWait(NBS,timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="LP38332_0_DT"]')))
+                    NBS.find_element(By.XPATH, '//*[@id="LP38332_0_DT"]').send_keys(lab_date.strftime('%m/%d/%Y'))
+                    WebDriverWait(NBS,timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[25]/td[2]/input')))
+                    NBS.find_element(By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[25]/td[2]/input').send_keys("Positive")
+                elif test_type == "RNA":
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="LP38335_3_DT"]')))
+                    NBS.find_element(By.XPATH, '//*[@id="LP38335_3_DT"]').send_keys(lab_date.strftime('%m/%d/%Y'))
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[28]/td[2]/input')))
+                    NBS.find_element(By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[28]/td[2]/input').send_keys("Positive")
+                    if Genotype_test  is not None:
+                        WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ME121009"]')))
+                        NBS.find_element(By.XPATH, '//*[@id="ME121009"]').send_keys(lab_date.strftime('%m/%d/%Y'))
+                        WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[30]/td[2]/input')))
+                        NBS.find_element(By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[30]/td[2]/input').send_keys("Yes")
+                        if resulted_test_table["Coded Result / Organism Name"].iloc[0] != "":
+                            print(f"fgen: {genotype}")
+                            if pd.isna(resulted_test_table["Coded Result / Organism Name"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
+                                genotype = resulted_test_table["Coded Result / Organism Name"].str.extract(r'(\d+)').loc[0,0]
+                            elif not pd.isna(resulted_test_table["Coded Result / Organism Name"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
+                                genotype = resulted_test_table["Coded Result / Organism Name"].str.extract(r'(\d+[A-Za-z])').loc[0,0]
+                        elif resulted_test_table["Text Result"].iloc[0] != "":
+                            print(f"sgen: {genotype}")
+                            if pd.isna(resulted_test_table["Text Result"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
+                                genotype = resulted_test_table["Text Result"].str.extract(r'(\d+)').loc[0,0]
+                            elif not pd.isna(resulted_test_table["Text Result"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
+                                genotype = resulted_test_table["Text Result"].str.extract(r'(\d+[A-Za-z])').loc[0,0]
+                        print(f"gen: {genotype}")
+                        if genotype is not None:
+                            NBS.find_element(By.XPATH, '//*[@id="ME121011"]').send_keys(genotype)
+                elif test_type == "Genotype":
                     WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ME121009"]')))
                     NBS.find_element(By.XPATH, '//*[@id="ME121009"]').send_keys(lab_date.strftime('%m/%d/%Y'))
                     WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[30]/td[2]/input')))
                     NBS.find_element(By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[30]/td[2]/input').send_keys("Yes")
                     if resulted_test_table["Coded Result / Organism Name"].iloc[0] != "":
-                        print(f"fgen: {genotype}")
-                        if pd.isna(resulted_test_table["Coded Result / Organism Name"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
-                            genotype = resulted_test_table["Coded Result / Organism Name"].str.extract(r'(\d+)').loc[0,0]
-                        elif not pd.isna(resulted_test_table["Coded Result / Organism Name"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
-                            genotype = resulted_test_table["Coded Result / Organism Name"].str.extract(r'(\d+[A-Za-z])').loc[0,0]
-                    elif resulted_test_table["Text Result"].iloc[0] != "":
-                        print(f"sgen: {genotype}")
-                        if pd.isna(resulted_test_table["Text Result"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
-                            genotype = resulted_test_table["Text Result"].str.extract(r'(\d+)').loc[0,0]
-                        elif not pd.isna(resulted_test_table["Text Result"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
-                            genotype = resulted_test_table["Text Result"].str.extract(r'(\d+[A-Za-z])').loc[0,0]
-                    print(f"gen: {genotype}")
-                    if genotype is not None:
-                        NBS.find_element(By.XPATH, '//*[@id="ME121011"]').send_keys(genotype)
-            elif test_type == "Genotype":
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ME121009"]')))
-                NBS.find_element(By.XPATH, '//*[@id="ME121009"]').send_keys(lab_date.strftime('%m/%d/%Y'))
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[30]/td[2]/input')))
-                NBS.find_element(By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[30]/td[2]/input').send_keys("Yes")
-                if resulted_test_table["Coded Result / Organism Name"].iloc[0] != "":
-                    if pd.isna(resulted_test_table["Coded Result / Organism Name"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
-                        genotype = resulted_test_table["Coded Result / Organism Name"].str.extract(r'(\d+)').loc[0,0]
-                    elif not pd.isna(resulted_test_table["Coded Result / Organism Name"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
-                        genotype = resulted_test_table["Coded Result / Organism Name"].str.extract(r'(\d+[A-Za-z])').loc[0,0]
-                elif resulted_test_table["Text Result"].iloc[0] != "":
-                    if pd.isna(resulted_test_table["Text Result"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
-                        genotype = resulted_test_table["Text Result"].str.extract(r'(\d+)').loc[0,0]
-                    elif not pd.isna(resulted_test_table["Text Result"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
-                        genotype = resulted_test_table["Text Result"].str.extract(r'(\d+[A-Za-z])').loc[0,0]
-                elif resulted_test_table["Numeric Result"].iloc[0] != "":
-                    if type(resulted_test_table["Numeric Result"].iloc[0]) == float:
-                        genotype = int(resulted_test_table["Numeric Result"].iloc[0])
-                    elif pd.isna(resulted_test_table["Numeric Result"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
-                        genotype = resulted_test_table["Numeric Result"].str.extract(r'(\d+)').loc[0,0]
-                    elif not pd.isna(resulted_test_table["Numeric Result"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
-                        genotype = resulted_test_table["Numeric Result"].str.extract(r'(\d+[A-Za-z])').loc[0,0]
-                if genotype is not None:
-                    NBS.find_element(By.XPATH, '//*[@id="ME121011"]').send_keys(genotype)
-                
-            
-            if alt_lab is not None:
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="1742_6"]')))
-                NBS.find_element(By.XPATH, '//*[@id="1742_6"]').send_keys(re.findall(r'\b\d+\b',alt_lab["Test Results"].iloc[0])[0])
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV826"]')))
-                #NBS.find_element(By.XPATH, '//*[@id="INV826"]').send_keys(re.findall(r'\b\d{2}/\d{2}/\d{4}\b',lab_report_table["Date Received"].iloc[0])[0])
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV826"]')))
-                date_value = lab_report_table["Date Received"].iloc[0]
-                if pd.isna(date_value):
-                    for fallback in (alt_lab["Date Received"].iloc[0], alt_lab["Date Collected"].iloc[0]):
-                        fallback = pd.to_datetime(fallback, errors='coerce')
-                        if not pd.isna(fallback):
-                            date_value = fallback
-                            break
-                if not pd.isna(date_value):
-                    NBS.find_element(By.XPATH, '//*[@id="INV826"]').send_keys(date_value.strftime('%m/%d/%Y'))
-                try:
-                    ref_range = re.findall(r'(\d+-\d+)',alt_lab["Test Results"].iloc[0])
-                    upper_limit_text = ref_range[0]
-                except IndexError:
-                    ref_range = re.findall(r'(\d+ - \d+)',alt_lab["Test Results"].iloc[0])
-                    upper_limit_text = ref_range[0]
-                upper_limit = upper_limit_text.rsplit('-',1)[-1]
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV827"]')))
-                NBS.find_element(By.XPATH, '//*[@id="INV827"]').send_keys(upper_limit)
-                
-            #WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="SubmitTop"]')))
-            #NBS.find_element(By.XPATH, '//*[@id="SubmitTop"]').click()
-            time.sleep(3)
-            NBS.click_submit()
-            for i in range(3):
-                inv_text = NBS.ReadText('//*[@id="successMessages"]')
-                if not inv_text or inv_text != "Investigation has been successfully saved in the system.":
-                    print("Investigation not created, retrying...")
-                    NBS.click_submit()
-                else:
-                    break
-            try:
-                NBS.check_jurisdiction()
-            except NoSuchElementException:
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="SubmitTop"]')))
-                js_click('//*[@id="SubmitTop"]', 'SubmitTop')
-                NBS.check_jurisdiction()
-            if len(NBS.incomplete_address_log) > 0: 
-                #NBS.click_submit()
-                pass
-            else:
-                NBS.create_notification() 
-            #in covidlabreview, changed transfer_ownership_path to [4] instead of [3]
-            print("Create Investigation: " + condition)
-            what_do.append("Create Investigation: " + condition)
-            print(f"eventid = {event_id} and action = {what_do}")
-            hist[event_id].append("Create Investigation: " + condition)
-        elif update_status == True and create_inv == False:
-            #update investigation status -- nav/edit links use onclick JS (run via js_click)
-            #go to events
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="doc3"]/div[1]/a')))
-            js_click('//*[@id="doc3"]/div[1]/a', 'events link')
-            time.sleep(2)
-            #click on investigation date
-            results = NBS.find_elements(By.XPATH,f"//a[contains(text(),'{inv_date.strftime('%m/%d/%Y')}')]")
-            for result in results:
-                try:
-                    js_click(result, 'investigation date link')
-                    break
-                except Exception:
-                    pass
-            time.sleep(2)
-            #click edit
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="delete"]')))
-            js_click('//*[@id="delete"]', 'edit investigation')
-            #click okay
-            try:
-                WebDriverWait(NBS, 10).until(EC.alert_is_present())
-                NBS.switch_to.alert.accept()
-                time.sleep(5)
-            except TimeoutException:
-                pass
-            #click case info tab 
-            #WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="tabs0head1"]')))
-            #NBS.find_element(By.XPATH, '//*[@id="tabs0head1"]').click()
-            NBS.GoToCaseInfo()
-            time.sleep(1)
-            
-            #change confirmation method to laboratory confirmed (<select id=INV161> via JS)
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV161"]')))
-            NBS.execute_script("""
-                var s=document.getElementById('INV161');
-                if(s){for(var i=0;i<s.options.length;i++){if(s.options[i].text.trim()==='Laboratory confirmed'){s.selectedIndex=i;break;}}}
-            """)
-
-            #update confirmation date
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV162"]')))
-            NBS.find_element(By.XPATH, '//*[@id="INV162"]').clear()
-            NBS.find_element(By.XPATH, '//*[@id="INV162"]').send_keys(lab_date.strftime('%m/%d/%Y'))
-
-            #Set case status via <select id=INV163> (option[2]=Confirmed, option[3]=Not a Case).
-            # The img dropdown + option clicks are swallowed, so set the select via JS by index.
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV163"]')))
-            NBS.execute_script("var s=document.getElementById('INV163'); if(s){s.selectedIndex=arguments[0];}", 2 if not_a_case else 1)
-            if not_a_case:
-                NBS.write_general_comment(f'\nNegative Hepatitis C RNA test for a patient with a probable Hepatitis C investigation. Case classification is changed from probable to Not a Case. Lab Id: {event_id} -nbsbot {NBS.now_str}')
-            
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bd"]/h1/table/tbody/tr[1]/td[1]/a')))
-            inv_type_elem = NBS.find_element(By.XPATH, '//*[@id="bd"]/h1/table/tbody/tr[1]/td[1]/a')
-            inv_type = inv_type_elem.text
-            
-            if test_condition == "Hepatitis B" and test_type in ("Antigen", "DNA", "RNA") and "acute" in inv_type and not_a_case == False:
-                NBS.write_general_comment(f'\nNew HBsAg+, HBeAg+, HBV DNA+ within 6 months. Case classification is changed from probable to confirmed. Lab Id: {event_id} -nbsbot {NBS.now_str}')
-            if test_condition == "Hepatitis B" and test_type in ("Antigen", "DNA", "RNA") and "Chronic" in inv_type and not_a_case == False:
-                NBS.write_general_comment(f'\nNew HBsAg+, HBeAg+, HBV DNA+ 6 months or more apart. Case classification is changed from probable to confirmed. Lab Id: {event_id} -nbsbot {NBS.now_str}')
-            if test_condition == "Hepatitis C" and test_type in ("Genotype", "RNA") and "acute" in inv_type and not_a_case == False:
-                NBS.write_general_comment(f'\nNew hepatitis C NAAT within 1 year. Case classification is changed from probable to confirmed. Lab Id: {event_id} -nbsbot {NBS.now_str}')
-            if test_condition == "Hepatitis C" and test_type in ("Genotype", "RNA") and "chronic" in inv_type and not_a_case == False:
-                NBS.write_general_comment(f'\nNew hepatitis C NAAT. Case classification is changed from probable to confirmed. Lab Id: {event_id} -nbsbot {NBS.now_str}')
-                
-            #add in lab info -- switch tab via selectTab onclick (js_click)
-            #Do we want to overwrite if there is already a test? No
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="tabs0head2"]')))
-            js_click('//*[@id="tabs0head2"]', 'lab info tab')
-            time.sleep(2)
-            if test_type == "Antibody" :
-                if test_condition == "Hepatitis B":
-                    if any(x in str(resulted_test_table["Resulted Test"]) for x in ["surface", "Surface", "SURFACE"]): 
-                        date_path = '//*[@id="ME117002"]'
-                        text_path = '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[18]/td[2]/input'
-                    elif any(x in str(resulted_test_table["Resulted Test"]) for x in ["e Ab", "e ab", "E Ab", "E ab", "e An", "e an", "E An", "E an"]): 
-                        date_path = '//*[@id="ME121002"]'
-                        text_path = '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[20]/td[2]/input'
-                    elif any(x in str(resulted_test_table["Resulted Test"]) for x in ["IgM", "IGM", "igm"]): 
-                        date_path = '//*[@id="LP38325_4_DT"]'
-                        text_path = '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[12]/td[2]/input'
-                    else:
-                        date_path = '//*[@id="LP38323_9_DT"]'
-                        text_path = '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[10]/td[2]/input'
-                elif test_condition == "Hepatitis C":
-                    date_path = '//*[@id="LP38332_0_DT"]'
-                    text_path = '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[25]/td[2]/input'
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, date_path)))
-                date_elem = NBS.find_element(By.XPATH, date_path)
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, text_path)))
-                text_elem = NBS.find_element(By.XPATH, text_path)
-                if date_elem.get_attribute("value") == '' and text_elem.get_attribute("value") == '':
-                    NBS.find_element(By.XPATH, date_path).send_keys(lab_date.strftime('%m/%d/%Y'))
-                    NBS.find_element(By.XPATH, text_path).send_keys("Positive")
-            elif test_type == "Antigen":
-                if any(x in str(resulted_test_table["Resulted Test"]) for x in ["surface", "Surface", "SURFACE"]): 
-                    date_path = '//*[@id="LP38331_2_DT"]'
-                    text_path = '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[8]/td[2]/input'
-                elif any(x in str(resulted_test_table["Resulted Test"]) for x in ["e Ag", "e ag", "E Ag", "E ag", "e An", "e an", "E An", "E an"]): 
-                    date_path = '//*[@id="LP38329_6_DT"]'
-                    text_path = '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[16]/td[2]/input'
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, date_path)))
-                date_elem = NBS.find_element(By.XPATH, date_path)
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, text_path)))
-                text_elem = NBS.find_element(By.XPATH, text_path)
-                if date_elem.get_attribute("value") == '' and text_elem.get_attribute("value") == '':
-                    NBS.find_element(By.XPATH, date_path).send_keys(lab_date.strftime('%m/%d/%Y'))
-                    NBS.find_element(By.XPATH, text_path).send_keys("Positive")
-            elif test_type == "RNA":
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="LP38335_3_DT"]')))
-                date_elem = NBS.find_element(By.XPATH, '//*[@id="LP38335_3_DT"]')
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[28]/td[2]/input')))
-                text_elem = NBS.find_element(By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[28]/td[2]/input')
-                if date_elem.get_attribute("value") == '' and text_elem.get_attribute("value") == '':
-                    NBS.find_element(By.XPATH, '//*[@id="LP38335_3_DT"]').send_keys(lab_date.strftime('%m/%d/%Y'))
-                    if not_a_case == False:
-                        NBS.find_element(By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[28]/td[2]/input').send_keys("Positive")
-                    elif not_a_case:
-                        NBS.find_element(By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[28]/td[2]/input').send_keys("Negative")
-            elif test_type == "DNA":
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="LP38320_5_DT"]')))
-                date_elem = NBS.find_element(By.XPATH, '//*[@id="LP38320_5_DT"]')
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[14]/td[2]/input')))
-                text_elem = NBS.find_element(By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[14]/td[2]/input')
-                if date_elem.get_attribute("value") == '' and text_elem.get_attribute("value") == '':
-                    NBS.find_element(By.XPATH, '//*[@id="LP38320_5_DT"]').send_keys(lab_date.strftime('%m/%d/%Y'))
-                    NBS.find_element(By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[14]/td[2]/input').send_keys("Positive")
-            elif test_type == "Genotype":
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ME121009"]')))
-                date_elem = NBS.find_element(By.XPATH, '//*[@id="ME121009"]')
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[30]/td[2]/input')))
-                text_elem = NBS.find_element(By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[30]/td[2]/input')
-                if date_elem.get_attribute("value") == '' and text_elem.get_attribute("value") == '':
-                    NBS.find_element(By.XPATH, '//*[@id="ME121009"]').send_keys(lab_date.strftime('%m/%d/%Y'))
-                    #WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[30]/td[2]/input')))
-                    NBS.find_element(By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[30]/td[2]/input').send_keys("Yes")
-                    if resulted_test_table["Coded Result / Organism Name"].iloc[0] != "":
                         if pd.isna(resulted_test_table["Coded Result / Organism Name"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
                             genotype = resulted_test_table["Coded Result / Organism Name"].str.extract(r'(\d+)').loc[0,0]
                         elif not pd.isna(resulted_test_table["Coded Result / Organism Name"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
@@ -1796,36 +1592,32 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
                             genotype = resulted_test_table["Text Result"].str.extract(r'(\d+)').loc[0,0]
                         elif not pd.isna(resulted_test_table["Text Result"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
                             genotype = resulted_test_table["Text Result"].str.extract(r'(\d+[A-Za-z])').loc[0,0]
+                    elif resulted_test_table["Numeric Result"].iloc[0] != "":
+                        if type(resulted_test_table["Numeric Result"].iloc[0]) == float:
+                            genotype = int(resulted_test_table["Numeric Result"].iloc[0])
+                        elif pd.isna(resulted_test_table["Numeric Result"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
+                            genotype = resulted_test_table["Numeric Result"].str.extract(r'(\d+)').loc[0,0]
+                        elif not pd.isna(resulted_test_table["Numeric Result"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
+                            genotype = resulted_test_table["Numeric Result"].str.extract(r'(\d+[A-Za-z])').loc[0,0]
                     if genotype is not None:
                         NBS.find_element(By.XPATH, '//*[@id="ME121011"]').send_keys(genotype)
-            '''if alt_lab is not None:
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="1742_6"]')))
-                NBS.find_element(By.XPATH, '//*[@id="1742_6"]').send_keys(re.findall(r'\b\d+\b',alt_lab["Test Results"].iloc[0])[0])
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV826"]')))
-                #NBS.find_element(By.XPATH, '//*[@id="INV826"]').send_keys(re.findall(r'\b\d{2}/\d{2}/\d{4}\b',lab_report_table["Date Received"].iloc[0])[0])
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV826"]')))
-                date_value = lab_report_table["Date Received"].iloc[0]
-                date_str = date_value.strftime('%m/%d/%Y')
-                NBS.find_element(By.XPATH, '//*[@id="INV826"]').send_keys(date_str)
-                try:
-                    ref_range = re.findall(r'(\d+-\d+)',alt_lab["Test Results"].iloc[0])
-                    upper_limit_text = ref_range[0]
-                except IndexError:
-                    ref_range = re.findall(r'(\d+ - \d+)',alt_lab["Test Results"].iloc[0])
-                    upper_limit_text = ref_range[0]
-                upper_limit = upper_limit_text.rsplit('-',1)[-1]
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV827"]')))
-                NBS.find_element(By.XPATH, '//*[@id="INV827"]').send_keys(upper_limit)'''
-            if alt_lab is not None:
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="1742_6"]')))
-                text_elem = NBS.find_element(By.XPATH, '//*[@id="1742_6"]')
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV826"]')))
-                date_elem = NBS.find_element(By.XPATH, '//*[@id="INV826"]')
-                if date_elem.get_attribute("value") == '' and text_elem.get_attribute("value") == '':
+                
+            
+                if alt_lab is not None:
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="1742_6"]')))
                     NBS.find_element(By.XPATH, '//*[@id="1742_6"]').send_keys(re.findall(r'\b\d+\b',alt_lab["Test Results"].iloc[0])[0])
-                    received_dt = pd.to_datetime(lab_report_table["Date Received"].iloc[0], errors='coerce')
-                    if not pd.isna(received_dt):
-                        NBS.find_element(By.XPATH, '//*[@id="INV826"]').send_keys(received_dt.strftime('%m/%d/%Y'))
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV826"]')))
+                    #NBS.find_element(By.XPATH, '//*[@id="INV826"]').send_keys(re.findall(r'\b\d{2}/\d{2}/\d{4}\b',lab_report_table["Date Received"].iloc[0])[0])
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV826"]')))
+                    date_value = lab_report_table["Date Received"].iloc[0]
+                    if pd.isna(date_value):
+                        for fallback in (alt_lab["Date Received"].iloc[0], alt_lab["Date Collected"].iloc[0]):
+                            fallback = pd.to_datetime(fallback, errors='coerce')
+                            if not pd.isna(fallback):
+                                date_value = fallback
+                                break
+                    if not pd.isna(date_value):
+                        NBS.find_element(By.XPATH, '//*[@id="INV826"]').send_keys(date_value.strftime('%m/%d/%Y'))
                     try:
                         ref_range = re.findall(r'(\d+-\d+)',alt_lab["Test Results"].iloc[0])
                         upper_limit_text = ref_range[0]
@@ -1835,208 +1627,443 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
                     upper_limit = upper_limit_text.rsplit('-',1)[-1]
                     WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV827"]')))
                     NBS.find_element(By.XPATH, '//*[@id="INV827"]').send_keys(upper_limit)
-            #click on submit
-            for i in range(3):
+                
+                #WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="SubmitTop"]')))
+                #NBS.find_element(By.XPATH, '//*[@id="SubmitTop"]').click()
+                time.sleep(3)
+                NBS.click_submit()
+                for i in range(3):
+                    inv_text = NBS.ReadText('//*[@id="successMessages"]')
+                    if not inv_text or inv_text != "Investigation has been successfully saved in the system.":
+                        print("Investigation not created, retrying...")
+                        NBS.click_submit()
+                    else:
+                        break
                 try:
-                    timeout = NBS.wait_before_timeout + i*10
-                    WebDriverWait(NBS, timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="SubmitBottom"]')))
-                    js_click('//*[@id="SubmitBottom"]', 'SubmitBottom')
-                    associate = True
-                    print("Update Status")
-                    break
-                except TimeoutException:
-                    print(f"TimeoutException for submit_button for update status, trying again... retry_number: {i}")
-                except StaleElementReferenceException:
-                    print(f"StaleElementReferenceException for submit_button for update status, trying again... retry_number: {i}")
+                    NBS.check_jurisdiction()
                 except NoSuchElementException:
-                    print(f"No submit_button for update status found, trying again... retry_number: {i}")
-                    time.sleep(1)
-                except Exception as e:
-                    print(f"{e} has occured for submit_button for update status, retry_number: {i}")
-
-            
-            #go back to patient page (link uses onclick -> js_click)
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bd"]/div[1]/a')))
-            js_click('//*[@id="bd"]/div[1]/a', 'back to patient page')
-            time.sleep(2)
-            #go to lab
-            try:
-                anc = NBS.find_element(By.XPATH,f"//td[contains(text(),'{event_id.split()[0]}')]/../td/a") #possible index error
-                js_click(anc, 'lab link')
-            except (ElementNotInteractableException, NoSuchElementException):
-                js_click('//*[@id="tabs0head0"]', 'events tab')
-                time.sleep(1)
-                anc = NBS.find_element(By.XPATH,f"//td[contains(text(),'{event_id.split()[0]}')]/../td/a") #possible index error
-                js_click(anc, 'lab link')
-                
-        #update investigation to acute if ALT > 200 and there is a closed chronic Hep C investigation, update if there is a Hep acute and there is a negative RNA test
-        elif update_inv_type == True:
-            #change condition status to acute (links/buttons use onclick -> js_click)
-            #go to events
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="doc3"]/div[1]/a')))
-            js_click('//*[@id="doc3"]/div[1]/a', 'events link')
-            time.sleep(2)
-            #click into investigation
-            inv_links = NBS.find_elements(By.XPATH,f"//a[contains(text(),'{inv_date.strftime('%m/%d/%Y')}')]")
-            for _il in inv_links:
-                try:
-                    js_click(_il, 'investigation date link'); break
-                except Exception:
-                    pass
-            time.sleep(2)
-            #click change condition
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="changeCond"]')))
-            js_click('//*[@id="changeCond"]', 'change condition')
-            time.sleep(2)
-            #navigate to the new window
-            original_window = NBS.window_handles[0] #possible index error
-            new_window = NBS.window_handles[1] #possible index error
-            NBS.switch_to.window(new_window)
-            #Enter either Hepatitis B/C, acute -- popup condition autocomplete: set the
-            # input + any matching underlying <select> via JS (synthetic input doesn't drive it).
-            cond_input = '//*[@id="subsect_chng_cond"]/tbody/tr[2]/td[2]/input'
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, cond_input)))
-            NBS.execute_script("""
-                var cond=arguments[0], inp=arguments[1];
-                if(inp) inp.value=cond;
-                var sels=document.getElementsByTagName('select');
-                for(var k=0;k<sels.length;k++){var s=sels[k];
-                    for(var i=0;i<s.options.length;i++){if(s.options[i].text.trim()===cond){s.selectedIndex=i;break;}}}
-            """, condition, NBS.find_element(By.XPATH, cond_input))
-            #click submit (popup)
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="popupButtonBottom"]/input[1]')))
-            js_click('//*[@id="popupButtonBottom"]/input[1]', 'popup submit')
-            time.sleep(2)
-            #click okay
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="confirmationText"]/tbody/tr[11]/td/input[1]')))
-            js_click('//*[@id="confirmationText"]/tbody/tr[11]/td/input[1]', 'popup okay')
-            #go back to original window
-            NBS.switch_to.window(original_window)
-            #leave comment
-            if condition == "Hepatitis B, acute":
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="DEM196"]')))
-                NBS.find_element(By.XPATH, '//*[@id="DEM196"]').send_keys(f'\nNew IgM anti-HBc+ within 6 months. Case classification is changed from probable chronic to confirmed acute. -nbsbot Lab Id: {event_id} -nbsbot {NBS.now_str}')
-                #NBS.write_general_comment(f'\nNew IgM anti-HBc+ within 6 months. Case classification is changed from probable chronic to confirmed acute. -nbsbot Lab Id: {lab_report_table["Event ID"].iloc[0]} -nbsbot {NBS.now_str}')
-                '//*[@id="DEM196"]'
-            elif condition == "Hepatitis C, acute":
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="DEM196"]')))
-                NBS.find_element(By.XPATH, '//*[@id="DEM196"]').send_keys(f'\nNew ALT lab >200 within 3 months. Case classification is changed from chronic to confirmed acute. -nbsbot Lab Id: {event_id} -nbsbot {NBS.now_str}')
-                
-            #set investigation status to closed (<select id=INV109> via JS)
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV109"]')))
-            NBS.execute_script("""
-                var s=document.getElementById('INV109');
-                if(s){for(var i=0;i<s.options.length;i++){if(s.options[i].text.trim()==='Closed'){s.selectedIndex=i;break;}}}
-            """)
-            #set case status to confirmed (text field via JS)
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, case_status_path)))
-            NBS.execute_script("arguments[0].value='Confirmed';", NBS.find_element(By.XPATH, case_status_path))
-
-            #go to hepatitis core tab via selectTab onclick (js_click)
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="tabs0head2"]')))
-            js_click('//*[@id="tabs0head2"]', 'hepatitis core tab')
-            time.sleep(2)
-            
-            #fill in lab info
-            if test_type == "Antigen":
-                if any(x in str(resulted_test_table["Resulted Test"]) for x in ["surface", "Surface", "SURFACE"]): 
-                    date_path = '//*[@id="LP38331_2_DT"]'
-                    text_path = '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[8]/td[2]/input'
-                elif any(x in str(resulted_test_table["Resulted Test"]) for x in ["e Ag", "e ag", "E Ag", "E ag", "e An", "e an", "E An", "E an"]): 
-                    date_path = '//*[@id="LP38329_6_DT"]'
-                    text_path = '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[16]/td[2]/input'
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, date_path)))
-                date_elem = NBS.find_element(By.XPATH, date_path)
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, text_path)))
-                text_elem = NBS.find_element(By.XPATH, text_path)
-                if date_elem.get_attribute("value") == '' and text_elem.get_attribute("value") == '':
-                    NBS.find_element(By.XPATH, date_path).send_keys(lab_date.strftime('%m/%d/%Y'))
-                    NBS.find_element(By.XPATH, text_path).send_keys("Positive")
-            elif test_type == "Alanine":
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="1742_6"]')))
-                text_elem = NBS.find_element(By.XPATH, '//*[@id="1742_6"]')
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV826"]')))
-                date_elem = NBS.find_element(By.XPATH, '//*[@id="INV826"]')
-                if date_elem.get_attribute("value") == '' and text_elem.get_attribute("value") == '':
-                    if resulted_test_table["Numeric Result"].iloc[0] != "": #possible index error
-                        NBS.find_element(By.XPATH, '//*[@id="1742_6"]').send_keys(resulted_test_table["Numeric Result"].iloc[0])  #possible index error
-                    elif resulted_test_table["Text Result"].iloc[0] != "":  #possible index error  
-                        NBS.find_element(By.XPATH, '//*[@id="1742_6"]').send_keys(resulted_test_table["Text Result"].iloc[0]) #possible index error
-                    NBS.find_element(By.XPATH, '//*[@id="INV826"]').send_keys(lab_date.strftime('%m/%d/%Y'))
-                    
-                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV827"]')))
-                    NBS.find_element(By.XPATH, '//*[@id="INV827"]').send_keys(resulted_test_table["Ref Range To"].iloc[0]) #possible index error
-                    
-            #click submit
-            for i in range(3):
-                try:
-                    timeout = NBS.wait_before_timeout + i*10
-                    WebDriverWait(NBS, timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="SubmitTop"]')))
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="SubmitTop"]')))
                     js_click('//*[@id="SubmitTop"]', 'SubmitTop')
-                    print("Update investigation to acute")
-                    what_do.append("Update investigation to acute")
-                    print(f"eventid = {event_id} and action = {what_do}")
-                    hist[event_id].append("Update investigation to acute")
-                    break
-                except StaleElementReferenceException:
-                    print(f"StaleElementReferenceException for click submit for Update investigation to acute , trying again... retry_number: {i}")
+                    NBS.check_jurisdiction()
+                if len(NBS.incomplete_address_log) > 0: 
+                    #NBS.click_submit()
+                    pass
+                else:
+                    NBS.create_notification() 
+                #in covidlabreview, changed transfer_ownership_path to [4] instead of [3]
+                print("Create Investigation: " + condition)
+                what_do.append("Create Investigation: " + condition)
+                print(f"eventid = {event_id} and action = {what_do}")
+                hist[event_id].append("Create Investigation: " + condition)
+            elif update_status == True and create_inv == False:
+                #update investigation status -- nav/edit links use onclick JS (run via js_click)
+                #go to events
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="doc3"]/div[1]/a')))
+                js_click('//*[@id="doc3"]/div[1]/a', 'events link')
+                time.sleep(2)
+                #click on investigation date
+                results = NBS.find_elements(By.XPATH,f"//a[contains(text(),'{inv_date.strftime('%m/%d/%Y')}')]")
+                for result in results:
+                    try:
+                        js_click(result, 'investigation date link')
+                        break
+                    except Exception:
+                        pass
+                time.sleep(2)
+                #click edit
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="delete"]')))
+                js_click('//*[@id="delete"]', 'edit investigation')
+                #click okay
+                try:
+                    WebDriverWait(NBS, 10).until(EC.alert_is_present())
+                    NBS.switch_to.alert.accept()
+                    time.sleep(5)
                 except TimeoutException:
-                    print(f"TimeoutException for click submit Update investigation to acute, trying again... retry_number: {i}")
-                except NoSuchElementException:
-                    print(f"No submit Update investigation to acute, trying again... retry_number: {i}")
-                    time.sleep(1)
-                except Exception as e:
-                    print(f"{e} has occured for submit Update investigation to acute, retry_number: {i}")
-        #associate with investigation
-        #click on associate button
-        if associate == True:
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="doc3"]/div[2]/table/tbody/tr/td[2]/input[2]')))
-            js_click('//*[@id="doc3"]/div[2]/table/tbody/tr/td[2]/input[2]', 'associate button')
-            time.sleep(3)
-            #identify investigation, name and date? maybe index from investigations table
-            inv_to_assoc = investigation_table[investigation_table["Condition"].str.contains(test_condition)]
-            for i in inv_to_assoc.index:
-                inv_ind = i+1
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, f"//*[@id='parent']/tbody/tr[{inv_ind}]/td[1]/div/input")))
-                js_click(f"//*[@id='parent']/tbody/tr[{inv_ind}]/td[1]/div/input", 'associate checkbox')
-            #click submit
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="Submit"]')))
-            js_click('//*[@id="Submit"]', 'associate submit')
-            print("Associate with Investigation")
-            if update_status == True:
-                what_do.append("Update and Associate with Investigation")
-                print(f"eventid = {event_id} and action = {what_do}")
-                hist[event_id].append("Update and Associate with Investigation")
-            else:
-                what_do.append("Associate with Investigation")
-                print(f"eventid = {event_id} and action = {what_do}")
-                hist[event_id].append("Associate with Investigation")
-        '''if send_alt_email == True:
-            body = f"An Alanine Aminotransferase ELR needs to be manually reviewed. The lab ID is {event_id}"
-            NBS.send_smtp_email("Chloe.Manchester@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot', body, 'Hepatitis Manual Review email')
-            if len(what_do) == 0:
-                what_do.append("Send ALT Email")
-                print(f"eventid = {event_id} and action = {what_do}")
-                hist[event_id].append("Send ALT Email")
+                    pass
+                #click case info tab 
+                #WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="tabs0head1"]')))
+                #NBS.find_element(By.XPATH, '//*[@id="tabs0head1"]').click()
+                NBS.GoToCaseInfo()
+                time.sleep(1)
             
-        elif send_inv_email == True:
-            body = f"A patient has multiple Hepatitis investigations of the same condition with a probable/confirmed status. {existing_investigations}"
-            NBS.send_smtp_email("Chloe.Manchester@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot', body, 'Hepatitis Investigation Review email')
-            if len(what_do) == 0:
-                what_do.append("Send Multiple Investigation Email")
-                print(f"eventid = {event_id} and action = {what_do}")
-                hist[event_id].append("Send Multiple Investigation Email")'''
-        
-        if send_peri_email == True:
-            body = f"perivous perinatal hepatitis c with new positive lab result {event_id}"
-            NBS.send_smtp_email(f"Helen.Price-Wharff@maine.gov", 'REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot', body, 'perinatal investiagtion')
-            if len(what_do) == 0:
-                what_do.append("Send Multiple Investigation Email")
-                print(f"eventid = {event_id} and action = {what_do}")
-                hist[event_id].append("Send Multiple Investigation Email")
+                #change confirmation method to laboratory confirmed (<select id=INV161> via JS)
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV161"]')))
+                NBS.execute_script("""
+                    var s=document.getElementById('INV161');
+                    if(s){for(var i=0;i<s.options.length;i++){if(s.options[i].text.trim()==='Laboratory confirmed'){s.selectedIndex=i;break;}}}
+                """)
 
-        NBS.go_to_home()
-        time.sleep(3)
+                #update confirmation date
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV162"]')))
+                NBS.find_element(By.XPATH, '//*[@id="INV162"]').clear()
+                NBS.find_element(By.XPATH, '//*[@id="INV162"]').send_keys(lab_date.strftime('%m/%d/%Y'))
+
+                #Set case status via <select id=INV163> (option[2]=Confirmed, option[3]=Not a Case).
+                # The img dropdown + option clicks are swallowed, so set the select via JS by index.
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV163"]')))
+                NBS.execute_script("var s=document.getElementById('INV163'); if(s){s.selectedIndex=arguments[0];}", 2 if not_a_case else 1)
+                if not_a_case:
+                    NBS.write_general_comment(f'\nNegative Hepatitis C RNA test for a patient with a probable Hepatitis C investigation. Case classification is changed from probable to Not a Case. Lab Id: {event_id} -nbsbot {NBS.now_str}')
+            
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bd"]/h1/table/tbody/tr[1]/td[1]/a')))
+                inv_type_elem = NBS.find_element(By.XPATH, '//*[@id="bd"]/h1/table/tbody/tr[1]/td[1]/a')
+                inv_type = inv_type_elem.text
+            
+                if test_condition == "Hepatitis B" and test_type in ("Antigen", "DNA", "RNA") and "acute" in inv_type and not_a_case == False:
+                    NBS.write_general_comment(f'\nNew HBsAg+, HBeAg+, HBV DNA+ within 6 months. Case classification is changed from probable to confirmed. Lab Id: {event_id} -nbsbot {NBS.now_str}')
+                if test_condition == "Hepatitis B" and test_type in ("Antigen", "DNA", "RNA") and "Chronic" in inv_type and not_a_case == False:
+                    NBS.write_general_comment(f'\nNew HBsAg+, HBeAg+, HBV DNA+ 6 months or more apart. Case classification is changed from probable to confirmed. Lab Id: {event_id} -nbsbot {NBS.now_str}')
+                if test_condition == "Hepatitis C" and test_type in ("Genotype", "RNA") and "acute" in inv_type and not_a_case == False:
+                    NBS.write_general_comment(f'\nNew hepatitis C NAAT within 1 year. Case classification is changed from probable to confirmed. Lab Id: {event_id} -nbsbot {NBS.now_str}')
+                if test_condition == "Hepatitis C" and test_type in ("Genotype", "RNA") and "chronic" in inv_type and not_a_case == False:
+                    NBS.write_general_comment(f'\nNew hepatitis C NAAT. Case classification is changed from probable to confirmed. Lab Id: {event_id} -nbsbot {NBS.now_str}')
+                
+                #add in lab info -- switch tab via selectTab onclick (js_click)
+                #Do we want to overwrite if there is already a test? No
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="tabs0head2"]')))
+                js_click('//*[@id="tabs0head2"]', 'lab info tab')
+                time.sleep(2)
+                if test_type == "Antibody" :
+                    if test_condition == "Hepatitis B":
+                        if any(x in str(resulted_test_table["Resulted Test"]) for x in ["surface", "Surface", "SURFACE"]): 
+                            date_path = '//*[@id="ME117002"]'
+                            text_path = '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[18]/td[2]/input'
+                        elif any(x in str(resulted_test_table["Resulted Test"]) for x in ["e Ab", "e ab", "E Ab", "E ab", "e An", "e an", "E An", "E an"]): 
+                            date_path = '//*[@id="ME121002"]'
+                            text_path = '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[20]/td[2]/input'
+                        elif any(x in str(resulted_test_table["Resulted Test"]) for x in ["IgM", "IGM", "igm"]): 
+                            date_path = '//*[@id="LP38325_4_DT"]'
+                            text_path = '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[12]/td[2]/input'
+                        else:
+                            date_path = '//*[@id="LP38323_9_DT"]'
+                            text_path = '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[10]/td[2]/input'
+                    elif test_condition == "Hepatitis C":
+                        date_path = '//*[@id="LP38332_0_DT"]'
+                        text_path = '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[25]/td[2]/input'
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, date_path)))
+                    date_elem = NBS.find_element(By.XPATH, date_path)
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, text_path)))
+                    text_elem = NBS.find_element(By.XPATH, text_path)
+                    if date_elem.get_attribute("value") == '' and text_elem.get_attribute("value") == '':
+                        NBS.find_element(By.XPATH, date_path).send_keys(lab_date.strftime('%m/%d/%Y'))
+                        NBS.find_element(By.XPATH, text_path).send_keys("Positive")
+                elif test_type == "Antigen":
+                    if any(x in str(resulted_test_table["Resulted Test"]) for x in ["surface", "Surface", "SURFACE"]): 
+                        date_path = '//*[@id="LP38331_2_DT"]'
+                        text_path = '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[8]/td[2]/input'
+                    elif any(x in str(resulted_test_table["Resulted Test"]) for x in ["e Ag", "e ag", "E Ag", "E ag", "e An", "e an", "E An", "E an"]): 
+                        date_path = '//*[@id="LP38329_6_DT"]'
+                        text_path = '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[16]/td[2]/input'
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, date_path)))
+                    date_elem = NBS.find_element(By.XPATH, date_path)
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, text_path)))
+                    text_elem = NBS.find_element(By.XPATH, text_path)
+                    if date_elem.get_attribute("value") == '' and text_elem.get_attribute("value") == '':
+                        NBS.find_element(By.XPATH, date_path).send_keys(lab_date.strftime('%m/%d/%Y'))
+                        NBS.find_element(By.XPATH, text_path).send_keys("Positive")
+                elif test_type == "RNA":
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="LP38335_3_DT"]')))
+                    date_elem = NBS.find_element(By.XPATH, '//*[@id="LP38335_3_DT"]')
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[28]/td[2]/input')))
+                    text_elem = NBS.find_element(By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[28]/td[2]/input')
+                    if date_elem.get_attribute("value") == '' and text_elem.get_attribute("value") == '':
+                        NBS.find_element(By.XPATH, '//*[@id="LP38335_3_DT"]').send_keys(lab_date.strftime('%m/%d/%Y'))
+                        if not_a_case == False:
+                            NBS.find_element(By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[28]/td[2]/input').send_keys("Positive")
+                        elif not_a_case:
+                            NBS.find_element(By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[28]/td[2]/input').send_keys("Negative")
+                elif test_type == "DNA":
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="LP38320_5_DT"]')))
+                    date_elem = NBS.find_element(By.XPATH, '//*[@id="LP38320_5_DT"]')
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[14]/td[2]/input')))
+                    text_elem = NBS.find_element(By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[14]/td[2]/input')
+                    if date_elem.get_attribute("value") == '' and text_elem.get_attribute("value") == '':
+                        NBS.find_element(By.XPATH, '//*[@id="LP38320_5_DT"]').send_keys(lab_date.strftime('%m/%d/%Y'))
+                        NBS.find_element(By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[14]/td[2]/input').send_keys("Positive")
+                elif test_type == "Genotype":
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ME121009"]')))
+                    date_elem = NBS.find_element(By.XPATH, '//*[@id="ME121009"]')
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[30]/td[2]/input')))
+                    text_elem = NBS.find_element(By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[30]/td[2]/input')
+                    if date_elem.get_attribute("value") == '' and text_elem.get_attribute("value") == '':
+                        NBS.find_element(By.XPATH, '//*[@id="ME121009"]').send_keys(lab_date.strftime('%m/%d/%Y'))
+                        #WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[30]/td[2]/input')))
+                        NBS.find_element(By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[30]/td[2]/input').send_keys("Yes")
+                        if resulted_test_table["Coded Result / Organism Name"].iloc[0] != "":
+                            if pd.isna(resulted_test_table["Coded Result / Organism Name"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
+                                genotype = resulted_test_table["Coded Result / Organism Name"].str.extract(r'(\d+)').loc[0,0]
+                            elif not pd.isna(resulted_test_table["Coded Result / Organism Name"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
+                                genotype = resulted_test_table["Coded Result / Organism Name"].str.extract(r'(\d+[A-Za-z])').loc[0,0]
+                        elif resulted_test_table["Text Result"].iloc[0] != "":
+                            if pd.isna(resulted_test_table["Text Result"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
+                                genotype = resulted_test_table["Text Result"].str.extract(r'(\d+)').loc[0,0]
+                            elif not pd.isna(resulted_test_table["Text Result"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
+                                genotype = resulted_test_table["Text Result"].str.extract(r'(\d+[A-Za-z])').loc[0,0]
+                        if genotype is not None:
+                            NBS.find_element(By.XPATH, '//*[@id="ME121011"]').send_keys(genotype)
+                '''if alt_lab is not None:
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="1742_6"]')))
+                    NBS.find_element(By.XPATH, '//*[@id="1742_6"]').send_keys(re.findall(r'\b\d+\b',alt_lab["Test Results"].iloc[0])[0])
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV826"]')))
+                    #NBS.find_element(By.XPATH, '//*[@id="INV826"]').send_keys(re.findall(r'\b\d{2}/\d{2}/\d{4}\b',lab_report_table["Date Received"].iloc[0])[0])
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV826"]')))
+                    date_value = lab_report_table["Date Received"].iloc[0]
+                    date_str = date_value.strftime('%m/%d/%Y')
+                    NBS.find_element(By.XPATH, '//*[@id="INV826"]').send_keys(date_str)
+                    try:
+                        ref_range = re.findall(r'(\d+-\d+)',alt_lab["Test Results"].iloc[0])
+                        upper_limit_text = ref_range[0]
+                    except IndexError:
+                        ref_range = re.findall(r'(\d+ - \d+)',alt_lab["Test Results"].iloc[0])
+                        upper_limit_text = ref_range[0]
+                    upper_limit = upper_limit_text.rsplit('-',1)[-1]
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV827"]')))
+                    NBS.find_element(By.XPATH, '//*[@id="INV827"]').send_keys(upper_limit)'''
+                if alt_lab is not None:
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="1742_6"]')))
+                    text_elem = NBS.find_element(By.XPATH, '//*[@id="1742_6"]')
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV826"]')))
+                    date_elem = NBS.find_element(By.XPATH, '//*[@id="INV826"]')
+                    if date_elem.get_attribute("value") == '' and text_elem.get_attribute("value") == '':
+                        NBS.find_element(By.XPATH, '//*[@id="1742_6"]').send_keys(re.findall(r'\b\d+\b',alt_lab["Test Results"].iloc[0])[0])
+                        received_dt = pd.to_datetime(lab_report_table["Date Received"].iloc[0], errors='coerce')
+                        if not pd.isna(received_dt):
+                            NBS.find_element(By.XPATH, '//*[@id="INV826"]').send_keys(received_dt.strftime('%m/%d/%Y'))
+                        try:
+                            ref_range = re.findall(r'(\d+-\d+)',alt_lab["Test Results"].iloc[0])
+                            upper_limit_text = ref_range[0]
+                        except IndexError:
+                            ref_range = re.findall(r'(\d+ - \d+)',alt_lab["Test Results"].iloc[0])
+                            upper_limit_text = ref_range[0]
+                        upper_limit = upper_limit_text.rsplit('-',1)[-1]
+                        WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV827"]')))
+                        NBS.find_element(By.XPATH, '//*[@id="INV827"]').send_keys(upper_limit)
+                #click on submit
+                for i in range(3):
+                    try:
+                        timeout = NBS.wait_before_timeout + i*10
+                        WebDriverWait(NBS, timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="SubmitBottom"]')))
+                        js_click('//*[@id="SubmitBottom"]', 'SubmitBottom')
+                        associate = True
+                        print("Update Status")
+                        break
+                    except TimeoutException:
+                        print(f"TimeoutException for submit_button for update status, trying again... retry_number: {i}")
+                    except StaleElementReferenceException:
+                        print(f"StaleElementReferenceException for submit_button for update status, trying again... retry_number: {i}")
+                    except NoSuchElementException:
+                        print(f"No submit_button for update status found, trying again... retry_number: {i}")
+                        time.sleep(1)
+                    except Exception as e:
+                        print(f"{e} has occured for submit_button for update status, retry_number: {i}")
+
+            
+                #go back to patient page (link uses onclick -> js_click)
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bd"]/div[1]/a')))
+                js_click('//*[@id="bd"]/div[1]/a', 'back to patient page')
+                time.sleep(2)
+                #go to lab
+                try:
+                    anc = NBS.find_element(By.XPATH,f"//td[contains(text(),'{event_id.split()[0]}')]/../td/a") #possible index error
+                    js_click(anc, 'lab link')
+                except (ElementNotInteractableException, NoSuchElementException):
+                    js_click('//*[@id="tabs0head0"]', 'events tab')
+                    time.sleep(1)
+                    anc = NBS.find_element(By.XPATH,f"//td[contains(text(),'{event_id.split()[0]}')]/../td/a") #possible index error
+                    js_click(anc, 'lab link')
+                
+            #update investigation to acute if ALT > 200 and there is a closed chronic Hep C investigation, update if there is a Hep acute and there is a negative RNA test
+            elif update_inv_type == True:
+                #change condition status to acute (links/buttons use onclick -> js_click)
+                #go to events
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="doc3"]/div[1]/a')))
+                js_click('//*[@id="doc3"]/div[1]/a', 'events link')
+                time.sleep(2)
+                #click into investigation
+                inv_links = NBS.find_elements(By.XPATH,f"//a[contains(text(),'{inv_date.strftime('%m/%d/%Y')}')]")
+                for _il in inv_links:
+                    try:
+                        js_click(_il, 'investigation date link'); break
+                    except Exception:
+                        pass
+                time.sleep(2)
+                #click change condition
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="changeCond"]')))
+                js_click('//*[@id="changeCond"]', 'change condition')
+                time.sleep(2)
+                #navigate to the new window
+                original_window = NBS.window_handles[0] #possible index error
+                new_window = NBS.window_handles[1] #possible index error
+                NBS.switch_to.window(new_window)
+                #Enter either Hepatitis B/C, acute -- popup condition autocomplete: set the
+                # input + any matching underlying <select> via JS (synthetic input doesn't drive it).
+                cond_input = '//*[@id="subsect_chng_cond"]/tbody/tr[2]/td[2]/input'
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, cond_input)))
+                NBS.execute_script("""
+                    var cond=arguments[0], inp=arguments[1];
+                    if(inp) inp.value=cond;
+                    var sels=document.getElementsByTagName('select');
+                    for(var k=0;k<sels.length;k++){var s=sels[k];
+                        for(var i=0;i<s.options.length;i++){if(s.options[i].text.trim()===cond){s.selectedIndex=i;break;}}}
+                """, condition, NBS.find_element(By.XPATH, cond_input))
+                #click submit (popup)
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="popupButtonBottom"]/input[1]')))
+                js_click('//*[@id="popupButtonBottom"]/input[1]', 'popup submit')
+                time.sleep(2)
+                #click okay
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="confirmationText"]/tbody/tr[11]/td/input[1]')))
+                js_click('//*[@id="confirmationText"]/tbody/tr[11]/td/input[1]', 'popup okay')
+                #go back to original window
+                NBS.switch_to.window(original_window)
+                #leave comment
+                if condition == "Hepatitis B, acute":
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="DEM196"]')))
+                    NBS.find_element(By.XPATH, '//*[@id="DEM196"]').send_keys(f'\nNew IgM anti-HBc+ within 6 months. Case classification is changed from probable chronic to confirmed acute. -nbsbot Lab Id: {event_id} -nbsbot {NBS.now_str}')
+                    #NBS.write_general_comment(f'\nNew IgM anti-HBc+ within 6 months. Case classification is changed from probable chronic to confirmed acute. -nbsbot Lab Id: {lab_report_table["Event ID"].iloc[0]} -nbsbot {NBS.now_str}')
+                    '//*[@id="DEM196"]'
+                elif condition == "Hepatitis C, acute":
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="DEM196"]')))
+                    NBS.find_element(By.XPATH, '//*[@id="DEM196"]').send_keys(f'\nNew ALT lab >200 within 3 months. Case classification is changed from chronic to confirmed acute. -nbsbot Lab Id: {event_id} -nbsbot {NBS.now_str}')
+                
+                #set investigation status to closed (<select id=INV109> via JS)
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV109"]')))
+                NBS.execute_script("""
+                    var s=document.getElementById('INV109');
+                    if(s){for(var i=0;i<s.options.length;i++){if(s.options[i].text.trim()==='Closed'){s.selectedIndex=i;break;}}}
+                """)
+                #set case status to confirmed (text field via JS)
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, case_status_path)))
+                NBS.execute_script("arguments[0].value='Confirmed';", NBS.find_element(By.XPATH, case_status_path))
+
+                #go to hepatitis core tab via selectTab onclick (js_click)
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="tabs0head2"]')))
+                js_click('//*[@id="tabs0head2"]', 'hepatitis core tab')
+                time.sleep(2)
+            
+                #fill in lab info
+                if test_type == "Antigen":
+                    if any(x in str(resulted_test_table["Resulted Test"]) for x in ["surface", "Surface", "SURFACE"]): 
+                        date_path = '//*[@id="LP38331_2_DT"]'
+                        text_path = '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[8]/td[2]/input'
+                    elif any(x in str(resulted_test_table["Resulted Test"]) for x in ["e Ag", "e ag", "E Ag", "E ag", "e An", "e an", "E An", "E an"]): 
+                        date_path = '//*[@id="LP38329_6_DT"]'
+                        text_path = '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[16]/td[2]/input'
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, date_path)))
+                    date_elem = NBS.find_element(By.XPATH, date_path)
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, text_path)))
+                    text_elem = NBS.find_element(By.XPATH, text_path)
+                    if date_elem.get_attribute("value") == '' and text_elem.get_attribute("value") == '':
+                        NBS.find_element(By.XPATH, date_path).send_keys(lab_date.strftime('%m/%d/%Y'))
+                        NBS.find_element(By.XPATH, text_path).send_keys("Positive")
+                elif test_type == "Alanine":
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="1742_6"]')))
+                    text_elem = NBS.find_element(By.XPATH, '//*[@id="1742_6"]')
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV826"]')))
+                    date_elem = NBS.find_element(By.XPATH, '//*[@id="INV826"]')
+                    if date_elem.get_attribute("value") == '' and text_elem.get_attribute("value") == '':
+                        if resulted_test_table["Numeric Result"].iloc[0] != "": #possible index error
+                            NBS.find_element(By.XPATH, '//*[@id="1742_6"]').send_keys(resulted_test_table["Numeric Result"].iloc[0])  #possible index error
+                        elif resulted_test_table["Text Result"].iloc[0] != "":  #possible index error  
+                            NBS.find_element(By.XPATH, '//*[@id="1742_6"]').send_keys(resulted_test_table["Text Result"].iloc[0]) #possible index error
+                        NBS.find_element(By.XPATH, '//*[@id="INV826"]').send_keys(lab_date.strftime('%m/%d/%Y'))
+                    
+                        WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV827"]')))
+                        NBS.find_element(By.XPATH, '//*[@id="INV827"]').send_keys(resulted_test_table["Ref Range To"].iloc[0]) #possible index error
+                    
+                #click submit
+                for i in range(3):
+                    try:
+                        timeout = NBS.wait_before_timeout + i*10
+                        WebDriverWait(NBS, timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="SubmitTop"]')))
+                        js_click('//*[@id="SubmitTop"]', 'SubmitTop')
+                        print("Update investigation to acute")
+                        what_do.append("Update investigation to acute")
+                        print(f"eventid = {event_id} and action = {what_do}")
+                        hist[event_id].append("Update investigation to acute")
+                        break
+                    except StaleElementReferenceException:
+                        print(f"StaleElementReferenceException for click submit for Update investigation to acute , trying again... retry_number: {i}")
+                    except TimeoutException:
+                        print(f"TimeoutException for click submit Update investigation to acute, trying again... retry_number: {i}")
+                    except NoSuchElementException:
+                        print(f"No submit Update investigation to acute, trying again... retry_number: {i}")
+                        time.sleep(1)
+                    except Exception as e:
+                        print(f"{e} has occured for submit Update investigation to acute, retry_number: {i}")
+            #associate with investigation
+            #click on associate button
+            if associate == True:
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="doc3"]/div[2]/table/tbody/tr/td[2]/input[2]')))
+                js_click('//*[@id="doc3"]/div[2]/table/tbody/tr/td[2]/input[2]', 'associate button')
+                time.sleep(3)
+                #identify investigation, name and date? maybe index from investigations table
+                inv_to_assoc = investigation_table[investigation_table["Condition"].str.contains(test_condition)]
+                for i in inv_to_assoc.index:
+                    inv_ind = i+1
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, f"//*[@id='parent']/tbody/tr[{inv_ind}]/td[1]/div/input")))
+                    js_click(f"//*[@id='parent']/tbody/tr[{inv_ind}]/td[1]/div/input", 'associate checkbox')
+                #click submit
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="Submit"]')))
+                js_click('//*[@id="Submit"]', 'associate submit')
+                print("Associate with Investigation")
+                if update_status == True:
+                    what_do.append("Update and Associate with Investigation")
+                    print(f"eventid = {event_id} and action = {what_do}")
+                    hist[event_id].append("Update and Associate with Investigation")
+                else:
+                    what_do.append("Associate with Investigation")
+                    print(f"eventid = {event_id} and action = {what_do}")
+                    hist[event_id].append("Associate with Investigation")
+            '''if send_alt_email == True:
+                body = f"An Alanine Aminotransferase ELR needs to be manually reviewed. The lab ID is {event_id}"
+                NBS.send_smtp_email("Chloe.Manchester@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot', body, 'Hepatitis Manual Review email')
+                if len(what_do) == 0:
+                    what_do.append("Send ALT Email")
+                    print(f"eventid = {event_id} and action = {what_do}")
+                    hist[event_id].append("Send ALT Email")
+            
+            elif send_inv_email == True:
+                body = f"A patient has multiple Hepatitis investigations of the same condition with a probable/confirmed status. {existing_investigations}"
+                NBS.send_smtp_email("Chloe.Manchester@maine.gov", 'ERROR REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot', body, 'Hepatitis Investigation Review email')
+                if len(what_do) == 0:
+                    what_do.append("Send Multiple Investigation Email")
+                    print(f"eventid = {event_id} and action = {what_do}")
+                    hist[event_id].append("Send Multiple Investigation Email")'''
+        
+            if send_peri_email == True:
+                body = f"perivous perinatal hepatitis c with new positive lab result {event_id}"
+                NBS.send_smtp_email(f"Helen.Price-Wharff@maine.gov", 'REPORT: NBSbot(Hepatitis ELR Review) AKA Audrey Hepbot', body, 'perinatal investiagtion')
+                if len(what_do) == 0:
+                    what_do.append("Send Multiple Investigation Email")
+                    print(f"eventid = {event_id} and action = {what_do}")
+                    hist[event_id].append("Send Multiple Investigation Email")
+
+            NBS.go_to_home()
+            time.sleep(3)
+        except Exception as _case_err:
+            # A single case throwing (bad lab shape, transient NBS hiccup, a
+            # go_to_home() RuntimeError, etc.) used to propagate out of the loop
+            # and end the whole pass -- the "random stopping". Log it, keep the
+            # Lab ID/Action columns aligned, recover to a clean Home, and move on.
+            consecutive_errors += 1
+            print(f"[audrey] Unhandled error on this case; skipping it "
+                  f"(consecutive={consecutive_errors}): {_case_err}")
+            traceback.print_exc()
+            if len(reviewed_ids) > len(what_do):
+                what_do.append(f"Unhandled error, case skipped: {_case_err}")
+            if consecutive_errors >= 5:
+                print("[audrey] 5 consecutive unhandled errors (NBS likely down "
+                      "or the session is dead); ending this pass.")
+                break
+            # Best-effort reset to a clean Home so the next case starts fresh; a
+            # hard URL load tears down a frozen/stuck page if the click path failed.
+            try:
+                NBS.get(NBS.home_url())
+                NBS.dismiss_block_overlay()
+            except Exception as _rec_err:
+                print(f"[audrey] recovery navigation to Home failed: {_rec_err}")
+            time.sleep(3)
+            continue
 
     completion_message = (
     f"Audrey has finished running on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}. "
