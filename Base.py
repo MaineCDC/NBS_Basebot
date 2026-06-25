@@ -1413,6 +1413,13 @@ class NBSdriver(webdriver.Chrome):
         """Check if an investigator was assigned to the case."""
         investigator = self.ReadText('//*[@id="INV180"]')
         self.investigator_name = investigator
+        # Set the boolean flag the rest of the review depends on. Reset() leaves
+        # self.investigator = None, and a merge dropped this assignment, so it
+        # stayed None for the whole pass -- which both silently skipped every
+        # `if self.investigator:` check AND crashed expressions like
+        # `(not self.ltf) & self.investigator` (bool & None -> TypeError) in
+        # athena/Gonorrhea. Mirror the original contract: True/False, never None.
+        self.investigator = bool(investigator)
         if not investigator:
             self.issues.append("Investigator is blank.")
 
