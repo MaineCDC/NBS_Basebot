@@ -129,10 +129,10 @@ def start_athena(username, passcode, login_complete: Event = None, is_logged_in=
             consecutive_errors += 1
             if NBS.initial_name:
                 skipped_names.add(NBS.initial_name)
-            try:
-                NBS.GoToApprovalQueue()
-            except Exception as recover_err:
-                print(f"[athena] queue recovery after exception failed: {recover_err}")
+            # Repeated errors on a page mean it's likely wedged; after the 2nd
+            # consecutive error this bounces through Home before reloading the
+            # queue so the current case can be re-filtered from a clean page.
+            NBS.RecoverQueueAfterError()
             if consecutive_errors >= max_consecutive_errors:
                 print(f"[athena] {consecutive_errors} consecutive errors; queue appears "
                       f"empty/unstable. Ending pass.")

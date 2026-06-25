@@ -396,10 +396,10 @@ def start_anaplasma(username, passcode, login_complete: Event = None, is_logged_
             # every case behind it (and a broken page doesn't cascade into more
             # errors). Forward progress is what keeps the pass from spinning.
             n += 1
-            try:
-                NBS.GoToApprovalQueue()
-            except Exception as recover_err:
-                print(f"queue recovery after exception failed: {recover_err}")
+            # Repeated errors on a page mean it's likely wedged; after the 2nd
+            # consecutive error this bounces through Home before reloading the
+            # queue so the current case can be re-filtered from a clean page.
+            NBS.RecoverQueueAfterError()
             
     print("ending, printing, saving", "current_iteration:", loop.n)
 

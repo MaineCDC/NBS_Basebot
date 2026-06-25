@@ -252,10 +252,10 @@ def start_HepBnotificationreview(username, passcode, login_complete=None, is_log
                 log_offending = "<unknown>"
             print(f"[HepB] recording poison case {log_offending!r} as skipped and advancing.")
             n += 1
-            try:
-                NBS.GoToApprovalQueue()
-            except Exception as recover_err:
-                print(f"[HepB] queue recovery after exception failed: {recover_err}")
+            # Repeated errors on a page mean it's likely wedged; after the 2nd
+            # consecutive error this bounces through Home before reloading the
+            # queue so the current case can be re-filtered from a clean page.
+            NBS.RecoverQueueAfterError()
 
             # Once the queue is empty, SortQueue/CheckFirstCase keep throwing
             # (stale element / nothing to read) and that lands here every pass.

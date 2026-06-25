@@ -193,10 +193,10 @@ def start_ILIOutbreak(username, passcode, login_complete=None, is_logged_in=Fals
             if NBS.initial_name:
                 skipped_names.add(NBS.initial_name)
             n += 1
-            try:
-                NBS.GoToApprovalQueue()
-            except Exception as recover_err:
-                print(f"[ILIOutbreak] queue recovery after exception failed: {recover_err}")
+            # Repeated errors on a page mean it's likely wedged; after the 2nd
+            # consecutive error this bounces through Home before reloading the
+            # queue so the current case can be re-filtered from a clean page.
+            NBS.RecoverQueueAfterError()
             # Stop spinning once the queue is empty/unstable (stale reads land here).
             if consecutive_errors >= max_consecutive_errors:
                 print("Queue appears empty/unstable after consecutive errors; ending run.")

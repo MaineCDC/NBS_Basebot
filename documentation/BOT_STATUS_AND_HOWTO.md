@@ -161,6 +161,12 @@ human babysitting Chrome.
   `SAVE_EVERY_CASES` cases (default 10), so a hard kill loses at most that batch.
 - **Queue recovery.** On a bad/empty queue return, bots navigate home and
   re-request the queue (`HandleBadQueueReturn`) rather than crashing.
+- **Hard reset after repeated page errors.** When a bot errors on the same page
+  **twice in a row**, `RecoverQueueAfterError` bounces it through the Home page
+  (a hard URL navigation that tears down a frozen/stuck page) before reloading the
+  queue, so the current case gets re-filtered from a clean slate. The first error
+  just reloads the queue in place; the streak resets as soon as a case loads
+  normally again.
 - **Persistent skip list.** Several bots read/write `patients_to_skip.txt` so
   flagged patients stay skipped across runs.
 

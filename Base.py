@@ -888,6 +888,36 @@ class NBSdriver(webdriver.Chrome):
             except TimeoutException:
                 self.HandleBadQueueReturn()
 
+    def RecoverQueueAfterError(self, hard_reset_threshold=2):
+        """Recover to a clean, filterable queue after a mid-review page error.
+
+        Counts how many times in a row a page has errored (self.page_error_streak,
+        reset on the next healthy CheckFirstCase read). The FIRST error usually
+        just needs the queue reloaded in place. But once we've errored on the page
+        hard_reset_threshold times in a row (default 2), the page/session is
+        probably wedged -- a frozen blockparent overlay, a dead/closed window, or
+        a half-loaded case -- and reloading the queue from that same broken page
+        keeps failing. So on the 2nd+ consecutive error we do a HARD reset: bounce
+        through the Home page first (go_to_home hard-navigates to the Home URL when
+        the in-page click is intercepted, which tears down a frozen DOM), THEN
+        reload the queue. The next loop iteration re-runs the bot's own sort/filter
+        for the current case from a clean slate.
+
+        Call this from a bot's per-case `except` block in place of a bare
+        GoToApprovalQueue() recovery; it never raises (a failed recovery is logged
+        and the loop's own error cap ends the pass).
+        """
+        self.page_error_streak = getattr(self, "page_error_streak", 0) + 1
+        try:
+            if self.page_error_streak >= hard_reset_threshold:
+                print(f"[recover] {self.page_error_streak} consecutive page errors; "
+                      f"hard-resetting via Home before reloading the queue so the "
+                      f"current case can be re-filtered from a clean page.")
+                self.go_to_home()
+            self.GoToApprovalQueue()
+        except Exception as recover_err:
+            print(f"[recover] queue recovery failed: {recover_err}")
+
     def ReturnApprovalQueue(self):
         """Return to Approval Queue from an investigation initially accessed from the queue."""
         xpath = '//*[@id="bd"]/div[1]/a'
@@ -1154,6 +1184,9 @@ class NBSdriver(webdriver.Chrome):
             self.patient_name = self.find_element(
                 By.XPATH, f'//*[@id="parent"]/tbody/tr[{n}]/td[7]/a'
             ).get_attribute("innerText")
+            # We successfully loaded and read the queue page, so we're not stuck:
+            # clear the consecutive-page-error streak used by RecoverQueueAfterError.
+            self.page_error_streak = 0
         except NoSuchElementException:
             self.condition = None
             self.patient_name = None
