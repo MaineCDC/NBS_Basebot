@@ -113,15 +113,25 @@ log in once  ->  athena's queue  ->  strep's queue  ->  gonorrhea's queue  ->  S
 - **Each bot finishes its own queue, then hands off.** A bot keeps reviewing
   cases for its disease until its queue has no more matching cases, then returns
   so the next bot can start.
-- **After the last bot, the program stops.** It does **not** loop back and re-run
-  the bots automatically.
+- **After the last bot, the program stops** — *unless athena is selected*. It
+  does **not** loop back and re-run the bots automatically for a non-athena
+  selection.
+
+- **Athena loops continuously.** If `athena` is one of the selected bots,
+  `start_bots.py` keeps running: it cycles the whole selected list, sleeps
+  `ATHENA_LOOP_MINUTES` (default **60** — one hour), then runs them again, around
+  the clock, until you Ctrl-C or the session needs a fresh login. This is the
+  default way to run athena (the standalone `run_athena_loop.py` does the same
+  thing for just COVID + iGAS). Athena only emails when a case actually needs
+  manual review, so the loop doesn't spam.
 
 > **Note (changed):** The bots used to loop forever — after finishing every bot
 > they would sleep ~5 minutes and run the whole list again, and again, around the
 > clock. That re-running is what spammed "bot run" emails even when there were no
-> new cases. The auto-rerun has been **removed**: the suite now does exactly one
-> pass and stops. Run `start_bots.py` again whenever you want another pass (or
-> schedule it externally if you want it on a timer).
+> new cases. The unconditional auto-rerun was **removed**: a selection *without*
+> athena now does exactly one pass and stops. Looping is now scoped to athena
+> (whose pass is silent when there's nothing to do). Run `start_bots.py` again
+> whenever you want another one-off pass of the non-athena bots.
 
 ---
 

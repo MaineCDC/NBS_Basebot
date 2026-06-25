@@ -863,7 +863,21 @@ class Athena(NBSdriver):
             self.lab_data_issues_log = []
     
     ####################### Investigator Check Methods ############################
-    #####in base.py####
+    def CheckInvestigator(self):
+        """ Check if an investigator was assigned to the case.
+
+        COVID-19 investigations are NO LONGER assigned to investigators, so a
+        blank investigator is expected and must NOT be flagged as an issue.
+        These cases are routed through TriageReview instead. This overrides the
+        shared Base.CheckInvestigator, which appends 'Investigator is blank.'
+        for the other diseases that still require an assigned investigator. """
+        investigator = self.ReadText('//*[@id="INV180"]')
+        self.investigator_name = investigator
+        # Keep the True/False contract the rest of the review depends on; never
+        # leave this as None (bool & None -> TypeError in gated checks).
+        self.investigator = bool(investigator)
+
+    #####old base.py version retained for reference####
     '''def CheckInvestigator(self):
         """ Check if an investigator was assigned to the case. """
         investigator = self.ReadText('//*[@id="INV180"]')

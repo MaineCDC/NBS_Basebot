@@ -24,6 +24,11 @@ from selenium.webdriver.chrome.options import Options
 CHROME_PORT = 9223
 USER_DATA_DIR = os.getcwd() + r"\chrome-bot-profile"
 
+# Minutes to wait between full round-robin passes when running in continuous mode
+# (i.e. when athena is selected -- see run_bots). Defaults to one hour. Periodic
+# activity also keeps the NBS session warm. Same knob as run_athena_loop.py.
+LOOP_MINUTES = int(os.getenv("ATHENA_LOOP_MINUTES", "60"))
+
 
 def kill_bot_profile_chrome():
     """Terminate only Chrome processes using the bot profile dir.
@@ -163,6 +168,27 @@ def selection():
             return
 
 
+def _run_pass(targets, username, passcode, login_complete, first_cycle):
+    """Run every selected bot once, in order. The very first bot of the very
+    first cycle performs the single RSA login (is_logged_in=False); every other
+    run -- later bots this cycle and every bot on later cycles -- reuses the warm
+    shared session (is_logged_in=True), since RSA passcodes are single-use.
+    Each bot's @error_handle already logs its own exceptions; we also guard here
+    so one bad bot never stops the pass."""
+    for i, target in enumerate(targets):
+        is_logged_in = not (first_cycle and i == 0)
+        name = target.__name__.replace('start_', '')
+        print(f"starting bot {i + 1}/{len(targets)}: {name} "
+              f"({'reusing session' if is_logged_in else 'logging in'})")
+        try:
+            target(username, passcode, login_complete, is_logged_in)
+        except Exception as e:
+            # @error_handle already wrote the traceback to error_logs.txt;
+            # keep going so a single failing bot can't halt the others.
+            print(f"{name} raised an error; continuing: {e}")
+        print(f"finished bot {name}; moving to the next bot...")
+
+
 def run_bots():
     print("**select bots** (selection order is the round-robin order)")
     print("1. athena")
@@ -211,34 +237,32 @@ def run_bots():
         passcode = input('Enter your RSA passcode:')
         chrome_process = launch_chrome()
 
-        # SINGLE ROUND-ROBIN PASS: run the selected bots once, in the user's
-        # order. The FIRST bot performs the single login (is_logged_in=False);
-        # every other run reuses the warm shared session (is_logged_in=True).
-        # Each bot ends its own pass when its queue is empty, then the next bot
-        # runs. After the last bot finishes we STOP -- the bots no longer loop
-        # back to re-check the queues (that auto-rerun spammed a "bot run" email
-        # every cycle even when there were no new cases). Re-run start_bots.py
-        # whenever you want another pass.
-        # The @error_handle decorator on each start_* already logs per-bot
-        # exceptions, and we also guard here so one bad bot never stops the pass.
+        # Athena is meant to run continuously: keep re-checking the COVID queue,
+        # sleep an hour, run again, until the session needs a fresh login. So when
+        # athena is among the selected bots we loop the whole round-robin on a
+        # timer (like run_athena_loop.py). For any other selection we keep the
+        # single-pass-and-stop behavior, because the old unconditional auto-rerun
+        # spammed a "bot run" email every cycle even with no new cases.
         # Stop cleanly any time with Ctrl-C.
-        print("\n================= STARTING SINGLE PASS =================")
-        for i, target in enumerate(targets):
-            is_logged_in = i != 0
-            name = target.__name__.replace('start_', '')
-            print(f"starting bot {i + 1}/{len(targets)}: {name} "
-                  f"({'reusing session' if is_logged_in else 'logging in'})")
-            try:
-                target(username, passcode, login_complete, is_logged_in)
-            except Exception as e:
-                # @error_handle already wrote the traceback to error_logs.txt;
-                # keep going so a single failing bot can't halt the others.
-                print(f"{name} raised an error; continuing: {e}")
-            print(f"finished bot {name}; moving to the next bot...")
-
-        print("================= PASS COMPLETE ================="
-              "\nAll selected bots have run once. Stopping (no auto-rerun). "
-              "Run start_bots.py again for another pass.")
+        if start_athena in targets:
+            print("\n=========== STARTING CONTINUOUS LOOP (athena selected) ==========="
+                  f"\nLooping the selected bots every {LOOP_MINUTES} minutes. Ctrl-C to stop.")
+            cycle = 0
+            while True:
+                cycle += 1
+                print(f"\n================= LOOP CYCLE {cycle} =================")
+                _run_pass(targets, username, passcode, login_complete,
+                          first_cycle=(cycle == 1))
+                print(f"================= CYCLE {cycle} COMPLETE ================="
+                      f"\nWaiting {LOOP_MINUTES} minutes, then re-checking the "
+                      f"queues. (Ctrl-C to stop.)")
+                time.sleep(LOOP_MINUTES * 60)
+        else:
+            print("\n================= STARTING SINGLE PASS =================")
+            _run_pass(targets, username, passcode, login_complete, first_cycle=True)
+            print("================= PASS COMPLETE ================="
+                  "\nAll selected bots have run once. Stopping (no auto-rerun). "
+                  "Run start_bots.py again for another pass.")
 
     except KeyboardInterrupt:
         print("\nStop requested (Ctrl-C). Shutting the bots down cleanly...")

@@ -1,7 +1,8 @@
 """Continuous COVID + iGAS loop (Athena).
 
 Runs Athena (COVID-19) and then Strep (iGAS / Group A Streptococcus) against NBS,
-over and over, waiting ATHENA_LOOP_MINUTES (default 50) between full passes. So
+over and over, waiting ATHENA_LOOP_MINUTES (default 60 -- one hour) between full
+passes. So
 "athena" here covers BOTH conditions every cycle: Athena reviews the COVID cases
 with COVID logic, Strep reviews the iGAS cases with iGAS logic. (They are separate
 review pipelines -- running COVID checks on an iGAS case, or vice versa, errors
@@ -10,8 +11,9 @@ out, so each condition is handled by its own reviewer.)
 One Chrome session, one login: the first bot of the first cycle performs the
 single RSA login; every later run reuses the warm shared session (RSA passcodes
 are single-use, so we cannot silently re-login). If NBS times the session out
-during the 50-minute wait, the next run detects it and pauses for a manual login
-in the open Chrome window (see Base.log_in), then continues.
+during the hour-long wait, the next run detects it and pauses for a manual login
+in the open Chrome window (see Base.log_in), then continues. The loop only ends
+when you stop it (Ctrl-C) or a relogin is required.
 
 Why a dedicated script instead of start_bots.py: start_bots.py now does ONE pass
 and stops (its old auto-rerun spammed "bot run" emails). Athena specifically needs
@@ -36,8 +38,9 @@ from athena_files.athena_bot import start_athena
 from strep_files.strep_bot import start_strep
 
 # Minutes to wait after each full COVID+iGAS pass before looping back to re-check
-# both queues. Periodic activity also keeps the NBS session warm.
-LOOP_MINUTES = int(os.getenv("ATHENA_LOOP_MINUTES", "50"))
+# both queues. Defaults to one hour. Periodic activity also keeps the NBS session
+# warm.
+LOOP_MINUTES = int(os.getenv("ATHENA_LOOP_MINUTES", "60"))
 
 # (start function, label) in the order they run each cycle. Athena = COVID,
 # Strep = iGAS -- together they cover "both covid and igas".

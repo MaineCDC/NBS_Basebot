@@ -21,4 +21,1113 @@ eventid = OBS62002848ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed']
 eventid = OBS62002846ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed']
 3it [01:35, 31.34s/it]Mark as Reviewed
 eventid = OBS62002844ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed']
-4it [02:04, 30.72s/it]
+4it [02:04, 30.72s/it]Mark as Reviewed
+eventid = OBS62002836ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed']
+5it [02:34, 30.48s/it]More than one test in ELR
+eventid = OBS62001868ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR']
+0    FOSS, LYNN  Patient ID: 3090698 Female 07/19/1...
+Name: Patient, dtype: object
+6it [02:59, 28.32s/it]More than one test in ELR
+eventid = OBS62001851ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR']
+1    Thomas, Michael  Patient ID: 3961312 Male 12/1...
+Name: Patient, dtype: object
+7it [03:24, 27.26s/it]More than one test in ELR
+eventid = OBS62001847ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR']
+2    Nichols, Bailey  Patient ID: 7696007 Female 04...
+Name: Patient, dtype: object
+8it [03:49, 26.75s/it][audrey] Unhandled error on this case; skipping it (consecutive=1): Message: 
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a700]
+	chromedriver!(No symbol) [0x9e3bab]
+	chromedriver!(No symbol) [0x9e3dcb]
+	chromedriver!(No symbol) [0xa25b32]
+	chromedriver!(No symbol) [0xa06114]
+	chromedriver!(No symbol) [0xa2339a]
+	chromedriver!(No symbol) [0xa05e66]
+	chromedriver!(No symbol) [0x9d9159]
+	chromedriver!(No symbol) [0x9d9f24]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!GetHandleVerifier [0xba2d18+18bc8]
+	chromedriver!GetHandleVerifier [0xba2ec5+18d75]
+	chromedriver!GetHandleVerifier [0xb8c05f+1f0f]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+
+Traceback (most recent call last):
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\audrey_files\audrey_bot.py", line 1891, in start_audrey
+    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="changeCond"]')))
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\support\wait.py", line 105, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a700]
+	chromedriver!(No symbol) [0x9e3bab]
+	chromedriver!(No symbol) [0x9e3dcb]
+	chromedriver!(No symbol) [0xa25b32]
+	chromedriver!(No symbol) [0xa06114]
+	chromedriver!(No symbol) [0xa2339a]
+	chromedriver!(No symbol) [0xa05e66]
+	chromedriver!(No symbol) [0x9d9159]
+	chromedriver!(No symbol) [0x9d9f24]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!GetHandleVerifier [0xba2d18+18bc8]
+	chromedriver!GetHandleVerifier [0xba2ec5+18d75]
+	chromedriver!GetHandleVerifier [0xb8c05f+1f0f]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+
+9it [04:59, 40.32s/it]More than one test in ELR
+eventid = OBS62001868ME01 (Update) and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Unhandled error, case skipped: Message: \nStacktrace:\n\tchromedriver!GetHandleVerifier [0xb9a543+103f3]\n\tchromedriver!GetHandleVerifier [0xb9a584+10434]\n\tchromedriver!(No symbol) [0x99a700]\n\tchromedriver!(No symbol) [0x9e3bab]\n\tchromedriver!(No symbol) [0x9e3dcb]\n\tchromedriver!(No symbol) [0xa25b32]\n\tchromedriver!(No symbol) [0xa06114]\n\tchromedriver!(No symbol) [0xa2339a]\n\tchromedriver!(No symbol) [0xa05e66]\n\tchromedriver!(No symbol) [0x9d9159]\n\tchromedriver!(No symbol) [0x9d9f24]\n\tchromedriver!GetHandleVerifier [0xe24bba+29aa6a]\n\tchromedriver!GetHandleVerifier [0xe20119+295fc9]\n\tchromedriver!GetHandleVerifier [0xe4103e+2b6eee]\n\tchromedriver!GetHandleVerifier [0xbb37f6+296a6]\n\tchromedriver!GetHandleVerifier [0xbba91d+307cd]\n\tchromedriver!GetHandleVerifier [0xba2d18+18bc8]\n\tchromedriver!GetHandleVerifier [0xba2ec5+18d75]\n\tchromedriver!GetHandleVerifier [0xb8c05f+1f0f]\n\tKERNEL32!BaseThreadInitThunk [0x768b5d49+19]\n\tntdll!RtlInitializeExceptionChain [0x7785e12b+6b]\n\tntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]\n', 'Skip, more than one test in ELR']
+0    FOSS, LYNN  Patient ID: 3090698 Female 07/19/1...
+Name: Patient, dtype: object
+10it [05:24, 35.53s/it]Saving results: ['OBS62002856ME01', 'OBS62002848ME01', 'OBS62002846ME01', 'OBS62002844ME01', 'OBS62002836ME01', 'OBS62001868ME01', 'OBS62001851ME01', 'OBS62001847ME01', 'OBS62001781ME01', 'OBS62001868ME01 (Update)'], ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Unhandled error, case skipped: Message: \nStacktrace:\n\tchromedriver!GetHandleVerifier [0xb9a543+103f3]\n\tchromedriver!GetHandleVerifier [0xb9a584+10434]\n\tchromedriver!(No symbol) [0x99a700]\n\tchromedriver!(No symbol) [0x9e3bab]\n\tchromedriver!(No symbol) [0x9e3dcb]\n\tchromedriver!(No symbol) [0xa25b32]\n\tchromedriver!(No symbol) [0xa06114]\n\tchromedriver!(No symbol) [0xa2339a]\n\tchromedriver!(No symbol) [0xa05e66]\n\tchromedriver!(No symbol) [0x9d9159]\n\tchromedriver!(No symbol) [0x9d9f24]\n\tchromedriver!GetHandleVerifier [0xe24bba+29aa6a]\n\tchromedriver!GetHandleVerifier [0xe20119+295fc9]\n\tchromedriver!GetHandleVerifier [0xe4103e+2b6eee]\n\tchromedriver!GetHandleVerifier [0xbb37f6+296a6]\n\tchromedriver!GetHandleVerifier [0xbba91d+307cd]\n\tchromedriver!GetHandleVerifier [0xba2d18+18bc8]\n\tchromedriver!GetHandleVerifier [0xba2ec5+18d75]\n\tchromedriver!GetHandleVerifier [0xb8c05f+1f0f]\n\tKERNEL32!BaseThreadInitThunk [0x768b5d49+19]\n\tntdll!RtlInitializeExceptionChain [0x7785e12b+6b]\n\tntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]\n', 'Skip, more than one test in ELR']
+Creating new file with 10 records
+Results saved to saved/Hepatitis/Hepatitis_bot_activity_final_06_25_2026.xlsx (Total records: 10)
+Mark as Reviewed
+eventid = OBS62001779ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Unhandled error, case skipped: Message: \nStacktrace:\n\tchromedriver!GetHandleVerifier [0xb9a543+103f3]\n\tchromedriver!GetHandleVerifier [0xb9a584+10434]\n\tchromedriver!(No symbol) [0x99a700]\n\tchromedriver!(No symbol) [0x9e3bab]\n\tchromedriver!(No symbol) [0x9e3dcb]\n\tchromedriver!(No symbol) [0xa25b32]\n\tchromedriver!(No symbol) [0xa06114]\n\tchromedriver!(No symbol) [0xa2339a]\n\tchromedriver!(No symbol) [0xa05e66]\n\tchromedriver!(No symbol) [0x9d9159]\n\tchromedriver!(No symbol) [0x9d9f24]\n\tchromedriver!GetHandleVerifier [0xe24bba+29aa6a]\n\tchromedriver!GetHandleVerifier [0xe20119+295fc9]\n\tchromedriver!GetHandleVerifier [0xe4103e+2b6eee]\n\tchromedriver!GetHandleVerifier [0xbb37f6+296a6]\n\tchromedriver!GetHandleVerifier [0xbba91d+307cd]\n\tchromedriver!GetHandleVerifier [0xba2d18+18bc8]\n\tchromedriver!GetHandleVerifier [0xba2ec5+18d75]\n\tchromedriver!GetHandleVerifier [0xb8c05f+1f0f]\n\tKERNEL32!BaseThreadInitThunk [0x768b5d49+19]\n\tntdll!RtlInitializeExceptionChain [0x7785e12b+6b]\n\tntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]\n', 'Skip, more than one test in ELR', 'Mark as Reviewed']
+11it [05:55, 34.07s/it]Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic
+eventid = OBS62000850ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Unhandled error, case skipped: Message: \nStacktrace:\n\tchromedriver!GetHandleVerifier [0xb9a543+103f3]\n\tchromedriver!GetHandleVerifier [0xb9a584+10434]\n\tchromedriver!(No symbol) [0x99a700]\n\tchromedriver!(No symbol) [0x9e3bab]\n\tchromedriver!(No symbol) [0x9e3dcb]\n\tchromedriver!(No symbol) [0xa25b32]\n\tchromedriver!(No symbol) [0xa06114]\n\tchromedriver!(No symbol) [0xa2339a]\n\tchromedriver!(No symbol) [0xa05e66]\n\tchromedriver!(No symbol) [0x9d9159]\n\tchromedriver!(No symbol) [0x9d9f24]\n\tchromedriver!GetHandleVerifier [0xe24bba+29aa6a]\n\tchromedriver!GetHandleVerifier [0xe20119+295fc9]\n\tchromedriver!GetHandleVerifier [0xe4103e+2b6eee]\n\tchromedriver!GetHandleVerifier [0xbb37f6+296a6]\n\tchromedriver!GetHandleVerifier [0xbba91d+307cd]\n\tchromedriver!GetHandleVerifier [0xba2d18+18bc8]\n\tchromedriver!GetHandleVerifier [0xba2ec5+18d75]\n\tchromedriver!GetHandleVerifier [0xb8c05f+1f0f]\n\tKERNEL32!BaseThreadInitThunk [0x768b5d49+19]\n\tntdll!RtlInitializeExceptionChain [0x7785e12b+6b]\n\tntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]\n', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic']
+12it [06:24, 32.53s/it]Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic
+eventid = OBS62000840ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Unhandled error, case skipped: Message: \nStacktrace:\n\tchromedriver!GetHandleVerifier [0xb9a543+103f3]\n\tchromedriver!GetHandleVerifier [0xb9a584+10434]\n\tchromedriver!(No symbol) [0x99a700]\n\tchromedriver!(No symbol) [0x9e3bab]\n\tchromedriver!(No symbol) [0x9e3dcb]\n\tchromedriver!(No symbol) [0xa25b32]\n\tchromedriver!(No symbol) [0xa06114]\n\tchromedriver!(No symbol) [0xa2339a]\n\tchromedriver!(No symbol) [0xa05e66]\n\tchromedriver!(No symbol) [0x9d9159]\n\tchromedriver!(No symbol) [0x9d9f24]\n\tchromedriver!GetHandleVerifier [0xe24bba+29aa6a]\n\tchromedriver!GetHandleVerifier [0xe20119+295fc9]\n\tchromedriver!GetHandleVerifier [0xe4103e+2b6eee]\n\tchromedriver!GetHandleVerifier [0xbb37f6+296a6]\n\tchromedriver!GetHandleVerifier [0xbba91d+307cd]\n\tchromedriver!GetHandleVerifier [0xba2d18+18bc8]\n\tchromedriver!GetHandleVerifier [0xba2ec5+18d75]\n\tchromedriver!GetHandleVerifier [0xb8c05f+1f0f]\n\tKERNEL32!BaseThreadInitThunk [0x768b5d49+19]\n\tntdll!RtlInitializeExceptionChain [0x7785e12b+6b]\n\tntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]\n', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic']
+13it [06:48, 29.88s/it]More than one test in ELR
+eventid = OBS62000812ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Unhandled error, case skipped: Message: \nStacktrace:\n\tchromedriver!GetHandleVerifier [0xb9a543+103f3]\n\tchromedriver!GetHandleVerifier [0xb9a584+10434]\n\tchromedriver!(No symbol) [0x99a700]\n\tchromedriver!(No symbol) [0x9e3bab]\n\tchromedriver!(No symbol) [0x9e3dcb]\n\tchromedriver!(No symbol) [0xa25b32]\n\tchromedriver!(No symbol) [0xa06114]\n\tchromedriver!(No symbol) [0xa2339a]\n\tchromedriver!(No symbol) [0xa05e66]\n\tchromedriver!(No symbol) [0x9d9159]\n\tchromedriver!(No symbol) [0x9d9f24]\n\tchromedriver!GetHandleVerifier [0xe24bba+29aa6a]\n\tchromedriver!GetHandleVerifier [0xe20119+295fc9]\n\tchromedriver!GetHandleVerifier [0xe4103e+2b6eee]\n\tchromedriver!GetHandleVerifier [0xbb37f6+296a6]\n\tchromedriver!GetHandleVerifier [0xbba91d+307cd]\n\tchromedriver!GetHandleVerifier [0xba2d18+18bc8]\n\tchromedriver!GetHandleVerifier [0xba2ec5+18d75]\n\tchromedriver!GetHandleVerifier [0xb8c05f+1f0f]\n\tKERNEL32!BaseThreadInitThunk [0x768b5d49+19]\n\tntdll!RtlInitializeExceptionChain [0x7785e12b+6b]\n\tntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]\n', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Skip, more than one test in ELR']
+6    COX, ALIYA  Patient ID: 16920098 Female 02/28/...
+Name: Patient, dtype: object
+14it [07:12, 28.09s/it]More than one test in ELR
+eventid = OBS62000406ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Unhandled error, case skipped: Message: \nStacktrace:\n\tchromedriver!GetHandleVerifier [0xb9a543+103f3]\n\tchromedriver!GetHandleVerifier [0xb9a584+10434]\n\tchromedriver!(No symbol) [0x99a700]\n\tchromedriver!(No symbol) [0x9e3bab]\n\tchromedriver!(No symbol) [0x9e3dcb]\n\tchromedriver!(No symbol) [0xa25b32]\n\tchromedriver!(No symbol) [0xa06114]\n\tchromedriver!(No symbol) [0xa2339a]\n\tchromedriver!(No symbol) [0xa05e66]\n\tchromedriver!(No symbol) [0x9d9159]\n\tchromedriver!(No symbol) [0x9d9f24]\n\tchromedriver!GetHandleVerifier [0xe24bba+29aa6a]\n\tchromedriver!GetHandleVerifier [0xe20119+295fc9]\n\tchromedriver!GetHandleVerifier [0xe4103e+2b6eee]\n\tchromedriver!GetHandleVerifier [0xbb37f6+296a6]\n\tchromedriver!GetHandleVerifier [0xbba91d+307cd]\n\tchromedriver!GetHandleVerifier [0xba2d18+18bc8]\n\tchromedriver!GetHandleVerifier [0xba2ec5+18d75]\n\tchromedriver!GetHandleVerifier [0xb8c05f+1f0f]\n\tKERNEL32!BaseThreadInitThunk [0x768b5d49+19]\n\tntdll!RtlInitializeExceptionChain [0x7785e12b+6b]\n\tntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]\n', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR']
+7    COLBATH, SETH  Patient ID: 16376407 Male 07/09...
+Name: Patient, dtype: object
+15it [07:36, 26.96s/it]More than one test in ELR
+eventid = OBS61999733ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Unhandled error, case skipped: Message: \nStacktrace:\n\tchromedriver!GetHandleVerifier [0xb9a543+103f3]\n\tchromedriver!GetHandleVerifier [0xb9a584+10434]\n\tchromedriver!(No symbol) [0x99a700]\n\tchromedriver!(No symbol) [0x9e3bab]\n\tchromedriver!(No symbol) [0x9e3dcb]\n\tchromedriver!(No symbol) [0xa25b32]\n\tchromedriver!(No symbol) [0xa06114]\n\tchromedriver!(No symbol) [0xa2339a]\n\tchromedriver!(No symbol) [0xa05e66]\n\tchromedriver!(No symbol) [0x9d9159]\n\tchromedriver!(No symbol) [0x9d9f24]\n\tchromedriver!GetHandleVerifier [0xe24bba+29aa6a]\n\tchromedriver!GetHandleVerifier [0xe20119+295fc9]\n\tchromedriver!GetHandleVerifier [0xe4103e+2b6eee]\n\tchromedriver!GetHandleVerifier [0xbb37f6+296a6]\n\tchromedriver!GetHandleVerifier [0xbba91d+307cd]\n\tchromedriver!GetHandleVerifier [0xba2d18+18bc8]\n\tchromedriver!GetHandleVerifier [0xba2ec5+18d75]\n\tchromedriver!GetHandleVerifier [0xb8c05f+1f0f]\n\tKERNEL32!BaseThreadInitThunk [0x768b5d49+19]\n\tntdll!RtlInitializeExceptionChain [0x7785e12b+6b]\n\tntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]\n', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR']
+8    CRONIN, WILLIAM  Patient ID: 15499952 Male 02/...
+Name: Patient, dtype: object
+16it [08:00, 26.13s/it]Mark as Reviewed
+eventid = OBS61999505ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Unhandled error, case skipped: Message: \nStacktrace:\n\tchromedriver!GetHandleVerifier [0xb9a543+103f3]\n\tchromedriver!GetHandleVerifier [0xb9a584+10434]\n\tchromedriver!(No symbol) [0x99a700]\n\tchromedriver!(No symbol) [0x9e3bab]\n\tchromedriver!(No symbol) [0x9e3dcb]\n\tchromedriver!(No symbol) [0xa25b32]\n\tchromedriver!(No symbol) [0xa06114]\n\tchromedriver!(No symbol) [0xa2339a]\n\tchromedriver!(No symbol) [0xa05e66]\n\tchromedriver!(No symbol) [0x9d9159]\n\tchromedriver!(No symbol) [0x9d9f24]\n\tchromedriver!GetHandleVerifier [0xe24bba+29aa6a]\n\tchromedriver!GetHandleVerifier [0xe20119+295fc9]\n\tchromedriver!GetHandleVerifier [0xe4103e+2b6eee]\n\tchromedriver!GetHandleVerifier [0xbb37f6+296a6]\n\tchromedriver!GetHandleVerifier [0xbba91d+307cd]\n\tchromedriver!GetHandleVerifier [0xba2d18+18bc8]\n\tchromedriver!GetHandleVerifier [0xba2ec5+18d75]\n\tchromedriver!GetHandleVerifier [0xb8c05f+1f0f]\n\tKERNEL32!BaseThreadInitThunk [0x768b5d49+19]\n\tntdll!RtlInitializeExceptionChain [0x7785e12b+6b]\n\tntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]\n', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Mark as Reviewed']
+17it [08:29, 26.97s/it]Mark as Reviewed
+eventid = OBS61999412ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Unhandled error, case skipped: Message: \nStacktrace:\n\tchromedriver!GetHandleVerifier [0xb9a543+103f3]\n\tchromedriver!GetHandleVerifier [0xb9a584+10434]\n\tchromedriver!(No symbol) [0x99a700]\n\tchromedriver!(No symbol) [0x9e3bab]\n\tchromedriver!(No symbol) [0x9e3dcb]\n\tchromedriver!(No symbol) [0xa25b32]\n\tchromedriver!(No symbol) [0xa06114]\n\tchromedriver!(No symbol) [0xa2339a]\n\tchromedriver!(No symbol) [0xa05e66]\n\tchromedriver!(No symbol) [0x9d9159]\n\tchromedriver!(No symbol) [0x9d9f24]\n\tchromedriver!GetHandleVerifier [0xe24bba+29aa6a]\n\tchromedriver!GetHandleVerifier [0xe20119+295fc9]\n\tchromedriver!GetHandleVerifier [0xe4103e+2b6eee]\n\tchromedriver!GetHandleVerifier [0xbb37f6+296a6]\n\tchromedriver!GetHandleVerifier [0xbba91d+307cd]\n\tchromedriver!GetHandleVerifier [0xba2d18+18bc8]\n\tchromedriver!GetHandleVerifier [0xba2ec5+18d75]\n\tchromedriver!GetHandleVerifier [0xb8c05f+1f0f]\n\tKERNEL32!BaseThreadInitThunk [0x768b5d49+19]\n\tntdll!RtlInitializeExceptionChain [0x7785e12b+6b]\n\tntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]\n', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Mark as Reviewed']
+18it [09:07, 30.32s/it]Mark as Reviewed
+eventid = OBS61999409ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Unhandled error, case skipped: Message: \nStacktrace:\n\tchromedriver!GetHandleVerifier [0xb9a543+103f3]\n\tchromedriver!GetHandleVerifier [0xb9a584+10434]\n\tchromedriver!(No symbol) [0x99a700]\n\tchromedriver!(No symbol) [0x9e3bab]\n\tchromedriver!(No symbol) [0x9e3dcb]\n\tchromedriver!(No symbol) [0xa25b32]\n\tchromedriver!(No symbol) [0xa06114]\n\tchromedriver!(No symbol) [0xa2339a]\n\tchromedriver!(No symbol) [0xa05e66]\n\tchromedriver!(No symbol) [0x9d9159]\n\tchromedriver!(No symbol) [0x9d9f24]\n\tchromedriver!GetHandleVerifier [0xe24bba+29aa6a]\n\tchromedriver!GetHandleVerifier [0xe20119+295fc9]\n\tchromedriver!GetHandleVerifier [0xe4103e+2b6eee]\n\tchromedriver!GetHandleVerifier [0xbb37f6+296a6]\n\tchromedriver!GetHandleVerifier [0xbba91d+307cd]\n\tchromedriver!GetHandleVerifier [0xba2d18+18bc8]\n\tchromedriver!GetHandleVerifier [0xba2ec5+18d75]\n\tchromedriver!GetHandleVerifier [0xb8c05f+1f0f]\n\tKERNEL32!BaseThreadInitThunk [0x768b5d49+19]\n\tntdll!RtlInitializeExceptionChain [0x7785e12b+6b]\n\tntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]\n', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed']
+19it [09:40, 31.17s/it]Mark as Reviewed
+eventid = OBS61999407ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Unhandled error, case skipped: Message: \nStacktrace:\n\tchromedriver!GetHandleVerifier [0xb9a543+103f3]\n\tchromedriver!GetHandleVerifier [0xb9a584+10434]\n\tchromedriver!(No symbol) [0x99a700]\n\tchromedriver!(No symbol) [0x9e3bab]\n\tchromedriver!(No symbol) [0x9e3dcb]\n\tchromedriver!(No symbol) [0xa25b32]\n\tchromedriver!(No symbol) [0xa06114]\n\tchromedriver!(No symbol) [0xa2339a]\n\tchromedriver!(No symbol) [0xa05e66]\n\tchromedriver!(No symbol) [0x9d9159]\n\tchromedriver!(No symbol) [0x9d9f24]\n\tchromedriver!GetHandleVerifier [0xe24bba+29aa6a]\n\tchromedriver!GetHandleVerifier [0xe20119+295fc9]\n\tchromedriver!GetHandleVerifier [0xe4103e+2b6eee]\n\tchromedriver!GetHandleVerifier [0xbb37f6+296a6]\n\tchromedriver!GetHandleVerifier [0xbba91d+307cd]\n\tchromedriver!GetHandleVerifier [0xba2d18+18bc8]\n\tchromedriver!GetHandleVerifier [0xba2ec5+18d75]\n\tchromedriver!GetHandleVerifier [0xb8c05f+1f0f]\n\tKERNEL32!BaseThreadInitThunk [0x768b5d49+19]\n\tntdll!RtlInitializeExceptionChain [0x7785e12b+6b]\n\tntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]\n', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed']
+20it [10:16, 32.43s/it]Saving results: ['OBS62002856ME01', 'OBS62002848ME01', 'OBS62002846ME01', 'OBS62002844ME01', 'OBS62002836ME01', 'OBS62001868ME01', 'OBS62001851ME01', 'OBS62001847ME01', 'OBS62001781ME01', 'OBS62001868ME01 (Update)', 'OBS62001779ME01', 'OBS62000850ME01', 'OBS62000840ME01', 'OBS62000812ME01', 'OBS62000406ME01', 'OBS61999733ME01', 'OBS61999505ME01', 'OBS61999412ME01', 'OBS61999409ME01', 'OBS61999407ME01'], ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Unhandled error, case skipped: Message: \nStacktrace:\n\tchromedriver!GetHandleVerifier [0xb9a543+103f3]\n\tchromedriver!GetHandleVerifier [0xb9a584+10434]\n\tchromedriver!(No symbol) [0x99a700]\n\tchromedriver!(No symbol) [0x9e3bab]\n\tchromedriver!(No symbol) [0x9e3dcb]\n\tchromedriver!(No symbol) [0xa25b32]\n\tchromedriver!(No symbol) [0xa06114]\n\tchromedriver!(No symbol) [0xa2339a]\n\tchromedriver!(No symbol) [0xa05e66]\n\tchromedriver!(No symbol) [0x9d9159]\n\tchromedriver!(No symbol) [0x9d9f24]\n\tchromedriver!GetHandleVerifier [0xe24bba+29aa6a]\n\tchromedriver!GetHandleVerifier [0xe20119+295fc9]\n\tchromedriver!GetHandleVerifier [0xe4103e+2b6eee]\n\tchromedriver!GetHandleVerifier [0xbb37f6+296a6]\n\tchromedriver!GetHandleVerifier [0xbba91d+307cd]\n\tchromedriver!GetHandleVerifier [0xba2d18+18bc8]\n\tchromedriver!GetHandleVerifier [0xba2ec5+18d75]\n\tchromedriver!GetHandleVerifier [0xb8c05f+1f0f]\n\tKERNEL32!BaseThreadInitThunk [0x768b5d49+19]\n\tntdll!RtlInitializeExceptionChain [0x7785e12b+6b]\n\tntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]\n', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed']
+Appending 20 new records to existing file with 10 records
+After removing duplicates: 20 total records
+Results saved to saved/Hepatitis/Hepatitis_bot_activity_final_06_25_2026.xlsx (Total records: 20)
+Mark as Reviewed
+eventid = OBS62002945ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Unhandled error, case skipped: Message: \nStacktrace:\n\tchromedriver!GetHandleVerifier [0xb9a543+103f3]\n\tchromedriver!GetHandleVerifier [0xb9a584+10434]\n\tchromedriver!(No symbol) [0x99a700]\n\tchromedriver!(No symbol) [0x9e3bab]\n\tchromedriver!(No symbol) [0x9e3dcb]\n\tchromedriver!(No symbol) [0xa25b32]\n\tchromedriver!(No symbol) [0xa06114]\n\tchromedriver!(No symbol) [0xa2339a]\n\tchromedriver!(No symbol) [0xa05e66]\n\tchromedriver!(No symbol) [0x9d9159]\n\tchromedriver!(No symbol) [0x9d9f24]\n\tchromedriver!GetHandleVerifier [0xe24bba+29aa6a]\n\tchromedriver!GetHandleVerifier [0xe20119+295fc9]\n\tchromedriver!GetHandleVerifier [0xe4103e+2b6eee]\n\tchromedriver!GetHandleVerifier [0xbb37f6+296a6]\n\tchromedriver!GetHandleVerifier [0xbba91d+307cd]\n\tchromedriver!GetHandleVerifier [0xba2d18+18bc8]\n\tchromedriver!GetHandleVerifier [0xba2ec5+18d75]\n\tchromedriver!GetHandleVerifier [0xb8c05f+1f0f]\n\tKERNEL32!BaseThreadInitThunk [0x768b5d49+19]\n\tntdll!RtlInitializeExceptionChain [0x7785e12b+6b]\n\tntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]\n', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed']
+21it [10:57, 34.97s/it]Mark as Reviewed
+eventid = OBS62002943ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Unhandled error, case skipped: Message: \nStacktrace:\n\tchromedriver!GetHandleVerifier [0xb9a543+103f3]\n\tchromedriver!GetHandleVerifier [0xb9a584+10434]\n\tchromedriver!(No symbol) [0x99a700]\n\tchromedriver!(No symbol) [0x9e3bab]\n\tchromedriver!(No symbol) [0x9e3dcb]\n\tchromedriver!(No symbol) [0xa25b32]\n\tchromedriver!(No symbol) [0xa06114]\n\tchromedriver!(No symbol) [0xa2339a]\n\tchromedriver!(No symbol) [0xa05e66]\n\tchromedriver!(No symbol) [0x9d9159]\n\tchromedriver!(No symbol) [0x9d9f24]\n\tchromedriver!GetHandleVerifier [0xe24bba+29aa6a]\n\tchromedriver!GetHandleVerifier [0xe20119+295fc9]\n\tchromedriver!GetHandleVerifier [0xe4103e+2b6eee]\n\tchromedriver!GetHandleVerifier [0xbb37f6+296a6]\n\tchromedriver!GetHandleVerifier [0xbba91d+307cd]\n\tchromedriver!GetHandleVerifier [0xba2d18+18bc8]\n\tchromedriver!GetHandleVerifier [0xba2ec5+18d75]\n\tchromedriver!GetHandleVerifier [0xb8c05f+1f0f]\n\tKERNEL32!BaseThreadInitThunk [0x768b5d49+19]\n\tntdll!RtlInitializeExceptionChain [0x7785e12b+6b]\n\tntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]\n', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed']
+22it [11:27, 33.56s/it]Mark as Reviewed
+eventid = OBS61999404ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Unhandled error, case skipped: Message: \nStacktrace:\n\tchromedriver!GetHandleVerifier [0xb9a543+103f3]\n\tchromedriver!GetHandleVerifier [0xb9a584+10434]\n\tchromedriver!(No symbol) [0x99a700]\n\tchromedriver!(No symbol) [0x9e3bab]\n\tchromedriver!(No symbol) [0x9e3dcb]\n\tchromedriver!(No symbol) [0xa25b32]\n\tchromedriver!(No symbol) [0xa06114]\n\tchromedriver!(No symbol) [0xa2339a]\n\tchromedriver!(No symbol) [0xa05e66]\n\tchromedriver!(No symbol) [0x9d9159]\n\tchromedriver!(No symbol) [0x9d9f24]\n\tchromedriver!GetHandleVerifier [0xe24bba+29aa6a]\n\tchromedriver!GetHandleVerifier [0xe20119+295fc9]\n\tchromedriver!GetHandleVerifier [0xe4103e+2b6eee]\n\tchromedriver!GetHandleVerifier [0xbb37f6+296a6]\n\tchromedriver!GetHandleVerifier [0xbba91d+307cd]\n\tchromedriver!GetHandleVerifier [0xba2d18+18bc8]\n\tchromedriver!GetHandleVerifier [0xba2ec5+18d75]\n\tchromedriver!GetHandleVerifier [0xb8c05f+1f0f]\n\tKERNEL32!BaseThreadInitThunk [0x768b5d49+19]\n\tntdll!RtlInitializeExceptionChain [0x7785e12b+6b]\n\tntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]\n', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed']
+23it [11:56, 32.22s/it]Mark as Reviewed
+eventid = OBS61999402ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Unhandled error, case skipped: Message: \nStacktrace:\n\tchromedriver!GetHandleVerifier [0xb9a543+103f3]\n\tchromedriver!GetHandleVerifier [0xb9a584+10434]\n\tchromedriver!(No symbol) [0x99a700]\n\tchromedriver!(No symbol) [0x9e3bab]\n\tchromedriver!(No symbol) [0x9e3dcb]\n\tchromedriver!(No symbol) [0xa25b32]\n\tchromedriver!(No symbol) [0xa06114]\n\tchromedriver!(No symbol) [0xa2339a]\n\tchromedriver!(No symbol) [0xa05e66]\n\tchromedriver!(No symbol) [0x9d9159]\n\tchromedriver!(No symbol) [0x9d9f24]\n\tchromedriver!GetHandleVerifier [0xe24bba+29aa6a]\n\tchromedriver!GetHandleVerifier [0xe20119+295fc9]\n\tchromedriver!GetHandleVerifier [0xe4103e+2b6eee]\n\tchromedriver!GetHandleVerifier [0xbb37f6+296a6]\n\tchromedriver!GetHandleVerifier [0xbba91d+307cd]\n\tchromedriver!GetHandleVerifier [0xba2d18+18bc8]\n\tchromedriver!GetHandleVerifier [0xba2ec5+18d75]\n\tchromedriver!GetHandleVerifier [0xb8c05f+1f0f]\n\tKERNEL32!BaseThreadInitThunk [0x768b5d49+19]\n\tntdll!RtlInitializeExceptionChain [0x7785e12b+6b]\n\tntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]\n', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed']
+24it [12:25, 31.37s/it]Mark as Reviewed
+eventid = OBS61999400ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Unhandled error, case skipped: Message: \nStacktrace:\n\tchromedriver!GetHandleVerifier [0xb9a543+103f3]\n\tchromedriver!GetHandleVerifier [0xb9a584+10434]\n\tchromedriver!(No symbol) [0x99a700]\n\tchromedriver!(No symbol) [0x9e3bab]\n\tchromedriver!(No symbol) [0x9e3dcb]\n\tchromedriver!(No symbol) [0xa25b32]\n\tchromedriver!(No symbol) [0xa06114]\n\tchromedriver!(No symbol) [0xa2339a]\n\tchromedriver!(No symbol) [0xa05e66]\n\tchromedriver!(No symbol) [0x9d9159]\n\tchromedriver!(No symbol) [0x9d9f24]\n\tchromedriver!GetHandleVerifier [0xe24bba+29aa6a]\n\tchromedriver!GetHandleVerifier [0xe20119+295fc9]\n\tchromedriver!GetHandleVerifier [0xe4103e+2b6eee]\n\tchromedriver!GetHandleVerifier [0xbb37f6+296a6]\n\tchromedriver!GetHandleVerifier [0xbba91d+307cd]\n\tchromedriver!GetHandleVerifier [0xba2d18+18bc8]\n\tchromedriver!GetHandleVerifier [0xba2ec5+18d75]\n\tchromedriver!GetHandleVerifier [0xb8c05f+1f0f]\n\tKERNEL32!BaseThreadInitThunk [0x768b5d49+19]\n\tntdll!RtlInitializeExceptionChain [0x7785e12b+6b]\n\tntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]\n', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed']
+25it [13:00, 32.41s/it]Mark as Reviewed
+eventid = OBS61999397ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Unhandled error, case skipped: Message: \nStacktrace:\n\tchromedriver!GetHandleVerifier [0xb9a543+103f3]\n\tchromedriver!GetHandleVerifier [0xb9a584+10434]\n\tchromedriver!(No symbol) [0x99a700]\n\tchromedriver!(No symbol) [0x9e3bab]\n\tchromedriver!(No symbol) [0x9e3dcb]\n\tchromedriver!(No symbol) [0xa25b32]\n\tchromedriver!(No symbol) [0xa06114]\n\tchromedriver!(No symbol) [0xa2339a]\n\tchromedriver!(No symbol) [0xa05e66]\n\tchromedriver!(No symbol) [0x9d9159]\n\tchromedriver!(No symbol) [0x9d9f24]\n\tchromedriver!GetHandleVerifier [0xe24bba+29aa6a]\n\tchromedriver!GetHandleVerifier [0xe20119+295fc9]\n\tchromedriver!GetHandleVerifier [0xe4103e+2b6eee]\n\tchromedriver!GetHandleVerifier [0xbb37f6+296a6]\n\tchromedriver!GetHandleVerifier [0xbba91d+307cd]\n\tchromedriver!GetHandleVerifier [0xba2d18+18bc8]\n\tchromedriver!GetHandleVerifier [0xba2ec5+18d75]\n\tchromedriver!GetHandleVerifier [0xb8c05f+1f0f]\n\tKERNEL32!BaseThreadInitThunk [0x768b5d49+19]\n\tntdll!RtlInitializeExceptionChain [0x7785e12b+6b]\n\tntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]\n', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed']
+26it [13:30, 31.56s/it]Mark as Reviewed
+eventid = OBS61999394ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Unhandled error, case skipped: Message: \nStacktrace:\n\tchromedriver!GetHandleVerifier [0xb9a543+103f3]\n\tchromedriver!GetHandleVerifier [0xb9a584+10434]\n\tchromedriver!(No symbol) [0x99a700]\n\tchromedriver!(No symbol) [0x9e3bab]\n\tchromedriver!(No symbol) [0x9e3dcb]\n\tchromedriver!(No symbol) [0xa25b32]\n\tchromedriver!(No symbol) [0xa06114]\n\tchromedriver!(No symbol) [0xa2339a]\n\tchromedriver!(No symbol) [0xa05e66]\n\tchromedriver!(No symbol) [0x9d9159]\n\tchromedriver!(No symbol) [0x9d9f24]\n\tchromedriver!GetHandleVerifier [0xe24bba+29aa6a]\n\tchromedriver!GetHandleVerifier [0xe20119+295fc9]\n\tchromedriver!GetHandleVerifier [0xe4103e+2b6eee]\n\tchromedriver!GetHandleVerifier [0xbb37f6+296a6]\n\tchromedriver!GetHandleVerifier [0xbba91d+307cd]\n\tchromedriver!GetHandleVerifier [0xba2d18+18bc8]\n\tchromedriver!GetHandleVerifier [0xba2ec5+18d75]\n\tchromedriver!GetHandleVerifier [0xb8c05f+1f0f]\n\tKERNEL32!BaseThreadInitThunk [0x768b5d49+19]\n\tntdll!RtlInitializeExceptionChain [0x7785e12b+6b]\n\tntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]\n', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed']
+27it [14:04, 32.23s/it]Mark as Reviewed
+eventid = OBS61999392ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Unhandled error, case skipped: Message: \nStacktrace:\n\tchromedriver!GetHandleVerifier [0xb9a543+103f3]\n\tchromedriver!GetHandleVerifier [0xb9a584+10434]\n\tchromedriver!(No symbol) [0x99a700]\n\tchromedriver!(No symbol) [0x9e3bab]\n\tchromedriver!(No symbol) [0x9e3dcb]\n\tchromedriver!(No symbol) [0xa25b32]\n\tchromedriver!(No symbol) [0xa06114]\n\tchromedriver!(No symbol) [0xa2339a]\n\tchromedriver!(No symbol) [0xa05e66]\n\tchromedriver!(No symbol) [0x9d9159]\n\tchromedriver!(No symbol) [0x9d9f24]\n\tchromedriver!GetHandleVerifier [0xe24bba+29aa6a]\n\tchromedriver!GetHandleVerifier [0xe20119+295fc9]\n\tchromedriver!GetHandleVerifier [0xe4103e+2b6eee]\n\tchromedriver!GetHandleVerifier [0xbb37f6+296a6]\n\tchromedriver!GetHandleVerifier [0xbba91d+307cd]\n\tchromedriver!GetHandleVerifier [0xba2d18+18bc8]\n\tchromedriver!GetHandleVerifier [0xba2ec5+18d75]\n\tchromedriver!GetHandleVerifier [0xb8c05f+1f0f]\n\tKERNEL32!BaseThreadInitThunk [0x768b5d49+19]\n\tntdll!RtlInitializeExceptionChain [0x7785e12b+6b]\n\tntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]\n', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed']
+28it [14:34, 31.66s/it]Mark as Reviewed
+eventid = OBS61999389ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Unhandled error, case skipped: Message: \nStacktrace:\n\tchromedriver!GetHandleVerifier [0xb9a543+103f3]\n\tchromedriver!GetHandleVerifier [0xb9a584+10434]\n\tchromedriver!(No symbol) [0x99a700]\n\tchromedriver!(No symbol) [0x9e3bab]\n\tchromedriver!(No symbol) [0x9e3dcb]\n\tchromedriver!(No symbol) [0xa25b32]\n\tchromedriver!(No symbol) [0xa06114]\n\tchromedriver!(No symbol) [0xa2339a]\n\tchromedriver!(No symbol) [0xa05e66]\n\tchromedriver!(No symbol) [0x9d9159]\n\tchromedriver!(No symbol) [0x9d9f24]\n\tchromedriver!GetHandleVerifier [0xe24bba+29aa6a]\n\tchromedriver!GetHandleVerifier [0xe20119+295fc9]\n\tchromedriver!GetHandleVerifier [0xe4103e+2b6eee]\n\tchromedriver!GetHandleVerifier [0xbb37f6+296a6]\n\tchromedriver!GetHandleVerifier [0xbba91d+307cd]\n\tchromedriver!GetHandleVerifier [0xba2d18+18bc8]\n\tchromedriver!GetHandleVerifier [0xba2ec5+18d75]\n\tchromedriver!GetHandleVerifier [0xb8c05f+1f0f]\n\tKERNEL32!BaseThreadInitThunk [0x768b5d49+19]\n\tntdll!RtlInitializeExceptionChain [0x7785e12b+6b]\n\tntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]\n', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed']
+29it [15:16, 34.72s/it]Mark as Reviewed
+eventid = OBS61999386ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Unhandled error, case skipped: Message: \nStacktrace:\n\tchromedriver!GetHandleVerifier [0xb9a543+103f3]\n\tchromedriver!GetHandleVerifier [0xb9a584+10434]\n\tchromedriver!(No symbol) [0x99a700]\n\tchromedriver!(No symbol) [0x9e3bab]\n\tchromedriver!(No symbol) [0x9e3dcb]\n\tchromedriver!(No symbol) [0xa25b32]\n\tchromedriver!(No symbol) [0xa06114]\n\tchromedriver!(No symbol) [0xa2339a]\n\tchromedriver!(No symbol) [0xa05e66]\n\tchromedriver!(No symbol) [0x9d9159]\n\tchromedriver!(No symbol) [0x9d9f24]\n\tchromedriver!GetHandleVerifier [0xe24bba+29aa6a]\n\tchromedriver!GetHandleVerifier [0xe20119+295fc9]\n\tchromedriver!GetHandleVerifier [0xe4103e+2b6eee]\n\tchromedriver!GetHandleVerifier [0xbb37f6+296a6]\n\tchromedriver!GetHandleVerifier [0xbba91d+307cd]\n\tchromedriver!GetHandleVerifier [0xba2d18+18bc8]\n\tchromedriver!GetHandleVerifier [0xba2ec5+18d75]\n\tchromedriver!GetHandleVerifier [0xb8c05f+1f0f]\n\tKERNEL32!BaseThreadInitThunk [0x768b5d49+19]\n\tntdll!RtlInitializeExceptionChain [0x7785e12b+6b]\n\tntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]\n', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed']
+30it [15:58, 36.87s/it]Saving results: ['OBS62002856ME01', 'OBS62002848ME01', 'OBS62002846ME01', 'OBS62002844ME01', 'OBS62002836ME01', 'OBS62001868ME01', 'OBS62001851ME01', 'OBS62001847ME01', 'OBS62001781ME01', 'OBS62001868ME01 (Update)', 'OBS62001779ME01', 'OBS62000850ME01', 'OBS62000840ME01', 'OBS62000812ME01', 'OBS62000406ME01', 'OBS61999733ME01', 'OBS61999505ME01', 'OBS61999412ME01', 'OBS61999409ME01', 'OBS61999407ME01', 'OBS62002945ME01', 'OBS62002943ME01', 'OBS61999404ME01', 'OBS61999402ME01', 'OBS61999400ME01', 'OBS61999397ME01', 'OBS61999394ME01', 'OBS61999392ME01', 'OBS61999389ME01', 'OBS61999386ME01'], ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Unhandled error, case skipped: Message: \nStacktrace:\n\tchromedriver!GetHandleVerifier [0xb9a543+103f3]\n\tchromedriver!GetHandleVerifier [0xb9a584+10434]\n\tchromedriver!(No symbol) [0x99a700]\n\tchromedriver!(No symbol) [0x9e3bab]\n\tchromedriver!(No symbol) [0x9e3dcb]\n\tchromedriver!(No symbol) [0xa25b32]\n\tchromedriver!(No symbol) [0xa06114]\n\tchromedriver!(No symbol) [0xa2339a]\n\tchromedriver!(No symbol) [0xa05e66]\n\tchromedriver!(No symbol) [0x9d9159]\n\tchromedriver!(No symbol) [0x9d9f24]\n\tchromedriver!GetHandleVerifier [0xe24bba+29aa6a]\n\tchromedriver!GetHandleVerifier [0xe20119+295fc9]\n\tchromedriver!GetHandleVerifier [0xe4103e+2b6eee]\n\tchromedriver!GetHandleVerifier [0xbb37f6+296a6]\n\tchromedriver!GetHandleVerifier [0xbba91d+307cd]\n\tchromedriver!GetHandleVerifier [0xba2d18+18bc8]\n\tchromedriver!GetHandleVerifier [0xba2ec5+18d75]\n\tchromedriver!GetHandleVerifier [0xb8c05f+1f0f]\n\tKERNEL32!BaseThreadInitThunk [0x768b5d49+19]\n\tntdll!RtlInitializeExceptionChain [0x7785e12b+6b]\n\tntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]\n', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed']
+Appending 30 new records to existing file with 20 records
+After removing duplicates: 30 total records
+Results saved to saved/Hepatitis/Hepatitis_bot_activity_final_06_25_2026.xlsx (Total records: 30)
+Set condition to: Hepatitis C, chronic (code selected) and submitted condition form
+Case status=Probable, confirmation method=Laboratory report
+no value ReadText for xpath: //*[@id="successMessages"], retry_number:0
+no value ReadText for xpath: //*[@id="successMessages"], retry_number:1
+no value ReadText for xpath: //*[@id="successMessages"], retry_number:2
+ReadText: all 3 attempts failed for xpath: //*[@id="successMessages"]; returning ''
+Investigation not created, retrying...
+no value ReadText for xpath: //*[@id="successMessages"], retry_number:0
+no value ReadText for xpath: //*[@id="successMessages"], retry_number:1
+no value ReadText for xpath: //*[@id="successMessages"], retry_number:2
+ReadText: all 3 attempts failed for xpath: //*[@id="successMessages"]; returning ''
+Investigation not created, retrying...
+no value ReadText for xpath: //*[@id="successMessages"], retry_number:0
+no value ReadText for xpath: //*[@id="successMessages"], retry_number:1
+no value ReadText for xpath: //*[@id="successMessages"], retry_number:2
+ReadText: all 3 attempts failed for xpath: //*[@id="successMessages"]; returning ''
+Investigation not created, retrying...
+Timeout waiting for create_notification, retry_number: 0
+Timeout waiting for create_notification, retry_number: 1
+Timeout waiting for create_notification, retry_number: 2
+Create Investigation: Hepatitis C, chronic
+eventid = OBS61997901ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Unhandled error, case skipped: Message: \nStacktrace:\n\tchromedriver!GetHandleVerifier [0xb9a543+103f3]\n\tchromedriver!GetHandleVerifier [0xb9a584+10434]\n\tchromedriver!(No symbol) [0x99a700]\n\tchromedriver!(No symbol) [0x9e3bab]\n\tchromedriver!(No symbol) [0x9e3dcb]\n\tchromedriver!(No symbol) [0xa25b32]\n\tchromedriver!(No symbol) [0xa06114]\n\tchromedriver!(No symbol) [0xa2339a]\n\tchromedriver!(No symbol) [0xa05e66]\n\tchromedriver!(No symbol) [0x9d9159]\n\tchromedriver!(No symbol) [0x9d9f24]\n\tchromedriver!GetHandleVerifier [0xe24bba+29aa6a]\n\tchromedriver!GetHandleVerifier [0xe20119+295fc9]\n\tchromedriver!GetHandleVerifier [0xe4103e+2b6eee]\n\tchromedriver!GetHandleVerifier [0xbb37f6+296a6]\n\tchromedriver!GetHandleVerifier [0xbba91d+307cd]\n\tchromedriver!GetHandleVerifier [0xba2d18+18bc8]\n\tchromedriver!GetHandleVerifier [0xba2ec5+18d75]\n\tchromedriver!GetHandleVerifier [0xb8c05f+1f0f]\n\tKERNEL32!BaseThreadInitThunk [0x768b5d49+19]\n\tntdll!RtlInitializeExceptionChain [0x7785e12b+6b]\n\tntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]\n', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Create Investigation: Hepatitis C, chronic']
+31it [22:09, 137.32s/it]More than one test in ELR
+eventid = OBS61995209ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Unhandled error, case skipped: Message: \nStacktrace:\n\tchromedriver!GetHandleVerifier [0xb9a543+103f3]\n\tchromedriver!GetHandleVerifier [0xb9a584+10434]\n\tchromedriver!(No symbol) [0x99a700]\n\tchromedriver!(No symbol) [0x9e3bab]\n\tchromedriver!(No symbol) [0x9e3dcb]\n\tchromedriver!(No symbol) [0xa25b32]\n\tchromedriver!(No symbol) [0xa06114]\n\tchromedriver!(No symbol) [0xa2339a]\n\tchromedriver!(No symbol) [0xa05e66]\n\tchromedriver!(No symbol) [0x9d9159]\n\tchromedriver!(No symbol) [0x9d9f24]\n\tchromedriver!GetHandleVerifier [0xe24bba+29aa6a]\n\tchromedriver!GetHandleVerifier [0xe20119+295fc9]\n\tchromedriver!GetHandleVerifier [0xe4103e+2b6eee]\n\tchromedriver!GetHandleVerifier [0xbb37f6+296a6]\n\tchromedriver!GetHandleVerifier [0xbba91d+307cd]\n\tchromedriver!GetHandleVerifier [0xba2d18+18bc8]\n\tchromedriver!GetHandleVerifier [0xba2ec5+18d75]\n\tchromedriver!GetHandleVerifier [0xb8c05f+1f0f]\n\tKERNEL32!BaseThreadInitThunk [0x768b5d49+19]\n\tntdll!RtlInitializeExceptionChain [0x7785e12b+6b]\n\tntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]\n', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Create Investigation: Hepatitis C, chronic', 'Skip, more than one test in ELR']
+1    SNYDER, BRANDON  Patient ID: 759555 Male 12/18...
+Name: Patient, dtype: object
+32it [22:46, 107.17s/it]More than one test in ELR
+eventid = OBS61995266ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Unhandled error, case skipped: Message: \nStacktrace:\n\tchromedriver!GetHandleVerifier [0xb9a543+103f3]\n\tchromedriver!GetHandleVerifier [0xb9a584+10434]\n\tchromedriver!(No symbol) [0x99a700]\n\tchromedriver!(No symbol) [0x9e3bab]\n\tchromedriver!(No symbol) [0x9e3dcb]\n\tchromedriver!(No symbol) [0xa25b32]\n\tchromedriver!(No symbol) [0xa06114]\n\tchromedriver!(No symbol) [0xa2339a]\n\tchromedriver!(No symbol) [0xa05e66]\n\tchromedriver!(No symbol) [0x9d9159]\n\tchromedriver!(No symbol) [0x9d9f24]\n\tchromedriver!GetHandleVerifier [0xe24bba+29aa6a]\n\tchromedriver!GetHandleVerifier [0xe20119+295fc9]\n\tchromedriver!GetHandleVerifier [0xe4103e+2b6eee]\n\tchromedriver!GetHandleVerifier [0xbb37f6+296a6]\n\tchromedriver!GetHandleVerifier [0xbba91d+307cd]\n\tchromedriver!GetHandleVerifier [0xba2d18+18bc8]\n\tchromedriver!GetHandleVerifier [0xba2ec5+18d75]\n\tchromedriver!GetHandleVerifier [0xb8c05f+1f0f]\n\tKERNEL32!BaseThreadInitThunk [0x768b5d49+19]\n\tntdll!RtlInitializeExceptionChain [0x7785e12b+6b]\n\tntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]\n', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Create Investigation: Hepatitis C, chronic', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR']
+2    Cunningham, Christopher  Patient ID: 16917707 ...
+Name: Patient, dtype: object
+33it [23:20, 85.07s/it] Set condition to: Hepatitis C, chronic (code selected) and submitted condition form
+Case status=Probable, confirmation method=Laboratory report
+no value ReadText for xpath: //*[@id="successMessages"], retry_number:0
+no value ReadText for xpath: //*[@id="successMessages"], retry_number:1
+no value ReadText for xpath: //*[@id="successMessages"], retry_number:2
+ReadText: all 3 attempts failed for xpath: //*[@id="successMessages"]; returning ''
+Investigation not created, retrying...
+no value ReadText for xpath: //*[@id="successMessages"], retry_number:0
+no value ReadText for xpath: //*[@id="successMessages"], retry_number:1
+no value ReadText for xpath: //*[@id="successMessages"], retry_number:2
+ReadText: all 3 attempts failed for xpath: //*[@id="successMessages"]; returning ''
+Investigation not created, retrying...
+no value ReadText for xpath: //*[@id="successMessages"], retry_number:0
+Message: invalid session id: session deleted as the browser has closed the connection
+from disconnected: not connected to DevTools
+  (Session info: chrome=149.0.7827.116)
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a700]
+	chromedriver!(No symbol) [0x98999e]
+	chromedriver!(No symbol) [0x9a8079]
+	chromedriver!(No symbol) [0xa0c64c]
+	chromedriver!(No symbol) [0xa22df9]
+	chromedriver!(No symbol) [0xa05e66]
+	chromedriver!(No symbol) [0x9d9159]
+	chromedriver!(No symbol) [0x9d9f24]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!GetHandleVerifier [0xba2d18+18bc8]
+	chromedriver!GetHandleVerifier [0xba2ec5+18d75]
+	chromedriver!GetHandleVerifier [0xb8c05f+1f0f]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+ has occured for create_notification, retry_number: 0
+Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+ has occured for create_notification, retry_number: 1
+Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+ has occured for create_notification, retry_number: 2
+Create Investigation: Hepatitis C, chronic
+eventid = OBS61995136ME01 and action = ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Unhandled error, case skipped: Message: \nStacktrace:\n\tchromedriver!GetHandleVerifier [0xb9a543+103f3]\n\tchromedriver!GetHandleVerifier [0xb9a584+10434]\n\tchromedriver!(No symbol) [0x99a700]\n\tchromedriver!(No symbol) [0x9e3bab]\n\tchromedriver!(No symbol) [0x9e3dcb]\n\tchromedriver!(No symbol) [0xa25b32]\n\tchromedriver!(No symbol) [0xa06114]\n\tchromedriver!(No symbol) [0xa2339a]\n\tchromedriver!(No symbol) [0xa05e66]\n\tchromedriver!(No symbol) [0x9d9159]\n\tchromedriver!(No symbol) [0x9d9f24]\n\tchromedriver!GetHandleVerifier [0xe24bba+29aa6a]\n\tchromedriver!GetHandleVerifier [0xe20119+295fc9]\n\tchromedriver!GetHandleVerifier [0xe4103e+2b6eee]\n\tchromedriver!GetHandleVerifier [0xbb37f6+296a6]\n\tchromedriver!GetHandleVerifier [0xbba91d+307cd]\n\tchromedriver!GetHandleVerifier [0xba2d18+18bc8]\n\tchromedriver!GetHandleVerifier [0xba2ec5+18d75]\n\tchromedriver!GetHandleVerifier [0xb8c05f+1f0f]\n\tKERNEL32!BaseThreadInitThunk [0x768b5d49+19]\n\tntdll!RtlInitializeExceptionChain [0x7785e12b+6b]\n\tntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]\n', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Create Investigation: Hepatitis C, chronic', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Create Investigation: Hepatitis C, chronic']
+go_to_home: could not recover a live window: Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+
+[audrey] Unhandled error on this case; skipping it (consecutive=1): Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+
+Traceback (most recent call last):
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\audrey_files\audrey_bot.py", line 2041, in start_audrey
+    NBS.go_to_home()
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\Base.py", line 803, in go_to_home
+    self.dismiss_block_overlay()
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\Base.py", line 770, in dismiss_block_overlay
+    WebDriverWait(self, timeout).until(
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\support\wait.py", line 96, in until
+    value = method(self._driver)
+            ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\support\expected_conditions.py", line 325, in _predicate
+    target = driver.find_element(*target)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 770, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.InvalidSessionIdException: Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+
+[audrey] recovery navigation to Home failed: Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+
+34it [26:51, 122.94s/it]Error opening review queue: Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+; retry_number: 0
+Error opening review queue: Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+; retry_number: 1
+Error opening review queue: Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+; retry_number: 2
+Could not open the review queue after 3 tries; resetting to Home and retrying pass.
+go_to_home: could not recover a live window: Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+
+[audrey] Unhandled error on this case; skipping it (consecutive=2): Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+
+Traceback (most recent call last):
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\audrey_files\audrey_bot.py", line 226, in start_audrey
+    NBS.go_to_home()
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\Base.py", line 803, in go_to_home
+    self.dismiss_block_overlay()
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\Base.py", line 770, in dismiss_block_overlay
+    WebDriverWait(self, timeout).until(
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\support\wait.py", line 96, in until
+    value = method(self._driver)
+            ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\support\expected_conditions.py", line 325, in _predicate
+    target = driver.find_element(*target)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 770, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.InvalidSessionIdException: Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+
+[audrey] recovery navigation to Home failed: Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+
+35it [27:00, 88.76s/it] Error opening review queue: Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+; retry_number: 0
+Error opening review queue: Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+; retry_number: 1
+Error opening review queue: Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+; retry_number: 2
+Could not open the review queue after 3 tries; resetting to Home and retrying pass.
+go_to_home: could not recover a live window: Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+
+[audrey] Unhandled error on this case; skipping it (consecutive=3): Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+
+Traceback (most recent call last):
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\audrey_files\audrey_bot.py", line 226, in start_audrey
+    NBS.go_to_home()
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\Base.py", line 803, in go_to_home
+    self.dismiss_block_overlay()
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\Base.py", line 770, in dismiss_block_overlay
+    WebDriverWait(self, timeout).until(
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\support\wait.py", line 96, in until
+    value = method(self._driver)
+            ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\support\expected_conditions.py", line 325, in _predicate
+    target = driver.find_element(*target)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 770, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.InvalidSessionIdException: Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+
+[audrey] recovery navigation to Home failed: Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+
+36it [27:09, 64.88s/it]Error opening review queue: Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+; retry_number: 0
+Error opening review queue: Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+; retry_number: 1
+Error opening review queue: Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+; retry_number: 2
+Could not open the review queue after 3 tries; resetting to Home and retrying pass.
+go_to_home: could not recover a live window: Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+
+[audrey] Unhandled error on this case; skipping it (consecutive=4): Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+
+Traceback (most recent call last):
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\audrey_files\audrey_bot.py", line 226, in start_audrey
+    NBS.go_to_home()
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\Base.py", line 803, in go_to_home
+    self.dismiss_block_overlay()
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\Base.py", line 770, in dismiss_block_overlay
+    WebDriverWait(self, timeout).until(
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\support\wait.py", line 96, in until
+    value = method(self._driver)
+            ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\support\expected_conditions.py", line 325, in _predicate
+    target = driver.find_element(*target)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 770, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.InvalidSessionIdException: Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+
+[audrey] recovery navigation to Home failed: Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+
+37it [27:18, 48.12s/it]Error opening review queue: Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+; retry_number: 0
+Error opening review queue: Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+; retry_number: 1
+Error opening review queue: Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+; retry_number: 2
+Could not open the review queue after 3 tries; resetting to Home and retrying pass.
+go_to_home: could not recover a live window: Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+
+[audrey] Unhandled error on this case; skipping it (consecutive=5): Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+
+Traceback (most recent call last):
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\audrey_files\audrey_bot.py", line 226, in start_audrey
+    NBS.go_to_home()
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\Base.py", line 803, in go_to_home
+    self.dismiss_block_overlay()
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\Base.py", line 770, in dismiss_block_overlay
+    WebDriverWait(self, timeout).until(
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\support\wait.py", line 96, in until
+    value = method(self._driver)
+            ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\support\expected_conditions.py", line 325, in _predicate
+    target = driver.find_element(*target)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 770, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+  File "C:\Users\caleb.jones\Repos\NBS REPOS\NBS_Basebot\env\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.InvalidSessionIdException: Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0xb9a543+103f3]
+	chromedriver!GetHandleVerifier [0xb9a584+10434]
+	chromedriver!(No symbol) [0x99a53e]
+	chromedriver!(No symbol) [0x9d83e7]
+	chromedriver!(No symbol) [0xa05f86]
+	chromedriver!(No symbol) [0xa01192]
+	chromedriver!(No symbol) [0xa00b71]
+	chromedriver!(No symbol) [0x96db2e]
+	chromedriver!(No symbol) [0x96e0ce]
+	chromedriver!(No symbol) [0x96e5ad]
+	chromedriver!GetHandleVerifier [0xe24bba+29aa6a]
+	chromedriver!GetHandleVerifier [0xe20119+295fc9]
+	chromedriver!GetHandleVerifier [0xe4103e+2b6eee]
+	chromedriver!GetHandleVerifier [0xbb37f6+296a6]
+	chromedriver!GetHandleVerifier [0xbba91d+307cd]
+	chromedriver!(No symbol) [0x96d6a6]
+	chromedriver!(No symbol) [0x96cd02]
+	chromedriver!GetHandleVerifier [0xf8be1f+401ccf]
+	KERNEL32!BaseThreadInitThunk [0x768b5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x7785e12b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]
+
+[audrey] 5 consecutive unhandled errors (NBS likely down or the session is dead); ending this pass.
+37it [27:24, 44.45s/it]
+Successfully sent Daily Bot Run Notification.
+sent daily bot run notification
+collected female handled epi ids: ['OBS62000850ME01', 'OBS62000840ME01']
+Successfully sent Hepatitis Manual Review email.
+34
+34
+Saving results: ['OBS62002856ME01', 'OBS62002848ME01', 'OBS62002846ME01', 'OBS62002844ME01', 'OBS62002836ME01', 'OBS62001868ME01', 'OBS62001851ME01', 'OBS62001847ME01', 'OBS62001781ME01', 'OBS62001868ME01 (Update)', 'OBS62001779ME01', 'OBS62000850ME01', 'OBS62000840ME01', 'OBS62000812ME01', 'OBS62000406ME01', 'OBS61999733ME01', 'OBS61999505ME01', 'OBS61999412ME01', 'OBS61999409ME01', 'OBS61999407ME01', 'OBS62002945ME01', 'OBS62002943ME01', 'OBS61999404ME01', 'OBS61999402ME01', 'OBS61999400ME01', 'OBS61999397ME01', 'OBS61999394ME01', 'OBS61999392ME01', 'OBS61999389ME01', 'OBS61999386ME01', 'OBS61997901ME01', 'OBS61995209ME01', 'OBS61995266ME01', 'OBS61995136ME01'], ['Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Unhandled error, case skipped: Message: \nStacktrace:\n\tchromedriver!GetHandleVerifier [0xb9a543+103f3]\n\tchromedriver!GetHandleVerifier [0xb9a584+10434]\n\tchromedriver!(No symbol) [0x99a700]\n\tchromedriver!(No symbol) [0x9e3bab]\n\tchromedriver!(No symbol) [0x9e3dcb]\n\tchromedriver!(No symbol) [0xa25b32]\n\tchromedriver!(No symbol) [0xa06114]\n\tchromedriver!(No symbol) [0xa2339a]\n\tchromedriver!(No symbol) [0xa05e66]\n\tchromedriver!(No symbol) [0x9d9159]\n\tchromedriver!(No symbol) [0x9d9f24]\n\tchromedriver!GetHandleVerifier [0xe24bba+29aa6a]\n\tchromedriver!GetHandleVerifier [0xe20119+295fc9]\n\tchromedriver!GetHandleVerifier [0xe4103e+2b6eee]\n\tchromedriver!GetHandleVerifier [0xbb37f6+296a6]\n\tchromedriver!GetHandleVerifier [0xbba91d+307cd]\n\tchromedriver!GetHandleVerifier [0xba2d18+18bc8]\n\tchromedriver!GetHandleVerifier [0xba2ec5+18d75]\n\tchromedriver!GetHandleVerifier [0xb8c05f+1f0f]\n\tKERNEL32!BaseThreadInitThunk [0x768b5d49+19]\n\tntdll!RtlInitializeExceptionChain [0x7785e12b+6b]\n\tntdll!RtlGetAppContainerNamedObjectPath [0x7785e0b1+231]\n', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Female patient between 14-49, EOC assign out for investigation to Field Epi as Hepatitis C, chronic', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Mark as Reviewed', 'Create Investigation: Hepatitis C, chronic', 'Skip, more than one test in ELR', 'Skip, more than one test in ELR', 'Create Investigation: Hepatitis C, chronic']
+Appending 34 new records to existing file with 30 records
+After removing duplicates: 34 total records
+Results saved to saved/Hepatitis/Hepatitis_bot_activity_final_06_25_2026.xlsx (Total records: 34)
+Excel file created
