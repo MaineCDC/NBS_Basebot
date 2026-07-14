@@ -89,6 +89,8 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
     NBS.get_patient_table()
     NBS.pause_for_database()
 
+    NBS.SendEmailToStartAudrey()
+    
     def is_this_each_js_error(exc):
         return 'this.each is not a function' in str(exc)
 
@@ -1758,15 +1760,15 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
                     #WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[30]/td[2]/input')))
                     NBS.find_element(By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[30]/td[2]/input').send_keys("Yes")
                     if resulted_test_table["Coded Result / Organism Name"].iloc[0] != "":
-                        if pd.isna(resulted_test_table["Coded Result / Organism Name"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
-                            genotype = resulted_test_table["Coded Result / Organism Name"].str.extract(r'(\d+)').loc[0,0]
-                        elif not pd.isna(resulted_test_table["Coded Result / Organism Name"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
-                            genotype = resulted_test_table["Coded Result / Organism Name"].str.extract(r'(\d+[A-Za-z])').loc[0,0]
+                        if pd.isna(resulted_test_table["Coded Result / Organism Name"].astype(str).str.extract(r'(\d+[A-Za-z])').loc[0,0]):
+                            genotype = resulted_test_table["Coded Result / Organism Name"].astype(str).str.extract(r'(\d+)').loc[0,0]
+                        elif not pd.isna(resulted_test_table["Coded Result / Organism Name"].astype(str).str.extract(r'(\d+[A-Za-z])').loc[0,0]):
+                            genotype = resulted_test_table["Coded Result / Organism Name"].astype(str).str.extract(r'(\d+[A-Za-z])').loc[0,0]
                     elif resulted_test_table["Text Result"].iloc[0] != "":
-                        if pd.isna(resulted_test_table["Text Result"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
-                            genotype = resulted_test_table["Text Result"].str.extract(r'(\d+)').loc[0,0]
-                        elif not pd.isna(resulted_test_table["Text Result"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
-                            genotype = resulted_test_table["Text Result"].str.extract(r'(\d+[A-Za-z])').loc[0,0]
+                        if pd.isna(resulted_test_table["Text Result"].astype(str).str.extract(r'(\d+[A-Za-z])').loc[0,0]):
+                            genotype = resulted_test_table["Text Result"].astype(str).str.extract(r'(\d+)').loc[0,0]
+                        elif not pd.isna(resulted_test_table["Text Result"].astype(str).str.extract(r'(\d+[A-Za-z])').loc[0,0]):
+                            genotype = resulted_test_table["Text Result"].astype(str).str.extract(r'(\d+[A-Za-z])').loc[0,0]
                     if genotype is not None:
                         NBS.find_element(By.XPATH, '//*[@id="ME121011"]').send_keys(genotype)
             '''if alt_lab is not None:
@@ -1834,11 +1836,15 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
             try:
                 anc = NBS.find_element(By.XPATH,f"//td[contains(text(),'{event_id.split()[0]}')]/../td/a") #possible index error
                 anc.click()
-            except ElementNotInteractableException:
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="tabs0head0"]')))
-                NBS.find_element(By.XPATH, '//*[@id="tabs0head0"]').click()
-                anc = NBS.find_element(By.XPATH,f"//td[contains(text(),'{event_id.split()[0]}')]/../td/a") #possible index error
-                anc.click()
+            except (ElementNotInteractableException, NoSuchElementException) as e:
+                try:
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="tabs0head0"]')))
+                    NBS.find_element(By.XPATH, '//*[@id="tabs0head0"]').click()
+                    anc = NBS.find_element(By.XPATH,f"//td[contains(text(),'{event_id.split()[0]}')]/../td/a") #possible index error
+                    anc.click()
+                except NoSuchElementException:
+                    print(f"[audrey] WARNING: Could not find case {event_id.split()[0]} in audit table, skipping...")
+                    continue
                 
         #update investigation to acute if ALT > 200 and there is a closed chronic Hep C investigation, update if there is a Hep acute and there is a negative RNA test
         elif update_inv_type == True:

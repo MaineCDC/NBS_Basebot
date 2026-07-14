@@ -958,6 +958,29 @@ class Audrey(NBSdriver):
             self.go_to_home()
             sleep(1200)
             self.go_to_home()
+    
 
+    def SendEmailToStartAudrey(self):
+        body = f"""
+    Hello,
+
+    The Audrey bot has started running.
+
+    Start Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+
+    The bot is now ready to begin processing cases.
+
+    Regards,
+    NBS Bot
+    """
+
+        self.send_smtp_email(
+            "vaishnavi.appidi@maine.gov",
+            "REPORT: NBSbot (Audrey Notification) AKA Audrey",
+            body,
+            "Audrey bot started running"
+        )
+
+        print("Sent startup email for Audrey bot.")
 if __name__ == "__main__":
     NBS = Audrey(production=True)
