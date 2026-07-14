@@ -232,7 +232,7 @@ def start_anaplasma(username, passcode, login_complete: Event = None, is_logged_
                 consecutive_no_case_attempts = 0
                 
                 NBS.GoToNCaseInApprovalQueue(n)
-                print(f"navigated to {n or "first"} case in queue", "current_iteration:", loop.n)
+                print(f"navigated to {n or 'first'} case in queue", "current_iteration:", loop.n)
                 if NBS.queue_loaded:
                     NBS.queue_loaded = None
                     continue
