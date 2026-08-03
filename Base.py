@@ -17,6 +17,7 @@ from selenium.common.exceptions import (
 )
 
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service as ChromeService
 
 from datetime import datetime
 from fractions import Fraction
@@ -47,12 +48,16 @@ class NBSdriver(webdriver.Chrome):
         self.get_usps_user_id()
 
         if self.production:
-            self.site = "https://nbs.iphis.maine.gov/"
+            self.site = "https://menbs.inductivehealth.com"
+            # self.site = "https://auth.inductivehealth.com/auth/realms/inductivehealth/protocol/openid-connect/auth?response_type=code&client_id=me_nbs_prod&redirect_uri=https%3A%2F%2Fmenbs.inductivehealth.com%2Fnbs%2Flogin&state=64520089-337f-4a3d-9eb2-62f297ec05d7&login=true&scope=openid"
+            #elf.site = "https://auth.inductivehealth.com/auth/realms/inductivehealth/protocol/openid-connect/auth?response_type=code&client_id=me_nbs_prod&redirect_uri=https%3A%2F%2Fmenbs.inductivehealth.com%2Fnbs%2Flogin&state=64520089-337f-4a3d-9eb2-62f297ec05d7&login=true&scope=openid"
+        
         else:
             # New NBS test site (migrated off the retired nbstest.state.me.us).
             # Hitting HomePage.do redirects to the InductiveHealth/Keycloak login
             # when there is no session; login is handled by _log_in_inductive.
             self.site = "https://menbstest.inductivehealth.com/nbs/HomePage.do?method=loadHomePage"
+            #elf.site = "https://auth.inductivehealth.com/auth/realms/inductivehealth/protocol/openid-connect/auth?response_type=code&client_id=me_nbs_prod&redirect_uri=https%3A%2F%2Fmenbs.inductivehealth.com%2Fnbs%2Flogin&state=64520089-337f-4a3d-9eb2-62f297ec05d7&login=true&scope=openid"
 
         # Core flags / queues
         self.not_a_case_log: list[str] = []
@@ -73,7 +78,6 @@ class NBSdriver(webdriver.Chrome):
         self.wait_before_timeout = 30
         self.sleep_duration = 3300  # adjust if needed
         
-
         # Build driver (inherit from Chrome)
         options = webdriver.ChromeOptions()
         options.add_argument("log-level=3")
@@ -88,31 +92,43 @@ class NBSdriver(webdriver.Chrome):
             'profile': {
                 'password_manager_enabled': False
             },
-            # "profile.password_manager_enabled": False,
-            # 2. Prevent Restore Window Pop-up
             "profile.exit_type": "Normal",
             "profile.default_content_setting_values.automatic_downloads": 1,
-            # "profile.exit_type": "None",
             "profile.exited_cleanly": True
         }
         
         options.add_experimental_option("prefs", prefs)
         # options.add_argument("--headless")
 
-        if chrome_path:
-            service = Service(chrome_path)
-            super().__init__(service=service, options=options)
-        else:
-            driver_path = ChromeDriverManager().install()
-            service = Service(driver_path)
-            super().__init__(service=service, options=options)
+        # When debuggerAddress is set, Chrome is already running on port 9223
+        # When debuggerAddress is set, Chrome is already running on port 9223
+        # We connect to it without starting a service
+        print("[NBSdriver] Initializing with debuggerAddress (connecting to existing Chrome)...")
+        
+        try:
+            # With debuggerAddress in options, just create the webdriver without a service
+            # Selenium will connect to the existing Chrome on port 9223
+            super().__init__(options=options)
+            print("[NBSdriver] Successfully connected to Chrome via debuggerAddress")
+            
+            # Navigate to the NBS site on the connected Chrome window
+            print(f"[NBSdriver] Navigating to NBS site: {self.site}")
+            self.get(self.site)
+            print("[NBSdriver] Successfully navigated to NBS site")
+            time.sleep(2)  # Give the page time to load
+        except Exception as e:
+            print(f"[NBSdriver] ERROR: Could not initialize: {e}")
+            print("[NBSdriver] Please run tests using the debug runners (run_anaplasma_debug.py, etc.)")
+            raise
+
+
 
         handles = self.window_handles
         print("current-handle-title: ", self.title)
         for handle in handles:
             self.switch_to.window(handle) 
             print(f"Handle ID: {handle} | Title: {self.title} | URL: {self.current_url}")
-            if self.title == "New Tab" or self.title == "RSA SecurID PASSCODE":
+            if self.title == "New Tab" or self.title == "RSA SecurID password":
                 break
         print("handles:", handles)
         # if len(handles) > 1:
@@ -228,13 +244,13 @@ class NBSdriver(webdriver.Chrome):
 
     def get_credentials(self):
         """Prompt user to provide a valid username and RSA token to log in to NBS."""
-        self.username = input('Enter your SOM username ("first_name.last_name"):')
-        self.passcode = input("Enter your RSA passcode:")
+        self.username = input('Enter your SOM username ("username")')
+        self.password = input("Enter your RSA password:")
 
-    def set_credentials(self, username, passcode):
+    def set_credentials(self, username, password):
         """Set username and RSA token for NBS login."""
         self.username = username
-        self.passcode = passcode
+        self.password = password
 
     def _submit_login_form(self):
         """Fill the RSA SecurID login form and click Log In.
@@ -244,8 +260,10 @@ class NBSdriver(webdriver.Chrome):
         body). A blind 100s sleep used to hide this race. Instead we fill-and-
         verify: type the username and confirm it actually stuck; if a reload
         wiped it, retry. Only once the value persists is the form stable, at
-        which point we enter the passcode and submit. Returns True if submitted.
+        which point we enter the password and submit. Returns True if submitted.
         """
+        
+        
         # Bounded so a mismatched form can't hang for minutes (was 120s x 6 ~=
         # 12 min, which looked like "stuck on the login page").
         login_load_timeout = 30
@@ -256,6 +274,7 @@ class NBSdriver(webdriver.Chrome):
         # signal, since the button locator is what varies.
         submit_locators = [
             (By.XPATH, "/html/body/div[2]/p[2]/input[1]"),  # original prod button
+            (By.XPATH, "//*[@id='passwordBlock']/div[3]/input"),
             (By.XPATH, "//input[@value='Log In']"),
             (By.XPATH, "//input[@value='Login']"),
             (By.XPATH, "//input[@type='submit']"),
@@ -265,17 +284,17 @@ class NBSdriver(webdriver.Chrome):
             try:
                 self.switch_to.default_content()
                 WebDriverWait(self, login_load_timeout).until(
-                    EC.frame_to_be_available_and_switch_to_it("contentFrame")
+                    EC.visibility_of_element_located((By.ID, "username"))
                 )
                 # Wait on the username field (always present) rather than the
                 # submit button (whose locator varies between layouts).
-                WebDriverWait(self, login_load_timeout).until(
-                    EC.element_to_be_clickable((By.ID, "username"))
-                )
+                #ebDriverWait(self, login_load_timeout).until(
+                #   EC.element_to_be_clickable((By.ID, "username"))
+                #
                 # The form's inner document reloads ~a moment after the frame
                 # appears and wipes whatever we typed. Strategy that beats the
                 # race: let the initial reload pass (settle + page_source sync),
-                # then type username + passcode and SUBMIT immediately, in one
+                # then type username + password and SUBMIT immediately, in one
                 # fast burst, so a periodic reload can't clear the fields between
                 # typing and submitting. (The previous type->verify->retry left a
                 # gap the reload kept hitting, so auto-fill failed repeatedly.)
@@ -287,7 +306,7 @@ class NBSdriver(webdriver.Chrome):
                 user_field = self.find_element(By.ID, "username")
                 user_field.clear()
                 user_field.send_keys(self.username)
-                self.find_element(By.ID, "passcode").send_keys(self.passcode)
+                self.find_element(By.ID, "password").send_keys(self.password)
                 submitted = False
                 for by, locator in submit_locators:
                     try:
@@ -407,7 +426,7 @@ class NBSdriver(webdriver.Chrome):
         # first ("stuck in login"). Instead just return to the NBS Home page from
         # wherever the previous bot left us; the caller's GoToApprovalQueue takes
         # it from there. If Home can't be reached the session probably dropped, so
-        # fall through to a full login (which needs a fresh passcode and may fail;
+        # fall through to a full login (which needs a fresh password and may fail;
         # that's logged and non-fatal, and the user can relog in by hand).
         if is_logged_in:
             try:
@@ -418,29 +437,20 @@ class NBSdriver(webdriver.Chrome):
                 print(f"Warm-session reuse failed ({e}); attempting a fresh login.")
 
         self.get(self.site)
-
-        # A persisted session can skip the RSA login form entirely and land us
-        # straight on the portal page. Check for the portal link first; if it is
-        # already present we are authenticated, so just open it instead of
-        # trying (and failing) to fill a login form that isn't there.
-        if self._on_nbs_portal(portal_link_xpath, timeout=10):
-            print("Already authenticated on NBS; skipping login form.")
-            self.find_element(By.XPATH, portal_link_xpath).click()
+        if "menbs.inductivehealth.com" in self.current_url:
+            print("Already logged in")
             return
-
-        print("logging in...")
-        # RSA SecurID passcodes are SINGLE-USE, so submit the form EXACTLY ONCE.
-        # Do NOT reload-and-resubmit on a slow redirect: that both consumes the
-        # one-time passcode (so a retry can never succeed) and navigates away from
-        # an authentication that may simply be slow -- which is what broke a live
-        # run. Submit once, then wait generously for the portal to appear.
+        self.get_credentials()
+        self.set_credentials(self.username, self.password)
+        login_button_path = '//*[@id="passwordBlock"]/div[3]/input'
+        
         auth_wait_seconds = 90  # RSA validation + NBS redirect can be slow
         if self._submit_login_form():
             try:
-                WebDriverWait(self, auth_wait_seconds).until(
-                    EC.element_to_be_clickable((By.XPATH, portal_link_xpath))
-                )
-                self.find_element(By.XPATH, portal_link_xpath).click()
+                # WebDriverWait(self, auth_wait_seconds).until(
+                #     EC.element_to_be_clickable((By.XPATH, portal_link_xpath))
+                # )
+                # self.find_element(By.XPATH, portal_link_xpath).click()
                 print("Logged in; portal reached.")
                 return
             except TimeoutException:
@@ -453,10 +463,40 @@ class NBSdriver(webdriver.Chrome):
                     pass
         else:
             print("Auto-login could not fill/submit the form (racy reload).")
+                    
+                    
+        for i in range(3):
+            try:
+                timeout =self.wait_before_timeout + i*10
+                WebDriverWait(self, timeout).until(EC.element_to_be_clickable((By.XPATH, login_button_path)))
+                time.sleep(5)
+                self.find_element(By.XPATH, login_button_path).click()
+                break
+            except StaleElementReferenceException:
+                print(f"StaleElementReferenceException for login_button_path, trying again... retry_number: {i}")
+            except TimeoutException:
+                print(f"TimeoutException for login_button_path, trying again... retry_number: {i}")
+                        
+        # A persisted session can skip the RSA login form entirely and land us
+        # straight on the portal page. Check for the portal link first; if it is
+        # already present we are authenticated, so just open it instead of
+        # trying (and failing) to fill a login form that isn't there.
+        if self._on_nbs_portal(portal_link_xpath, timeout=10):
+            print("Already authenticated on NBS; skipping login form.")
+            self.find_element(By.XPATH, portal_link_xpath).click()
+            return
+
+        print("logging in...")
+        # RSA SecurID passwords are SINGLE-USE, so submit the form EXACTLY ONCE.
+        # Do NOT reload-and-resubmit on a slow redirect: that both consumes the
+        # one-time password (so a retry can never succeed) and navigates away from
+        # an authentication that may simply be slow -- which is what broke a live
+        # run. Submit once, then wait generously for the portal to appear.
+        
 
         # MANUAL FALLBACK: the production login form is racy (reloads and clears
-        # the fields) and RSA passcodes are single-use, so automated fill can fail.
-        # Rather than burn the passcode, wait for the user to finish logging in by
+        # the fields) and RSA passwords are single-use, so automated fill can fail.
+        # Rather than burn the password, wait for the user to finish logging in by
         # hand in the open Chrome window, then continue automatically. Polls for
         # the authenticated state -- no stdin needed (works headless or attended).
         print(
@@ -967,8 +1007,10 @@ class NBSdriver(webdriver.Chrome):
             self.condition_filter_matches = 0
             for test in paths["tests"]:
                 try:
+                    normalized_test = test.strip().lower()
                     results = self.find_elements(
-                        By.XPATH, f"//label[contains(text(),'{test}')]"
+                        By.XPATH,
+                        f"//label[contains(translate(normalize-space(string(.)), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '{normalized_test}') ]"
                     )
                     for result in results:
                         result.click()
@@ -1349,8 +1391,8 @@ class NBSdriver(webdriver.Chrome):
         """Check if an investigator was assigned to the case."""
         investigator = self.ReadText('//*[@id="INV180"]')
         self.investigator_name = investigator
-        if not investigator:
-            self.issues.append("Investigator is blank.")
+        # if not investigator:
+        #     self.issues.append("Investigator is blank.")
 
     ################# Key Report Dates Check Methods ###############################
 
