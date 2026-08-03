@@ -14,9 +14,6 @@ def error_handle(func):
             print(f"!!! Error also logged to error_logs.txt !!!\n")
             with open("error_logs.txt", "a") as log:
                 log.write(
-    f"saved/{datetime.now().date().strftime('%m_%d_%Y')} - "
-    f"{datetime.now().time()} | "
-    f"{func.__name__.replace('start_', '')} - "
-    f"{str(tb)}\n"
+    f'saved/{datetime.now().date().strftime("%m_%d_%Y")} - {datetime.now().time()} | {func.__name__.replace("start_", "")} - {str(tb)}\n'
 )
     return wrapper_error_handle

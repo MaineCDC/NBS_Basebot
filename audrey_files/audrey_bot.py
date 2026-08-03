@@ -305,7 +305,7 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
                 print(f"{e} has occured for clear_checkbox, retry_number: {i}")
         
         #select all hepatitis tests
-        tests =  ["HCV","Hep", "HEP", "HAV", "HBV","Alanine", "ALT"]  #"HCV","Hep", "HEP", "HAV", "HBV","Alanine", "ALT"
+        tests =  ["HEPATITIS C RNA-PCR"]  #"HCV","Hep", "HEP", "HAV", "HBV","Alanine", "ALT"
         clicked_labels = []
         for test in tests:
             results = NBS.find_elements(By.XPATH,f"//label[contains(text(),'{test}')]")
@@ -441,6 +441,7 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
             continue
         
         #grab the patients age, if younger the 3 years do not continue
+        '''no_bod = false
         for i in range(3):
             try:
                 pat_dob_elem = NBS.find_element(By.XPATH, '//*[@id="Dob"]')
@@ -450,7 +451,38 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
                 break
             except NoSuchElementException as e:
                 print(f"No patient DOB found  retrying {i}")
+        if no_bod:
+            NBS.go_to_home()
+            what_do.append("no date of birth for patient, skip")
+            print(f"eventid = {event_id} and action = {what_do}")
+            hist[event_id].append("no date of birth for patient, skip")
+            continue'''
         
+        no_dob = False
+
+        for i in range(3):
+            try:
+                pat_dob_elem = NBS.find_element(By.XPATH, '//*[@id="Dob"]')
+                pat_dob_text = pat_dob_elem.text.strip()
+
+                matches = re.findall(r'\b\d{2}/\d{2}/\d{4}\b', pat_dob_text)
+
+                if not matches:
+                    no_dob = True
+                    break
+
+                pat_dob = datetime.strptime(matches[0], '%m/%d/%Y').date()
+                break
+
+            except NoSuchElementException:
+                print(f"No patient DOB element found, retrying {i + 1}")
+
+        if no_dob:
+            NBS.go_to_home()
+            what_do.append("No date of birth for patient, skipped")
+            print(f"eventid = {event_id} and action = {what_do}")
+            hist[event_id].append("No date of birth for patient, skipped")
+            continue
         #grab the patient gender, we are going to let an epi take care of inveg=tigations for females age 14-39
         for i in range(3):
             try:
@@ -971,7 +1003,9 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
                 #grab negative labs within the last year, put a space for the name so that we don't grab the reference range by accident
                 Neg_lab = lab_report_table[lab_report_table["Test Results"].str.contains(" Neg| NEG| Not Detected| NOT DETECTED| UNDETECTED| not detected| Undetected| undetected")]       
                 Neg_lab = Neg_lab[Neg_lab["Test Results"].str.contains("HEPATITIS C|HCV|Hepatitis C")]
-                Neg_lab["Date Collected"] = pd.to_datetime(Neg_lab["Date Collected"]).dt.date
+                #Neg_lab["Date Collected"] = pd.to_datetime(Neg_lab["Date Collected"]).dt.date
+                Neg_lab["Date Collected"] = (Neg_lab["Date Collected"].replace("No Date", None))
+                Neg_lab["Date Collected"] = pd.to_datetime(Neg_lab["Date Collected"],format="%m/%d/%Y",errors="coerce").dt.date
                 Neg_lab = Neg_lab[Neg_lab["Date Collected"]>lab_date-relativedelta(years=1)]
                 if case_less_than_not_detected or (any(x in str(resulted_test_table["Coded Result / Organism Name"]).lower() for x in ["undetected", "negative", "unable", "not detected" ])  or any(x in str(resulted_test_table["Text Result"]).lower() for x in ["undetected", "negative", "unable", "not detected"]) or any(x in str(resulted_test_table["Result Comments"]) for x in ["HCV RNA Not Detected"])): 
                     if acute_inv is not None and chronic_inv is not None: 
@@ -1077,7 +1111,8 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
                     Pos_IgM_lab = IgM_lab[IgM_lab["Test Results"].str.contains("Pos|POS|Det|DET|REA|Rea")]
                     
                     if acute_inv is None and chronic_inv is None:
-                        if len(resulted_test_table) == 1 and test_type == "Antibody" and resulted_test_table["Resulted Test"].str.contains('core IgG+IgM|IGG/IGM').any():#, regex=False,case = False
+                        #if len(resulted_test_table) == 1 and test_type == "Antibody" and resulted_test_table["Resulted Test"].str.contains('core IgG+IgM|IGG/IGM').any():#, regex=False,case = False
+                        if len(resulted_test_table) == 1 and test_type == "Antibody" and resulted_test_table["Resulted Test"].str.contains(r"core.*igg.*igm",case =False,na= False).any():
                             mark_reviewed = True
                         elif len(resulted_test_table) == 1 and test_type == "Antibody" and "IgM" not in str(resulted_test_table["Resulted Test"]) and "IGM" not in str(resulted_test_table["Resulted Test"]): #add in logic for IgM
                             mark_reviewed = True
@@ -1462,7 +1497,7 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
             #Set reporting source to Laboratory
             WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="INV112"]/option[15]')))
             NBS.find_element(By.XPATH, '//*[@id="INV112"]/option[15]').click()
-            
+            #r
             #set case status
             case_status_path = '//*[@id="NBS_UI_2"]/tbody/tr[5]/td[2]/input' #//*[@id="NBS_UI_2"]/tbody/tr[5]/td[2]/img
             
