@@ -98,14 +98,34 @@ class NBSdriver(webdriver.Chrome):
         
         options.add_experimental_option("prefs", prefs)
         # options.add_argument("--headless")
-
-        if chrome_path:
-            service = Service(chrome_path)
-            super().__init__(service=service, options=options)
-        else:
-            driver_path = ChromeDriverManager().install()
-            service = Service(driver_path)
-            super().__init__(service=service, options=options)
+        # When debuggerAddress is set, Chrome is already running on port 9223
+        # When debuggerAddress is set, Chrome is already running on port 9223
+        # We connect to it without starting a service
+        print("[NBSdriver] Initializing with debuggerAddress (connecting to existing Chrome)...")
+        
+        try:
+            # With debuggerAddress in options, just create the webdriver without a service
+            # Selenium will connect to the existing Chrome on port 9223
+            super().__init__(options=options)
+            print("[NBSdriver] Successfully connected to Chrome via debuggerAddress")
+            
+            # Navigate to the NBS site on the connected Chrome window
+            print(f"[NBSdriver] Navigating to NBS site: {self.site}")
+            self.get(self.site)
+            print("[NBSdriver] Successfully navigated to NBS site")
+            time.sleep(2)  # Give the page time to load
+        except Exception as e:
+            print(f"[NBSdriver] ERROR: Could not initialize: {e}")
+            print("[NBSdriver] Please run tests using the debug runners (run_anaplasma_debug.py, etc.)")
+            raise
+        # if chrome_path:
+        #     service = Service(chrome_path)
+        #     super().__init__(service=service, options=options)
+        # else:
+        #     driver_path = ChromeDriverManager().install()
+        #     service = Service(driver_path)
+        #     super().__init__(service=service, options=options)
+        #     print(f"installed chromedriver")
 
         handles = self.window_handles
         print("current-handle-title: ", self.title)
