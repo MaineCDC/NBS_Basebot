@@ -88,10 +88,16 @@ def start_anaplasma(username, passcode, login_complete: Event = None, is_logged_
     from bot_env import is_production, target_site_label
     print(f"[anaplasma] target site: {target_site_label('anaplasma')}")
     NBS = Anaplasma(production=is_production('anaplasma'))
+    print(f"[anaplasma] Anaplasma object created")
     NBS.set_credentials(username, passcode)
+    print(f"[anaplasma] Credentials set")
+    print(f"[anaplasma] About to login (is_logged_in={is_logged_in})...")
     NBS.log_in(is_logged_in)
+    print(f"[anaplasma] Login complete, setting event...")
     login_complete.set()
+    print(f"[anaplasma] Login event set. Now navigating to approval queue...")
     NBS.GoToApprovalQueue()
+    print(f"[anaplasma] Successfully navigated to approval queue!")
     
     patients_to_skip = set()
     error_list = []
@@ -232,7 +238,7 @@ def start_anaplasma(username, passcode, login_complete: Event = None, is_logged_
                 consecutive_no_case_attempts = 0
                 
                 NBS.GoToNCaseInApprovalQueue(n)
-                print(f"navigated to {n or "first"} case in queue", "current_iteration:", loop.n)
+                print(f"navigated to {n or 'first'} case in queue", "current_iteration:", loop.n)
                 if NBS.queue_loaded:
                     NBS.queue_loaded = None
                     continue
@@ -396,10 +402,10 @@ def start_anaplasma(username, passcode, login_complete: Event = None, is_logged_
             # every case behind it (and a broken page doesn't cascade into more
             # errors). Forward progress is what keeps the pass from spinning.
             n += 1
-            # Repeated errors on a page mean it's likely wedged; after the 2nd
-            # consecutive error this bounces through Home before reloading the
-            # queue so the current case can be re-filtered from a clean page.
-            NBS.RecoverQueueAfterError()
+            try:
+                NBS.GoToApprovalQueue()
+            except Exception as recover_err:
+                print(f"queue recovery after exception failed: {recover_err}")
             
     print("ending, printing, saving", "current_iteration:", loop.n)
 

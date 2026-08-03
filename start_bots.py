@@ -27,7 +27,7 @@ USER_DATA_DIR = os.getcwd() + r"\chrome-bot-profile"
 # Minutes to wait between full round-robin passes when running in continuous mode
 # (i.e. when athena is selected -- see run_bots). Defaults to one hour. Periodic
 # activity also keeps the NBS session warm. Same knob as run_athena_loop.py.
-LOOP_MINUTES = int(os.getenv("ATHENA_LOOP_MINUTES", "60"))
+LOOP_MINUTES = int(os.getenv("ATHENA_LOOP_MINUTES", "30"))
 
 
 def kill_bot_profile_chrome():
@@ -256,7 +256,7 @@ def run_bots():
                 print(f"================= CYCLE {cycle} COMPLETE ================="
                       f"\nWaiting {LOOP_MINUTES} minutes, then re-checking the "
                       f"queues. (Ctrl-C to stop.)")
-                time.sleep(LOOP_MINUTES * 60)
+                time.sleep(LOOP_MINUTES * 30)
         else:
             print("\n================= STARTING SINGLE PASS =================")
             _run_pass(targets, username, passcode, login_complete, first_cycle=True)

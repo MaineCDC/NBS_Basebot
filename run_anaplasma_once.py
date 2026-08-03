@@ -1,43 +1,25 @@
-"""Single-pass Anaplasma runner.
+"""
+Standalone runner for the Anaplasma bot only.
+Runs ONLY Anaplasma and bypasses the error_handle decorator so any unhandled
+exception is printed with a full traceback instead of being swallowed.
 
-Launches the shared bot Chrome (same self-healing launch/cleanup as
-start_bots.py), logs in once, and runs the Anaplasma bot through its queue a
-single time, then stops. Credentials come from NBS_USER / NBS_PASSCODE so it can
-run unattended; otherwise it prompts.
-
-Run:
-    python run_anaplasma_once.py
-Stop any time with Ctrl-C.
+Uses the shared-session model: launches the debug Chrome on port 9223, then
+attaches Anaplasma to it (same as start_bots.py, just for one bot).
 """
 from threading import Event
-from datetime import datetime
-import os
-
-from start_bots import launch_chrome, kill_bot_profile_chrome
+from start_bots import launch_chrome
 from anaplasma_files.anaplasma_bot import start_anaplasma
 
 
-def run():
-    username = os.getenv("NBS_USER") or input('Enter your SOM username ("first_name.last_name"): ')
-    passcode = os.getenv("NBS_PASSCODE") or input('Enter your RSA passcode: ')
-
+def main():
+    username = input('SOM username (first_name.last_name): ').strip()
+    passcode = input('RSA passcode: ').strip()
+    launch_chrome()
     login_complete = Event()
-    try:
-        launch_chrome()
-        print("\n================= STARTING ANAPLASMA PASS =================")
-        start_anaplasma(username, passcode, login_complete, is_logged_in=False)
-        print("================= ANAPLASMA PASS COMPLETE =================")
-    except KeyboardInterrupt:
-        print("\nStop requested (Ctrl-C). Shutting down cleanly...")
-    except Exception as e:
-        with open("error_log.txt", "a") as log:
-            log.write(f"{datetime.now().date().strftime('%m_%d_%Y')} - anaplasma_once - {str(e)}\n")
-        raise
-    finally:
-        kill_bot_profile_chrome()
+    # Bypass @error_handle so tracebacks surface instead of being logged+swallowed.
+    target = getattr(start_anaplasma, "__wrapped__", start_anaplasma)
+    target(username, passcode, login_complete, False)
 
 
 if __name__ == '__main__':
-    print("waking anaplasma...")
-    run()
-    print("anaplasma stopped.")
+    main()
