@@ -18,10 +18,10 @@ crashes), and stops randomly crashing.
 | | NBS_Basebot (now) | nbsbot.v1.5 (now) | Unified (target) |
 |---|---|---|---|
 | Browser | each bot launches its **own** Chrome (`webdriver.Chrome` subclass) | **one** shared Chrome on `debuggerAddress 127.0.0.1:9223` | shared Chrome (v1.5 model) |
-| Login | per-bot RSA form, **one passcode per bot** | login once, `log_in(is_logged_in)` skips RSA when warm | login **once** for the whole run |
+| Login | per-bot RSA form, **one password per bot** | login once, `log_in(is_logged_in)` skips RSA when warm | login **once** for the whole run |
 | Multi-bot | `threading.Thread` per bot | sequential, session shared | **continuous round-robin loop** |
 | Base files | **4 forks**: `Base.py`, `Base_IH.py`, `base_athena.py`, `base_strep.py` | **1**: `base.py` | **1** unified `Base.py` |
-| `start_*` sig | `(username, passcode)` (+ 2 oddballs) | `(username, passcode, login_complete, is_logged_in=False)` | the v1.5 4-arg contract for all |
+| `start_*` sig | `(username, password)` (+ 2 oddballs) | `(username, password, login_complete, is_logged_in=False)` | the v1.5 4-arg contract for all |
 | Excel save | `df.to_excel()`, no lock handling | `save_and_print_results()`, no lock handling | `safe_save_excel()` w/ retry + fallback |
 
 ---
@@ -82,18 +82,18 @@ removed; all base methods every bot calls are present (real name or alias).
 
 ## Phase 2 — Put every bot on the shared-session contract
 
-Standardize **every** `start_*` to `(username, passcode, login_complete: Event=None,
+Standardize **every** `start_*` to `(username, password, login_complete: Event=None,
 is_logged_in=False)` and make each pass `is_logged_in` into `log_in`.
 
 | Bot | Current sig | Change |
 |---|---|---|
 | anaplasma, giardia, babesia | already 4-arg (v1.5) | bring over as-is |
-| athena | `(username, passcode)` | add 2 params; drop the `self.driver`→strep hand-off |
-| audrey | `(username, passcode)` | add 2 params + `is_logged_in` into `log_in` |
-| strep | `(username,passcode)` **and** `(driver)` (two forms) | collapse to one 4-arg shared-session bot |
-| CovidECR | `(username, passcode)` | add 2 params |
-| HepB | `(username, passcode)` | add 2 params |
-| Gonorrhea | `(username, passcode)` | add 2 params |
+| athena | `(username, password)` | add 2 params; drop the `self.driver`→strep hand-off |
+| audrey | `(username, password)` | add 2 params + `is_logged_in` into `log_in` |
+| strep | `(username,password)` **and** `(driver)` (two forms) | collapse to one 4-arg shared-session bot |
+| CovidECR | `(username, password)` | add 2 params |
+| HepB | `(username, password)` | add 2 params |
+| Gonorrhea | `(username, password)` | add 2 params |
 | ILIOutbreak | `()` (no args, SSO) | give it the 4-arg sig; SSO handled in unified `log_in` |
 
 Also: **copy `giardia_files/` and `babesia_files/` from v1.5 into `NBS_Basebot`**, plus their
@@ -150,14 +150,14 @@ Rewrite `NBS_Basebot/start_bots.py` (keep v1.5's `launch_chrome` / `kill_bot_pro
 
 ```
 launch Chrome once (port 9223, dedicated profile)
-prompt username + RSA passcode ONCE
+prompt username + RSA password ONCE
 first_pass = True
 idle_cycles = 0
 while not stop_requested:
     any_work = False
     for bot in selected_bots:
         is_logged_in = not (first_pass and bot is first_bot)
-        cases_done = bot(username, passcode, login_complete, is_logged_in)  # returns count
+        cases_done = bot(username, password, login_complete, is_logged_in)  # returns count
         any_work = any_work or cases_done > 0
     first_pass = False
     if not any_work:
@@ -211,7 +211,7 @@ Apply across the unified base + disease modules:
    CovidECR, HepB, Gonorrhea, ILIOutbreak), then **all together** through the round-robin loop.
 3. For each bot capture: does it log in via the shared session? sort its dropdown? count cases?
    save Excel via `safe_save_excel`? loop back and re-check? Log every crash cause found.
-4. Verify the **no-relogin** goal: select 3+ bots, confirm exactly **one** passcode prompt.
+4. Verify the **no-relogin** goal: select 3+ bots, confirm exactly **one** password prompt.
 5. Verify the **permission-denied** goal: open a results `.xlsx` in Excel mid-run, confirm the
    bot writes the fallback file instead of crashing.
 

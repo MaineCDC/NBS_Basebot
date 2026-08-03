@@ -37,7 +37,7 @@ is_in_production = os.getenv('ENVIRONMENT', 'production') != 'development'
 
 # ['CAS11048177ME01', 'CAS11048461ME01'] ['acute, not convalescent. Confirmation method is missing', 'acute, not convalescent.']
 @error_handle
-def start_giardia(username, passcode, login_complete: Event=None, is_logged_in=False):
+def start_giardia(username, password, login_complete: Event=None, is_logged_in=False):
     
     from .giardia import Giardia
     
@@ -51,11 +51,18 @@ def start_giardia(username, passcode, login_complete: Event=None, is_logged_in=F
     from bot_env import is_production, target_site_label
     print(f"[giardia] target site: {target_site_label('giardia')}")
     NBS = Giardia(production=is_production('giardia'))
-    NBS.set_credentials(username, passcode)
+    print(f"[giardia] Giardia object created")
+    NBS.set_credentials(username, password)
+    print(f"[giardia] Credentials set")
+    print(f"[giardia] About to login (is_logged_in={is_logged_in})...")
     NBS.log_in(is_logged_in)
-    login_complete.set()
+    print(f"[giardia] Login complete, setting event...")
+    if login_complete:
+        login_complete.set()
+    print(f"[giardia] Login event set. Now navigating to approval queue...")
     # NBS.log_in_v2()
     NBS.GoToApprovalQueue()
+    print(f"[giardia] Successfully navigated to approval queue!")
 
     patients_to_skip = set()
     error_list = []

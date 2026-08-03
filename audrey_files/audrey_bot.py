@@ -70,7 +70,7 @@ send_alt_email_ids = []
 is_in_production = os.getenv('ENVIRONMENT', 'production') != 'development'
 
 @error_handle
-def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
+def start_audrey(username, password, login_complete=None, is_logged_in=False):
     warnings.simplefilter(action='ignore', category=FutureWarning)
     pd.options.mode.chained_assignment = None
 
@@ -80,7 +80,7 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
     print(f"[audrey] target site: {target_site_label('audrey')}")
     NBS = Audrey(production=is_production('audrey'))
 
-    NBS.set_credentials(username, passcode)
+    NBS.set_credentials(username, password)
     NBS.log_in(is_logged_in)
     if login_complete is not None:
         login_complete.set()
@@ -880,10 +880,10 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
                                 #condition = "Hepatitis C, acute"
                                 Hep_inv_assign = True
                                 Hep_inv_assign_ids.append(event_id)
-                                print("Hepatitis B, acute investigation to be assigned out")
-                                what_do.append("Hepatitis B, acute investigation to be assigned out")
+                                print("Hepatitis C, acute investigation to be assigned out")
+                                what_do.append("Hepatitis C, acute investigation to be assigned out")
                                 print(f"eventid = {event_id} and action = {what_do}")
-                                hist[event_id].append("Hepatitis B, acute investigation to be assigned out")
+                                hist[event_id].append("Hepatitis C, acute investigation to be assigned out")
                                 NBS.go_to_home()
                                 continue
                         else:
@@ -904,7 +904,7 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
             elif test_condition == "Hepatitis C" and test_type in ("RNA", "DNA", "Genotype"):
                 if inv_found:
                     age = lab_date - pat_dob
-                    if len(perinatal_inv) >= 1:
+                    if len(perinatal_inv) > 1:
                         if age.days < 1095:
                             hep_c_rna = lab_report_table['Test Results'].lower().str.contains("hepatitis C|hcv|hep c").any() and lab_report_table['Test Results'].lower().str.contains("genotype|rna").any() and lab_report_table['Test Results'].lower().str.contains("positive|pos|reactive|detected").any()
                             if hep_c_rna:
@@ -1019,10 +1019,10 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
                                 #condition = "Hepatitis C, acute"
                                 Hep_inv_assign = True
                                 Hep_inv_assign_ids.append(event_id)
-                                print("Hepatitis B, acute investigation to be assigned out")
-                                what_do.append("Hepatitis B, acute investigation to be assigned out")
+                                print("Hepatitis C, acute investigation to be assigned out")
+                                what_do.append("Hepatitis C, acute investigation to be assigned out")
                                 print(f"eventid = {event_id} and action = {what_do}")
-                                hist[event_id].append("Hepatitis B, acute investigation to be assigned out")
+                                hist[event_id].append("Hepatitis C, acute investigation to be assigned out")
                                 NBS.go_to_home()
                                 continue
                         else:
@@ -1464,7 +1464,7 @@ def start_audrey(username, passcode, login_complete=None, is_logged_in=False):
             NBS.find_element(By.XPATH, '//*[@id="INV112"]/option[15]').click()
             
             #set case status
-            case_status_path = '//*[@id="NBS_UI_2"]/tbody/tr[5]/td[2]/input'
+            case_status_path = '//*[@id="NBS_UI_2"]/tbody/tr[5]/td[2]/input' #//*[@id="NBS_UI_2"]/tbody/tr[5]/td[2]/img
             
             NBS.find_element(By.XPATH, case_status_path).send_keys(Keys.CONTROL+'a')
             if test_type != "Antibody":

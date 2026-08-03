@@ -11,7 +11,7 @@ from start_bots import launch_chrome
 from HepBnotificationreview_files.HepBnotificationreview_bot import start_HepBnotificationreview
 
 username = os.environ["NBS_USER"]
-passcode = os.environ["NBS_PASS"]
+password = os.environ["NBS_PASS"]
 
 print(f"MAX_CASES_PER_PASS={os.environ.get('MAX_CASES_PER_PASS', '(default)')}", flush=True)
 print("launching chrome...", flush=True)
@@ -20,5 +20,5 @@ launch_chrome()
 login_complete = Event()
 fn = getattr(start_HepBnotificationreview, "__wrapped__", start_HepBnotificationreview)
 print("starting HepB (LIVE, capped)...", flush=True)
-fn(username, passcode, login_complete, False)
+fn(username, password, login_complete, False)
 print("HepB run finished (capped).", flush=True)

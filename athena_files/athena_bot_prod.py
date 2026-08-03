@@ -21,12 +21,12 @@
 #         yield
 # is_in_production = os.getenv('ENVIRONMENT', 'production') != 'development'
 # @error_handle
-# def start_athena(username, passcode):
+# def start_athena(username, password):
 #     from .athena_prod import Athena
 #     from strep_files.strep_bot_prod import start_strep
 # 
 #     NBS = Athena(production=is_in_production)
-#     NBS.set_credentials(username, passcode)
+#     NBS.set_credentials(username, password)
 #     NBS.log_in()
 #     NBS.GoToApprovalQueue()
 # 

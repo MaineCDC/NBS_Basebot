@@ -39,7 +39,7 @@ is_in_production = os.getenv('ENVIRONMENT', 'production') != 'development'
 
 
 @error_handle
-def start_CovidEcr(username, passcode, login_complete=None, is_logged_in=False):
+def start_CovidEcr(username, password, login_complete=None, is_logged_in=False):
 
     from .CovidEcr import COVIDECR
 
@@ -52,7 +52,7 @@ def start_CovidEcr(username, passcode, login_complete=None, is_logged_in=False):
         print("Production Environment")
     else:
         print("Development Environment")
-    NBS.set_credentials(username, passcode)
+    NBS.set_credentials(username, password)
     NBS.log_in(is_logged_in)
     if login_complete is not None:
         login_complete.set()

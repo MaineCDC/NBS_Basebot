@@ -142,13 +142,13 @@
 #         """ A method to prompt user to provide a valid username and RSA token
 #         to log in to NBS. Must """
 #         self.username = input('Enter your SOM username ("first_name.last_name"):')
-#         self.passcode = input('Enter your RSA passcode:')
+#         self.password = input('Enter your RSA password:')
 # 
-#     def set_credentials(self, username, passcode):
+#     def set_credentials(self, username, password):
 #         """ A method to prompt user to provide a valid username and RSA token
 #         to log in to NBS. Must """
 #         self.username = username
-#         self.passcode = passcode
+#         self.password = password
 #     
 #     def log_in(self):
 #         """ Log in to NBS. """
@@ -167,7 +167,7 @@
 #         print('passed')
 #         self.switch_to.frame("contentFrame")
 #         self.find_element(By.ID, "username").send_keys(self.username) #find_element_by_id() has been deprecated
-#         self.find_element(By.ID, 'passcode').send_keys(self.passcode)
+#         self.find_element(By.ID, 'password').send_keys(self.password)
 #         WebDriverWait(self,self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[2]/p[2]/input[1]')))
 #         self.find_element(By.XPATH,'/html/body/div[2]/p[2]/input[1]').click()
 #         time.sleep(3) #wait for the page to load, I'm not sure why the following wait to be clickable does not handle this, but this fixed the error

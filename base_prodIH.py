@@ -48,8 +48,7 @@ class NBSdriver(webdriver.Chrome):
         self.get_usps_user_id()
 
         if self.production:
-            # Production now uses the same InductiveHealth SSO flow as the test site.
-            self.site = "https://menbs.inductivehealth.com/nbs/HomePage.do?method=loadHomePage"
+            self.site = "https://auth.inductivehealth.com/"
         else:
             # New NBS test site (migrated off the retired nbstest.state.me.us).
             # Hitting HomePage.do redirects to the InductiveHealth/Keycloak login
@@ -241,7 +240,7 @@ class NBSdriver(webdriver.Chrome):
 
     def get_credentials(self):
         """Prompt user to provide a valid username and RSA token to log in to NBS."""
-        self.username = input('Enter your SOM username ("username")')
+        self.username = input('Enter your SOM username ("first_name.last_name"):')
         self.password = input("Enter your RSA password:")
 
     def set_credentials(self, username, password):
@@ -250,78 +249,71 @@ class NBSdriver(webdriver.Chrome):
         self.password = password
 
     def _submit_login_form(self):
-        """Fill the username/password login form and click Log In.
+        """Fill the RSA SecurID login form and click Log In.
 
-        This is the direct credential submission path for the InductiveHealth
-        login page. It tries multiple common username/password field IDs and
-        several submit button locators.
+        The form lives inside 'contentFrame', whose inner document reloads a
+        moment after the frame first appears (anti-framing JS blanks/reloads the
+        body). A blind 100s sleep used to hide this race. Instead we fill-and-
+        verify: type the username and confirm it actually stuck; if a reload
+        wiped it, retry. Only once the value persists is the form stable, at
+        which point we enter the password and submit. Returns True if submitted.
         """
-
+        # Bounded so a mismatched form can't hang for minutes (was 120s x 6 ~=
+        # 12 min, which looked like "stuck on the login page").
         login_load_timeout = 30
+        # The submit button locator differs between NBS form layouts. Try the
+        # known-good production XPath (the one the team's original base used) and
+        # a few value/type fallbacks, so login works regardless of the exact
+        # button. The username field -- not the button -- is the "form ready"
+        # signal, since the button locator is what varies.
         submit_locators = [
-            (By.XPATH, "/html/body/div[2]/p[2]/input[1]"),
-            (By.XPATH, "//*[@id='passwordBlock']/div[3]/input"),
+            (By.XPATH, "/html/body/div[2]/p[2]/input[1]"),  # original prod button
             (By.XPATH, "//input[@value='Log In']"),
             (By.XPATH, "//input[@value='Login']"),
-            (By.XPATH, "//button[@type='submit']"),
             (By.XPATH, "//input[@type='submit']"),
             (By.XPATH, "//input[@type='image']"),
         ]
-        username_ids = ["username", "Username", "user", "User", "login"]
-        password_ids = ["password", "Password", "pass", "Pass"]
-
-        def find_first_field(field_ids):
-            for field_id in field_ids:
-                try:
-                    return self.find_element(By.ID, field_id)
-                except NoSuchElementException:
-                    continue
-            return None
-
         for attempt in range(4):
             try:
                 self.switch_to.default_content()
                 WebDriverWait(self, login_load_timeout).until(
-                    EC.presence_of_element_located((By.XPATH, "//input[@type='password']"))
+                    EC.frame_to_be_available_and_switch_to_it("contentFrame")
                 )
-                time.sleep(2)
-
-                user_field = find_first_field(username_ids)
-                pass_field = find_first_field(password_ids)
-                if user_field is None or pass_field is None:
-                    print(
-                        f"Login form fields not found (attempt {attempt}). "
-                        "Retrying..."
-                    )
-                    time.sleep(2)
-                    continue
-
+                # Wait on the username field (always present) rather than the
+                # submit button (whose locator varies between layouts).
+                WebDriverWait(self, login_load_timeout).until(
+                    EC.element_to_be_clickable((By.ID, "username"))
+                )
+                # The form's inner document reloads ~a moment after the frame
+                # appears and wipes whatever we typed. Strategy that beats the
+                # race: let the initial reload pass (settle + page_source sync),
+                # then type username + password and SUBMIT immediately, in one
+                # fast burst, so a periodic reload can't clear the fields between
+                # typing and submitting. (The previous type->verify->retry left a
+                # gap the reload kept hitting, so auto-fill failed repeatedly.)
+                time.sleep(6)
+                try:
+                    _ = self.page_source
+                except Exception:
+                    pass
+                user_field = self.find_element(By.ID, "username")
                 user_field.clear()
                 user_field.send_keys(self.username)
-                pass_field.clear()
-                pass_field.send_keys(self.password)
-
+                self.find_element(By.ID, "password").send_keys(self.password)
                 submitted = False
                 for by, locator in submit_locators:
                     try:
                         btn = self.find_element(by, locator)
                     except NoSuchElementException:
                         continue
-                    try:
-                        btn.click()
-                        print(f"Login form submitted via {locator}")
-                        submitted = True
-                        break
-                    except Exception as e:
-                        print(f"Submit button {locator} click failed: {e}")
-
+                    btn.click()
+                    print(f"Login form submitted via {locator}")
+                    submitted = True
+                    break
+                self.switch_to.default_content()
                 if submitted:
-                    self.switch_to.default_content()
                     return True
-
-                print(
-                    f"Login form: no known submit button found (attempt {attempt}); retrying..."
-                )
+                print(f"Login form: no known submit button found (attempt {attempt}); retrying...")
                 time.sleep(2)
             except (StaleElementReferenceException, TimeoutException) as e:
                 print(f"Login form not stable yet, retry {attempt}: {e}")
@@ -361,34 +353,55 @@ class NBSdriver(webdriver.Chrome):
             return False
 
     def _log_in_inductive(self, is_logged_in=False):
-        """Log in to the new InductiveHealth NBS site using username/password.
+        """Log in to the new InductiveHealth NBS test site via Maine DHHS SSO.
 
         Flow: open the site. If a session is already warm we land straight on the
-        dashboard. Otherwise we expect a username/password login form on the
-        Keycloak/InductiveHealth page, fill it, and submit. If that does not
-        immediately land on the dashboard, wait for manual completion.
+        dashboard. Otherwise we land on the InductiveHealth/Keycloak sign-in page;
+        clicking 'Maine DHHS Users' (#social-mesaml) hands off to the State of
+        Maine SSO, which authenticates silently over the user's VPN session and
+        bounces back to the dashboard. If that silent SSO does not complete (no
+        VPN / expired session surfacing a real credential prompt), we pause and
+        let the user finish the login by hand, then continue once the dashboard
+        appears. If it never appears, raise so the caller can report login failed.
         """
         self.get(self.site)
+        self.get_credentials()
+        self.set_credentials(self.username, self.password)
+        try :
+            WebDriverWait(self, 20).until(
+                EC.element_to_be_clickable((By., "//*[@id="passwordBlock"]/div[3]/input"))
+            )
+            print("Clicking 'Maine DHHS Users' for SSO login...")
+            self.find_element(By.ID, "social-mesaml").click()
+        except TimeoutException:
+            print("Did not find the 'Maine DHHS Users' SSO option on the login page.")
 
         # Warm session: already on the dashboard, nothing to do.
         if self._on_nbs_dashboard(timeout=12):
-            print("Already authenticated on NBS site.")
+            print("Already authenticated on NBS test site.")
             return
 
-        # Try to submit the direct username/password form.
-        if self._submit_login_form():
-            if self._on_nbs_dashboard(timeout=45):
-                print("Logged in to NBS via username/password.")
-                return
-            print(
-                "Login form submitted, but the NBS dashboard did not appear immediately."
-            )
-        else:
-            print("Direct username/password login form not found or submission failed.")
+        # Otherwise we expect the Keycloak sign-in page. Choose Maine DHHS SSO.
+        # try:
+        #     WebDriverWait(self, 20).until(
+        #         EC.element_to_be_clickable((By.ID, "social-mesaml"))
+        #     )
+        #     print("Clicking 'Maine DHHS Users' for SSO login...")
+        #     self.find_element(By.ID, "social-mesaml").click()
+        # except TimeoutException:
+        #     print("Did not find the 'Maine DHHS Users' SSO option on the login page.")
 
+        # Silent VPN/SSO round-trip should land us on the dashboard quickly.
+        if self._on_nbs_dashboard(timeout=45):
+            print("Logged in to NBS test site via Maine DHHS SSO.")
+            return
+
+        # Fallback: a real credential page is up (no VPN / expired session).
+        # Give the user a window to complete it manually, then continue.
         print(
             "\n*** LOGIN NEEDS ATTENTION ***\n"
-            "Please complete the login manually in the Chrome window now. Waiting up to 5 minutes for the NBS\n"
+            "The Maine DHHS SSO did not log in automatically. Please complete the\n"
+            "login in the Chrome window now. Waiting up to 5 minutes for the NBS\n"
             "dashboard to appear...\n"
         )
         if self._on_nbs_dashboard(timeout=300):
@@ -396,12 +409,28 @@ class NBSdriver(webdriver.Chrome):
             return
 
         raise Exception(
-            "Login to NBS failed: dashboard never loaded. "
-            "Check the login page and the Chrome window."
+            "Login to NBS test site failed: dashboard never loaded. "
+            "Check the VPN/SSO session and the Chrome window."
         )
 
     def log_in(self, is_logged_in=False):
-        """Log in to NBS using the unified InductiveHealth SSO flow."""
+        """Log in to NBS."""
+        # The test site migrated to InductiveHealth/Keycloak with Maine DHHS SSO,
+        # a different login flow from the production RSA SecurID form below.
+        if not self.production:
+            return self._log_in_inductive(is_logged_in)
+
+        portal_link_xpath = '//*[@id="bea-portal-window-content-4"]/tr/td/h2[4]/font/a'
+
+        # Session reuse (multi-bot shared Chrome): a previous bot already logged
+        # in and we are still INSIDE the NBS app. Do NOT navigate back to the BEA
+        # portal (self.site) -- on a warm session that portal link usually does
+        # NOT reappear, and waiting on it is exactly what hung every bot after the
+        # first ("stuck in login"). Instead just return to the NBS Home page from
+        # wherever the previous bot left us; the caller's GoToApprovalQueue takes
+        # it from there. If Home can't be reached the session probably dropped, so
+        # fall through to a full login (which needs a fresh password and may fail;
+        # that's logged and non-fatal, and the user can relog in by hand).
         if is_logged_in:
             try:
                 self.go_to_home()
@@ -411,7 +440,65 @@ class NBSdriver(webdriver.Chrome):
                 print(f"Warm-session reuse failed ({e}); attempting a fresh login.")
 
         self.get(self.site)
-        return self._log_in_inductive(is_logged_in)
+
+        # A persisted session can skip the RSA login form entirely and land us
+        # straight on the portal page. Check for the portal link first; if it is
+        # already present we are authenticated, so just open it instead of
+        # trying (and failing) to fill a login form that isn't there.
+        if self._on_nbs_portal(portal_link_xpath, timeout=10):
+            print("Already authenticated on NBS; skipping login form.")
+            self.find_element(By.XPATH, portal_link_xpath).click()
+            return
+
+        print("logging in...")
+        # RSA SecurID passwords are SINGLE-USE, so submit the form EXACTLY ONCE.
+        # Do NOT reload-and-resubmit on a slow redirect: that both consumes the
+        # one-time password (so a retry can never succeed) and navigates away from
+        # an authentication that may simply be slow -- which is what broke a live
+        # run. Submit once, then wait generously for the portal to appear.
+        auth_wait_seconds = 90  # RSA validation + NBS redirect can be slow
+        if self._submit_login_form():
+            try:
+                WebDriverWait(self, auth_wait_seconds).until(
+                    EC.element_to_be_clickable((By.XPATH, portal_link_xpath))
+                )
+                self.find_element(By.XPATH, portal_link_xpath).click()
+                print("Logged in; portal reached.")
+                return
+            except TimeoutException:
+                try:
+                    print(
+                        f"Auto-login did not reach the portal within {auth_wait_seconds}s. "
+                        f"current_url={self.current_url!r} title={self.title!r}"
+                    )
+                except Exception:
+                    pass
+        else:
+            print("Auto-login could not fill/submit the form (racy reload).")
+
+        # MANUAL FALLBACK: the production login form is racy (reloads and clears
+        # the fields) and RSA passwords are single-use, so automated fill can fail.
+        # Rather than burn the password, wait for the user to finish logging in by
+        # hand in the open Chrome window, then continue automatically. Polls for
+        # the authenticated state -- no stdin needed (works headless or attended).
+        print(
+            "\n*** LOGIN NEEDS ATTENTION ***\n"
+            "Please finish logging in to NBS in the open Chrome window now.\n"
+            "Waiting up to 5 minutes for the NBS portal/home to appear...\n"
+        )
+        for _ in range(60):  # 60 * 5s = 5 minutes
+            try:
+                if self._on_nbs_portal(portal_link_xpath, timeout=1):
+                    self.find_element(By.XPATH, portal_link_xpath).click()
+                    print("Login detected; continuing.")
+                    return
+                if self._on_nbs_dashboard(timeout=1):
+                    print("Login detected (on dashboard); continuing.")
+                    return
+            except Exception:
+                pass
+            time.sleep(5)
+        print("WARNING: login still not complete after waiting 5 minutes; giving up.")
     
     def log_in_v2(self):
         """Log in to MENBS."""
@@ -687,8 +774,6 @@ class NBSdriver(webdriver.Chrome):
 
     def home_url(self):
         """Direct URL of the NBS Home page (for click-free navigation)."""
-        if "HomePage.do" in self.site:
-            return self.site
         return self.site.rstrip("/") + "/nbs/HomePage.do?method=loadHomePage"
 
     def dismiss_block_overlay(self, timeout=15):
@@ -1288,8 +1373,8 @@ class NBSdriver(webdriver.Chrome):
         """Check if an investigator was assigned to the case."""
         investigator = self.ReadText('//*[@id="INV180"]')
         self.investigator_name = investigator
-        # if not investigator:
-        #     self.issues.append("Investigator is blank.")
+        if not investigator:
+            self.issues.append("Investigator is blank.")
 
     ################# Key Report Dates Check Methods ###############################
 

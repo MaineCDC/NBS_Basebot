@@ -10,7 +10,6 @@ from datetime import datetime, date
 from selenium.webdriver.chrome.service import Service
 from bs4 import BeautifulSoup
 from selenium import webdriver
-driver=webdriver.Chrome()
 
 class HepBNotificationReview(NBSdriver):
     """ A class to review HepB cases in the notification queue.

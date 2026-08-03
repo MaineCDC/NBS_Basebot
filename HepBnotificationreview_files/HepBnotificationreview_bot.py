@@ -32,7 +32,7 @@ reason = []
 is_in_production = os.getenv('ENVIRONMENT', 'production') != 'development'
 
 @error_handle
-def start_HepBnotificationreview(username, passcode, login_complete=None, is_logged_in=False):
+def start_HepBnotificationreview(username, password, login_complete=None, is_logged_in=False):
 
     from .HepBnotificationreview import HepBNotificationReview
 
@@ -51,12 +51,18 @@ def start_HepBnotificationreview(username, passcode, login_complete=None, is_log
     from bot_env import is_production, target_site_label
     print(f"[HepBnotificationreview] target site: {target_site_label('HepBnotificationreview')}")
     NBS = HepBNotificationReview(production=is_production('HepBnotificationreview'))
+    print(f"[HepBnotificationreview] HepBNotificationReview object created")
 
-    NBS.set_credentials(username, passcode)
+    NBS.set_credentials(username, password)
+    print(f"[HepBnotificationreview] Credentials set")
+    print(f"[HepBnotificationreview] About to login (is_logged_in={is_logged_in})...")
     NBS.log_in(is_logged_in)
+    print(f"[HepBnotificationreview] Login complete, setting event...")
     if login_complete is not None:
         login_complete.set()
+    print(f"[HepBnotificationreview] Login event set. Now navigating to approval queue...")
     NBS.GoToApprovalQueue()
+    print(f"[HepBnotificationreview] Successfully navigated to approval queue!")
 
     patients_to_skip = []
     error_list = []

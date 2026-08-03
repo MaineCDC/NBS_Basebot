@@ -49,7 +49,8 @@ def log_skip(inv_id, reason):
 
 
 @error_handle
-def start_anaplasma(username, passcode, login_complete: Event = None, is_logged_in=False):
+def start_anaplasma(username, password, login_complete: Event = None, is_logged_in=False):
+#def start_anaplasma(login_complete: Event = None, is_logged_in=False):
     
     from .anaplasma import Anaplasma
     
@@ -88,10 +89,19 @@ def start_anaplasma(username, passcode, login_complete: Event = None, is_logged_
     from bot_env import is_production, target_site_label
     print(f"[anaplasma] target site: {target_site_label('anaplasma')}")
     NBS = Anaplasma(production=is_production('anaplasma'))
-    NBS.set_credentials(username, passcode)
+    print(f"[anaplasma] Anaplasma object created")
+    NBS.set_credentials(username, password)
+    print(f"[anaplasma] Credentials set")
+    print(f"[anaplasma] About to login (is_logged_in={is_logged_in})...")
     NBS.log_in(is_logged_in)
-    login_complete.set()
+    if login_complete is not None:
+            login_complete.set()
+    # NBS.log_in(is_logged_in)
+    # print(f"[anaplasma] Login complete, setting event...")
+    # login_complete.set()
+    # print(f"[anaplasma] Login event set. Now navigating to approval queue...")
     NBS.GoToApprovalQueue()
+    print(f"[anaplasma] Successfully navigated to approval queue!")
     
     patients_to_skip = set()
     error_list = []
@@ -232,7 +242,7 @@ def start_anaplasma(username, passcode, login_complete: Event = None, is_logged_
                 consecutive_no_case_attempts = 0
                 
                 NBS.GoToNCaseInApprovalQueue(n)
-                print(f"navigated to {n or "first"} case in queue", "current_iteration:", loop.n)
+                print(f"navigated to {n or 'first'} case in queue", "current_iteration:", loop.n)
                 if NBS.queue_loaded:
                     NBS.queue_loaded = None
                     continue

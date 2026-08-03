@@ -1,6 +1,6 @@
 # ============================================================================
 # DEPRECATED — superseded by start_bots.py (continuous round-robin, shared
-# session). This older threaded orchestrator required a separate RSA passcode
+# session). This older threaded orchestrator required a separate RSA password
 # per bot. Retained for reference only; do NOT run. Contents commented out.
 # ============================================================================
 # from threading import Thread

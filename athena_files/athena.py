@@ -3,10 +3,17 @@ import pandas as pd
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    TimeoutException,
+    ElementClickInterceptedException,
+    NoSuchElementException,
+    StaleElementReferenceException,
+)
 from datetime import datetime, date
 from selenium.webdriver.chrome.service import Service
 from bs4 import BeautifulSoup
 from selenium import webdriver
+import time
 
 
 class Athena(NBSdriver):
@@ -118,9 +125,9 @@ class Athena(NBSdriver):
             xpath = '//*[@id="ME3130"]'
         self.cong_setting_indicator = self.ReadText(xpath)
         if self.investigator:
-            if (self.investigator_name in self.outbreak_investigators) & (self.cong_setting_indicator not in ['Yes', 'No']):
+            if (self.investigator_name in self.outbreak_investigators) and (self.cong_setting_indicator not in ['Yes', 'No']):
                 self.issues.append('Congregate setting question must be answered with "Yes" or "No".')
-            elif (self.ltf != 'Yes') & (not self.cong_setting_indicator):
+            elif (self.ltf != 'Yes') and (not self.cong_setting_indicator):
                 self.issues.append('Congregate setting status must have a value.')
 
     def CheckCongregateFacilityName(self):
@@ -132,7 +139,7 @@ class Athena(NBSdriver):
     def CheckFirstResponder(self):
         """ Check if a patient is a first responder."""
         self.first_responder =  self.ReadText('//*[@id="ME59100"]')
-        if (self.investigator) & (self.investigator_name not in self.outbreak_investigators) & (self.ltf != 'Yes') & (not self.first_responder):
+        if (self.investigator) and (self.investigator_name not in self.outbreak_investigators) and (self.ltf != 'Yes') and (not self.first_responder):
             self.issues.append('First responder question must be answered.')
 
     def CheckFirstResponderOrg(self):
@@ -145,33 +152,33 @@ class Athena(NBSdriver):
         """ Check if patient is a healthcare worker."""
         self.healthcare_worker = self.ReadText('//*[@id="NBS540"]')
         if self.investigator:
-            if (self.investigator_name in self.outbreak_investigators) & (self.healthcare_worker not in ['Yes', 'No']):
+            if (self.investigator_name in self.outbreak_investigators) and (self.healthcare_worker not in ['Yes', 'No']):
                 self.issues.append('Healthcare worker questions must be answered with "Yes" or "No".')
-            elif (self.ltf != 'Yes') & (not self.healthcare_worker):
+            elif (self.ltf != 'Yes') and (not self.healthcare_worker):
                 self.issues.append('Healthcare worker question is blank.')
 
     def CheckHealtcareWorkerFacility(self):
         """ If the patient is a healthcare worker then a facility name must be provided."""
-        if (self.ltf != 'Yes') & (self.investigator):
+        if (self.ltf != 'Yes') and (self.investigator):
             healthcare_worker_fac =  self.CheckForValue('//*[@id="ME10103"]','Healthcare worker facility is blank.')
 
     def CheckHealthcareWorkerJob(self):
         """ If the patient is a healthcare worker then an occupation name must be provided."""
         xpath = '//*[@id="14679004"]'
-        if (self.ltf != 'Yes') & (self.investigator):
+        if (self.ltf != 'Yes') and (self.investigator):
             self.healthcare_worker_job =  self.CheckForValue(xpath,'Healthcare worker occupation is blank.')
         else:
             self.healthcare_worker_job = self.ReadText(xpath)
 
     def CheckHealthcareWorkerJobOther(self):
         """ If the patient is a healthcare worker and occupation is other then name must be provided."""
-        if (self.ltf != 'Yes') & (self.investigator):
+        if (self.ltf != 'Yes') and (self.investigator):
             healthcare_worker_job_other =  self.CheckForValue('//*[@id="14679004Oth"]','Healthcare worker other occupation is missing.')
 
     def CheckHealthcareWorkerSetting(self):
         """ If the patient is a healthcare worker then healthcare setting name must be provided."""
         xpath = '//*[@id="NBS683"]'
-        if (self.ltf != 'Yes') & (self.investigator):
+        if (self.ltf != 'Yes') and (self.investigator):
             self.healthcare_worker_setting =  self.CheckForValue(xpath, 'Healthcare worker setting is blank.')
         else:
             self.healthcare_worker_setting =  self.ReadText(xpath)
@@ -185,9 +192,9 @@ class Athena(NBSdriver):
         """ Check if current status in the investigation is consistent with the
         associated labs. """
         self.current_status = self.ReadText('//*[@id="NBS548"]')
-        if (self.current_status == 'Probable Case') & (self.status != 'P'):
+        if (self.current_status == 'Probable Case') and (self.status != 'P'):
             self.issues.append('Current status mismatch.')
-        elif (self.current_status == 'Laboratory-confirmed case') & (self.status != 'C'):
+        elif (self.current_status == 'Laboratory-confirmed case') and (self.status != 'C'):
             self.issues.append('Current status mismatch.')
         elif not self.current_status:
             self.issues.append('Current status is blank.')
@@ -197,11 +204,11 @@ class Athena(NBSdriver):
         status. """
         probable_reason = self.ReadText('//*[@id="NBS678"]')
         probable_reason = probable_reason.replace('\n','')
-        if (probable_reason == 'Meets Presump Lab and Clinical or Epi') & ((self.status != 'P') | (self.current_status != 'Probable Case')):
+        if (probable_reason == 'Meets Presump Lab and Clinical or Epi') and ((self.status != 'P') | (self.current_status != 'Probable Case')):
             self.issues.append('Status inconsistency.')
         elif probable_reason in ['Meets Clinical/Epi, No Lab Conf', 'Meets Vital Records, No Lab Confirm']:
             self.issues.append('Probable reason does not include a lab. Human review required.')
-        elif (not probable_reason) & (self.status not in ['C', 'S']):
+        elif (not probable_reason) and (self.status not in ['C', 'S']):
             self.issues.append('Probable reason is blank and correct status is not confirmed or suspect.')
 
 ###################### Exposure Information Check Methods ######################
@@ -214,7 +221,7 @@ class Athena(NBSdriver):
         unknown_exposure = self.ReadText('//*[@id="NBS667"]')
         if num_exposures == 0:
             self.issues.append('Exposure section is not complete.')
-        elif (unknown_exposure == 'Yes') & (num_exposures > 1):
+        elif (unknown_exposure == 'Yes') and (num_exposures > 1):
             self.issues.append('If unknown exposure is selected then no other exposures should be indicated.')
 
     def CheckDomesticTravel(self):
@@ -239,7 +246,7 @@ class Athena(NBSdriver):
             if school_exposure == 'Yes':
                 school_name = self.ReadText('//*[@id="ME62100"]')
                 university_name = self.ReadText('//*[@id="ME62101"]')
-                if (not school_name) & (not university_name):
+                if (not school_name) and (not university_name):
                     self.issues.append("If school/university exposure is indicated then school/university name must be specified.")
                 if school_name == 'Other':
                     other_school_name = self.ReadText('//*[@id="ME62100Oth"]')
@@ -306,7 +313,7 @@ class Athena(NBSdriver):
         self.ltf = self.ltf.replace('\n', '')
         if self.ltf == 'Unknown':
             self.issues.append('Lost to follow up inidicator cannot be unknown.')
-        elif (not self.ltf) & self.investigator:
+        elif (not self.ltf) and self.investigator:
             self.issues.append('Lost to follow up cannot be blank.')
 
     def CheckClosedDate(self):
@@ -323,7 +330,7 @@ class Athena(NBSdriver):
     def CheckHospitalizationIndicator(self):
         """ Read hospitalization status. If an investigation was conducted it must be Yes or No """
         self.hospitalization_indicator = self.ReadText('//*[@id="INV128"]')
-        if (self.ltf != 'Yes') & (self.investigator):
+        if (self.ltf != 'Yes') and (self.investigator):
             if self.hospitalization_indicator not in ['Yes', 'No']:
                 self.issues.append("Patient hospitalized must be 'Yes' or 'No'.")
 
@@ -336,7 +343,7 @@ class Athena(NBSdriver):
     def CheckIcuIndicator(self):
         """ If case is hospitalized then we should know if they were ever in the ICU."""
         self.icu_indicator = self.ReadText('//*[@id="309904001"]')
-        if (self.ltf != 'Yes') & (self.hospitalization_indicator == 'Yes') & (self.investigator):
+        if (self.ltf != 'Yes') and (self.hospitalization_indicator == 'Yes') and (self.investigator):
             if not self.icu_indicator:
                 self.issues.append('ICU indicator is blank.')
 
@@ -465,7 +472,7 @@ class Athena(NBSdriver):
         """ Verify that first attempt to contact date is provided and greater
         than or equal to investigation start date. """
         first_attempt_date = self.ReadDate('//*[@id="ME64102"]')
-        if not ((self.ltf == 'Yes') & (self.cong_setting_indicator == 'Yes')):
+        if not ((self.ltf == 'Yes') and (self.cong_setting_indicator == 'Yes')):
             if not first_attempt_date:
                 self.issues.append('First attempt to contact date is blank.')
             elif first_attempt_date < self.investigation_start_date:
@@ -477,42 +484,42 @@ class Athena(NBSdriver):
 ########################### AOE Check Methods ##################################
     def CheckHospAOE(self):
         """ Ensure that if AOEs show a patient as hosptialized the investigation matches."""
-        if self.hosp_aoe & (self.hospitalization_indicator != 'Yes'):
+        if self.hosp_aoe and (self.hospitalization_indicator != 'Yes'):
             self.issues.append('AOEs indicate that the case is hospitalized, but the investigation does not.')
 
     def CheckIcuAOE(self):
         """ Ensure that if AOEs show a patient as in the ICU the investigation matches."""
         if self.hospitalization_indicator == 'Yes':
-            if self.icu_aoe & (self.icu_indicator != 'Yes'):
+            if self.icu_aoe and (self.icu_indicator != 'Yes'):
                 self.issues.append('AOEs indicate that the case is in the ICU, but the investigation does not.')
 
     def CheckHcwAOE(self):
         """ Ensure that if AOEs show a patient is a healthcare worker the investigation matches."""
-        if self.hcw_aoe & (self.healthcare_worker != 'Yes'):
+        if self.hcw_aoe and (self.healthcare_worker != 'Yes'):
             self.issues.append('AOEs indicate that the case is a healthcare worker, but the investigation does not.')
 
     def CheckSympAOE(self):
         """ Ensure that if AOEs show a patient is symptomatic the investigation matches."""
-        if self.symp_aoe & (self.symptoms != 'Yes'):
+        if self.symp_aoe and (self.symptoms != 'Yes'):
             self.issues.append('AOEs indicate that the case is symptomatic, but the investigation does not.')
 
     def CheckCongAOE(self):
         """ Ensure that if AOEs show a patient lives in a congregate setting the
         investigation matches."""
-        if self.symp_aoe & (self.cong_setting_indicator != 'Yes'):
+        if self.symp_aoe and (self.cong_setting_indicator != 'Yes'):
             self.issues.append('AOEs indicate that the case lives in a congregate setting, but the investigation does not.')
 
     def CheckFirstResponderAOE(self):
         """ Ensure that if AOEs show a patient is a first responder that the
         investigation matches."""
-        if self.fr_aoe & (self.first_responder != 'Yes'):
+        if self.fr_aoe and (self.first_responder != 'Yes'):
             self.issues.append('AOEs indicate that the case is a first responder, but the investigation does not.')
 
     def CheckPregnancyAOE(self):
         """ Ensure that if AOEs show a patient is pregnany that the
         investigation matches."""
         pregnant_status = self.ReadText('//*[@id="INV178"]')
-        if self.preg_aoe & (pregnant_status != 'Yes'):
+        if self.preg_aoe and (pregnant_status != 'Yes'):
             self.issues.append('AOEs indicate that the case is pregnant, but the investigation does not.')
 
 ############### Preforming Lab Check Methods ##################################
@@ -537,7 +544,7 @@ class Athena(NBSdriver):
 ############ Ethnicity and Race Information Check Methods #####################
     def CheckNonWhiteEthnicity(self):
         """Ensure that all ehthnicaly non-white cases are assigned for investigation."""
-        if (not self.investigator) & (self.ethnicity == 'Hispanic or Latino'):
+        if (not self.investigator) and (self.ethnicity == 'Hispanic or Latino'):
             self.issues.append('Case is Hispanic or Latinx and should be assigned for investigation.')
 
     def CheckRace(self):
@@ -656,7 +663,7 @@ class Athena(NBSdriver):
         # Check COVID Tab.
         self.GoToCOVID()
         self.CheckSymptoms()
-        if (self.symptoms == 'Yes') & (self.ltf != 'Yes'):
+        if (self.symptoms == 'Yes') and (self.ltf != 'Yes'):
             self.CheckSymptomDatesAndStatus()
         self.CheckIllness_Duration()
         #self.CheckIsolation()
@@ -725,20 +732,78 @@ class Athena(NBSdriver):
             self.SortApprovalQueue()
             self.CheckFirstCase()
             self.final_name = self.patient_name
-            if (self.final_name == self.initial_name) & (len(self.issues) > 0):
+            if (self.final_name == self.initial_name) and (len(self.issues) > 0):
                 self.RejectNotification()
-            elif (self.final_name != self.initial_name) & (len(self.issues) > 0):
+            elif (self.final_name != self.initial_name) and (len(self.issues) > 0):
                 print('Case at top of queue changed. No action was taken on the reviewed case.')
                 self.num_fail += 1
         else:
             print("No COVID-19 cases in notification queue.")
+
+    def SortApprovalQueue(self):
+        """Sort the Athena approval queue and filter for COVID cases only."""
+        clear_filter_path = '//*[@id="removeFilters"]/a/font'
+        submit_date_path = '//*[@id="parent"]/thead/tr/th[3]/a'
+        condition_path = '//*[@id="parent"]/thead/tr/th[8]/a'
+        description_path = (
+            '//html/body/div[2]/form/div/table[2]/tbody/tr/td/table/thead/tr/th[8]/img'
+        )
+        clear_checkbox_path = (
+            '/html/body/div[2]/form/div/table[2]/tbody/tr/td/table/thead/tr/th[8]/div/label[2]/input'
+        )
+        filter_ok_path = (
+            '/html/body/div[2]/form/div/table[2]/tbody/tr/td/table/thead/tr/th[8]/div/label[1]/input[1]'
+        )
+        filter_cancel_path = (
+            '/html/body/div[2]/form/div/table[2]/tbody/tr/td/table/thead/tr/th[8]/div/label[1]/input[2]'
+        )
+        covid_checkbox = "//label[contains(text(),'2019 Novel Coronavirus (2019-nCoV)')]/input"
+
+        try:
+            WebDriverWait(self, self.wait_before_timeout).until(
+                EC.element_to_be_clickable((By.XPATH, clear_filter_path))
+            )
+            self.find_element(By.XPATH, clear_filter_path).click()
+            time.sleep(3)
+
+            WebDriverWait(self, self.wait_before_timeout).until(
+                EC.element_to_be_clickable((By.XPATH, description_path))
+            )
+            self.find_element(By.XPATH, description_path).click()
+
+            WebDriverWait(self, self.wait_before_timeout).until(
+                EC.element_to_be_clickable((By.XPATH, clear_checkbox_path))
+            )
+            self.find_element(By.XPATH, clear_checkbox_path).click()
+            time.sleep(1)
+
+            try:
+                self.find_element(By.XPATH, covid_checkbox).click()
+                WebDriverWait(self, self.wait_before_timeout).until(
+                    EC.element_to_be_clickable((By.XPATH, filter_ok_path))
+                )
+                self.find_element(By.XPATH, filter_ok_path).click()
+            except NoSuchElementException:
+                self.find_element(By.XPATH, filter_cancel_path).click()
+                return
+
+            time.sleep(1)
+            self.find_element(By.XPATH, submit_date_path).click()
+            self.find_element(By.XPATH, submit_date_path).click()
+            self.find_element(By.XPATH, condition_path).click()
+            self.find_element(By.XPATH, condition_path).click()
+        except (TimeoutException, ElementClickInterceptedException,
+                StaleElementReferenceException, NoSuchElementException) as e:
+            print(f"[athena] SortApprovalQueue exception: {e}")
+            self.HandleBadQueueReturn()
+
 ########### Vaccination Interperative Information Check Methods ################
     def CheckImmPactQuery(self):
         """ Ensure ImmPact was queried when age eligible. """
         self.immpact = self.ReadText('//*[@id="ME71100"]')
         try:
             age = int((self.collection_date - self.dob).days//365.25)
-            if (self.immpact != 'Yes') & (age >= 5):
+            if (self.immpact != 'Yes') and (age >= 5):
                 self.issues.append('ImmPact has not been queried.')
         except TypeError:
             self.issues.append('Unable to compute age because of bad/missing collection date or DOB -> ImmPact check applied regardless of age.')
@@ -748,9 +813,9 @@ class Athena(NBSdriver):
     def CheckRecievedVax(self):
         """ Ever recieved vaccine should only be no when case not LTFU. """
         self.vax_recieved = self.ReadText('//*[@id="VAC126"]')
-        if (self.vax_recieved == 'No') & (self.ltf != 'No'):
+        if (self.vax_recieved == 'No') and (self.ltf != 'No'):
             self.issues.append("If LTF == 'Yes' or blank, Vaccine Received must be blank or 'Yes'.")
-        elif (self.ltf == 'No') & (not self.vax_recieved):
+        elif (self.ltf == 'No') and (not self.vax_recieved):
             self.issues.append('If the case is not lost to follow up then vaccine recieved must be answered.')
         elif self.vax_recieved == 'Yes':
             dose_number = self.ReadText('//*[@id="VAC140"]')
@@ -758,19 +823,19 @@ class Athena(NBSdriver):
                 self.issues.append('Doses prior to onset cannot be blank if Vacinated is "Yes".')
             last_dose_date = self.ReadDate('//*[@id="VAC142"]')
             first_vax_date = datetime(2020, 12, 15).date()
-            if (not last_dose_date) & (dose_number != '0'):
+            if (not last_dose_date) and (dose_number != '0'):
                 self.issues.append('Last dose date is blank.')
-            # elif (last_dose_date != None) & (last_dose_date < first_vax_date):
+            # elif (last_dose_date != None) and (last_dose_date < first_vax_date):
                # self.issues.append('Last dose date is prior to when vaccinations become available.')
-            #elif (last_dose_date != None) & last_dose_date > self.now:
+            #elif (last_dose_date != None) and last_dose_date > self.now:
                # self.issues.append('Last dose date cannot be in the future.')
 
     def CheckFullyVaccinated(self):
         """ Validate fully vaccinated question"""
         fully_vaccinated = self.ReadText('//*[@id="ME70100"]')
-        if (fully_vaccinated not in ['Yes', 'No']) & (self.ltf == 'No'):
+        if (fully_vaccinated not in ['Yes', 'No']) and (self.ltf == 'No'):
             self.issues.append("Fully vaccinated cannot be blank or unknown when case is not lost to followup.")
-        if (fully_vaccinated == 'Yes') & (self.vax_recieved == 'No'):
+        if (fully_vaccinated == 'Yes') and (self.vax_recieved == 'No'):
             self.issues.append("Fully vaccinated cannot be Yes is vaccine recieved is No.")
 
 ########################## COVID Testing Check Methods #########################
@@ -796,7 +861,7 @@ class Athena(NBSdriver):
     def CheckSymptoms(self):
         """" Check symptom status of case. """
         self.symptoms = self.ReadText('//*[@id="INV576"]')
-        if (self.ltf != 'Yes') & (self.investigator):
+        if (self.ltf != 'Yes') and (self.investigator):
             if not self.symptoms:
                 self.issues.append("Symptom status is blank.")
 

@@ -34,14 +34,14 @@ reason = []
 is_in_production = os.getenv('ENVIRONMENT', 'production') != 'development'
 
 @error_handle
-def start_Gonorrhea(username, passcode, login_complete=None, is_logged_in=False):
+def start_Gonorrhea(username, password, login_complete=None, is_logged_in=False):
     from .Gonorrhea import Gonorrhea
     load_dotenv()
     from bot_env import is_production, target_site_label
     print(f"[Gonorrhea] target site: {target_site_label('Gonorrhea')}")
     NBS = Gonorrhea(production=is_production('Gonorrhea'))
 
-    NBS.set_credentials(username, passcode)
+    NBS.set_credentials(username, password)
     NBS.log_in(is_logged_in)
     if login_complete is not None:
         login_complete.set()
