@@ -10,5 +10,7 @@ def error_handle(func):
         except Exception:
             tb = traceback.format_exc()
             with open("error_logs.txt", "a") as log:
-                log.write(f"saved/{datetime.now().date().strftime('%m_%d_%Y')} - {datetime.now().time()} | {func.__name__.replace("start_", "")} - {str(tb)}\n")
+                log.write(
+    f"saved/{datetime.now().date().strftime('%m_%d_%Y')} - {datetime.now().time()} | {func.__name__.replace('start_', '')} - {str(tb)}\n"
+)
     return wrapper_error_handle
