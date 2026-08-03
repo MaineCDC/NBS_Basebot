@@ -1,8 +1,10 @@
 .env
 __pycache__/
-env
+
+# Virtual environments
+venv/
+.venv/
 env/
-.venv
 
 # Chrome runtime profiles (per-machine browser state, must not be tracked)
 chrome-bot-profile/
