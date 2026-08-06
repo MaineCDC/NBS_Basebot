@@ -73,10 +73,11 @@ class Audrey(NBSdriver):
         """ Read information required to connect to the NBS database."""
         self.nbs_db_driver = self.config.get('NBSdb', 'driver')
         self.nbs_db_server = self.config.get('NBSdb', 'server')
+        self.nbs_db_port = self.config.get('NBSdb', 'port')
         self.nbs_rdb_name = self.config.get('NBSdb', 'rdb')
         self.nbs_db_username = self.config.get('NBSdb', 'username')
         self.nbs_db_pwd = self.config.get('NBSdb', 'pwd')
-        self.nbs_odse_name = self.config.get('NBSdb', 'odse')
+       # self.nbs_odse_name = self.config.get('NBSdb', 'odse')
         self.nbs_unassigned_covid_lab_table = self.config.get('NBSdb', 'unassigned_covid_lab_table')
         self.nbs_patient_list_view = self.config.get('NBSdb', 'patient_list_view')
 
@@ -86,17 +87,19 @@ class Audrey(NBSdriver):
         is then stored in a DataFrame for future use."""
 
         # Connect to database
-        print(f'RETRIEVE NBS PATIENT LIST:\nConnecting to {self.nbs_odse_name} database...')
-        connectionString = f"DRIVER={{{ self.nbs_db_driver }}}; SERVER={self.nbs_db_server}; DATABASE={self.nbs_odse_name}; UID={self.nbs_db_username}; PWD={self.nbs_db_pwd}; TrustServerCertificate=yes"
+        print(f'RETRIEVE NBS PATIENT LIST:\nConnecting to {self.nbs_rdb_name} database...')
+        connectionString = f"DRIVER={{{ self.nbs_db_driver }}}; SERVER={self.nbs_db_server},{self.nbs_db_port}; DATABASE={self.nbs_rdb_name}; UID={self.nbs_db_username}; PWD={self.nbs_db_pwd}; TrustServerCertificate=yes"
         print(f"cstring: {connectionString}")
         Connection = pyodbc.connect(connectionString)
         # "Driver={" + self.nbs_db_driver + "};"
         #                       f"Server={self.nbs_db_server};"
-        #                       f"Database={self.nbs_odse_name};"
+        #                       f"Database={self.nbs_rdb_name};"
         #                       "Trusted_Connection=yes;"
         # Execute query and close connection
-        print (f'Connected to {self.nbs_odse_name}. Executing query...')
-        query = f"SELECT PERSON_PARENT_UID, UPPER(FIRST_NM) AS FIRST_NM, UPPER(LAST_NM) AS LAST_NM, BIRTH_DT FROM {self.nbs_patient_list_view} WHERE (FIRST_NM IS NOT NULL) AND (LAST_NM IS NOT NULL) AND (BIRTH_DT IS NOT NULL) AND (RECORD_STATUS_CD = 'ACTIVE')"
+        print (f'Connected to {self.nbs_rdb_name}. Executing query...')
+        #query = f"SELECT PERSON_PARENT_UID, UPPER(FIRST_NM) AS FIRST_NM, UPPER(LAST_NM) AS LAST_NM, BIRTH_DT FROM {self.nbs_patient_list_view} WHERE (FIRST_NM IS NOT NULL) AND (LAST_NM IS NOT NULL) AND (BIRTH_DT IS NOT NULL) AND (RECORD_STATUS_CD = 'ACTIVE')"
+        query = f"SELECT PATIENT_KEY,PATIENT_MPR_UID as PERSON_PARENT_UID ,PATIENT_LOCAL_ID,PATIENT_FIRST_NAME as FIRST_NM,PATIENT_LAST_NAME as LAST_NM,PATIENT_DOB as BIRTH_DT FROM {self.nbs_patient_list_view} "
+ 
         self.patient_list = pd.read_sql_query(query, Connection)
         self.patient_list = self.patient_list.drop_duplicates(ignore_index=True)
         Connection.close()
@@ -975,7 +978,7 @@ class Audrey(NBSdriver):
     """
 
         self.send_smtp_email(
-            "disease.reporting@maine.gov",
+            "Vaishnavi.appidi@maine.gov",
             "REPORT: NBSbot (Audrey Notification) AKA Audrey",
             body,
             "Audrey bot started running"

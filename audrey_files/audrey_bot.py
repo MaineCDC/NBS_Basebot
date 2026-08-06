@@ -305,7 +305,7 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
                 print(f"{e} has occured for clear_checkbox, retry_number: {i}")
         
         #select all hepatitis tests
-        tests =  ["HEPATITIS C RNA-PCR"]  #"HCV","Hep", "HEP", "HAV", "HBV","Alanine", "ALT"
+        tests =  ["HCV","Hep", "HEP", "HAV", "HBV","Alanine", "ALT"]  #"HCV","Hep", "HEP", "HAV", "HBV","Alanine", "ALT"
         clicked_labels = []
         for test in tests:
             results = NBS.find_elements(By.XPATH,f"//label[contains(text(),'{test}')]")
@@ -409,11 +409,36 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
         reviewed_ids.append(event_id) 
         hist[event_id] = []
         #identify the element that has the event id to be reviewed and navigate to that Lab Report
-        
-        try:
-            anc = NBS.find_element(By.XPATH,f"//td[contains(text(),'{event_id}')]/../td/a")
-        except NoSuchElementException:
-            anc = NBS.find_element(By.XPATH,f"//font[contains(text(),'{event_id}')]/../../td/a")
+        event_id_text = str(event_id).strip()
+
+        def _xpath_literal(text):
+            if "'" not in text:
+                return f"'{text}'"
+            if '"' not in text:
+                return f'"{text}"'
+            parts = text.split("'")
+            return "concat(" + ", \"'\", ".join([f"'{p}'" for p in parts]) + ")"
+
+        event_literal = _xpath_literal(event_id_text)
+        xpath_candidates = [
+            f"//tr[td[contains(normalize-space(.),{event_literal})]]//a",
+            f"//td[contains(normalize-space(.),{event_literal})]/following-sibling::td//a",
+            f"//font[contains(normalize-space(.),{event_literal})]/ancestor::tr//a",
+        ]
+
+        anc = None
+        for xpath in xpath_candidates:
+            try:
+                anc = NBS.find_element(By.XPATH, xpath)
+                break
+            except NoSuchElementException:
+                continue
+
+        if anc is None:
+            raise NoSuchElementException(
+                f"Could not locate row anchor for event_id={event_id_text} using any fallback XPath."
+            )
+
         anc.click()
         
         skip_patient = False
@@ -565,16 +590,39 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
             except Exception as e:
                 print(f"exception: {e} occurred lab_report_table_path, trying again... retry_number: {i}")
         
-        lab_row = lab_report_table[lab_report_table['Event ID'] == re.findall(r'OBS\d+ME\d+',event_id)[0]]
+        lab_event_matches = re.findall(r'OBS\d+ME\d+', event_id)
+        lab_event_id = None
+        if lab_event_matches:
+            lab_event_id = lab_event_matches[0]
+        elif event_id in lab_report_table['Event ID'].astype(str).tolist():
+            lab_event_id = event_id
+
+        if lab_event_id is None:
+            fallback_rows = lab_report_table[lab_report_table['Event ID'].astype(str).str.contains(re.escape(str(event_id)), na=False)]
+            if not fallback_rows.empty:
+                lab_event_id = fallback_rows['Event ID'].iloc[0]
+
+        if lab_event_id is None:
+            print(f"No matching lab Event ID found for event_id={event_id}; skipping this ELR.")
+            NBS.go_to_home()
+            continue
+
+        lab_row = lab_report_table[lab_report_table['Event ID'] == lab_event_id]
+        if lab_row.empty:
+            print(f"Lab report row not found for Event ID: {lab_event_id}; skipping this ELR.")
+            NBS.go_to_home()
+            continue
+
         lab_index = int(lab_row.index.to_list()[0]) + 1
-        
+
         if lab_index > 1:
-            lab_path = f'/html/body/div[2]/form/div/table[4]/tbody/tr[2]/td/div[2]/table/tbody/tr/td/div[1]/div[5]/div/table/tbody/tr/td/table/tbody/tr[{str(lab_index)}]/td[1]/a'
-        elif lab_index == 1:
+            lab_path = f'/html/body/div[2]/form/div/table[4]/tbody/tr[2]/td/div[2]/table/tbody/tr/td/div[1]/div[5]/div/table/tbody/tr/td/table/tbody/tr[{lab_index}]/td[1]/a'
+        else:
             lab_path = '/html/body/div[2]/form/div/table[4]/tbody/tr[2]/td/div[2]/table/tbody/tr/td/div[1]/div[5]/div/table/tbody/tr/td/table/tbody/tr/td[1]/a'
+
         for i in range(3):
             try:
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, lab_path)))
+                WebDriverWait(NBS, NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, lab_path)))
                 NBS.find_element(By.XPATH, lab_path).click()
                 break
             except TimeoutException:
@@ -1650,7 +1698,7 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
                 #NBS.click_submit()
                 pass
             else:
-                NBS.create_notification() 
+                NBS.create_notification()  # debug this not sending notification for some reason
             #in covidlabreview, changed transfer_ownership_path to [4] instead of [3]
             print("Create Investigation: " + condition)
             what_do.append("Create Investigation: " + condition)
@@ -1991,10 +2039,14 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
             time.sleep(3)
             #identify investigation, name and date? maybe index from investigations table
             inv_to_assoc = investigation_table[investigation_table["Condition"].str.contains(test_condition)]
-            for i in inv_to_assoc.index:
-                inv_ind = i+1
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, f"//*[@id='parent']/tbody/tr[{inv_ind}]/td[1]/div/input")))
-                NBS.find_element(By.XPATH, f"//*[@id='parent']/tbody/tr[{inv_ind}]/td[1]/div/input").click()
+            inv_to_assoc = inv_to_assoc.reset_index(drop=True)
+            for row_position in range(len(inv_to_assoc)):
+                inv_ind = row_position + 1
+                xpath = f"//*[@id='parent']/tbody/tr[{inv_ind}]/td[1]/div/input"
+                WebDriverWait(NBS, NBS.wait_before_timeout).until(
+                    EC.element_to_be_clickable((By.XPATH, xpath))
+                )
+                NBS.find_element(By.XPATH, xpath).click()
             #click submit
             WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="Submit"]')))
             NBS.find_element(By.XPATH, '//*[@id="Submit"]').click()

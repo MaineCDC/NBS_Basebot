@@ -82,3 +82,16 @@ Stacktrace:
 2026-08-03 00:37:03  === RUN END === - reviewed 8 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
 2026-08-03 00:53:21  === RUN START === - mode=LIVE; cap=8; 8 Anaplasma case(s) in queue
 2026-08-03 01:06:45  === RUN END === - reviewed 8 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-08-04 11:37:43  === RUN START === - mode=LIVE; cap=50; 50 Anaplasma case(s) in queue
+2026-08-04 12:37:30  === RUN END === - reviewed 50 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-08-04 12:43:25  === RUN START === - mode=LIVE; cap=8; 8 Anaplasma case(s) in queue
+2026-08-04 12:53:38  === RUN END === - reviewed 8 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-08-04 12:59:34  === RUN START === - mode=LIVE; cap=4; 4 Anaplasma case(s) in queue
+2026-08-04 13:02:24  CAS11063046ME01 - Queue top changed after re-sort (expected 'OLSON, PRATT', saw 'GUERRETTE, JACOB'); advanced past case without acting to avoid acting on the wrong case. Issues: Specimen collection dates 2026-08-03 do not match dates on lab report 2026-08-01. | 'did the patient die' should not be blank
+2026-08-04 13:05:19  === RUN END === - reviewed 3 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-08-04 13:11:09  === RUN START === - mode=LIVE; cap=2; 2 Anaplasma case(s) in queue
+2026-08-04 13:13:16  === RUN END === - reviewed 2 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-08-04 13:19:10  === RUN START === - mode=LIVE; cap=1; 1 Anaplasma case(s) in queue
+2026-08-04 13:20:08  === RUN END === - reviewed 1 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-08-05 13:02:07  === RUN START === - mode=LIVE; cap=17; 17 Anaplasma case(s) in queue
+2026-08-05 13:22:12  === RUN END === - reviewed 17 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
