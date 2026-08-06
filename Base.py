@@ -99,10 +99,7 @@ class NBSdriver(webdriver.Chrome):
         
         options.add_experimental_option("prefs", prefs)
         # options.add_argument("--headless")
-<<<<<<< HEAD
-=======
 
->>>>>>> 6af74f3fc7e0bc477e19c5c34e949dfa6f7d20f6
         # When debuggerAddress is set, Chrome is already running on port 9223
         # When debuggerAddress is set, Chrome is already running on port 9223
         # We connect to it without starting a service
@@ -123,19 +120,7 @@ class NBSdriver(webdriver.Chrome):
             print(f"[NBSdriver] ERROR: Could not initialize: {e}")
             print("[NBSdriver] Please run tests using the debug runners (run_anaplasma_debug.py, etc.)")
             raise
-<<<<<<< HEAD
-        # if chrome_path:
-        #     service = Service(chrome_path)
-        #     super().__init__(service=service, options=options)
-        # else:
-        #     driver_path = ChromeDriverManager().install()
-        #     service = Service(driver_path)
-        #     super().__init__(service=service, options=options)
-        #     print(f"installed chromedriver")
-=======
 
-
->>>>>>> 6af74f3fc7e0bc477e19c5c34e949dfa6f7d20f6
 
         handles = self.window_handles
         print("current-handle-title: ", self.title)
