@@ -2,3 +2,96 @@
 2026-06-15 10:04:39  === RUN END === - reviewed 10 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
 2026-06-15 10:39:26  === RUN START === - mode=LIVE; cap=6; 6 Anaplasma case(s) in queue
 2026-06-15 10:43:28  === RUN END === - reviewed 6 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-07-01 10:30:53  === RUN START === - mode=LIVE; cap=65; 65 Anaplasma case(s) in queue
+2026-07-01 12:33:40  === RUN END === - reviewed 36 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-07-01 15:33:06  === RUN START === - mode=LIVE; cap=267; 267 Anaplasma case(s) in queue
+2026-07-02 11:10:16  === RUN START === - mode=LIVE; cap=55; 55 Anaplasma case(s) in queue
+2026-07-02 12:35:29  === RUN END === - reviewed 32 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-07-07 12:37:19  === RUN START === - mode=LIVE; cap=85; 85 Anaplasma case(s) in queue
+2026-07-07 12:45:06  CAS11054279ME01 - Queue top changed after re-sort (expected 'TURNER, NANCY', saw 'MOODY, TIMOTHY'); advanced past case without acting to avoid acting on the wrong case. Issues: Performing laboratory is blank. | Meets case definition for a confirmed case but is not a confirmed case.
+2026-07-07 14:45:21  === RUN END === - reviewed 64 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-07-07 14:47:51  === RUN START === - mode=LIVE; cap=23; 23 Anaplasma case(s) in queue
+2026-07-07 15:16:02  === RUN END === - reviewed 19 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-07-09 08:39:12  === RUN START === - mode=LIVE; cap=44; 44 Anaplasma case(s) in queue
+2026-07-09 09:25:25  CAS11054381ME01 - RejectNotification failed: Message: no such element: Unable to locate element: {"method":"xpath","selector":"//*[@id="rejectComments"]"}
+  (Session info: chrome=150.0.7871.101); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+	chromedriver!GetHandleVerifier [0x7ff66e4ca865+152a5]
+	chromedriver!GetHandleVerifier [0x7ff66e4ca8c0+15300]
+	chromedriver!(No symbol) [0x7ff66e02596d]
+	chromedriver!(No symbol) [0x7ff66e0805a9]
+	chromedriver!(No symbol) [0x7ff66e0808ac]
+	chromedriver!(No symbol) [0x7ff66e0d10f7]
+	chromedriver!(No symbol) [0x7ff66e0cdcf4]
+	chromedriver!(No symbol) [0x7ff66e072b3c]
+	chromedriver!(No symbol) [0x7ff66e073a53]
+	chromedriver!GetHandleVerifier [0x7ff66eaad3a1+5f7de1]
+	chromedriver!GetHandleVerifier [0x7ff66eaa7a3b+5f247b]
+	chromedriver!GetHandleVerifier [0x7ff66eacbca5+6166e5]
+	chromedriver!GetHandleVerifier [0x7ff66e4e72ae+31cee]
+	chromedriver!GetHandleVerifier [0x7ff66e4efe3c+3a87c]
+	chromedriver!GetHandleVerifier [0x7ff66e4d4404+1ee44]
+	chromedriver!GetHandleVerifier [0x7ff66e4d4594+1efd4]
+	chromedriver!GetHandleVerifier [0x7ff66e4b75c7+2007]
+	KERNEL32!BaseThreadInitThunk [0x7ffee081259d+1d]
+	ntdll!RtlUserThreadStart [0x7ffee14eafb8+28]
+; advanced past case to avoid a re-review loop. Issues: Titer value in lab report is missing but, Serology test isn't. | -nbsbot 07/09/2026, 09:25:25
+2026-07-09 09:42:19  === RUN START === - mode=LIVE; cap=40; 40 Anaplasma case(s) in queue
+2026-07-09 10:35:20  === RUN START === - mode=LIVE; cap=31; 31 Anaplasma case(s) in queue
+2026-07-09 11:12:55  === RUN END === - reviewed 28 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-07-09 11:29:01  === RUN START === - mode=LIVE; cap=9; 9 Anaplasma case(s) in queue
+2026-07-09 11:38:47  === RUN END === - reviewed 9 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-07-13 11:36:37  === RUN START === - mode=LIVE; cap=38; 38 Anaplasma case(s) in queue
+2026-07-13 12:15:29  === RUN END === - reviewed 38 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-07-13 15:15:43  === RUN START === - mode=LIVE; cap=18; 18 Anaplasma case(s) in queue
+2026-07-13 15:34:03  === RUN END === - reviewed 18 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-07-14 12:08:21  === RUN START === - mode=LIVE; cap=38; 38 Anaplasma case(s) in queue
+2026-07-14 12:53:54  === RUN END === - reviewed 36 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-07-15 09:32:07  === RUN START === - mode=LIVE; cap=22; 22 Anaplasma case(s) in queue
+2026-07-15 11:00:43  === RUN START === - mode=LIVE; cap=23; 23 Anaplasma case(s) in queue
+2026-07-15 11:02:27  CAS11055520ME01 - Queue top changed after re-sort (expected 'PEASE, NANCY', saw 'MCGLAMERY, PETER'); advanced past case without acting to avoid acting on the wrong case. Issues: Meets case definition for a confirmed case but is not a confirmed case.
+2026-07-15 11:50:46  === RUN END === - reviewed 9 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-07-16 08:51:33  === RUN START === - mode=LIVE; cap=34; 34 Anaplasma case(s) in queue
+2026-07-16 09:32:58  === RUN END === - reviewed 31 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-07-16 10:49:37  === RUN START === - mode=LIVE; cap=9; 9 Anaplasma case(s) in queue
+2026-07-16 10:59:34  === RUN END === - reviewed 9 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-07-20 11:26:16  === RUN START === - mode=LIVE; cap=40; 40 Anaplasma case(s) in queue
+2026-07-20 12:09:33  === RUN END === - reviewed 39 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-07-20 14:30:35  === RUN START === - mode=LIVE; cap=22; 22 Anaplasma case(s) in queue
+2026-07-20 14:47:07  === RUN START === - mode=LIVE; cap=20; 20 Anaplasma case(s) in queue
+2026-07-20 15:05:55  === RUN END === - reviewed 20 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-07-21 11:52:50  === RUN START === - mode=LIVE; cap=20; 20 Anaplasma case(s) in queue
+2026-07-21 12:25:08  === RUN END === - reviewed 15 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-07-22 12:10:12  === RUN START === - mode=LIVE; cap=24; 24 Anaplasma case(s) in queue
+2026-07-22 13:05:21  === RUN END === - reviewed 9 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-07-23 08:57:39  === RUN START === - mode=LIVE; cap=23; 23 Anaplasma case(s) in queue
+2026-07-23 09:28:33  === RUN END === - reviewed 20 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-07-27 08:08:02  === RUN START === - mode=LIVE; cap=60; 60 Anaplasma case(s) in queue
+2026-07-27 09:09:36  === RUN START === - mode=LIVE; cap=35; 35 Anaplasma case(s) in queue
+2026-07-27 09:46:22  === RUN END === - reviewed 35 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-07-28 11:39:06  === RUN START === - mode=LIVE; cap=26; 26 Anaplasma case(s) in queue
+2026-07-28 11:55:45  CAS11056743ME01 - Queue top changed after re-sort (expected 'AGELL, ANNA', saw 'Scully, Marc'); advanced past case without acting to avoid acting on the wrong case. Issues: Confirmation date cannot be before investigation start date.
+2026-07-28 11:57:25  CAS11056743ME01 - Queue top changed after re-sort (expected 'AGELL, ANNA', saw 'Scully, Marc'); advanced past case without acting to avoid acting on the wrong case. Issues: Confirmation date cannot be before investigation start date.
+2026-07-28 12:16:29  === RUN END === - reviewed 20 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-07-29 11:40:18  === RUN START === - mode=LIVE; cap=20; 20 Anaplasma case(s) in queue
+2026-07-29 12:05:29  === RUN END === - reviewed 20 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-08-02 22:33:07  === RUN START === - mode=LIVE; cap=38; 38 Anaplasma case(s) in queue
+2026-08-02 23:11:26  === RUN START === - mode=LIVE; cap=34; 34 Anaplasma case(s) in queue
+2026-08-03 00:12:20  === RUN END === - reviewed 28 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-08-03 00:23:09  === RUN START === - mode=LIVE; cap=8; 8 Anaplasma case(s) in queue
+2026-08-03 00:37:03  === RUN END === - reviewed 8 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-08-03 00:53:21  === RUN START === - mode=LIVE; cap=8; 8 Anaplasma case(s) in queue
+2026-08-03 01:06:45  === RUN END === - reviewed 8 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-08-04 11:37:43  === RUN START === - mode=LIVE; cap=50; 50 Anaplasma case(s) in queue
+2026-08-04 12:37:30  === RUN END === - reviewed 50 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-08-04 12:43:25  === RUN START === - mode=LIVE; cap=8; 8 Anaplasma case(s) in queue
+2026-08-04 12:53:38  === RUN END === - reviewed 8 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-08-04 12:59:34  === RUN START === - mode=LIVE; cap=4; 4 Anaplasma case(s) in queue
+2026-08-04 13:02:24  CAS11063046ME01 - Queue top changed after re-sort (expected 'OLSON, PRATT', saw 'GUERRETTE, JACOB'); advanced past case without acting to avoid acting on the wrong case. Issues: Specimen collection dates 2026-08-03 do not match dates on lab report 2026-08-01. | 'did the patient die' should not be blank
+2026-08-04 13:05:19  === RUN END === - reviewed 3 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-08-04 13:11:09  === RUN START === - mode=LIVE; cap=2; 2 Anaplasma case(s) in queue
+2026-08-04 13:13:16  === RUN END === - reviewed 2 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-08-04 13:19:10  === RUN START === - mode=LIVE; cap=1; 1 Anaplasma case(s) in queue
+2026-08-04 13:20:08  === RUN END === - reviewed 1 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx
+2026-08-05 13:02:07  === RUN START === - mode=LIVE; cap=17; 17 Anaplasma case(s) in queue
+2026-08-05 13:22:12  === RUN END === - reviewed 17 case(s); results written to saved/Anaplasma/Anaplasma_bot_activity_final_<date>.xlsx

@@ -63,7 +63,7 @@ def would_be_note(NBS):
 
 
 @error_handle
-def start_babesia(username, passcode, login_complete: Event = None, is_logged_in=False):
+def start_babesia(username, password, login_complete: Event = None, is_logged_in=False):
 
     from .babesia import Babesia
 
@@ -90,7 +90,7 @@ def start_babesia(username, passcode, login_complete: Event = None, is_logged_in
     from bot_env import is_production, target_site_label
     print(f"[babesia] target site: {target_site_label('babesia')}")
     NBS = Babesia(production=is_production('babesia'))
-    NBS.set_credentials(username, passcode)
+    NBS.set_credentials(username, password)
     NBS.log_in(is_logged_in)
     if login_complete is not None:
         login_complete.set()

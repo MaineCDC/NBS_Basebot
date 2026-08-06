@@ -31,14 +31,14 @@ reason = []
 
 is_in_production = os.getenv('ENVIRONMENT', 'production') != 'development'
 @error_handle
-def start_ILIOutbreak(username, passcode, login_complete=None, is_logged_in=False):
+def start_ILIOutbreak(username, password, login_complete=None, is_logged_in=False):
 
     load_dotenv()
     from .ILIOutbreak import ILIOutbreak
     from bot_env import is_production, target_site_label
     print(f"[ILIOutbreak] target site: {target_site_label('ILIOutbreak')}")
     NBS = ILIOutbreak(production=is_production('ILIOutbreak'))
-    NBS.set_credentials(username, passcode)
+    NBS.set_credentials(username, password)
     NBS.log_in(is_logged_in)
     if login_complete is not None:
         login_complete.set()

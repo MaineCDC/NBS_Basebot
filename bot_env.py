@@ -17,8 +17,15 @@ import os
 
 # Bots not yet in production -> always the test site. Remove a name here the day
 # that bot graduates to production.
-TEST_LOCKED_BOTS = {"babesia", "ILIOutbreak"}
-
+#TEST_LOCKED_BOTS = {"babesia", "ILIOutbreak"}
+TEST_LOCKED_BOTS = {"giardiasis"}
+# ("4. giardiasis")
+#     print("5. strep")
+#     print("6. babesia")
+#     print("7. CovidEcr")
+#     print("8. HepBnotificationreview")
+#     print("9. Gonorrhea")
+#     print("10. ILIOutbreak")
 
 def session_is_production():
     """Global switch: production unless ENVIRONMENT=development."""

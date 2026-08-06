@@ -568,7 +568,7 @@ class Anaplasma(NBSdriver):
             # self.serology_test_type = self.Sero_table["Serology Test Type"].values[row]
             if any(pd.isnull(self.Sero_table["Serology Collection Date"].values)):
                 self.issues.append('Patient has a reported serology test, but the collection date is not listed.')
-                print(f"serology_collection_date: {self.Sero_table["Serology Collection Date"].values}")
+                print(f"serology_collection_date: {self.Sero_table['Serology Collection Date'].values}")
             else:
                 values = self.Sero_table["Serology Collection Date"].dropna().values
                 if len(values) > 0:
@@ -585,17 +585,17 @@ class Anaplasma(NBSdriver):
                     self.issues.append(f"lab collection date on supplemental info tab {self.collection_date} doesn't match serology collection date in repeating block {self.serology_collection_date}")
             if any(pd.isnull(self.Sero_table["Serology Test Type"].values)):
                 self.issues.append('Patient has a reported serology test, but the test type is not listed.')
-                print(f"serology_test_type: {self.Sero_table["Serology Test Type"].values}")
+                print(f"serology_test_type: {self.Sero_table['Serology Test Type'].values}")
             if any(pd.isnull(self.Sero_table["Serology Positive?"].values)): #possible issue
                 self.issues.append('Patient has a reported serology test, but the result is not listed as positive or negative.')
-                print(f"serology_positive: {self.Sero_table["Serology Positive?"].values}")
+                print(f"serology_positive: {self.Sero_table['Serology Positive?'].values}")
             # if len(self.Sero_table) < 2:
             seroTiter = self.Sero_table["Titer Value"].apply(lambda x: float(x.split(":")[1]) if ":" in str(x) else float(str(x).replace("<", "").replace(">", "")))
             print("titer_values", self.titer_value, seroTiter.values[row])
             # compareTiter = int(self.titer_value) if (self.titer_value).is_integer() else self.titer_value
             if self.titer_value and all(seroTiter != float(self.titer_value)):
                 self.issues.append(f'IgG titer value ({self.Sero_table["Titer Value"].values[row]}) does not match lab report ({self.titer_value}).')
-                print(f"Titer values: {self.Sero_table["Titer Value"].values[row]} - {self.titer_value}")
+                print(f"Titer values: {self.Sero_table['Titer Value'].values[row]} - {self.titer_value}")
                 if seroTiter.values[row]:
                     self.titer_value = seroTiter.values[row]
                     # self.lab_is_serology = True
@@ -799,7 +799,7 @@ class Anaplasma(NBSdriver):
         #     titer_value = 0
         try:
             if re.search(r":", str(self.Sero_table["Titer Value"])):
-                print(f"titer1: {self.Sero_table["Titer Value"]} {self.Sero_table["Titer Value"].first()} {self.Sero_table["Titer Value"].values}")
+                print(f"titer1: {self.Sero_table['Titer Value']} {self.Sero_table['Titer Value'].first()} {self.Sero_table['Titer Value'].values}")
                 val = str(self.Sero_table["Titer Value"]).split("    ")[1].split(":")
                 print(f"titer2: {val}")
                 titer_value = Fraction(int(val[0].replace("\nName", "")), int(val[1].replace("\nName", "")))
@@ -807,7 +807,7 @@ class Anaplasma(NBSdriver):
             else:
                 titer_value = int(self.Sero_table["Titer Value"])
         except Exception as e:
-            print(f"error titer_value: {str(self.Sero_table["Titer Value"])}: {str(e)}")
+            print(f"error titer_value: {str(self.Sero_table['Titer Value'])}: {str(e)}")
             titer_value = None
 
         if titer_value and float(titer_value) < 128:

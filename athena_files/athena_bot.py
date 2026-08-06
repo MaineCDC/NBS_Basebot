@@ -10,13 +10,13 @@ def generator():
         yield
 is_in_production = os.getenv('ENVIRONMENT', 'production') != 'development'
 @error_handle
-def start_athena(username, passcode, login_complete: Event = None, is_logged_in=False):
+def start_athena(username, password, login_complete: Event = None, is_logged_in=False):
     from .athena import Athena
 
     from bot_env import is_production, target_site_label
     print(f"[athena] target site: {target_site_label('athena')}")
     NBS = Athena(production=is_production('athena'))
-    NBS.set_credentials(username, passcode)
+    NBS.set_credentials(username, password)
     NBS.log_in(is_logged_in)
     if login_complete is not None:
         login_complete.set()
