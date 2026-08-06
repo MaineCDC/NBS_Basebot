@@ -1604,13 +1604,13 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
             elif test_type == "RNA":
                 WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="LP38335_3_DT"]')))
                 NBS.find_element(By.XPATH, '//*[@id="LP38335_3_DT"]').send_keys(lab_date.strftime('%m/%d/%Y'))
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[28]/td[2]/input')))
-                NBS.find_element(By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[28]/td[2]/input').send_keys("Positive")
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[30]/td[2]/input')))
+                NBS.find_element(By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[30]/td[2]/input').send_keys("Positive")
                 if Genotype_test  is not None:
                     WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ME121009"]')))
                     NBS.find_element(By.XPATH, '//*[@id="ME121009"]').send_keys(lab_date.strftime('%m/%d/%Y'))
-                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[30]/td[2]/input')))
-                    NBS.find_element(By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[30]/td[2]/input').send_keys("Yes")
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[34]/td[2]/input')))
+                    NBS.find_element(By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[34]/td[2]/input').send_keys("Yes")
                     if resulted_test_table["Coded Result / Organism Name"].iloc[0] != "":
                         print(f"fgen: {genotype}")
                         if pd.isna(resulted_test_table["Coded Result / Organism Name"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
@@ -1629,8 +1629,8 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
             elif test_type == "Genotype":
                 WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ME121009"]')))
                 NBS.find_element(By.XPATH, '//*[@id="ME121009"]').send_keys(lab_date.strftime('%m/%d/%Y'))
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[30]/td[2]/input')))
-                NBS.find_element(By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[30]/td[2]/input').send_keys("Yes")
+                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[34]/td[2]/input')))
+                NBS.find_element(By.XPATH, '//*[@id="NBS_INV_HEP_UI_8"]/tbody/tr[34]/td[2]/input').send_keys("Yes")
                 if resulted_test_table["Coded Result / Organism Name"].iloc[0] != "":
                     if pd.isna(resulted_test_table["Coded Result / Organism Name"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
                         genotype = resulted_test_table["Coded Result / Organism Name"].str.extract(r'(\d+)').loc[0,0]

@@ -9,8 +9,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime
 from datetime import timedelta
 from epiweeks import Week
-from selenium.common.exceptions import ElementNotInteractableException,StaleElementReferenceException
-from selenium.common.exceptions import NoSuchElementException,TimeoutException
+from selenium.common.exceptions import ElementNotInteractableException, StaleElementReferenceException, NoSuchWindowException
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from time import sleep
 #import dask.dataframe as dd
 
@@ -907,25 +907,37 @@ class Audrey(NBSdriver):
 
     def create_notification(self):
         """After completing a case create notification for it."""
+        create_button_path = '//*[@id="createNoti"]'
+        submit_button_path = '//*[@id="botcreatenotId"]/input[1]'
+
         for i in range(3):
             try:
-                create_button_path = '//*[@id="createNoti"]'
-                WebDriverWait(self,self.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, create_button_path)))
-                self.find_element(By.XPATH,create_button_path).click()
-                self.switch_to_secondary_window()
-                submit_button_path = '//*[@id="botcreatenotId"]/input[1]'
-                WebDriverWait(self,self.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, submit_button_path)))
+                WebDriverWait(self, self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, create_button_path)))
+                self.find_element(By.XPATH, create_button_path).click()
+
+                WebDriverWait(self, self.wait_before_timeout).until(lambda driver: len(driver.window_handles) > 1)
+                secondary_handles = [handle for handle in self.window_handles
+                    if handle != self.main_window_handle]
+                if not secondary_handles:
+                    raise NoSuchWindowException("Create notification popup did not open")
+
+                self.switch_to.window(secondary_handles[-1])
+                WebDriverWait(self, self.wait_before_timeout).until(
+                    EC.element_to_be_clickable((By.XPATH, submit_button_path))
+                )
                 self.find_element(By.XPATH, submit_button_path).click()
                 self.switch_to.window(self.main_window_handle)
-                break
-            except TimeoutException:
-                print(f"Timeout waiting for create_notification, retry_number: {i}")
+                return
+            except (TimeoutException, NoSuchElementException, NoSuchWindowException) as e:
+                print(f"create_notification attempt {i} failed: {e}")
+                sleep(1)
             except StaleElementReferenceException:
                 print(f"StaleElementReferenceException for create_notification, trying again... retry_number: {i}")
-            except NoSuchElementException:
-                print(f"No create_notification found, retry_number: {i}")
+                sleep(1)
             except Exception as e:
                 print(f"{e} has occured for create_notification, retry_number: {i}")
+                sleep(1)
+        print("create_notification: failed after retries")
 
     def send_bad_address_email(self):
         """Email the COVID Admin the list of patients with incomplete addresses."""
@@ -978,7 +990,7 @@ class Audrey(NBSdriver):
     """
 
         self.send_smtp_email(
-            "Vaishnavi.appidi@maine.gov",
+            "disease.reporting@maine.gov",
             "REPORT: NBSbot (Audrey Notification) AKA Audrey",
             body,
             "Audrey bot started running"
