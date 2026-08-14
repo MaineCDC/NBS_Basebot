@@ -990,7 +990,7 @@ class Audrey(NBSdriver):
     """
 
         self.send_smtp_email(
-            "disease.reporting@maine.gov",
+            "vaishnavi.appidi@maine.gov",
             "REPORT: NBSbot (Audrey Notification) AKA Audrey",
             body,
             "Audrey bot started running"

@@ -156,7 +156,6 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
                 f"Hepatitis_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx",
             )
         #Go to Document Requiring Review
-        
         for i in range(3):
             try:
                 timeout = NBS.wait_before_timeout + i*10
@@ -164,6 +163,7 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
                 WebDriverWait(NBS,timeout).until(EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT, partial_link)))
                 time.sleep(1)
                 NBS.find_element(By.PARTIAL_LINK_TEXT, partial_link).click()
+                break
             except TimeoutException:
                 print(f"TimeoutException for {partial_link}, trying again... retry_number: {i}")
             except StaleElementReferenceException:
@@ -411,134 +411,177 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
         #identify the element that has the event id to be reviewed and navigate to that Lab Report
         event_id_text = str(event_id).strip()
 
-        def _xpath_literal(text):
-            if "'" not in text:
-                return f"'{text}'"
-            if '"' not in text:
-                return f'"{text}"'
-            parts = text.split("'")
-            return "concat(" + ", \"'\", ".join([f"'{p}'" for p in parts]) + ")"
-
-        event_literal = _xpath_literal(event_id_text)
-        xpath_candidates = [
-            f"//tr[td[contains(normalize-space(.),{event_literal})]]//a",
-            f"//td[contains(normalize-space(.),{event_literal})]/following-sibling::td//a",
-            f"//font[contains(normalize-space(.),{event_literal})]/ancestor::tr//a",
-        ]
-
-        anc = None
-        for xpath in xpath_candidates:
+        try:
+            anc = NBS.find_element(By.XPATH, f"//td[contains(normalize-space(.),'{event_id_text}')]/../td/a")
+        except NoSuchElementException:
             try:
-                anc = NBS.find_element(By.XPATH, xpath)
-                break
+                anc = NBS.find_element(By.XPATH, f"//font[contains(normalize-space(.),'{event_id_text}')]/../../td/a")
             except NoSuchElementException:
+                raise NoSuchElementException(
+                    f"Could not locate row anchor for event_id={event_id_text} using the recommended XPath sequence."
+                )
+
+        try:
+            NBS.execute_script("arguments[0].scrollIntoView(true);", anc)
+            anc.click()
+            print(f"Opened event row using xpath for event_id={event_id_text}")
+        except Exception as exc:
+            print(f"Primary click failed for event row {event_id_text}: {exc}")
+            try:
+                NBS.execute_script("arguments[0].click();", anc)
+                print(f"Opened event row via JS click for event_id={event_id_text}")
+            except Exception as exc2:
+                print(f"JS click also failed for event_id={event_id_text}: {exc2}")
+                NBS.go_to_home()
+                what_do.append("Unable to open event row")
+                hist[event_id].append("Unable to open event row")
                 continue
 
-        if anc is None:
-            raise NoSuchElementException(
-                f"Could not locate row anchor for event_id={event_id_text} using any fallback XPath."
-            )
+        # Wait for the event details page / patient file link to appear after opening the row.
+        successful_click_xpath = None
+        event_row_loaded = False
+        event_row_wait_xpaths = [
+            '//*[@id="Name"]',
+            '//*[@id="Dob"]',
+            '//*[@id="Sex"]',
+            '//*[@id="doc3"]/div[1]/a[1]',
+            '//*[@id="tabs0head1"]',
+        ]
+        for attempt in range(8):
+            for check_xpath in event_row_wait_xpaths:
+                if NBS.find_elements(By.XPATH, check_xpath):
+                    event_row_loaded = True
+                    print(f"Event row appeared with xpath: {check_xpath}")
+                    break
+            if event_row_loaded:
+                break
+            print(f"Waiting for event row to open after clicking, retry {attempt}")
+            time.sleep(1)
 
-        anc.click()
-        
+        if not event_row_loaded:
+            print(
+                f"Event row did not open after clicking for event_id={event_id_text}."
+            )
+            print("No additional fallback XPath attempts configured; skipping event.")
+            NBS.go_to_home()
+            what_do.append("Event row did not open")
+            hist[event_id].append("Event row did not open")
+            continue
+
+        if event_row_loaded:
+            print(f"Event row confirmed open for event_id={event_id_text}")
+
         skip_patient = False
+        pat_name_elem = None
         #check the patient name if it is a source patient skip, look for numbers in the name
         for i in range(3):
             try:
-                #pat_name_elem = NBS.find_element(By.XPATH, '//*[@id="Name"]')
-                #pat_name = pat_name_elem.text
-                pat_name_elem = NBS.find_element(By.XPATH,'//*[@id="Name"]')
+                pat_name_elem = NBS.find_element(By.XPATH, '//*[@id="Name"]')
                 pat_name = pat_name_elem.text
                 if bool(re.search(r'\d', pat_name)) or bool(re.search(r'SRC', pat_name)):
                     print("Source patient, skip")
                     print(f"incrementing what_do for index: {loop.n}")
                     skip_patient = True
                 break
-            except NoSuchElementException as e:
+            except NoSuchElementException:
                 print(f"No patient name found, retrying {i}")
+                time.sleep(1)
             except Exception as e:
                 print(f"exception: {e} occurred for source patient skip, trying again... retry_number: {i}")
+                time.sleep(1)
+
+        if pat_name_elem is None:
+            print(f"Patient name element still missing after opening event row for event_id={event_id_text}; skipping.")
+            NBS.go_to_home()
+            what_do.append("Patient name not found")
+            hist[event_id].append("Patient name not found")
+            continue
+
         if skip_patient:
             NBS.go_to_home()
             what_do.append("Source patient, skip")
             print(f"eventid = {event_id} and action = {what_do}")
             hist[event_id].append("Source patient, skip")
             continue
-        
-        #grab the patients age, if younger the 3 years do not continue
-        '''no_bod = false
-        for i in range(3):
-            try:
-                pat_dob_elem = NBS.find_element(By.XPATH, '//*[@id="Dob"]')
-                pat_dob_text = pat_dob_elem.text
-                pat_dob_date = re.findall(r'\b\d{2}/\d{2}/\d{4}\b',pat_dob_text)[0]
-                pat_dob = datetime.strptime(pat_dob_date, '%m/%d/%Y').date()
-                break
-            except NoSuchElementException as e:
-                print(f"No patient DOB found  retrying {i}")
-        if no_bod:
-            NBS.go_to_home()
-            what_do.append("no date of birth for patient, skip")
-            print(f"eventid = {event_id} and action = {what_do}")
-            hist[event_id].append("no date of birth for patient, skip")
-            continue'''
-        
-        no_dob = False
 
+        no_dob = False
+        pat_dob = None
         for i in range(3):
             try:
                 pat_dob_elem = NBS.find_element(By.XPATH, '//*[@id="Dob"]')
                 pat_dob_text = pat_dob_elem.text.strip()
-
                 matches = re.findall(r'\b\d{2}/\d{2}/\d{4}\b', pat_dob_text)
-
                 if not matches:
                     no_dob = True
                     break
-
                 pat_dob = datetime.strptime(matches[0], '%m/%d/%Y').date()
                 break
-
             except NoSuchElementException:
                 print(f"No patient DOB element found, retrying {i + 1}")
+                time.sleep(1)
+            except Exception as e:
+                print(f"exception: {e} occurred reading patient DOB, retry_number: {i + 1}")
+                time.sleep(1)
 
-        if no_dob:
+        if no_dob or pat_dob is None:
             NBS.go_to_home()
             what_do.append("No date of birth for patient, skipped")
             print(f"eventid = {event_id} and action = {what_do}")
             hist[event_id].append("No date of birth for patient, skipped")
             continue
-        #grab the patient gender, we are going to let an epi take care of inveg=tigations for females age 14-39
+
+        pat_gen = None
         for i in range(3):
             try:
                 pat_gen_elem = NBS.find_element(By.XPATH, '//*[@id="Sex"]')
                 pat_gen = pat_gen_elem.text
                 break
-            except NoSuchElementException as e:
+            except NoSuchElementException:
                 print(f"No patient sex found, retrying {i}")
-        
-        
-        #go to the patient file to review investigations
-        for i in range(3):
-            try:
-                timeout= NBS.wait_before_timeout + i*10
-                WebDriverWait(NBS, timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="doc3"]/div[1]/a[1]')))
-                NBS.find_element(By.XPATH, '//*[@id="doc3"]/div[1]/a[1]').click()
-                break
-            except TimeoutException:
-                print(f"Timeout waiting for patient file, retry_number: {i}")
-            except StaleElementReferenceException:
-                print(f"StaleElementReferenceException for patient file, trying again... retry_number: {i}")
+                time.sleep(1)
             except Exception as e:
-                print(f"exception: {e} occurred for patient file, trying again... retry_number: {i}")
-        
-        time.sleep(3)
-        
+                print(f"exception: {e} occurred reading patient sex, retry_number: {i}")
+                time.sleep(1)
+
+        if pat_gen is None:
+            NBS.go_to_home()
+            what_do.append("No patient sex for patient, skipped")
+            print(f"eventid = {event_id} and action = {what_do}")
+            hist[event_id].append("No patient sex for patient, skipped")
+            continue
+
+        #go to the patient file to review investigations
+        patient_file_paths = ['//*[@id="doc3"]/div[1]/a[1]', '//*[@id="doc3"]/div[1]/a']
+        patient_file_opened = False
+        for path in patient_file_paths:
+            if safe_click(path, 'patient file link', primary_attempts=3, fallback_attempts=3, primary_step=5, fallback_step=5):
+                patient_file_opened = True
+                break
+
+        if not patient_file_opened:
+            print(f"Unable to open patient file for event_id={event_id_text}; skipping this ELR.")
+            NBS.go_to_home()
+            what_do.append("Unable to open patient file")
+            hist[event_id].append("Unable to open patient file")
+            continue
+
+        #Wait for the patient file events tab to be available
+        try:
+            WebDriverWait(NBS, NBS.wait_before_timeout).until(
+                EC.element_to_be_clickable((By.XPATH, '//*[@id="tabs0head1"]'))
+            )
+        except Exception as e:
+            print(f"Unable to open patient file events tab for event_id={event_id_text}: {e}")
+            NBS.go_to_home()
+            what_do.append("Patient file events tab not available")
+            hist[event_id].append("Patient file events tab not available")
+            continue
+
         #Go to events tab
         for i in range(3):
             try:
                 timeout= NBS.wait_before_timeout + i*10
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="tabs0head1"]')))
+                WebDriverWait(NBS, timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="tabs0head1"]')))
                 NBS.find_element(By.XPATH, '//*[@id="tabs0head1"]').click()
                 break
             except TimeoutException:
@@ -1511,11 +1554,11 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
             #set this to option[2] for open or option[1] for closed
 
             '''if len(NBS.incomplete_address_log) > 0: 
-                closed_option = '//*[@id="INV109"]/option[2]'    #open
+                closed_option = '//*[@id="INV109"]/option[3]'    #open
             else:
-                closed_option = '//*[@id="INV109"]/option[1]'  ''' #closed
+                closed_option = '//*[@id="INV109"]/option[2]'  ''' #closed
             
-            closed_option = '//*[@id="INV109"]/option[1]'
+            closed_option = '//*[@id="INV109"]/option[2]'
             
 
             WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, investigation_status_down_arrow)))
