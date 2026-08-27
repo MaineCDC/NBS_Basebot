@@ -1544,21 +1544,12 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
             
             NBS.GoToCaseInfo()
             investigation_status_down_arrow = '//*[@id="NBS_UI_19"]/tbody/tr[4]/td[2]/img'
-            '''open_option = '//*[@id="INV109"]/option[2]'
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, investigation_status_down_arrow)))
-            NBS.find_element(By.XPATH, investigation_status_down_arrow).click()
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, open_option)))
-            NBS.find_element(By.XPATH, open_option).click()''' 
                
             #set investigation status to open or closed
             #set this to option[2] for open or option[1] for closed
 
-            '''if len(NBS.incomplete_address_log) > 0: 
-                closed_option = '//*[@id="INV109"]/option[3]'    #open
-            else:
-                closed_option = '//*[@id="INV109"]/option[2]'  ''' #closed
             
-            closed_option = '//*[@id="INV109"]/option[2]'
+            closed_option = '//*[@id="INV109"]/option[1]'
             
 
             WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, investigation_status_down_arrow)))
