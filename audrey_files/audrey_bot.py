@@ -1549,7 +1549,7 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
             #set this to option[2] for open or option[1] for closed
 
             
-            closed_option = '//*[@id="INV109"]/option[1]'
+            closed_option = '//*[@id="INV109"]/option[2]'
             
 
             WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, investigation_status_down_arrow)))
@@ -2002,7 +2002,7 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
                 
             #set investigation status to closed
             investigation_status_down_arrow = '//*[@id="NBS_UI_19"]/tbody/tr[4]/td[2]/img'
-            closed_option = '//*[@id="INV109"]/option[1]' 
+            closed_option = '//*[@id="INV109"]/option[2]' 
             WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, investigation_status_down_arrow)))
             NBS.find_element(By.XPATH, investigation_status_down_arrow).click()
             WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, closed_option)))

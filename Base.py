@@ -74,7 +74,7 @@ class NBSdriver(webdriver.Chrome):
         # 0 means the disease has no cases in the queue. None until SortQueue runs.
         self.condition_filter_matches: int | None = None
         self.wait_before_timeout = 30
-        self.sleep_duration = 3300  # adjust if needed
+        self.sleep_duration = 1800  # adjust if needed
         
         # Build driver (inherit from Chrome)
         options = webdriver.ChromeOptions()

@@ -220,10 +220,10 @@ def run_bots():
 
         # Use 55 minutes between cycles when only Athena and Strep are selected.
         # Allow an explicit override via the IDLE_BACKOFF_SECONDS environment variable.
-        default_backoff = 3300 if len(targets) == 2 and set(targets) == {start_athena, start_strep} else IDLE_BACKOFF_SECONDS
+        default_backoff = 1800 if len(targets) == 2 and set(targets) == {start_athena, start_strep} else IDLE_BACKOFF_SECONDS
         sleep_seconds = int(os.getenv("IDLE_BACKOFF_SECONDS", str(default_backoff)))
-        if sleep_seconds == 3300 and os.getenv("IDLE_BACKOFF_SECONDS") is None:
-            print("Selected Athena + Strep; using 55-minute idle backoff between cycles.")
+        if sleep_seconds == 1800 and os.getenv("IDLE_BACKOFF_SECONDS") is None:
+            print("Selected Athena + Strep; using 30-minute idle backoff between cycles.")
 
         # CONTINUOUS ROUND-ROBIN: run the selected bots in the user's order,
         # over and over. The FIRST bot of the FIRST cycle performs the single
