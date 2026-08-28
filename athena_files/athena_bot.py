@@ -29,7 +29,7 @@ def start_athena(username, password, login_complete: Event = None, is_logged_in=
     # otherwise has NO iteration cap and would spin indefinitely on it.
     skipped_names = set()
     # Backstop so a stuck case can't loop forever (athena previously had no cap).
-    limit = int(os.getenv("MAX_CASES_PER_PASS", "500"))
+    limit = int(os.getenv("MAX_CASES_PER_PASS", "500000"))
     # Athena previously had NO exception handling around the loop body (the
     # try/except was commented out), so any per-case error ended the whole pass.
     # Count consecutive errors so a transient failure is retried but a persistently
