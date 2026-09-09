@@ -139,7 +139,18 @@ def start_strep(username, password, login_complete=None, is_logged_in=False):
                     reason.append('No issues found.')
                     print("Approved Notification")
                     NBS.ReturnApprovalQueue()
-                    NBS.ApproveNotification()
+                    NBS.SortApprovalQueue()
+                    if NBS.queue_loaded:
+                        NBS.queue_loaded = None
+                        continue
+                    NBS.CheckFirstCase()
+                    NBS.final_name = NBS.patient_name
+                    if NBS.final_name == NBS.initial_name:
+                        NBS.ApproveNotification()
+                        actioned = True
+                    elif NBS.final_name != NBS.initial_name:
+                        print('Case at top of queue changed. No action was taken on the reviewed case.')
+                        NBS.num_fail += 1
                     actioned = True
                     #NBS.SendStrepEmail("Hey, please don't change anything at all and just click CN", inv_id)
                 

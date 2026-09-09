@@ -85,8 +85,19 @@ def start_athena(username, password, login_complete: Event = None, is_logged_in=
                 actioned = False
                 if not NBS.issues:
                     NBS.ReturnApprovalQueue()
-                    NBS.ApproveNotification()
-                    actioned = True
+                    
+                    NBS.SortApprovalQueue()
+                    if NBS.queue_loaded:
+                        NBS.queue_loaded = None
+                        continue
+                    NBS.CheckFirstCase()
+                    NBS.final_name = NBS.patient_name
+                    if NBS.final_name == NBS.initial_name:
+                        NBS.ApproveNotification()
+                        actioned = True
+                    elif NBS.final_name != NBS.initial_name:
+                        print('Case at top of queue changed. No action was taken on the reviewed case.')
+                        NBS.num_fail += 1
                 
                 if NBS.queue_loaded:
                     NBS.queue_loaded = None
