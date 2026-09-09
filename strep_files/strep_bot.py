@@ -133,12 +133,13 @@ def start_strep(username, password, login_complete=None, is_logged_in=False):
                 # Track whether the case actually left the queue. If it did NOT,
                 # advance past it; if it did, rows shifted up so rescan from row 1.
                 actioned = False
+                NBS.ReturnApprovalQueue()
                 if not NBS.issues:
                     reviewed_ids.append(inv_id)
                     what_do.append("Approved Notification")
                     reason.append('No issues found.')
                     print("Approved Notification")
-                    NBS.ReturnApprovalQueue()
+                    
                     NBS.SortApprovalQueue()
                     if NBS.queue_loaded:
                         NBS.queue_loaded = None
