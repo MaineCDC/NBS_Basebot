@@ -551,22 +551,22 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
             continue
 
         # Go to the patient file using the exact NBS path supplied for this site.
-        def patient_file_opened(self):
-            for i in range(3):
-                try:
-                    timeout= NBS.wait_before_timeout + i*10
-                    patient_file_path = '//*[@id="doc3"]/form/div[1]/a[1]'
-                    WebDriverWait(NBS, timeout).until(EC.element_to_be_clickable((By.XPATH, patient_file_path)))
-                    
-                    NBS.find_element(By.XPATH, patient_file_path).click()
-                    break
-                except TimeoutException:
-                    print(f"Timeout waiting for events tab, retry_number: {i}")
-                except StaleElementReferenceException:
-                    print(f"StaleElementReferenceException for events tab, trying again... retry_number: {i}")
-                except Exception as e:
-                    print(f"exception: {e} occurred for events tab, trying again... retry_number: {i}")
-                 
+        patient_file_opened = False
+        for i in range(3):
+            try:
+                timeout= NBS.wait_before_timeout + i*10
+                patient_file_path = '//*[@id="doc3"]/form/div[1]/a[1]'
+                WebDriverWait(NBS, timeout).until(EC.element_to_be_clickable((By.XPATH, patient_file_path)))
+                
+                NBS.find_element(By.XPATH, patient_file_path).click()
+                patient_file_opened = True
+                break
+            except TimeoutException:
+                print(f"Timeout waiting for events tab, retry_number: {i}")
+            except StaleElementReferenceException:
+                print(f"StaleElementReferenceException for events tab, trying again... retry_number: {i}")
+            except Exception as e:
+                print(f"exception: {e} occurred for events tab, trying again... retry_number: {i}")   
 
         if not patient_file_opened:
             print(f"Unable to open patient file for event_id={event_id_text}; skipping this ELR.")
