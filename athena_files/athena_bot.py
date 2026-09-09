@@ -83,8 +83,9 @@ def start_athena(username, password, login_complete: Event = None, is_logged_in=
                     NBS.CaseInvestigatorReview()
 
                 actioned = False
+                NBS.ReturnApprovalQueue()
                 if not NBS.issues:
-                    NBS.ReturnApprovalQueue()
+                    
                     
                     NBS.SortApprovalQueue()
                     if NBS.queue_loaded:
