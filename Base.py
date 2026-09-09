@@ -1744,14 +1744,19 @@ class NBSdriver(webdriver.Chrome):
         """
         from time import sleep
 
+        if xpath.endswith("/text()"):
+            xpath = xpath[:-7]
+        if '//*[@id="avoidBackButton"]' in xpath:
+            return ""
+
         for i in range(self.num_attempts):
             try:
                 value = self.find_element(By.XPATH, xpath).get_attribute("innerText")
                 value = value.replace("\n", "")
                 return value
             except NoSuchElementException:
-                sleep((i + 1) * 10)
                 print(f"no value ReadText for xpath: {xpath}, retry_number:{i}")
+                return ""
             except TimeoutException:
                 print(
                     f"Timeout waiting for ReadText for xpath: {xpath}, retry_number: {i}"
@@ -3142,52 +3147,68 @@ class NBSdriver(webdriver.Chrome):
             )
 
     def GoToApprovalQueue(self):
-        """Navigate to approval queue from Home page."""
-        # On the new test site the home-page worklist link's click is intercepted
-        # by a JS handler and never navigates, so go straight to the worklist URL.
-        # Production keeps the original click-the-link behavior.
-        if not self.production:
-            base = self.site.split("HomePage.do")[0]
-            self.get(base + "MyTaskList1.do?ContextAction=NNDApproval&initLoad=true")
+#Go to Document Requiring Review
+        for i in range(3):
             try:
-                WebDriverWait(self, self.wait_before_timeout).until(
-                    EC.presence_of_element_located((By.XPATH, '//*[@id="removeFilters"]'))
-                )
+                timeout = self.wait_before_timeout + i*10
+                partial_link = 'Approval Queue for Initial Notifications'
+                WebDriverWait(self,timeout).until(EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT, partial_link)))
+                time.sleep(1)
+                self.find_element(By.PARTIAL_LINK_TEXT, partial_link).click()
+                break
             except TimeoutException:
-                self.HandleBadQueueReturn()
-            return
+                print(f"TimeoutException for {partial_link}, trying again... retry_number: {i}")
+            except StaleElementReferenceException:
+                print(f"StaleElementReferenceException for partial_link, trying again... retry_number: {i}")
+            except Exception as e:
+                print(f"Error occurred while clicking on {partial_link}: {e}")
+                continue
+        # """Navigate to approval queue from Home page."""
+        # # On the new test site the home-page worklist link's click is intercepted
+        # # by a JS handler and never navigates, so go straight to the worklist URL.
+        # # Production keeps the original click-the-link behavior.
+        # if not self.production:
+        #     base = self.site.split("HomePage.do")[0]
+        #     self.get(base + "MyTaskList1.do?ContextAction=NNDApproval&initLoad=true")
+        #     try:
+        #         WebDriverWait(self, self.wait_before_timeout).until(
+        #             EC.presence_of_element_located((By.XPATH, '//*[@id="removeFilters"]'))
+        #         )
+        #     except TimeoutException:
+        #         self.HandleBadQueueReturn()
+        #     return
 
-        partial_link = "Approval Queue for Initial Notifications"
-        try:
-            # Clear any loading overlay so the link click isn't intercepted by a
-            # stuck blockparent (the failure mode that froze the HepB bot).
-            self.dismiss_block_overlay()
-            WebDriverWait(self, self.wait_before_timeout).until(
-                EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, partial_link))
-            )
-            self.find_element(By.PARTIAL_LINK_TEXT, partial_link).click()
-        except (TimeoutException, ElementClickInterceptedException):
-            # The Home-page link isn't there/clickable -- this happens on the
-            # transient "NBS Redirecting Page" after a warm-session portal click,
-            # or when a stuck overlay intercepts the click. Fall back to navigating
-            # straight to the approval-queue URL (the same one a successful run
-            # lands on), which is robust to both and tears down a frozen overlay.
-            try:
-                print(f"GoToApprovalQueue: '{partial_link}' link not found/clickable. "
-                      f"current_url={self.current_url!r} title={self.title!r} "
-                      f"window_handles={len(self.window_handles)}; "
-                      f"falling back to direct queue URL.")
-            except Exception:
-                pass
-            queue_url = self.site.rstrip("/") + "/nbs/MyTaskList1.do?ContextAction=NNDApproval&initLoad=true"
-            try:
-                self.get(queue_url)
-                WebDriverWait(self, self.wait_before_timeout).until(
-                    EC.presence_of_element_located((By.XPATH, '//*[@id="removeFilters"]'))
-                )
-                return
-            except TimeoutException:
-                self.HandleBadQueueReturn()
+        # partial_link = "Approval Queue for Initial Notifications"
+        # try:
+        #     # Clear any loading overlay so the link click isn't intercepted by a
+        #     # stuck blockparent (the failure mode that froze the HepB bot).
+        #     self.dismiss_block_overlay()
+        #     WebDriverWait(self, self.wait_before_timeout).until(
+        #         EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, partial_link))
+        #     )
+        #     self.find_element(By.PARTIAL_LINK_TEXT, partial_link).click()
+        # except (TimeoutException, ElementClickInterceptedException):
+        #     # The Home-page link isn't there/clickable -- this happens on the
+        #     # transient "NBS Redirecting Page" after a warm-session portal click,
+        #     # or when a stuck overlay intercepts the click. Fall back to navigating
+        #     # straight to the approval-queue URL (the same one a successful run
+        #     # lands on), which is robust to both and tears down a frozen overlay.
+        #     try:
+        #         print(f"GoToApprovalQueue: '{partial_link}' link not found/clickable. "
+        #               f"current_url={self.current_url!r} title={self.title!r} "
+        #               f"window_handles={len(self.window_handles)}; "
+        #               f"falling back to direct queue URL.")
+        #     except Exception:
+        #         pass
+        #     queue_url = self.site.rstrip("/") + "/nbs/MyTaskList1.do?ContextAction=NNDApproval&initLoad=true"
+        #     try:
+        #         self.get(queue_url)
+        #         WebDriverWait(self, self.wait_before_timeout).until(
+        #             EC.presence_of_element_located((By.XPATH, '//*[@id="removeFilters"]'))
+        #         )
+        #         return
+        #     except TimeoutException:
+        #         self.HandleBadQueueReturn()
 
     def ReturnApprovalQueue(self):
         """Return to Approval Queue from an investigation initially accessed from the queue."""
@@ -4119,14 +4140,19 @@ class NBSdriver(webdriver.Chrome):
         """
         from time import sleep
 
+        if xpath.endswith("/text()"):
+            xpath = xpath[:-7]
+        if '//*[@id="avoidBackButton"]' in xpath:
+            return ""
+
         for i in range(self.num_attempts):
             try:
                 value = self.find_element(By.XPATH, xpath).get_attribute("innerText")
                 value = value.replace("\n", "")
                 return value
             except NoSuchElementException:
-                sleep((i + 1) * 10)
                 print(f"no value ReadText for xpath: {xpath}, retry_number:{i}")
+                return ""
             except TimeoutException:
                 print(
                     f"Timeout waiting for ReadText for xpath: {xpath}, retry_number: {i}"
@@ -4506,17 +4532,16 @@ class NBSdriver(webdriver.Chrome):
         xpath = '//*[@id="INV167"]'
         self.find_element(By.XPATH, xpath).send_keys(note)
 
-    def RejectNotification(self, n: int = 1):
+    def RejectNotification(self, n: int = 2):
         """
         Reject notification on nth case in notification queue.
         To be used when issues were encountered during review of the case.
         """
         print("issues seen in reject:", self.issues)
-        reject_path = f'//*[@id="parent"]/tbody/tr[{n}]/td[2]/img'
+        reject_path = f'//*[@id="parent"]/tbody/tr[1]/td[{n}]/img'
+        #//*[@id="parent"]/tbody/tr[1]/td[2]/img
         main_window_handle = self.current_window_handle
-        WebDriverWait(self, self.wait_before_timeout).until(
-            EC.element_to_be_clickable((By.XPATH, reject_path))
-        )
+        WebDriverWait(self, self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, reject_path)))
         self.find_element(By.XPATH, reject_path).click()
         rejection_comment_window = None
         print("rejection windows: ", self.window_handles, "current_window: ", main_window_handle)
@@ -4550,33 +4575,45 @@ class NBSdriver(webdriver.Chrome):
             self.switch_to.window(main_window_handle)
             self.num_rejected += 1
 
-    def ApproveNotification(self):
+    def ApproveNotification(self, n: int = 1):
         """Approve notification on first case in notification queue."""
-        main_window_handle = self.current_window_handle
-        self.find_element(By.XPATH, '//*[@id="createNoti"]').click()
-        approval_comment_window = None
-        handles = self.window_handles
-        for handle in handles:
-            self.switch_to.window(handle)
-            print(self.title)
+        approval_path = f'//*[@id="parent"]/tbody/tr[1]/td[{n}]/img'
+        main_window_handle = getattr(self, "main_window_handle", self.current_window_handle)
+        WebDriverWait(
+            self,
+            self.wait_before_timeout,
+        ).until(EC.element_to_be_clickable((By.XPATH, approval_path)))
+        self.find_element(By.XPATH, approval_path).click()
 
-        # Guard against an IndexError when only one window is present (see
-        # RejectNotification); preserve the original selection otherwise.
-        if len(handles) > 2:
-            approval_comment_window = handles[2]
-        elif len(handles) > 1:
-            approval_comment_window = handles[1]
-        else:
-            approval_comment_window = handles[0] if handles else None
-        # for handle in self.window_handles:
-        #     if handle != main_window_handle:
-        #         approval_comment_window = handle
-        #         break
-        if approval_comment_window:
-            self.switch_to.window(approval_comment_window)
-            self.find_element(By.XPATH, '//*[@id="botcreatenotId"]/input[1]').click()
-            self.switch_to.window(main_window_handle)
-            self.num_approved += 1
+        try:
+            WebDriverWait(self, self.wait_before_timeout).until(
+                lambda driver: len(driver.window_handles) > 1
+            )
+        except TimeoutException:
+            return
+
+        secondary_handles = [
+            handle for handle in self.window_handles if handle != main_window_handle
+        ]
+        if not secondary_handles:
+            return
+
+        self.switch_to.window(secondary_handles[-1])
+        submit_button = WebDriverWait(
+            self,
+            self.wait_before_timeout,
+        ).until(
+            EC.element_to_be_clickable(
+                (By.XPATH, '//*[@id="approve"]/table/tbody/tr[2]/td/input[1]')
+            )
+        )
+        submit_button.click()
+        self.switch_to.window(main_window_handle)
+        self.num_approved += 1
+
+    # Backward-compatible alias for the common spelling used elsewhere in the
+    # repo and in operator scripts.
+    ApprovalNotification = ApproveNotification
 
     # Email summary methods for specific bots
 

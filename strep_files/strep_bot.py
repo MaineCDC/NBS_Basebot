@@ -21,6 +21,7 @@ from email.message import EmailMessage
 
 from dotenv import load_dotenv
 import os
+from audrey_files.audrey import NBS
 from decorator import error_handle
 
 def generator():
@@ -138,10 +139,11 @@ def start_strep(username, password, login_complete=None, is_logged_in=False):
                     what_do.append("Approved Notification")
                     reason.append('No issues found.')
                     print("Approved Notification")
+                    NBS.ReturnApprovalQueue()
                     NBS.ApproveNotification()
                     actioned = True
                     #NBS.SendStrepEmail("Hey, please don't change anything at all and just click CN", inv_id)
-                NBS.ReturnApprovalQueue()
+                
                 if NBS.queue_loaded:
                     NBS.queue_loaded = None
                     continue

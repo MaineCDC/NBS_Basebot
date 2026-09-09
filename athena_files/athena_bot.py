@@ -84,9 +84,10 @@ def start_athena(username, password, login_complete: Event = None, is_logged_in=
 
                 actioned = False
                 if not NBS.issues:
+                    NBS.ReturnApprovalQueue()
                     NBS.ApproveNotification()
                     actioned = True
-                NBS.ReturnApprovalQueue()
+                
                 if NBS.queue_loaded:
                     NBS.queue_loaded = None
                     continue
