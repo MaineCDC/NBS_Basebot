@@ -5,6 +5,8 @@ Created on Tue Jan  9 13:14:44 2024
 @author: Jared.Strauch
 """
 import sys
+
+from selenium.common import NoAlertPresentException
 #sys.stdout = open('logfile.txt', 'w')
 class Logger:
     def __init__(self, filename):
@@ -55,6 +57,7 @@ def generator():
 
 reviewed_ids = []
 what_do = []
+action_offsets = []
 merges = []
 merge_ids = []
 #newly added lists to send emails to epi's
@@ -66,6 +69,19 @@ no_collection_date_ids = []
 below_36_months_ids = []
 send_inv_email_ids = []
 send_alt_email_ids = []
+
+def activity_dataframe():
+    actions = []
+    for index, start in enumerate(action_offsets):
+        end = action_offsets[index + 1] if index + 1 < len(action_offsets) else len(what_do)
+        actions.append("; ".join(str(action) for action in what_do[start:end]))
+    return pd.DataFrame({'Lab ID': reviewed_ids, 'Action': actions})
+
+def extract_reference_range_upper_limit(test_result):
+    match = re.search(r'(\d+(?:\.\d+)?\s*-\s*\d+(?:\.\d+)?)', str(test_result))
+    if match is None:
+        return None
+    return re.split(r'\s*-\s*', match.group(1))[-1]
 
 is_in_production = os.getenv('ENVIRONMENT', 'production') != 'development'
 
@@ -132,9 +148,35 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
 
         return False
 
+    def select_closed_investigation_status(driver, investigation_status_down_arrow):
+        """Select the Closed option based on text, not a hardcoded option index."""
+        try:
+            WebDriverWait(driver, driver.wait_before_timeout).until(
+                EC.element_to_be_clickable((By.XPATH, investigation_status_down_arrow))
+            ).click()
+            for attempt in range(5):
+                try:
+                    status_select = WebDriverWait(driver, driver.wait_before_timeout).until(
+                        EC.presence_of_element_located((By.ID, 'INV109'))
+                    )
+                    select = Select(status_select)
+                    for option in select.options:
+                        option_text = (option.text or '').strip().lower()
+                        if option_text == 'closed':
+                            option.click()
+                            return True
+                    time.sleep(1)
+                except (NoSuchElementException, StaleElementReferenceException, TimeoutException):
+                    time.sleep(1)
+            print('Closed investigation option not found in INV109 dropdown.')
+            return False
+        except Exception as e:
+            print(f'Unable to set investigation status to closed: {e}')
+            return False
+
     # These accumulator lists are module-level; clear them so a fresh round-robin
     # pass starts clean and doesn't re-save / re-email the previous pass's cases.
-    for _lst in (reviewed_ids, what_do, merges, merge_ids, Female_handled_epi_ids,
+    for _lst in (reviewed_ids, what_do, action_offsets, merges, merge_ids, Female_handled_epi_ids,
                  Hep_inv_assign_ids, caseless_assign_ids, perinatal_inv_ids,
                  no_collection_date_ids, below_36_months_ids, send_inv_email_ids,
                  send_alt_email_ids):
@@ -152,7 +194,7 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
         # loses at most that batch, not the whole pass.
         if loop.n and loop.n % save_every == 0 and reviewed_ids:
             NBS.safe_save_excel(
-                pd.DataFrame({'Lab ID': reviewed_ids, 'Action': what_do}),
+                activity_dataframe(),
                 f"Hepatitis_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx",
             )
         #Go to Document Requiring Review
@@ -407,6 +449,7 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
         #grab the first local ID we haven't reviewed and append it to the list for later use 
         event_id = review_queue_table["Local ID"].iloc[i]
         reviewed_ids.append(event_id) 
+        action_offsets.append(len(what_do))
         hist[event_id] = []
         #identify the element that has the event id to be reviewed and navigate to that Lab Report
         event_id_text = str(event_id).strip()
@@ -601,32 +644,40 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
             except Exception as e:
                 print(f"exception: {e} occurred for events tab, trying again... retry_number: {i}")
         
-        #if inv_found:
+        # if inv_found:
         no_start_date = False
         no_start_date_ids = []
-        #for idx, row in investigation_table.iterrows():
         investigation_table = NBS.read_investigation_table()
         date_value = False
-        #try:
+
         if investigation_table is not None and not investigation_table.empty:
-            for idx, row in investigation_table.iterrows():
-                investigation_table['Start Date'] = pd.to_datetime(investigation_table['Start Date'], errors = 'coerce')
-                if investigation_table['Start Date'].isna().any():
+            if "Condition" in investigation_table.columns:
+                hep_investigation_table = investigation_table[
+                    investigation_table["Condition"].fillna("").str.contains("hepatitis", case=False, na=False)
+                ].copy()
+            else:
+                hep_investigation_table = pd.DataFrame(columns=investigation_table.columns)
+
+            if not hep_investigation_table.empty and "Start Date" in hep_investigation_table.columns:
+                hep_investigation_table["Start Date"] = pd.to_datetime(
+                    hep_investigation_table["Start Date"], errors="coerce"
+                )
+
+                if hep_investigation_table["Start Date"].isna().any():
                     no_start_date = True
                     no_start_date_ids.append(event_id)
                     date_value = True
-                    break
-        #except NoSuchElementException:
         else:
             inv_found = False
             existing_not_a_case = False
-        if date_value == True:
+
+        if date_value:
             print("No start date for investigation")
             what_do.append("No start date for investigation")
             print(f"event_id: {event_id} and action: {what_do}")
             hist[event_id].append("No start date for investigation")
             NBS.go_to_home()
-            continue 
+            continue
             
         #Navigate to the lab report to be processed using the Event ID from the patient page
         for i in range(3):
@@ -1426,15 +1477,40 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
                 create_inv = False
                 update_status = False
                 update_inv_type = False
-        
+        #changed by vaishnavi on 9/29/2026 to check merges for negative rna labs as well.
+        #Grab the first and last name of the patient. NBS names can be FIRST LAST, FIRST I LAST, or carry a suffix.
+        #First token is the first name; last token is the last name, stepping back past a suffix (JR, SR, II...).
+        #Match the full first and last name against the patient list so unrelated people who only share the first
+        #couple of letters and a birth date are not falsely flagged as merges.
+        potiental_merge = False
+        name_tokens = pat_name.split()
+        suffixes = {"JR", "SR", "II", "III", "IV", "V"}
+        first_name = name_tokens[0]
+        last_name = name_tokens[-1]
+        if last_name.upper().strip(".,") in suffixes and len(name_tokens) >= 3:
+            last_name = name_tokens[-2]
+        first_name = first_name.upper().strip(",")
+        last_name = last_name.upper().strip(",")
+        matches = NBS.patient_list.loc[(NBS.patient_list.FIRST_NM == first_name) & (NBS.patient_list.LAST_NM == last_name) & (NBS.patient_list.BIRTH_DT == pat_dob)]
+        unique_profiles = matches.PERSON_PARENT_UID.unique()
+        if len(unique_profiles) >= 2:
+            print('Possible merge(s) found. Lab skipped.')
+            what_do.append('Possible merge(s) found. Lab skipped.')
+            print(f"eventid = {event_id} and action = {what_do}")
+            hist[event_id].append('Possible merge(s) found. Lab skipped.')
+            potiental_merge = True
+            merges.append(event_id)
+            merge_ids.append(str(unique_profiles))
+            NBS.go_to_home()
+            continue
         #Now that we have determined what action we want to take, we need to actually do it
         if mark_reviewed == True and create_inv == False and update_status == False:
             
             for i in range(3):
                 try:
                     timeout= NBS.wait_before_timeout + i*10
-                    WebDriverWait(NBS, timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="doc3"]/div[2]/table/tbody/tr/td[1]/input')))
-                    NBS.find_element(By.XPATH, '//*[@id="doc3"]/div[2]/table/tbody/tr/td[1]/input').click()
+                    WebDriverWait(NBS, timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="doc3"]/form/div[2]/table/tbody/tr/td[1]/input'))) #//*[@id="doc3"]/form/div[2]/table/tbody/tr/td[1]/input
+                    NBS.find_element(By.XPATH, '//*[@id="doc3"]/form/div[2]/table/tbody/tr/td[1]/input').click()
                     print("Mark as Reviewed")
                     what_do.append("Mark as Reviewed")
                     print(f"eventid = {event_id} and action = {what_do}")
@@ -1471,31 +1547,7 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
                 NBS.go_to_home()
                 continue
             
-            #Grab the first and last name of the patient. NBS names can be FIRST LAST, FIRST I LAST, or carry a suffix.
-            #First token is the first name; last token is the last name, stepping back past a suffix (JR, SR, II...).
-            #Match the full first and last name against the patient list so unrelated people who only share the first
-            #couple of letters and a birth date are not falsely flagged as merges.
-            potiental_merge = False
-            name_tokens = pat_name.split()
-            suffixes = {"JR", "SR", "II", "III", "IV", "V"}
-            first_name = name_tokens[0]
-            last_name = name_tokens[-1]
-            if last_name.upper().strip(".,") in suffixes and len(name_tokens) >= 3:
-                last_name = name_tokens[-2]
-            first_name = first_name.upper().strip(",")
-            last_name = last_name.upper().strip(",")
-            matches = NBS.patient_list.loc[(NBS.patient_list.FIRST_NM == first_name) & (NBS.patient_list.LAST_NM == last_name) & (NBS.patient_list.BIRTH_DT == pat_dob)]
-            unique_profiles = matches.PERSON_PARENT_UID.unique()
-            if len(unique_profiles) >= 2:
-                print('Possible merge(s) found. Lab skipped.')
-                what_do.append('Possible merge(s) found. Lab skipped.')
-                print(f"eventid = {event_id} and action = {what_do}")
-                hist[event_id].append('Possible merge(s) found. Lab skipped.')
-                potiental_merge = True
-                merges.append(event_id)
-                merge_ids.append(str(unique_profiles))
-                NBS.go_to_home()
-                continue
+            
         
             #check to make sure the address is from Maine
             WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="Address"]')))
@@ -1510,7 +1562,7 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
                 continue
             
             #create investigation
-            create_investigation_button_path = '//*[@id="doc3"]/div[2]/table/tbody/tr/td[2]/input[1]'
+            create_investigation_button_path = '//*[@id="doc3"]/form/div[2]/table/tbody/tr/td[2]/input[1]'
             WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, create_investigation_button_path)))
             NBS.find_element(By.XPATH, create_investigation_button_path).click()
             select_condition_field_path = '//*[@id="ccd_ac_table"]/tbody/tr[1]/td/input'
@@ -1555,29 +1607,8 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
             NBS.GoToCaseInfo()
             investigation_status_down_arrow = '//*[@id="NBS_UI_19"]/tbody/tr[4]/td[2]/img'
                
-            #set investigation status to open or closed
-            #set this to option[2] for open or option[1] for closed
-
-            
-            closed_option = '//*[@id="INV109"]/option[2]'
-            
-
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, investigation_status_down_arrow)))
-            NBS.find_element(By.XPATH, investigation_status_down_arrow).click()
-            for i in range(3):
-                try:
-                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, closed_option)))
-                    NBS.find_element(By.XPATH, closed_option).click()
-                    break
-                except TimeoutException:
-                    print(f"Timeout waiting for closed_option, retry_number: {i}")
-                except StaleElementReferenceException:
-                    print(f"StaleElementReferenceException for closed_option, trying again... retry_number: {i}")
-                except NoSuchElementException:
-                    print(f"No closed_option found, retry_number: {i}")
-                    time.sleep(1)
-                except Exception as e:
-                    print(f"{e} has occured for closed_option, retry_number: {i}")
+            #set investigation status to closed by label instead of a fixed DOM index
+            select_closed_investigation_status(NBS, investigation_status_down_arrow)
             NBS.set_state_case_id()
             NBS.set_county_and_state_report_dates(PH_report_date)
             #Reporting organization is automatically filled in
@@ -1686,12 +1717,17 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
                     elif not pd.isna(resulted_test_table["Text Result"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
                         genotype = resulted_test_table["Text Result"].str.extract(r'(\d+[A-Za-z])').loc[0,0]
                 elif resulted_test_table["Numeric Result"].iloc[0] != "":
-                    if type(resulted_test_table["Numeric Result"].iloc[0]) == float:
-                        genotype = int(resulted_test_table["Numeric Result"].iloc[0])
-                    elif pd.isna(resulted_test_table["Numeric Result"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
-                        genotype = resulted_test_table["Numeric Result"].str.extract(r'(\d+)').loc[0,0]
-                    elif not pd.isna(resulted_test_table["Numeric Result"].str.extract(r'(\d+[A-Za-z])').loc[0,0]):
-                        genotype = resulted_test_table["Numeric Result"].str.extract(r'(\d+[A-Za-z])').loc[0,0]
+                    numeric_result = resulted_test_table["Numeric Result"].iloc[0]
+                    if isinstance(numeric_result, (int, float, np.integer, np.floating)):
+                        genotype = int(numeric_result)
+                    else:
+                        numeric_result = str(numeric_result)
+                        genotype_match = re.search(r'(\d+[A-Za-z])', numeric_result)
+                        genotype = (
+                            genotype_match.group(1)
+                            if genotype_match
+                            else re.search(r'(\d+)', numeric_result).group(1)
+                        )
                 if genotype is not None:
                     NBS.find_element(By.XPATH, '//*[@id="ME121011"]').send_keys(genotype)
                 
@@ -1711,15 +1747,10 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
                             break
                 if not pd.isna(date_value):
                     NBS.find_element(By.XPATH, '//*[@id="INV826"]').send_keys(date_value.strftime('%m/%d/%Y'))
-                try:
-                    ref_range = re.findall(r'(\d+-\d+)',alt_lab["Test Results"].iloc[0])
-                    upper_limit_text = ref_range[0]
-                except IndexError:
-                    ref_range = re.findall(r'(\d+ - \d+)',alt_lab["Test Results"].iloc[0])
-                    upper_limit_text = ref_range[0]
-                upper_limit = upper_limit_text.rsplit('-',1)[-1]
-                WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV827"]')))
-                NBS.find_element(By.XPATH, '//*[@id="INV827"]').send_keys(upper_limit)
+                upper_limit = extract_reference_range_upper_limit(alt_lab["Test Results"].iloc[0])
+                if upper_limit:
+                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV827"]')))
+                    NBS.find_element(By.XPATH, '//*[@id="INV827"]').send_keys(upper_limit)
                 
             #WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="SubmitTop"]')))
             #NBS.find_element(By.XPATH, '//*[@id="SubmitTop"]').click()
@@ -1751,8 +1782,8 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
         elif update_status == True and create_inv == False:
             #update investigation status
             #go to events 
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="doc3"]/div[1]/a')))
-            NBS.find_element(By.XPATH,'//*[@id="doc3"]/div[1]/a').click()
+            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="doc3"]/form/div[1]/a')))
+            NBS.find_element(By.XPATH,'//*[@id="doc3"]/form/div[1]/a').click()
             #click on investigation date
             #WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, f"//a[contains(text(),'{inv_date.strftime('%m/%d/%Y')}')]")))
             #NBS.find_element(By.XPATH,f"//a[contains(text(),'{inv_date.strftime('%m/%d/%Y')}')]").click()
@@ -1765,21 +1796,51 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
                     print ("StaleElementReferenceException, trying again...")
                 except ElementNotInteractableException as e:
                     pass
-            #click edit 
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="delete"]')))
-            NBS.find_element(By.XPATH, '//*[@id="delete"]').click()
-            #click okay
+            # click edit
+            # click edit
+            for i in range(3):
+                try:
+                    WebDriverWait(NBS, NBS.wait_before_timeout).until(
+                        EC.element_to_be_clickable((By.XPATH, '//*[@id="delete"]'))
+                    )
+                    NBS.find_element(By.XPATH, '//*[@id="delete"]').click()
+                    break
+                except TimeoutException:
+                    print(f"Timeout waiting for edit button, retry_number: {i}")
+                except StaleElementReferenceException:
+                    print(f"StaleElementReferenceException for edit button, trying again... retry_number: {i}")
+                except Exception as e:
+                    print(f"exception: {e} occurred for edit button, trying again... retry_number: {i}")
+            time.sleep(2) 
+            # if the confirmation alert appears, accept it right away
             try:
-                WebDriverWait(NBS, 10).until(EC.alert_is_present())
-                NBS.switch_to.alert.accept()
-                time.sleep(5)
-            except TimeoutException:
+                WebDriverWait(NBS, 15).until(EC.alert_is_present())
+                alert = NBS.switch_to.alert
+                alert.accept()
+            except (TimeoutException, NoAlertPresentException):
                 pass
-            #click case info tab 
-            #WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="tabs0head1"]')))
-            #NBS.find_element(By.XPATH, '//*[@id="tabs0head1"]').click()
+
+            # wait for the edit page to finish loading before continuing
+            WebDriverWait(NBS, NBS.wait_before_timeout).until(lambda d: d.execute_script("return document.readyState") == "complete")
+            time.sleep(2)
+
+            # then continue to open the case info/edit page
             NBS.GoToCaseInfo()
-            time.sleep(1)
+            # #click edit 
+            # WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="delete"]')))
+            # NBS.find_element(By.XPATH, '//*[@id="delete"]').click()
+            # #click okay
+            # try:
+            #     WebDriverWait(NBS, 10).until(EC.alert_is_present())
+            #     NBS.switch_to.alert.accept()
+            #     time.sleep(5)
+            # except TimeoutException:
+            #     pass
+            # #click case info tab 
+            # #WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="tabs0head1"]')))
+            # #NBS.find_element(By.XPATH, '//*[@id="tabs0head1"]').click()
+            # NBS.GoToCaseInfo()
+            # time.sleep(1)
             
             #change confirmation method to laboratory confirmed
             WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="INV161"]/option[6]')))
@@ -1926,15 +1987,10 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
                     received_dt = pd.to_datetime(lab_report_table["Date Received"].iloc[0], errors='coerce')
                     if not pd.isna(received_dt):
                         NBS.find_element(By.XPATH, '//*[@id="INV826"]').send_keys(received_dt.strftime('%m/%d/%Y'))
-                    try:
-                        ref_range = re.findall(r'(\d+-\d+)',alt_lab["Test Results"].iloc[0])
-                        upper_limit_text = ref_range[0]
-                    except IndexError:
-                        ref_range = re.findall(r'(\d+ - \d+)',alt_lab["Test Results"].iloc[0])
-                        upper_limit_text = ref_range[0]
-                    upper_limit = upper_limit_text.rsplit('-',1)[-1]
-                    WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV827"]')))
-                    NBS.find_element(By.XPATH, '//*[@id="INV827"]').send_keys(upper_limit)
+                    upper_limit = extract_reference_range_upper_limit(alt_lab["Test Results"].iloc[0])
+                    if upper_limit:
+                        WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INV827"]')))
+                        NBS.find_element(By.XPATH, '//*[@id="INV827"]').send_keys(upper_limit)
             #click on submit
             for i in range(3):
                 try:
@@ -2010,13 +2066,9 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
                 WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, '//*[@id="DEM196"]')))
                 NBS.find_element(By.XPATH, '//*[@id="DEM196"]').send_keys(f'\nNew ALT lab >200 within 3 months. Case classification is changed from chronic to confirmed acute. -nbsbot Lab Id: {event_id} -nbsbot {NBS.now_str}')
                 
-            #set investigation status to closed
+            #set investigation status to closed by label instead of a fixed DOM index
             investigation_status_down_arrow = '//*[@id="NBS_UI_19"]/tbody/tr[4]/td[2]/img'
-            closed_option = '//*[@id="INV109"]/option[2]' 
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, investigation_status_down_arrow)))
-            NBS.find_element(By.XPATH, investigation_status_down_arrow).click()
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, closed_option)))
-            NBS.find_element(By.XPATH, closed_option).click()
+            select_closed_investigation_status(NBS, investigation_status_down_arrow)
             #set case status to confirmed
             WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.presence_of_element_located((By.XPATH, case_status_path)))
             NBS.find_element(By.XPATH, case_status_path).send_keys("Confirmed")
@@ -2078,8 +2130,8 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
         #associate with investigation
         #click on associate button
         if associate == True:
-            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="doc3"]/div[2]/table/tbody/tr/td[2]/input[2]')))
-            NBS.find_element(By.XPATH, '//*[@id="doc3"]/div[2]/table/tbody/tr/td[2]/input[2]').click()
+            WebDriverWait(NBS,NBS.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="doc3"]/form/div[2]/table/tbody/tr/td[2]/input[2]')))
+            NBS.find_element(By.XPATH, '//*[@id="doc3"]/form/div[2]/table/tbody/tr/td[2]/input[2]').click()
             time.sleep(3)
             #identify investigation, name and date? maybe index from investigations table
             inv_to_assoc = investigation_table[investigation_table["Condition"].str.contains(test_condition)]
@@ -2206,10 +2258,7 @@ def start_audrey(username, password, login_complete=None, is_logged_in=False):
             print(f"{key}: {value}")
     
     
-    bot_act = pd.DataFrame(
-        {'Lab ID': reviewed_ids,
-        'Action': what_do
-        })
+    bot_act = activity_dataframe()
     NBS.safe_save_excel(bot_act, f"Hepatitis_bot_activity_{datetime.now().date().strftime('%m_%d_%Y')}.xlsx")
     print("Excel file created")
 

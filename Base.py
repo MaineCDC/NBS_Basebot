@@ -51,6 +51,7 @@ class NBSdriver(webdriver.Chrome):
         if self.production:
             # Production now uses the same InductiveHealth SSO flow as the test site.
             self.site = "https://menbs.inductivehealth.com/nbs/HomePage.do?method=loadHomePage"
+#https://menbs.inductivehealth.com/nbs/HomePage.do?method=loadHomePage
         else:
             # New NBS test site (migrated off the retired nbstest.state.me.us).
             # Hitting HomePage.do redirects to the InductiveHealth/Keycloak login
@@ -1170,13 +1171,27 @@ class NBSdriver(webdriver.Chrome):
 
     # adding code to read investigation table
     def read_investigation_table(self):
-        """Read the investigations table in the Events tab of a patient profile."""
+        """Read the investigations table in the Events tab of a patient profile.
+
+        Only hepatitis investigations are relevant to the Hepatitis review workflow,
+        and patient history can include unrelated conditions or blank dates that
+        should never crash parsing.
+        """
         investigation_table_path = '//*[@id="inv1"]'
         investigation_table = self.ReadTableToDF(investigation_table_path)
-        if isinstance(investigation_table, pd.DataFrame):
+        if not isinstance(investigation_table, pd.DataFrame):
+            return investigation_table
+
+        if "Condition" in investigation_table.columns:
+            investigation_table = investigation_table.loc[
+                investigation_table["Condition"].fillna("").str.contains("hepatitis", case=False, na=False)
+            ].copy()
+
+        if "Start Date" in investigation_table.columns:
             investigation_table["Start Date"] = pd.to_datetime(
-                investigation_table["Start Date"]
+                investigation_table["Start Date"], errors="coerce"
             )
+
         return investigation_table
 
     def go_to_investigation_by_index(self, index):
@@ -1206,35 +1221,28 @@ class NBSdriver(webdriver.Chrome):
 
     def click_submit(self):
         """Click submit button to save changes."""
-        submit_button_path = (
-            "/html/body/div/div/form/div[2]/div[1]/table[2]/tbody/tr/td[2]/table/tbody/"
-            "tr/td[1]/input"
+        submit_button_paths = (
+            '//*[@id="SubmitTop"]',
+            "//input[@type='submit' and (contains(translate(@value, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'submit') or contains(translate(@value, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'save'))]",
+            "/html/body/div/div/form/div[2]/div[1]/table[2]/tbody/tr/td[2]/table/tbody/tr/td[1]/input",
         )
         for i in range(3):
-            try:
-                timeout = self.wait_before_timeout + i * 10
-                element = WebDriverWait(self, timeout).until(
-                    EC.element_to_be_clickable((By.XPATH, submit_button_path))
-                )
-                element.click()
-                break
-            except TimeoutException:
-                print(
-                    f"TimeoutException for submit_button_path, trying again... retry_number: {i}"
-                )
-            except StaleElementReferenceException:
-                print(
-                    f"StaleElementReferenceException for submit_button_path, trying again... retry_number: {i}"
-                )
-            except NoSuchElementException:
-                print(
-                    f"No submit_button_path found, trying again... retry_number: {i}"
-                )
-                time.sleep(1)
-            except Exception as e:
-                print(
-                    f"{e} has occured for submit_button_path, retry_number: {i}"
-                )
+            timeout = self.wait_before_timeout + i * 10
+            for submit_button_path in submit_button_paths:
+                try:
+                    element = WebDriverWait(self, timeout).until(
+                        EC.element_to_be_clickable((By.XPATH, submit_button_path))
+                    )
+                    element.click()
+                    return True
+                except (TimeoutException, NoSuchElementException,
+                        StaleElementReferenceException,
+                        ElementClickInterceptedException):
+                    continue
+                except Exception as e:
+                    print(f"{e} occurred for submit_button_path: {submit_button_path}")
+            print(f"Submit button not found, retrying... retry_number: {i}")
+        return False
 
     def click_manage_associations_submit(self):
         """Click submit button in the Manage Associations window."""
@@ -1584,36 +1592,7 @@ class NBSdriver(webdriver.Chrome):
 
     ####################### Patient Status Check Methods ############################
 
-    def CheckDeath(self):
-        """If died from illness is yes or no, need a death date."""
-        self.patient_die_from_illness = self.CheckForValue(
-            '//*[@id="INV145"]',
-            "Died from illness must be yes or no.",
-        )
-        if self.patient_die_from_illness == "Yes":
-            death_date = self.ReadDate('//*[@id="INV146"]')
-            if not death_date:
-                self.issues.append("Date of death is blank.")
-            elif death_date > self.now:
-                self.issues.append("Date of death cannot be in the future")
-
-    def CheckHospitalization(self):
-        """Read hospitalization status. If yes need date and hospital."""
-        self.hospitalization_indicator = self.ReadText('//*[@id="INV128"]')
-        if self.hospitalization_indicator == "Yes":
-            hospital_name = self.ReadText('//*[@id="INV184"]')
-            if not hospital_name:
-                self.issues.append("Hospital name missing.")
-                print(f"hospitalization, hospital_name: {hospital_name}")
-            self.admission_date = self.ReadDate('//*[@id="INV132"]')
-            if not self.admission_date:
-                self.issues.append("Admission date is blank.")
-                print(f"hospitalization, admission_date: {self.admission_date}")
-            elif self.admission_date > self.now:
-                self.issues.append("Admission date cannot be in the future.")
-                print(f"hospitalization, admission_date: {self.admission_date}")
-        elif self.hospitalization_indicator not in ["Yes", "No"]:
-            self.issues.append("Patient hospitalization status not indicated.")
+    
 
     def CheckAdmissionDate(self):
         """Check for hospital admission date."""
@@ -1627,20 +1606,20 @@ class NBSdriver(webdriver.Chrome):
 
     def CheckDischargeDate(self):
         """Check for hospital discharge date."""
-        discharge_date = self.ReadDate('//*[@id="INV133"]')
+        
         if (
             self.patient_die_from_illness == "Yes"
             and self.hospitalization_indicator == "Yes"
-            and not discharge_date
+            and not self.discharge_date
         ):
             self.issues.append("Discharge date is blank.")
-        if discharge_date:
-            if self.admission_date and discharge_date < self.admission_date:
+        if self.discharge_date:
+            if self.admission_date and self.discharge_date < self.admission_date:
                 self.issues.append("Discharge date must be after admission date.")
-                print(f"discharge_date: {discharge_date}")
-            elif discharge_date > self.now:
+                print(f"self.discharge_date: {self.discharge_date}")
+            elif self.discharge_date > self.now:
                 self.issues.append("Discharge date cannot be in the future.")
-                print(f"discharge_date: {discharge_date}")
+                print(f"self.discharge_date: {self.discharge_date}")
 
     def CheckIllnessDurationUnits(self):
         """Read Illness duration units, should be either Day, Month, or Year."""
@@ -1932,9 +1911,17 @@ class NBSdriver(webdriver.Chrome):
             checkbox.click()
 
     def county_lookup(self, city, state):
-        """Use the Nominatim geocode service via geopy to look up county."""
-        geolocator = Nominatim(user_agent="nbsbot")
-        location = geolocator.geocode(city + ", " + state)
+        """Look up a county without letting an external geocoder stop a bot run."""
+        if not city or not state:
+            return ""
+
+        try:
+            geolocator = Nominatim(user_agent="nbsbot", timeout=5)
+            location = geolocator.geocode(city + ", " + state, timeout=5)
+        except Exception as e:
+            print(f"County lookup unavailable for {city}, {state}: {e}")
+            return ""
+
         if location:
             location = location[0].split(", ")
             county = [x for x in location if "County" in x]
@@ -2148,34 +2135,40 @@ class NBSdriver(webdriver.Chrome):
             EC.element_to_be_clickable((By.XPATH, reject_path))
         )
         self.find_element(By.XPATH, reject_path).click()
+
+        try:
+            WebDriverWait(self, self.wait_before_timeout).until(
+                lambda driver: len(driver.window_handles) > 1
+            )
+        except TimeoutException:
+            return
+
         rejection_comment_window = None
-        print("rejection windows: ", self.window_handles, "current_window: ", main_window_handle)
-        handles = self.window_handles
-        
-        for handle in handles:
+        for handle in self.window_handles:
+            if handle == main_window_handle:
+                continue
             self.switch_to.window(handle)
-            print(self.title)
-            # if handle != main_window_handle:
-            #     rejection_comment_window = handle
-            #     break
-        # Pick the comment popup window. Preserve the original index selection
-        # for the normal 2-3 window case, but guard against an IndexError when
-        # only a single window is present (which would otherwise crash the case).
-        if len(handles) > 2:
-            rejection_comment_window = handles[2]
-        elif len(handles) > 1:
-            rejection_comment_window = handles[1]
-        else:
-            rejection_comment_window = handles[0] if handles else None
+            if self.find_elements(By.XPATH, '//*[@id="rejectComments"]'):
+                rejection_comment_window = handle
+                break
+
+        if rejection_comment_window is None:
+            for handle in self.window_handles:
+                if handle != main_window_handle:
+                    rejection_comment_window = handle
+                    self.switch_to.window(handle)
+                    break
+
         if rejection_comment_window:
-            self.switch_to.window(rejection_comment_window)
+            reject_text = WebDriverWait(self, self.wait_before_timeout).until(
+                EC.visibility_of_element_located((By.XPATH, '//*[@id="rejectComments"]'))
+            )
             timestamp = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
             self.issues.append("-nbsbot " + timestamp)
-            self.find_element(By.XPATH, '//*[@id="rejectComments"]').send_keys(
-                " ".join(self.issues)
-            )
-            self.find_element(
-                By.XPATH, "/html/body/form/table/tbody/tr[3]/td/input[1]"
+            reject_text.clear()
+            reject_text.send_keys(" ".join(self.issues))
+            WebDriverWait(self, self.wait_before_timeout).until(
+                EC.element_to_be_clickable((By.XPATH, "/html/body/form/table/tbody/tr[3]/td/input[1]"))
             ).click()
             self.switch_to.window(main_window_handle)
             self.num_rejected += 1
@@ -3566,13 +3559,27 @@ class NBSdriver(webdriver.Chrome):
 
     # adding code to read investigation table
     def read_investigation_table(self):
-        """Read the investigations table in the Events tab of a patient profile."""
+        """Read the investigations table in the Events tab of a patient profile.
+
+        Only hepatitis investigations are relevant to the Hepatitis review workflow,
+        and patient history can include unrelated conditions or blank dates that
+        should never crash parsing.
+        """
         investigation_table_path = '//*[@id="inv1"]'
         investigation_table = self.ReadTableToDF(investigation_table_path)
-        if isinstance(investigation_table, pd.DataFrame):
+        if not isinstance(investigation_table, pd.DataFrame):
+            return investigation_table
+
+        if "Condition" in investigation_table.columns:
+            investigation_table = investigation_table.loc[
+                investigation_table["Condition"].fillna("").str.contains("hepatitis", case=False, na=False)
+            ].copy()
+
+        if "Start Date" in investigation_table.columns:
             investigation_table["Start Date"] = pd.to_datetime(
-                investigation_table["Start Date"]
+                investigation_table["Start Date"], errors="coerce"
             )
+
         return investigation_table
 
     def go_to_investigation_by_index(self, index):
@@ -3602,35 +3609,28 @@ class NBSdriver(webdriver.Chrome):
 
     def click_submit(self):
         """Click submit button to save changes."""
-        submit_button_path = (
-            "/html/body/div/div/form/div[2]/div[1]/table[2]/tbody/tr/td[2]/table/tbody/"
-            "tr/td[1]/input"
+        submit_button_paths = (
+            '//*[@id="SubmitTop"]',
+            "//input[@type='submit' and (contains(translate(@value, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'submit') or contains(translate(@value, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'save'))]",
+            "/html/body/div/div/form/div[2]/div[1]/table[2]/tbody/tr/td[2]/table/tbody/tr/td[1]/input",
         )
         for i in range(3):
-            try:
-                timeout = self.wait_before_timeout + i * 10
-                element = WebDriverWait(self, timeout).until(
-                    EC.element_to_be_clickable((By.XPATH, submit_button_path))
-                )
-                element.click()
-                break
-            except TimeoutException:
-                print(
-                    f"TimeoutException for submit_button_path, trying again... retry_number: {i}"
-                )
-            except StaleElementReferenceException:
-                print(
-                    f"StaleElementReferenceException for submit_button_path, trying again... retry_number: {i}"
-                )
-            except NoSuchElementException:
-                print(
-                    f"No submit_button_path found, trying again... retry_number: {i}"
-                )
-                time.sleep(1)
-            except Exception as e:
-                print(
-                    f"{e} has occured for submit_button_path, retry_number: {i}"
-                )
+            timeout = self.wait_before_timeout + i * 10
+            for submit_button_path in submit_button_paths:
+                try:
+                    element = WebDriverWait(self, timeout).until(
+                        EC.element_to_be_clickable((By.XPATH, submit_button_path))
+                    )
+                    element.click()
+                    return True
+                except (TimeoutException, NoSuchElementException,
+                        StaleElementReferenceException,
+                        ElementClickInterceptedException):
+                    continue
+                except Exception as e:
+                    print(f"{e} occurred for submit_button_path: {submit_button_path}")
+            print(f"Submit button not found, retrying... retry_number: {i}")
+        return False
 
     def click_manage_associations_submit(self):
         """Click submit button in the Manage Associations window."""
@@ -3982,10 +3982,9 @@ class NBSdriver(webdriver.Chrome):
 
     def CheckDeath(self):
         """If died from illness is yes or no, need a death date."""
-        self.patient_die_from_illness = self.CheckForValue(
-            '//*[@id="INV145"]',
-            "Died from illness must be yes or no.",
-        )
+        self.patient_die_from_illness = self.ReadText('//*[@id="INV145"]')
+        if not self.patient_die_from_illness:
+            self.issues.append("Died from illness is blank.")
         if self.patient_die_from_illness == "Yes":
             death_date = self.ReadDate('//*[@id="INV146"]')
             if not death_date:
@@ -3994,22 +3993,32 @@ class NBSdriver(webdriver.Chrome):
                 self.issues.append("Date of death cannot be in the future")
 
     def CheckHospitalization(self):
-        """Read hospitalization status. If yes need date and hospital."""
-        self.hospitalization_indicator = self.ReadText('//*[@id="INV128"]')
-        if self.hospitalization_indicator == "Yes":
-            hospital_name = self.ReadText('//*[@id="INV184"]')
-            if not hospital_name:
-                self.issues.append("Hospital name missing.")
-                print(f"hospitalization, hospital_name: {hospital_name}")
+            """Read hospitalization status. If yes need date and hospital."""
+            self.hospitalization_indicator = self.ReadText('//*[@id="INV128"]')
             self.admission_date = self.ReadDate('//*[@id="INV132"]')
-            if not self.admission_date:
-                self.issues.append("Admission date is blank.")
-                print(f"hospitalization, admission_date: {self.admission_date}")
-            elif self.admission_date > self.now:
-                self.issues.append("Admission date cannot be in the future.")
-                print(f"hospitalization, admission_date: {self.admission_date}")
-        elif self.hospitalization_indicator not in ["Yes", "No"]:
-            self.issues.append("Patient hospitalization status not indicated.")
+            hospital_name = self.ReadText('//*[@id="INV184"]')
+            self.discharge_date = self.ReadDate('//*[@id="INV133"]')
+            if self.hospitalization_indicator == "Yes":
+                if not self.discharge_date:
+                    if self.patient_die_from_illness != "Unknown":
+                        self.issues.append("patient died from illness is not unknown but discharge date is blank.")
+                elif self.discharge_date :
+                    if self.patient_die_from_illness in ["Blank","Unknown"]:
+                        self.issues.append("Patient hospitalization status is Yes and discharge date is present but patient died from illness is blank or unknown.")
+                if not hospital_name:
+                    self.issues.append("Hospital name missing.")
+                    print(f"hospitalization, hospital_name: {hospital_name}")
+                if not self.admission_date:
+                    self.issues.append("Admission date is blank.")
+                    print(f"hospitalization, admission_date: {self.admission_date}")
+                elif self.admission_date > self.now:
+                    self.issues.append("Admission date cannot be in the future.")
+                    print(f"hospitalization, admission_date: {self.admission_date}")
+            elif self.hospitalization_indicator == "No":
+                if self.patient_die_from_illness in ["Blank","Unknown"]:
+                    self.issues.append("Patient hospitalization status is No but patient died from illness is blank or unknown.")
+            elif self.hospitalization_indicator not in ["Yes", "No"]:
+                self.issues.append("Patient hospitalization status not indicated.")
 
     def CheckAdmissionDate(self):
         """Check for hospital admission date."""
@@ -4023,20 +4032,20 @@ class NBSdriver(webdriver.Chrome):
 
     def CheckDischargeDate(self):
         """Check for hospital discharge date."""
-        discharge_date = self.ReadDate('//*[@id="INV133"]')
+        self.discharge_date = self.ReadDate('//*[@id="INV133"]')
         if (
             self.patient_die_from_illness == "Yes"
             and self.hospitalization_indicator == "Yes"
-            and not discharge_date
+            and not self.discharge_date
         ):
             self.issues.append("Discharge date is blank.")
-        if discharge_date:
-            if self.admission_date and discharge_date < self.admission_date:
+        if self.discharge_date:
+            if self.admission_date and self.discharge_date < self.admission_date:
                 self.issues.append("Discharge date must be after admission date.")
-                print(f"discharge_date: {discharge_date}")
-            elif discharge_date > self.now:
+                print(f"self.discharge_date: {self.discharge_date}")
+            elif self.discharge_date > self.now:
                 self.issues.append("Discharge date cannot be in the future.")
-                print(f"discharge_date: {discharge_date}")
+                print(f"self.discharge_date: {self.discharge_date}")
 
     def CheckIllnessDurationUnits(self):
         """Read Illness duration units, should be either Day, Month, or Year."""
@@ -4328,9 +4337,17 @@ class NBSdriver(webdriver.Chrome):
             checkbox.click()
 
     def county_lookup(self, city, state):
-        """Use the Nominatim geocode service via geopy to look up county."""
-        geolocator = Nominatim(user_agent="nbsbot")
-        location = geolocator.geocode(city + ", " + state)
+        """Look up a county without letting an external geocoder stop a bot run."""
+        if not city or not state:
+            return ""
+
+        try:
+            geolocator = Nominatim(user_agent="nbsbot", timeout=5)
+            location = geolocator.geocode(city + ", " + state, timeout=5)
+        except Exception as e:
+            print(f"County lookup unavailable for {city}, {state}: {e}")
+            return ""
+
         if location:
             location = location[0].split(", ")
             county = [x for x in location if "County" in x]
@@ -4538,39 +4555,48 @@ class NBSdriver(webdriver.Chrome):
         To be used when issues were encountered during review of the case.
         """
         print("issues seen in reject:", self.issues)
-        reject_path = f'//*[@id="parent"]/tbody/tr[1]/td[{n}]/img'
+        reject_path = f'//*[@id="parent"]/tbody/tr[1]/td[2]/img'
         #//*[@id="parent"]/tbody/tr[1]/td[2]/img
         main_window_handle = self.current_window_handle
         WebDriverWait(self, self.wait_before_timeout).until(EC.element_to_be_clickable((By.XPATH, reject_path)))
         self.find_element(By.XPATH, reject_path).click()
+
+        try:
+            WebDriverWait(self, self.wait_before_timeout).until(
+                lambda driver: len(driver.window_handles) > 1
+            )
+        except TimeoutException:
+            return
+
         rejection_comment_window = None
         print("rejection windows: ", self.window_handles, "current_window: ", main_window_handle)
-        handles = self.window_handles
-        
-        for handle in handles:
+        for handle in self.window_handles:
+            if handle == main_window_handle:
+                continue
             self.switch_to.window(handle)
-            print(self.title)
-            # if handle != main_window_handle:
-            #     rejection_comment_window = handle
-            #     break
-        # Pick the comment popup window. Preserve the original index selection
-        # for the normal 2-3 window case, but guard against an IndexError when
-        # only a single window is present (which would otherwise crash the case).
-        if len(handles) > 2:
-            rejection_comment_window = handles[2]
-        elif len(handles) > 1:
-            rejection_comment_window = handles[1]
-        else:
-            rejection_comment_window = handles[0] if handles else None
+            if self.find_elements(By.XPATH, '//*[@id="rejectComments"]'):
+                rejection_comment_window = handle
+                print(f"Found rejection popup in window handle {handle}")
+                break
+
+        if rejection_comment_window is None:
+            rejection_comment_window = next(
+                (handle for handle in self.window_handles if handle != main_window_handle),
+                None,
+            )
+            if rejection_comment_window:
+                self.switch_to.window(rejection_comment_window)
+
         if rejection_comment_window:
-            self.switch_to.window(rejection_comment_window)
+            reject_text = WebDriverWait(self, self.wait_before_timeout).until(
+                EC.visibility_of_element_located((By.XPATH, '//*[@id="rejectComments"]'))
+            )
             timestamp = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
             self.issues.append("-nbsbot " + timestamp)
-            self.find_element(By.XPATH, '//*[@id="rejectComments"]').send_keys(
-                " ".join(self.issues)
-            )
-            self.find_element(
-                By.XPATH, "/html/body/form/table/tbody/tr[3]/td/input[1]"
+            reject_text.clear()
+            reject_text.send_keys(" ".join(self.issues))
+            WebDriverWait(self, self.wait_before_timeout).until(
+                EC.element_to_be_clickable((By.XPATH, "/html/body/form/table/tbody/tr[3]/td/input[1]"))
             ).click()
             self.switch_to.window(main_window_handle)
             self.num_rejected += 1
